@@ -41,7 +41,7 @@ const Wishlist = () => {
             status: 'In Stock',
             statusColor: '#059669',
             statusDot: '#10b981',
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCBNSSPqMiV_4Oa53MGhRi7owT3eJBl7ok0e43ag_ypjPkkSQYpwW9E4fFFMR00m23jQimGXznVwjs-RBriIV77omYIdy7lVUbgFX8JGUXfLKicozvBsAJvN8ioSSrgZ5K9Iw6wq1w1Rmsj-piAUu_9RDJy6VXoOaco6Uu8QgjnuxAo9EDMaCVUfzJA1ARXgpcSZsAnmJOGXbc5-L_07k3rqWPPXce4znUe_fvBD1rmeaFxQ6JCx49DrgeU50cfmg2JHO8BTwKfW9c"
+            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCBNSSPqMiV_4Oa53MGhRi7owT3eJBl7ok0e43ag_ypjPkkSQYpwW9E4fFFMR00m23jQimGXznVwjs-RBriIV77omYIdy7lVUbgFX8JGUXfLKicozvBsAJvN8ioSSrgZ5K9Iw6wq1w1Rmsj-piAUu_9RDJy6VXoOaco6Uu8QgjnuxAo9EDMaCVUfzJA1ARXgpcSZsAnmJOXZbc5-L_07k3rqWPPXce4znUe_fvBD1rmeaFxQ6JCx49DrgeU50cfmg2JHO8BTwKfW9c"
         },
         {
             id: 5,

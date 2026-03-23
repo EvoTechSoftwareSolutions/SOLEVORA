@@ -40,7 +40,7 @@ const Addresses = () => {
       country: 'United States',
       isDefault: false,
       mapImage:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuCI5_OQQC1F6r5oDW4tab3xLmZ2QN3Ot67W0Uazil8WaHshvm_lsryVjBr6eCpmVrTG3jetFrcJfAQ92GRZm2Qd4Alw4TjRmU2LCTYTZWPgRot8aeBNofUr2FPE1HL_djuKBXCnrHBBEvhvOTYAfHBfKXsl0pOcYrm9NTf-YaCiEm7iLT0IfMFuSvo9bhaOGIPLVmUqmCw8UMtYeP37Zz88-uU4qt3kr18gVBIcu-N1r9orVPlNTaP4WYVAc1WkmlfaAA89KY3GSo',
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuCI5_OQQC1F6r5oDW4tab3xLmZ2QN3Ot67W0Uazil8WaHshvm_lsryVjBr6eCpmVrTG3jetFrcJfAQ92GRZm2Q2d4Alw4TjRmU2LCTYTZWPgRot8aeBNofUr2FPE1HL_djuKBXCnrHBBEvhvOTYAfHBfKXsl0pOcYrm9NTf-YaCiEm7iLT0IfMFuSvo9bhaOGIPLVmUqmCw8UMtYeP37Zz88-uU4qt3kr18gVBIcu-N1r9orVPlNTaP4WYVAc1WkmlfaAA89KY3GSo',
     },
   ]);
 

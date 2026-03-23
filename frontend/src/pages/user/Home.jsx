@@ -15,7 +15,7 @@ const Home = () => {
             shipping, easy returns, and secure checkout — shop now and find
             something you’ll love.
           </p>
-          <Link to="/cart" className="shop-button">
+          <Link to="/product/1" className="shop-button">
             <ShoppingCartIcon className="icon" />
             <span>Shop now</span>
           </Link>

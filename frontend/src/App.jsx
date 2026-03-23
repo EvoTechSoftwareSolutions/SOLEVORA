@@ -1,59 +1,40 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-/* Import layout shells */
-import AdminLayout from './admin/AdminLayout';
-import ProfileLayout from './profile/ProfileLayout';
-
-/* Admin Pages */
-import Dashboard from './admin/Dashboard';
-import ProductsManagement from './admin/ProductsManagement';
-import OrdersManagement from './admin/OrdersManagement';
-import CustomerManagement from './admin/CustomerManagement';
-import Analytics from './admin/Analytics';
-
-/* User Pages */
-import Home from './pages/user/Home';
-
-/* Profile Pages */
-import MyOrders from './profile/MyOrders';
-import ProfileDashboard from './profile/Dashboard';
-import Wishlist from './profile/Wishlist';
-import AccountSettings from './profile/AccountSettings';
-import Addresses from './profile/Addresses';
+/* Import modularized routes */
+import UserRoutes from './routes/UserRoutes';
+import AdminRoutes from './routes/AdminRoutes';
+import ProfileRoutes from './routes/ProfileRoutes';
 
 import './App.css';
 
+/**
+ * App Component
+ * The root entry point of the React application. 
+ * Implements centralized and modular routing for Shopper, Admin, and Profile modules.
+ */
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* User Home Page */}
-        <Route path="/home" element={<Home />} />
+      {/* 
+        Professional Hint: Suspense provides a fallback UI while lazy-loaded 
+        components are being fetched. 
+      */}
+      <Suspense fallback={<div className="global-loader">Loading...</div>}>
+        <Routes>
+          {/* User Facing Module (Shopper Pages) */}
+          {UserRoutes}
 
-        {/* Admin Dashboard Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="products" element={<ProductsManagement />} />
-          <Route path="orders" element={<OrdersManagement />} />
-          <Route path="customers" element={<CustomerManagement />} />
-          <Route path="analytics" element={<Analytics />} />
-          <Route path="settings" element={<Navigate to="/admin" />} />
-        </Route>
+          {/* Admin Dashboard Module (Back-office Management) */}
+          {AdminRoutes}
 
-        {/* User Profile Routes */}
-        <Route path="/profile" element={<ProfileLayout />}>
-          <Route index element={<Navigate to="dashboard" />} />
-          <Route path="dashboard" element={<ProfileDashboard />} />
-          <Route path="orders" element={<MyOrders />} />
-          <Route path="wishlist" element={<Wishlist />} />
-          <Route path="account" element={<AccountSettings />} />
-          <Route path="addresses" element={<Addresses />} />
-        </Route>
+          {/* User Profile Module (Authenticated Customer Dashboard) */}
+          {ProfileRoutes}
 
-        {/* Default: redirect to Home */}
-        <Route path="*" element={<Navigate to="/home" />} />
-      </Routes>
+          {/* Default Route: Redirect to Home or a 404 Page */}
+          <Route path="*" element={<Navigate to="/home" replace />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
