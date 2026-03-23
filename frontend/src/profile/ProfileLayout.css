@@ -1,0 +1,308 @@
+/* Profile Layout Styles */
+.profile-layout-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- Top Navigation --- */
+.profile-top-nav {
+    height: 80px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.profile-logo-link img {
+    height: 150px;
+    width: auto;
+    
+}
+
+.profile-main-nav {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.profile-nav-link {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.profile-nav-link:hover {
+    color: #ff6d2e;
+}
+
+.profile-nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.profile-icon-btn {
+    background: none;
+    border: none;
+    color: #475569;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.profile-icon-btn:hover {
+    color: #ff6d2e;
+}
+
+.profile-icon-btn span {
+    font-size: 26px;
+}
+
+/* --- Main Layout Wrapper --- */
+.profile-main-wrapper {
+    display: flex;
+    flex: 1;
+}
+
+/* --- Sidebar --- */
+.profile-sidebar {
+    width: 288px;
+    background-color: #f9f1e8;
+    border-right: 1px solid #f1f5f9;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: calc(100vh - 80px);
+    top: 80px;
+    overflow-y: auto;
+}
+
+.profile-sidebar-content {
+    padding: 32px;
+}
+
+.sidebar-user-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.sidebar-avatar-wrapper {
+    position: relative;
+    width: 64px;
+    height: 64px;
+}
+
+.sidebar-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 9999px;
+    border: 2px solid rgba(255, 109, 46, 0.2);
+    padding: 2px;
+}
+
+.sidebar-status-check {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    background-color: #ff6d2e;
+    color: #ffffff;
+    width: 20px;
+    height: 20px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+}
+
+.sidebar-status-check span {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.sidebar-user-info h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.sidebar-user-membership {
+    margin: 0;
+    font-size: 8px;
+    font-weight: 900;
+    color: #ff6d2e;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* --- Sidebar Navigation --- */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 32px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #64748b;
+    transition: all 0.3s;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.sidebar-link:hover {
+    color: #1e293b;
+    background-color: rgba(0,0,0,0.02);
+}
+
+.sidebar-link.active {
+    background-color: #ff6d2e;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 10px 15px -3px rgba(255, 109, 46, 0.3), 0 4px 6px -4px rgba(255, 109, 46, 0.3);
+}
+
+.sidebar-link span:first-child {
+    font-size: 18px;
+}
+
+.sidebar-link.active span {
+    font-weight: bold;
+}
+
+.sidebar-bottom-section {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 32px;
+    margin-top: 32px;
+}
+
+.logout-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    text-decoration: none;
+    color: #ef4444;
+    font-size: 13px;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.logout-link span {
+    font-size: 18px;
+}
+
+.logout-link:hover {
+    color: #dc2626;
+}
+
+/* --- Offer Card --- */
+.sidebar-offer-card {
+    margin-top: auto;
+    padding: 0 24px 40px 24px;
+}
+
+.offer-card-inner {
+    background-color: #0c121e;
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.offer-bg-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 8px;
+    opacity: 0.1;
+    transition: transform 0.3s;
+}
+
+.offer-card-inner:hover .offer-bg-icon {
+    transform: scale(1.1);
+}
+
+.offer-bg-icon span {
+    color: #ffffff;
+    font-size: 60px;
+}
+
+.offer-label {
+    font-size: 10px;
+    font-weight: 900;
+    color: #ff6d2e;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+}
+
+.offer-title {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.offer-desc {
+    font-size: 10px;
+    color: #94a3b8;
+    margin: 0 0 24px 0;
+}
+
+.offer-code {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.shop-now-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #ff6d2e;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 10px 15px -3px rgba(255, 109, 46, 0.2);
+}
+
+.shop-now-btn:hover {
+    background-color: #f97316;
+}
+
+/* --- Main Content Area --- */
+.profile-content-area {
+    flex: 1;
+    margin-left: 288px;
+    background-color: #f8fafc;
+}

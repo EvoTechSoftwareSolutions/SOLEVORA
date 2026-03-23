@@ -6,8 +6,8 @@ const Home = () => {
   return (
       <div className="banner">
         <div className="banner-text">
-<h1 class="banner-text">
-  Get More comfortable without <span class="highlight">Brands</span>
+<h1 className="banner-text">
+  Get More comfortable without <span className="highlight">Brands</span>
 </h1>          <p>
             Discover the latest styles and must-have essentials. Fast shipping,
             easy returns, and secure checkoutshop now and find something you’ll

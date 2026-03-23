@@ -27,7 +27,7 @@
     border-radius: 8px;
     cursor: pointer;
     color: #555;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     margin-bottom: 6px;
     transition: all 0.2s ease;
@@ -58,7 +58,7 @@
 .app-system-label {
     margin-top: auto;
     padding: 30px 25px 15px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     color: #aaa;
     letter-spacing: 1px;

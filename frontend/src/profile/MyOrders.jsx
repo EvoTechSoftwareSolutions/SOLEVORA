@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './MyOrders.css';
 
 const MyOrders = () => {
     const [activeTab, setActiveTab] = useState('All Orders');
@@ -10,7 +11,7 @@ const MyOrders = () => {
             total: '$189.00',
             shipTo: 'Alex Johnson',
             status: 'Delivered',
-            statusStyle: 'text-green-600 bg-green-500/10',
+            statusStyle: { color: '#059669', backgroundColor: 'rgba(16, 185, 129, 0.1)' },
             deliveryDate: 'Delivered on Oct 27, 2023',
             productName: 'Aura Runner Pro Gen-2',
             meta: 'Size: 10.5 | Color: Ember Orange / Cloud White',
@@ -23,7 +24,7 @@ const MyOrders = () => {
             total: '$145.00',
             shipTo: 'Alex Johnson',
             status: 'In Transit',
-            statusStyle: 'text-blue-600 bg-blue-500/10',
+            statusStyle: { color: '#2563eb', backgroundColor: 'rgba(59, 130, 246, 0.1)' },
             deliveryDate: 'Estimated Delivery: Tomorrow by 8PM',
             productName: 'Velocit Low-Top',
             meta: 'Size: 11 | Color: Midnight Grey',
@@ -38,7 +39,7 @@ const MyOrders = () => {
             total: '$95.00',
             shipTo: 'Alex Johnson',
             status: 'Cancelled',
-            statusStyle: 'text-red-500 bg-red-500/10',
+            statusStyle: { color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' },
             deliveryDate: 'Refunded on Sep 20, 2023',
             productName: 'TrekLite Sandals',
             meta: 'Size: 11 | Color: Onyx Black',
@@ -50,88 +51,80 @@ const MyOrders = () => {
     const tabs = ['All Orders', 'In Transit', 'Completed', 'Cancelled', 'Processing'];
 
     return (
-        <div className="p-10 bg-background-light dark:bg-background-dark min-h-full font-display">
+        <div className="mo-container">
             {/* Header */}
-            <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
-                <div>
-                    <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-2">My Orders</h2>
-                    <p className="text-slate-500 dark:text-slate-400 font-medium">Manage your recent purchases and track your active shipments.</p>
+            <header className="mo-header">
+                <div className="mo-title-section">
+                    <h2>My Orders</h2>
+                    <p>Manage your recent purchases and track your active shipments.</p>
                 </div>
                 
-                <div className="flex items-center gap-4">
-                    <div className="relative">
-                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl font-bold">search</span>
-                        <input 
-                            className="w-full lg:w-80 pl-12 pr-6 py-3 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-primary/20 text-sm shadow-sm transition-all outline-none" 
-                            placeholder="Find an order..." 
-                            type="text"
-                        />
-                    </div>
+                <div className="mo-search-box">
+                    <span className="material-symbols-outlined mo-search-icon">search</span>
+                    <input className="mo-search-input" placeholder="Find an order..." type="text" />
                 </div>
             </header>
 
             {/* Tabs */}
-            <div className="flex flex-wrap gap-2 mb-10 border-b border-slate-100 dark:border-slate-800 pb-px">
+            <div className="mo-tabs">
                 {tabs.map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`px-6 py-4 text-xs font-black uppercase tracking-widest transition-all relative ${activeTab === tab ? 'text-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
+                        className={`mo-tab-btn ${activeTab === tab ? 'active' : ''}`}
                     >
                         {tab}
-                        {activeTab === tab && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full shadow-[0_-2px_8px_rgba(255,109,46,0.3)]"></div>
-                        )}
+                        {activeTab === tab && <div className="mo-tab-indicator"></div>}
                     </button>
                 ))}
             </div>
 
             {/* Orders List */}
-            <div className="space-y-8">
+            <div className="mo-list">
                 {orders.map(order => (
-                    <div key={order.id} className="bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-sm border border-slate-50 dark:border-slate-800 hover:shadow-xl transition-all duration-300 group">
+                    <div key={order.id} className="mo-card">
                         {/* Order Header */}
-                        <div className="px-8 py-5 bg-slate-50/50 dark:bg-slate-800/50 flex flex-wrap items-center justify-between gap-4 border-b border-slate-50 dark:border-slate-800">
-                            <div className="flex flex-wrap gap-10 text-sm">
-                                <div>
-                                    <p className="text-[10px] uppercase font-black text-slate-400 mb-1 tracking-wider">Order Placed</p>
-                                    <p className="font-bold text-slate-700 dark:text-slate-300">{order.date}</p>
+                        <div className="mo-card-header">
+                            <div className="mo-meta-group">
+                                <div className="mo-meta-item">
+                                    <p>Order Placed</p>
+                                    <p>{order.date}</p>
                                 </div>
-                                <div>
-                                    <p className="text-[10px] uppercase font-black text-slate-400 mb-1 tracking-wider">Total</p>
-                                    <p className="font-black text-primary">{order.total}</p>
+                                <div className="mo-meta-item">
+                                    <p>Total</p>
+                                    <p className="mo-total-val">{order.total}</p>
                                 </div>
-                                <div>
-                                    <p className="text-[10px] uppercase font-black text-slate-400 mb-1 tracking-wider">Ship To</p>
-                                    <p className="font-bold text-slate-700 dark:text-slate-300 underline cursor-pointer hover:text-primary transition-colors decoration-slate-200">{order.shipTo}</p>
+                                <div className="mo-meta-item">
+                                    <p>Ship To</p>
+                                    <p className="mo-ship-to-link">{order.shipTo}</p>
                                 </div>
                             </div>
-                            <div className="flex-1 text-right">
-                                <p className="text-[9px] font-black tracking-[0.2em] text-slate-400 uppercase">Order # {order.id}</p>
-                                <button className="text-xs font-black text-primary hover:underline mt-1 uppercase tracking-tighter">View Invoice</button>
+                            <div className="mo-order-number-group">
+                                <p className="mo-order-id">Order # {order.id}</p>
+                                <button className="mo-invoice-btn">View Invoice</button>
                             </div>
                         </div>
 
                         {/* Order Body */}
-                        <div className="p-8 flex flex-col md:flex-row gap-8">
-                            <div className="size-36 bg-[#f3f4f6] dark:bg-slate-800 rounded-3xl overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform duration-500">
-                                <img src={order.image} alt={order.productName} className="w-full h-full object-cover" />
+                        <div className="mo-card-body">
+                            <div className="mo-item-img-box">
+                                <img src={order.image} alt={order.productName} />
                             </div>
-                            <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <span className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${order.statusStyle}`}>
+                            <div className="mo-item-main-info">
+                                <div className="mo-status-row">
+                                    <span className="mo-status-pill" style={order.statusStyle}>
                                         {order.status}
                                     </span>
-                                    <span className="text-xs font-bold text-slate-400">{order.deliveryDate}</span>
+                                    <span className="mo-delivery-info">{order.deliveryDate}</span>
                                 </div>
-                                <h3 className="text-2xl font-extrabold mb-1 text-slate-800 dark:text-white leading-tight">{order.productName}</h3>
-                                <p className="text-xs font-bold text-slate-400 mb-8">{order.meta}</p>
+                                <h3 className="mo-item-name">{order.productName}</h3>
+                                <p className="mo-item-meta">{order.meta}</p>
                                 
-                                <div className="flex flex-wrap gap-3">
+                                <div className="mo-action-buttons">
                                     {order.actions.map((action, idx) => (
                                         <button 
                                             key={idx} 
-                                            className={`px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all ${idx === 0 ? 'bg-primary text-white shadow-lg shadow-primary/30 hover:bg-primary/90' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-100 dark:border-slate-700'}`}
+                                            className={idx === 0 ? "mo-btn-primary" : "mo-btn-secondary"}
                                         >
                                             {action}
                                         </button>
@@ -141,12 +134,12 @@ const MyOrders = () => {
 
                             {/* Tracking Update Column */}
                             {order.trackingUpdate && (
-                                <div className="md:w-72 pl-8 border-l border-slate-50 dark:border-slate-800 flex flex-col justify-center">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Last Update</p>
-                                    <p className="text-[13px] font-bold text-slate-600 dark:text-slate-400 mb-6 leading-relaxed italic">{order.trackingUpdate}</p>
-                                    <div className="flex gap-2">
+                                <div className="mo-tracking-col">
+                                    <p className="mo-tracking-label">Last Update</p>
+                                    <p className="mo-tracking-text">{order.trackingUpdate}</p>
+                                    <div className="mo-progress-bar">
                                         {[1, 2, 3, 4].map(step => (
-                                            <div key={step} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${step <= (order.progress || 0) ? 'bg-primary shadow-[0_0_8px_rgba(255,109,46,0.4)]' : 'bg-slate-100 dark:bg-slate-800'}`}></div>
+                                            <div key={step} className={`mo-progress-step ${step <= (order.progress || 0) ? 'completed' : ''}`}></div>
                                         ))}
                                     </div>
                                 </div>
@@ -157,20 +150,20 @@ const MyOrders = () => {
             </div>
 
             {/* Pagination */}
-            <div className="mt-16 flex justify-center items-center gap-3">
-                <button className="size-12 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 hover:border-primary transition-all group">
-                    <span className="material-symbols-outlined text-xl text-slate-400 group-hover:text-primary transition-colors">chevron_left</span>
+            <div className="mo-pagination">
+                <button className="mo-page-arrow">
+                    <span className="material-symbols-outlined">chevron_left</span>
                 </button>
                 {[1, 2, 3].map(page => (
                     <button 
                         key={page} 
-                        className={`size-12 flex items-center justify-center rounded-2xl font-black text-xs transition-all ${page === 1 ? 'bg-primary text-white shadow-xl shadow-primary/30' : 'bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-500 hover:text-primary'}`}
+                        className={`mo-page-btn ${page === 1 ? 'active' : ''}`}
                     >
                         {page}
                     </button>
                 ))}
-                <button className="size-12 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 hover:border-primary transition-all group">
-                    <span className="material-symbols-outlined text-xl text-slate-400 group-hover:text-primary transition-colors">chevron_right</span>
+                <button className="mo-page-arrow">
+                    <span className="material-symbols-outlined">chevron_right</span>
                 </button>
             </div>
         </div>

@@ -1,0 +1,427 @@
+/* =============================================
+   Profile Dashboard Styles
+   All classes prefixed with 'pdb-' to avoid global conflicts
+   ============================================= */
+
+.pdb-container {
+    padding: 2.5rem;
+    background-color: #f8f6f5;
+    min-height: 100%;
+    font-family: 'Manrope', sans-serif;
+}
+
+/* ---------- Header ---------- */
+.pdb-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.pdb-welcome-info h2 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.025em;
+}
+
+.pdb-welcome-info p {
+    color: #64748b;
+    font-weight: 500;
+    margin: 0;
+}
+
+.pdb-upgrade-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: rgba(255, 109, 46, 0.05);
+    color: #ff6d2e;
+    border: 1px solid rgba(255, 109, 46, 0.2);
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Manrope', sans-serif;
+}
+
+.pdb-upgrade-btn:hover {
+    background-color: rgba(255, 109, 46, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 109, 46, 0.15);
+}
+
+.pdb-upgrade-icon {
+    font-size: 1.25rem;
+}
+
+/* ---------- Stats Grid ---------- */
+.pdb-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.pdb-stat-card {
+    background-color: #ffffff;
+    padding: 1.75rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1eeec;
+    position: relative;
+    overflow: hidden;
+}
+
+.pdb-stat-bg-icon {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    color: rgba(255, 109, 46, 0.05);
+}
+
+.pdb-stat-bg-icon span {
+    font-size: 80px;
+    transform: translate(30%, -30%);
+}
+
+.pdb-stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.pdb-stat-header p {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #94a3b8;
+    margin: 0;
+    text-transform: capitalize;
+}
+
+.pdb-icon-color {
+    color: #ff6d2e;
+    font-size: 1.25rem;
+}
+
+.pdb-stat-value {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #0f172a;
+    margin: 0 0 0.5rem 0;
+}
+
+.pdb-stat-change {
+    font-size: 0.75rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0;
+}
+
+.pdb-stat-change.pdb-positive {
+    color: #22c55e;
+}
+
+.pdb-trending-icon {
+    font-size: 1rem;
+}
+
+.pdb-stat-subtitle {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* ---------- Middle Section ---------- */
+.pdb-middle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+}
+
+.pdb-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.pdb-section-header h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+}
+
+.pdb-view-link {
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: #ff6d2e;
+    text-decoration: none;
+}
+
+.pdb-view-link:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Recent Orders ---------- */
+.pdb-orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.pdb-mini-order {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 1.25rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1eeec;
+}
+
+.pdb-mini-order-img {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background-color: #f1f5f9;
+    margin-right: 1.25rem;
+    flex-shrink: 0;
+}
+
+.pdb-mini-order-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pdb-mini-order-info {
+    flex: 1;
+}
+
+.pdb-mini-order-info h4 {
+    font-size: 0.9375rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.25rem 0;
+}
+
+.pdb-mini-order-info p {
+    font-size: 0.8125rem;
+    color: #64748b;
+    margin: 0;
+    font-weight: 500;
+}
+
+.pdb-mini-order-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.375rem;
+}
+
+.pdb-mini-price {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.pdb-mini-status {
+    font-size: 0.625rem;
+    font-weight: 900;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.pdb-pill-transit {
+    background-color: #eff6ff;
+    color: #3b82f6;
+}
+
+.pdb-pill-delivered {
+    background-color: #f0fdf4;
+    color: #22c55e;
+}
+
+/* ---------- Active Wishlist ---------- */
+.pdb-wishlist-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.pdb-mini-wishlist-card {
+    background: #ffffff;
+    padding: 1.25rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1eeec;
+}
+
+.pdb-wishlist-img-box {
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: #f8fafc;
+    border-radius: 0.75rem;
+    position: relative;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.pdb-wishlist-img-box img {
+    width: 80%;
+    height: 80%;
+    object-fit: cover;
+    border-radius: 0.5rem;
+}
+
+.pdb-heart-icon {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    color: #cbd5e1;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.pdb-heart-icon:hover {
+    color: #ff6d2e;
+}
+
+.pdb-wishlist-info h4 {
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.25rem 0;
+}
+
+.pdb-wishlist-info p {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #ff6d2e;
+    margin: 0;
+}
+
+/* ---------- Profile Overview ---------- */
+.pdb-overview-section h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 1.25rem 0;
+}
+
+.pdb-overview-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.pdb-overview-card {
+    background-color: #ffffff;
+    padding: 1.75rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1eeec;
+}
+
+.pdb-overview-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+}
+
+.pdb-overview-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: rgba(255, 109, 46, 0.06);
+    border-radius: 0.625rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ff6d2e;
+}
+
+.pdb-edit-link {
+    font-size: 0.625rem;
+    font-weight: 900;
+    color: #ff6d2e;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+}
+
+.pdb-edit-link:hover {
+    text-decoration: underline;
+}
+
+.pdb-overview-card-info label {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 900;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+.pdb-overview-card-info p {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+    .pdb-stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .pdb-overview-cards {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .pdb-container {
+        padding: 1.5rem;
+    }
+
+    .pdb-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .pdb-welcome-info h2 {
+        font-size: 1.75rem;
+    }
+
+    .pdb-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pdb-middle {
+        grid-template-columns: 1fr;
+    }
+
+    .pdb-overview-cards {
+        grid-template-columns: 1fr;
+    }
+}
