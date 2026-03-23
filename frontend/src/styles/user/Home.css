@@ -1,0 +1,142 @@
+.banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 80px;
+  overflow: hidden;
+}
+
+/* Color layer (20% opacity) */
+.banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(233, 186, 145, 0.8); /* 20% opacity */
+  z-index: 0;
+  transform: rotate(0deg);
+  transform-origin: center;
+}
+
+/* Image layer (40% opacity) */
+.banner::after {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: 0;
+  width: 100%;
+  height: 120%;
+  background: url('../../assets/image/linebg.jpg') no-repeat center center;
+  background-size: 130%; 
+  opacity: 0.2; 
+  z-index: 0;
+  transform: rotate(180deg);
+  transform-origin: center;
+}
+
+/* Keep content above backgrounds */
+.banner > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Keep content above image */
+.banner > * {
+  position: relative;
+  z-index: 1;
+}
+.banner-text {
+  flex: 1;
+  max-width: 800px;
+}
+
+.banner-text h1 {
+  font-size: 65px;
+  font-weight: 700;
+  color: #1A2332;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.banner-text .highlight {
+  background: linear-gradient(90deg, #FFA007, #F97316); /* orange gradient */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.banner-text p {
+  font-size: 16px;
+  color: #6b6b6b;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.shop-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff; 
+  text-decoration: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #FFA007, #F97316); 
+   transition: all 3s ease-out;
+ }
+
+.shop-button:hover {
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    background: linear-gradient(90deg, #FFA007, #a16336); 
+
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  color: #000;
+}
+.banner-image {
+  position: relative;
+  width: fit-content;
+  height: 400px; 
+  display: inline-block;
+}
+
+/* The decorative rectangle */
+.banner-image::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 30px;
+  width: 325px; /* width of the rectangle */
+  height: 380px; /* same height as container */
+  border-top-left-radius: 150px;
+  border-bottom-right-radius: 130px;
+  background: linear-gradient(
+    to bottom,
+    #1F1F1F 0%,
+    #CCCCCC 50%,
+    #000 100%
+  );
+  z-index: 1;
+}
+
+/* Image on top of rectangle if needed */
+.banner-image img {
+  position: relative;
+  z-index: 2;
+  display: block;
+  height: 100%;
+    transform: rotate(340deg);
+
+
+}
+
+
+
