@@ -1,5 +1,3 @@
-
-
 import {
   ShoppingCartIcon,
   UserIcon,
@@ -10,6 +8,9 @@ import {
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 
+import { FaSearch } from "react-icons/fa";
+import { HiOutlineAdjustmentsHorizontal } from "react-icons/hi2";
+
 export {
   ShoppingCartIcon,
   UserIcon,
@@ -18,4 +19,6 @@ export {
   MapPinIcon,
   PhoneIcon,
   EnvelopeIcon,
+  FaSearch,
+  HiOutlineAdjustmentsHorizontal,
 };
