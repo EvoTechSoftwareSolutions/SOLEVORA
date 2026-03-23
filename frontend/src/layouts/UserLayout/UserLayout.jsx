@@ -16,68 +16,79 @@ import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 const UserLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleToggle = () => {
-    setMenuOpen(!menuOpen);
-  };
+  const handleToggle = () => setMenuOpen(!menuOpen);
+
   return (
     <div className="layout-container">
+      {/* Header */}
       <header className="header">
         <nav className="navbar container">
-          <a href="#" className="navbar__logo">
+          <Link to="/" className="navbar__logo">
             Solevera
-          </a>
+          </Link>
 
+          {/* Menu */}
           <ul className={`navbar__menu ${menuOpen ? "open" : ""}`}>
             <li>
-              <a href="index.html" className="active">
-                Home
-              </a>
+              <Link to="/" className="active">Home</Link>
             </li>
             <li>
-              <a href="pages/service.html">Category</a>
+              <Link to="/category">Category</Link>
             </li>
             <li>
-              <a href="pages/about.html">About Us</a>
+              <Link to="/about">About Us</Link>
             </li>
             <li>
-              <a href="pages/contact.html">Contact</a>
+              <Link to="/contact">Contact</Link>
             </li>
+
             <ul className="icon-set-hide">
-              <a href="/cart">
-                <ShoppingCartIcon className="icon" />
-              </a>
-              <a href="/profile">
-                <UserIcon className="icon" />
-              </a>
-              <a href="/profile">
-                <HeartIcon className="icon" />
-              </a>
+              <li>
+                <Link to="/cart">
+                  <ShoppingCartIcon className="icon" />
+                </Link>
+              </li>
+              <li>
+                <Link to="/profile">
+                  <UserIcon className="icon" />
+                </Link>
+              </li>
+              <li>
+                <Link to="/favorites">
+                  <HeartIcon className="icon" />
+                </Link>
+              </li>
             </ul>
           </ul>
 
+          {/* Icons */}
           <div className="icon-set">
-            <a href="/cart">
+            <Link to="/cart">
               <ShoppingCartIcon className="icon" />
-            </a>
-            <a href="/profile">
+            </Link>
+            <Link to="/profile">
               <UserIcon className="icon" />
-            </a>
-            <a href="/favorites">
+            </Link>
+            <Link to="/favorites">
               <HeartIcon className="icon" />
-            </a>
+            </Link>
           </div>
 
+          {/* Toggle Button */}
           <button className="navbar__toggle" onClick={handleToggle}>
             ☰
           </button>
         </nav>
       </header>
 
+      {/* Main Content */}
       <main className="layout-main">
         <Outlet />
       </main>
 
+      {/* Footer */}
       <footer className="footer">
+        {/* Subscribe Section */}
         <div className="subscribe">
           <div className="subscribe-text">
             <h3>Join the Future</h3>
@@ -89,16 +100,18 @@ const UserLayout = () => {
               placeholder="Enter Your Email"
               className="sub-input"
             />
-
             <button className="sub-btn">
               <ArrowRightIcon className="icon-arrow" />
             </button>
           </div>
         </div>
+
+        {/* Footer Links */}
         <div className="footer-links">
           <div className="footer-main">
+            {/* Contact */}
             <div className="contact">
-              <img src="/" alt="image" />
+              <img src="/" alt="logo" />
               <p>
                 Step into the future with cutting-edge footwear designed for the
                 next generation of athletes and style pioneers.
@@ -106,68 +119,70 @@ const UserLayout = () => {
               <div className="contact-icons">
                 <div className="contact-item">
                   <MapPinIcon className="icon-size" />
-                  <a href="">Colombo, Sri Lanka</a>
+                  <span>Colombo, Sri Lanka</span>
                 </div>
-
                 <div className="contact-item">
                   <PhoneIcon className="icon-size" />
-                  <a href="">+94 77 123 4567</a>
+                  <span>+94 77 123 4567</span>
                 </div>
-
                 <div className="contact-item">
                   <EnvelopeIcon className="icon-size" />
-                  <a href="">info@rentnow.com</a>
+                  <span>info@rentnow.com</span>
                 </div>
               </div>
             </div>
+
+            {/* Right Sections */}
             <div className="right-section">
               <div className="shop-section">
                 <h4>Shop</h4>
-                <a href="">New Arrivals</a>
-                <a href="">Best Sellers</a>
-                <a href="">Running</a>
-                <a href="">lifestyle</a>
-                <a href="">Basketball</a>
+                <Link to="/new-arrivals">New Arrivals</Link>
+                <Link to="/best-sellers">Best Sellers</Link>
+                <Link to="/running">Running</Link>
+                <Link to="/lifestyle">Lifestyle</Link>
+                <Link to="/basketball">Basketball</Link>
               </div>
               <div className="support-section">
                 <h4>Support</h4>
-                <a href="">Contact Us</a>
-                <a href="">FAQs</a>
-                <a href="">Shopping Info</a>
-                <a href="">Returns</a>
-                <a href="">Size guide</a>
+                <Link to="/contact">Contact Us</Link>
+                <Link to="/faqs">FAQs</Link>
+                <Link to="/shopping-info">Shopping Info</Link>
+                <Link to="/returns">Returns</Link>
+                <Link to="/size-guide">Size Guide</Link>
               </div>
               <div className="company-section">
                 <h4>Company</h4>
-                <a href="">About Us</a>
-                <a href="">Careers</a>
-                <a href="">Press</a>
-                <a href="">Sustainablity</a>
+                <Link to="/about">About Us</Link>
+                <Link to="/careers">Careers</Link>
+                <Link to="/press">Press</Link>
+                <Link to="/sustainability">Sustainability</Link>
               </div>
             </div>
           </div>
+
+          {/* Privacy Section */}
           <div className="privacy-section">
             <div className="privacy">
               <span className="dot"></span>
-              <a href="/privacy">Privacy Policy</a>
+              <Link to="/privacy">Privacy Policy</Link>
             </div>
-
             <div className="privacy">
               <span className="dot"></span>
-              <a href="/privacy">Terms & Conditions</a>
+              <Link to="/terms">Terms & Conditions</Link>
             </div>
           </div>
+
+          {/* Footer Bottom */}
           <div className="footer-bottom">
             <span>© 2026 SoleVera. All rights reserved.</span>
-
             <div className="socialmedia">
-              <a href="#">
+              <a href="https://facebook.com" target="_blank" rel="noreferrer">
                 <FaFacebookF />
               </a>
-              <a href="#">
+              <a href="https://instagram.com" target="_blank" rel="noreferrer">
                 <FaInstagram />
               </a>
-              <a href="#">
+              <a href="https://twitter.com" target="_blank" rel="noreferrer">
                 <FaTwitter />
               </a>
             </div>

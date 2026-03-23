@@ -65,8 +65,8 @@
   transition: all 0.3s ease;
 }
 
-.navbar__menu a:hover,
-.navbar__menu a.active {
+.navbar__menu li a:hover,
+.navbar__menu li a.active {
   color: var(--color-orange-dark);
   border-bottom: 2px solid var(--color-orange-dark);
 }
