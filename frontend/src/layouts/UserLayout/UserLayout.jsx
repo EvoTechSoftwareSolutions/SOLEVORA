@@ -12,7 +12,7 @@ const UserLayout = () => {
 
   return (
     <div className="layout-wrapper">
-      {/* Top Navigation Bar - Unified Professionals Header */}
+      {/* Top Navigation Bar - Matching Mockup Precisely */}
       <header className="header-main">
         <nav className="nav-container container">
           <Link to="/" className="nav-logo-link">
@@ -21,13 +21,15 @@ const UserLayout = () => {
 
           <nav className="nav-menu">
             <Link to="/" className={`nav-link ${location.pathname === '/' || location.pathname === '/home' ? 'active' : ''}`}>Home</Link>
-            {/* Keeping Category as it has a placeholder */}
             <Link to="/category" className={`nav-link ${location.pathname === '/category' ? 'active' : ''}`}>Category</Link>
-            {/* Removed About and Contact as they don't have routes/pages yet */}
+            <Link to="/about" className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}>About</Link>
+            <Link to="/contact" className={`nav-link ${location.pathname === '/contact' ? 'active' : ''}`}>Contact</Link>
           </nav>
 
           <div className="nav-actions">
-            {/* Only including links that have proper routes */}
+            <Link to="/cart" className="icon-btn">
+              <span className="material-symbols-outlined">shopping_cart</span>
+            </Link>
             <Link to="/profile" className="icon-btn">
               <span className="material-symbols-outlined">person</span>
             </Link>
@@ -46,7 +48,7 @@ const UserLayout = () => {
         <Outlet />
       </main>
 
-      {/* Footer Area */}
+      {/* Footer Area - Aligned to Mockup */}
       <footer className="footer-area">
         <div className="container">
           <div className="footer-top">
@@ -64,10 +66,9 @@ const UserLayout = () => {
                 <Link to="/category">Categories</Link>
               </div>
               <div className="f-col">
-                <h5>My Account</h5>
-                <Link to="/profile/dashboard">Dashboard</Link>
-                <Link to="/profile/orders">Active Orders</Link>
-                <Link to="/profile/wishlist">Favorites</Link>
+                <h5>Information</h5>
+                <Link to="/about">About Us</Link>
+                <Link to="/contact">Contact</Link>
               </div>
               <div className="f-col newsletter">
                 <h5>Newsletter</h5>
