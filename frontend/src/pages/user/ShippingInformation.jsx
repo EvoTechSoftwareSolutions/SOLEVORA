@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import Modal from '../../components/ui/Modal';
 import '../../styles/user/ShippingInformation.css';
 
 const ShippingInformation = () => {
@@ -9,7 +10,31 @@ const ShippingInformation = () => {
   
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
-  const [formData, setFormData] = useState(checkoutData);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: '', body: '' });
+  
+  const showMessage = (title, body) => {
+    setModalContent({ title, body });
+    setIsModalOpen(true);
+  };
+
+  // Pre-fill from logged in user
+  const [formData, setFormData] = useState(() => {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      return {
+        ...checkoutData,
+        fullName: user.name || checkoutData.fullName,
+        email: user.email || checkoutData.email,
+        phone: user.phone || checkoutData.phone,
+        streetAddress: user.location || checkoutData.streetAddress, // Assuming location is the street address for now
+        country: user.country || checkoutData.country || 'United States',
+        userId: user.id
+      };
+    }
+    return { ...checkoutData, country: checkoutData.country || 'United States' };
+  });
 
   const grossTotal = cartTotal;
   const promoDiscount = promoApplied ? grossTotal * 0.1 : 0; // 10% discount for example
@@ -23,12 +48,12 @@ const ShippingInformation = () => {
 
   const handleApplyPromo = () => {
     if (promoCode.trim().toLowerCase() === 'save10') setPromoApplied(true);
-    else alert('Invalid promo code. Try "SAVE10"');
+    else showMessage('Invalid Promo', 'The code you entered is invalid. Try "SAVE10" for a discount.');
   };
 
   const handleContinue = () => {
     if (!formData.fullName || !formData.email || !formData.streetAddress) {
-        alert('Please fill in required shipping fields.');
+        showMessage('Required Fields', 'Please fill in all shipping fields before continuing.');
         return;
     }
     updateCheckoutData(formData);
@@ -182,6 +207,20 @@ const ShippingInformation = () => {
                 </div>
               </div>
 
+              {/* Country */}
+              <div className="si-field">
+                <label className="si-label">Country</label>
+                <input
+                  type="text"
+                  name="country"
+                  placeholder="United States"
+                  value={formData.country}
+                  onChange={handleInputChange}
+                  className="si-input"
+                  required
+                />
+              </div>
+
               {/* Continue to Shipping Method Button */}
               <div className="si-continue-btn-container">
                 <button 
@@ -271,6 +310,19 @@ const ShippingInformation = () => {
           </div>
 
         </div>
+
+        {/* Modal for Messages */}
+        <Modal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)}
+          title={modalContent.title}
+          actions={
+            <button className="modal-btn modal-btn-confirm" onClick={() => setIsModalOpen(false)}>Got it</button>
+          }
+        >
+          <p>{modalContent.body}</p>
+        </Modal>
+
       </div>
     </div>
   );

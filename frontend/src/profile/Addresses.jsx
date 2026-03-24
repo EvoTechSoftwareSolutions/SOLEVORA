@@ -1,48 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import Modal from '../components/ui/Modal';
 import './Addresses.css';
 
 const Addresses = () => {
-  const [addresses] = useState([
-    {
-      id: 1,
-      icon: 'home',
-      title: 'Home Office',
-      name: 'Alex Rivers',
-      street: '123 Orange Blossom Lane',
-      cityStateZip: 'Citrus Heights, CA 95610',
-      phone: '+1 (555) 012-3456',
-      country: 'United States',
-      isDefault: true,
-      mapImage:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuAu3ShOLTeg0dfGvTjpCautJY4CQ9DhYlfwygADl_6d1NesoMEAkTKLu8jSBFrCvYhyqqTy98r1NrQnYeRDJ6_DOkxRf002jWvLK9PIN0Ni6zIJ2fG3Gao_Fn3bpKINbHrNlxG5j3ZNmpX6Kx1LkfC673OHCsXdhIfJh2jWoA0ddlxud-GzsnUx2Hl9sN5FFyq35PraSMYfJ45WUjXitoDLO9K4eGsSkW9TJB0KRbU8c1lK9ld9TicEtlGGgwfDorx91YAUlvYjI0Q',
-    },
-    {
-      id: 2,
-      icon: 'apartment',
-      title: 'Brooklyn Studio',
-      name: 'Alex Rivers',
-      street: '456 Atlantic Avenue, Apt 4B',
-      cityStateZip: 'Brooklyn, NY 11217',
-      phone: '+1 (555) 012-3456',
-      country: 'United States',
-      isDefault: false,
-      mapImage:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuBAtHNOulbVUSZBGJ48pI0jTUpOH4Wy-zbenFJs8mHflFDWSb1EmYZ49k4UqiHKPFownUGvtQwxIiA-n-W42aLXXAqLhIHBE_O9K0M_cCXS5QkK0wnN-d_tSZs3xW9eE47miJflQqLEcmyVklE_x3O1R02713GoQCrWouXKGvmHr6kTNUSnNTA75IC1TieJVpRWPsP0Sfj2Xk2jP0ODjAB1WvK7YBoZ2kPqFOxHcAw9EJ5-kGMFDZMabfh3nCqakiN0kLt7TpTtvdo',
-    },
-    {
-      id: 3,
-      icon: 'payments',
-      title: 'Billing Address',
-      name: 'Alex Rivers',
-      street: '789 Market Street, Suite 200',
-      cityStateZip: 'San Francisco, CA 94103',
-      phone: '',
-      country: 'United States',
-      isDefault: false,
-      mapImage:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuCI5_OQQC1F6r5oDW4tab3xLmZ2QN3Ot67W0Uazil8WaHshvm_lsryVjBr6eCpmVrTG3jetFrcJfAQ92GRZm2Q2d4Alw4TjRmU2LCTYTZWPgRot8aeBNofUr2FPE1HL_djuKBXCnrHBBEvhvOTYAfHBfKXsl0pOcYrm9NTf-YaCiEm7iLT0IfMFuSvo9bhaOGIPLVmUqmCw8UMtYeP37Zz88-uU4qt3kr18gVBIcu-N1r9orVPlNTaP4WYVAc1WkmlfaAA89KY3GSo',
-    },
-  ]);
+  const navigate = useNavigate();
+  const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Modal states
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState(null);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [statusMessage, setStatusMessage] = useState({ title: '', body: '' });
+
+  const getUserId = () => {
+    const userStr = localStorage.getItem("user");
+    if (userStr) return JSON.parse(userStr).id;
+    return null;
+  };
+
+  const fetchAddresses = async () => {
+    const userId = getUserId();
+    if (!userId) return;
+    try {
+      const res = await axios.get(`http://localhost:5000/api/addresses/${userId}`);
+      setAddresses(res.data);
+    } catch (error) {
+      showStatus("Error", "Failed to fetch addresses. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAddresses();
+  }, []);
+
+  const showStatus = (title, body) => {
+    setStatusMessage({ title, body });
+    setIsStatusModalOpen(true);
+  };
+
+  const handleAddAddress = () => {
+    navigate('/profile/addresses/add');
+  };
+
+  const handleDeleteClick = (id) => {
+    setAddressToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!addressToDelete) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/addresses/${addressToDelete}`);
+      setIsDeleteModalOpen(false);
+      fetchAddresses();
+    } catch (error) {
+      showStatus("Error", "Failed to delete address.");
+    }
+  };
+
+  const handleSetDefault = async (id) => {
+    try {
+      await axios.put(`http://localhost:5000/api/addresses/${id}`, { isDefault: true });
+      fetchAddresses();
+    } catch (error) {
+      showStatus("Error", "Failed to update default address.");
+    }
+  };
+
+  if (loading) return <div className="addr-container">Loading addresses...</div>;
 
   return (
     <div className="addr-container">
@@ -53,7 +83,7 @@ const Addresses = () => {
           <p>Manage your shipping and billing locations for a faster checkout.</p>
         </div>
 
-        <button className="addr-add-btn" type="button">
+        <button className="addr-add-btn" type="button" onClick={handleAddAddress}>
           <span className="material-symbols-outlined">add_location_alt</span>
           Add New Address
         </button>
@@ -74,13 +104,15 @@ const Addresses = () => {
               <div className="addr-card-top">
                 <div
                   className="addr-map-snippet"
-                  style={{ backgroundImage: `url(${addr.mapImage})` }}
+                  style={{ backgroundColor: '#f1f1f1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   aria-hidden="true"
-                />
+                >
+                    <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#ccc' }}>map</span>
+                </div>
 
                 <div className="addr-card-details">
                   <h3 className="addr-card-heading">
-                    <span className="material-symbols-outlined addr-card-heading-icon">{addr.icon}</span>
+                    <span className="material-symbols-outlined addr-card-heading-icon">{addr.icon || 'location_on'}</span>
                     {addr.title}
                   </h3>
 
@@ -108,16 +140,16 @@ const Addresses = () => {
                   PRIMARY SHIPPING
                 </div>
               ) : (
-                <button className="addr-set-default-link" type="button">
+                <button className="addr-set-default-link" type="button" onClick={() => handleSetDefault(addr.id)}>
                   Set as Default
                 </button>
               )}
 
               <div className="addr-footer-actions">
-                <button className="addr-action-btn" type="button" title="Edit">
+                <button className="addr-action-btn" type="button" title="Edit" onClick={() => navigate(`edit/${addr.id}`)}>
                   <span className="material-symbols-outlined">edit</span>
                 </button>
-                <button className="addr-action-btn delete" type="button" title="Delete">
+                <button className="addr-action-btn delete" type="button" title="Delete" onClick={() => handleDeleteClick(addr.id)}>
                   <span className="material-symbols-outlined">delete</span>
                 </button>
               </div>
@@ -126,7 +158,7 @@ const Addresses = () => {
         ))}
 
         {/* Add New Placeholder Card */}
-        <div className="addr-card addr-add-placeholder">
+        <div className="addr-card addr-add-placeholder" onClick={handleAddAddress} style={{ cursor: 'pointer' }}>
           <div className="addr-add-inner">
             <div className="addr-add-icon-wrap">
               <span className="material-symbols-outlined">add</span>
@@ -136,6 +168,32 @@ const Addresses = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <Modal 
+        isOpen={isDeleteModalOpen} 
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Confirm Deletion"
+        actions={
+          <>
+            <button className="modal-btn modal-btn-cancel" onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>
+            <button className="modal-btn modal-btn-danger" onClick={confirmDelete}>Delete Address</button>
+          </>
+        }
+      >
+        Are you sure you want to delete this address? This action cannot be undone.
+      </Modal>
+
+      <Modal 
+        isOpen={isStatusModalOpen} 
+        onClose={() => setIsStatusModalOpen(false)}
+        title={statusMessage.title}
+        actions={
+          <button className="modal-btn modal-btn-confirm" onClick={() => setIsStatusModalOpen(false)}>Close</button>
+        }
+      >
+        {statusMessage.body}
+      </Modal>
 
       {/* Help Section */}
       <div className="addr-help-section">

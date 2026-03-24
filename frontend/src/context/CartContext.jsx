@@ -49,7 +49,8 @@ export const CartProvider = ({ children }) => {
         streetAddress: '',
         city: '',
         postalCode: '',
-        shippingMethod: 'Economy (Free)'
+        shippingMethod: 'Economy (Free)',
+        userId: null
     });
 
     const updateCheckoutData = (newData) => {

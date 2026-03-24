@@ -2,8 +2,10 @@ import { useState } from "react";
 import shoeImage from "../assets/shoe.png";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+
+import "./Auth.css";
 
 function Register() {
   const [name, setName] = useState("");
@@ -11,6 +13,7 @@ function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -32,11 +35,7 @@ function Register() {
         password,
       });
 
-      setMessage(res.data.message);
-      setName("");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
+      navigate("/login");
     } catch (error) {
       if (error.response && error.response.data.message) {
         setMessage(error.response.data.message);
@@ -53,7 +52,8 @@ function Register() {
         email: "googleuser@gmail.com",
       });
 
-      setMessage(res.data.message);
+      localStorage.setItem("user", JSON.stringify({ email: "googleuser@gmail.com", name: "Google User" }));
+      navigate("/home");
     } catch (error) {
       console.log(error);
       setMessage("Google registration failed");
@@ -67,7 +67,8 @@ function Register() {
         email: "appleuser@gmail.com",
       });
 
-      setMessage(res.data.message);
+      localStorage.setItem("user", JSON.stringify({ email: "appleuser@gmail.com", name: "Apple User" }));
+      navigate("/home");
     } catch (error) {
       console.log(error);
       setMessage("Apple registration failed");
@@ -75,107 +76,105 @@ function Register() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-gray-200">
-      <div className="flex w-full max-w-6xl overflow-hidden shadow-lg rounded-2xl">
-        {/* Left Side */}
-        <div className="relative hidden w-1/2 md:block">
-          <img
-            src={shoeImage}
-            alt="shoe"
-            className="object-cover w-full h-full"
-          />
-
-          <div className="absolute text-white bottom-10 left-10">
-            <h2 className="text-4xl font-bold">Step into the future.</h2>
-            <p className="mt-3 text-lg">
-              Join our community and get exclusive <br />
-              access to limited drops.
-            </p>
-          </div>
+    <div className="auth-container">
+      {/* Left Side */}
+      <div className="auth-left-panel">
+        <img
+          src={shoeImage}
+          alt="shoe"
+          className="auth-image"
+        />
+        <div className="auth-overlay"></div>
+        <div className="auth-overlay-content">
+          <h2 className="auth-heading-img">Step into the future.</h2>
+          <p className="auth-subheading-img">
+            Join our community and get exclusive <br />
+            access to limited drops.
+          </p>
         </div>
+      </div>
 
-        {/* Right Side */}
-        <div className="w-full md:w-1/2 bg-[#f8f2e8] p-12">
-          <h1 className="text-5xl font-bold text-gray-900">Create Account</h1>
-
-          <p className="mt-3 text-gray-500">
+      {/* Right Side */}
+      <div className="auth-right-panel">
+        <div className="auth-form-wrapper">
+          <h1 className="auth-title">Create Account</h1>
+          <p className="auth-subtitle">
             Join Solevora for exclusive access to the latest drops.
           </p>
 
-          <form className="mt-10 space-y-6" onSubmit={handleRegister}>
-            <div>
-              <label className="block mb-2 font-medium">Full Name</label>
-              <input
-                type="text"
-                placeholder="Enter your full name"
-                className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 font-medium">Email Address</label>
-              <input
-                type="email"
-                placeholder="name@example.com"
-                className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-1/2">
-                <label className="block mb-2 font-medium">Password</label>
+          <form onSubmit={handleRegister}>
+            <div className="auth-form-group">
+              <label className="auth-label">Full Name</label>
+              <div className="auth-input-wrapper">
                 <input
-                  type="password"
-                  placeholder="********"
-                  className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-
-              <div className="w-1/2">
-                <label className="block mb-2 font-medium">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="********"
-                  className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  type="text"
+                  placeholder="Enter your full name"
+                  className="auth-input"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                 />
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="w-full py-4 text-lg font-semibold text-white transition bg-orange-500 rounded-lg hover:bg-orange-600"
-            >
+            <div className="auth-form-group">
+              <label className="auth-label">Email Address</label>
+              <div className="auth-input-wrapper">
+                <input
+                  type="email"
+                  placeholder="name@example.com"
+                  className="auth-input"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="auth-form-row">
+              <div>
+                <label className="auth-label">Password</label>
+                <div className="auth-input-wrapper">
+                  <input
+                    type="password"
+                    placeholder="********"
+                    className="auth-input"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="auth-label">Confirm</label>
+                <div className="auth-input-wrapper">
+                  <input
+                    type="password"
+                    placeholder="********"
+                    className="auth-input"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" className="auth-submit-btn">
               Create Account
             </button>
 
-            {message && (
-              <p className="text-sm text-center text-blue-600">{message}</p>
-            )}
+            {message && <p className="auth-error">{message}</p>}
           </form>
 
           {/* Divider */}
-          <div className="flex items-center my-8">
-            <div className="flex-grow border-t border-gray-300"></div>
-            <span className="px-4 text-sm text-gray-400">Or continue with</span>
-            <div className="flex-grow border-t border-gray-300"></div>
+          <div className="auth-divider">
+            <span>Or continue with</span>
           </div>
 
           {/* Social Buttons */}
-          <div className="flex gap-4">
+          <div className="auth-social-buttons">
             <button
               type="button"
               onClick={handleGoogleRegister}
-              className="flex items-center justify-center w-1/2 gap-2 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="auth-social-btn"
             >
               <FcGoogle size={22} />
               Google
@@ -184,30 +183,16 @@ function Register() {
             <button
               type="button"
               onClick={handleAppleRegister}
-              className="flex items-center justify-center w-1/2 gap-2 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="auth-social-btn"
             >
               <FaApple size={20} />
               Apple
             </button>
           </div>
 
-          {/* Sign In */}
-          <div className="mt-8 text-center text-gray-500">
-            Already have an account?
-            <Link to="/" className="ml-2 text-orange-500 cursor-pointer">
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="mt-8 text-sm text-center text-gray-400">
-        <p>© 2024 Solevora. All rights reserved.</p>
-
-        <div className="flex justify-center gap-6 mt-2">
-          <span className="cursor-pointer">Privacy Policy</span>
-          <span className="cursor-pointer">Terms of Service</span>
+          <Link to="/" className="auth-link-back" style={{marginTop: "1rem"}}>
+            Already have an account? <span style={{color: "#f97316"}}>Sign In</span>
+          </Link>
         </div>
       </div>
     </div>

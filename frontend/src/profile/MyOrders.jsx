@@ -11,25 +11,36 @@ const MyOrders = () => {
     const [loading, setLoading] = useState(true);
     const { checkoutData } = useCart();
     
-    // In a real app, we'd use the logged-in user's email.
-    const userEmail = checkoutData.email || 'user@example.com'; 
+    // Get logged-in user's email
+    const getLoggedInEmail = () => {
+        const userStr = localStorage.getItem("user");
+        if (userStr) return JSON.parse(userStr).email;
+        return checkoutData.email || null;
+    };
+    
+    const userEmail = getLoggedInEmail(); 
 
     useEffect(() => {
         const fetchOrders = async () => {
+            if (!userEmail) {
+                setLoading(false);
+                return;
+            }
             try {
-                const response = await axios.get(`http://localhost:5000/api/orders/user/${userEmail}`);
+                // Correcting the endpoint to use query parameter as expected by OrderController.getOrdersByEmail
+                const response = await axios.get(`http://localhost:5000/api/orders/search?email=${userEmail}`);
                 
                 const formattedOrders = response.data.map(ord => ({
                     id: ord.id,
-                    date: new Date(ord.created_at).toLocaleDateString(),
+                    date: new Date(ord.createdAt).toLocaleDateString(), // Use createdAt since Sequelize uses that by default
                     total: `$${ord.total_amount}`,
-                    shipTo: ord.full_name,
+                    shipTo: ord.shipping_address ? "See details" : "N/A", // Adjust based on real data
                     status: ord.status.charAt(0).toUpperCase() + ord.status.slice(1),
                     statusStyle: getStatusStyle(ord.status),
                     deliveryDate: ord.status === 'delivered' ? 'Delivered' : 'Processing',
-                    productName: ord.items[0]?.name || 'Product',
-                    meta: `Items: ${ord.items.length}`,
-                    image: ord.items[0]?.image_url || "https://placeholder.com",
+                    productName: ord.items && ord.items[0]?.product?.name ? ord.items[0].product.name : 'Product',
+                    meta: `Items: ${ord.items ? ord.items.length : 0}`,
+                    image: ord.items && ord.items[0]?.product?.image_url ? ord.items[0].product.image_url : "https://placeholder.com",
                     actions: ['Track Order', 'View Details']
                 }));
 

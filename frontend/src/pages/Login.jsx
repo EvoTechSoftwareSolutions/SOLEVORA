@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import loginImage from "../assets/login-shoe.png";
 import { FcGoogle } from "react-icons/fc";
@@ -7,10 +7,17 @@ import { FaApple, FaUser } from "react-icons/fa";
 import { HiOutlineMail } from "react-icons/hi";
 import { LuLock } from "react-icons/lu";
 
+import "./Auth.css";
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the intended destination from location state
+  const from = location.state?.from || "/home";
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,9 +33,9 @@ function Login() {
         password,
       });
 
-      setMessage(res.data.message);
-      setEmail("");
-      setPassword("");
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("isAuthenticated", "true");
+      navigate(from, { replace: true });
     } catch (error) {
       if (error.response && error.response.data.message) {
         setMessage(error.response.data.message);
@@ -45,7 +52,9 @@ function Login() {
         password: "social_login",
       });
 
-      setMessage(res.data.message);
+      localStorage.setItem("user", JSON.stringify({ email: "googleuser@gmail.com", name: "Google User" }));
+      localStorage.setItem("isAuthenticated", "true");
+      navigate(from, { replace: true });
     } catch (error) {
       if (error.response && error.response.data.message) {
         setMessage(error.response.data.message);
@@ -62,7 +71,9 @@ function Login() {
         password: "social_login",
       });
 
-      setMessage(res.data.message);
+      localStorage.setItem("user", JSON.stringify({ email: "appleuser@gmail.com", name: "Apple User" }));
+      localStorage.setItem("isAuthenticated", "true");
+      navigate(from, { replace: true });
     } catch (error) {
       if (error.response && error.response.data.message) {
         setMessage(error.response.data.message);
@@ -73,136 +84,101 @@ function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-gray-100">
-      <div className="w-full max-w-6xl rounded-2xl overflow-hidden bg-[#f7f1e4] shadow-md flex flex-col md:flex-row">
-        {/* Left Side */}
-        <div className="relative w-full md:w-1/2 h-[400px] md:h-auto">
-          <img
-            src={loginImage}
-            alt="Login Shoe"
-            className="object-cover w-full h-full"
-          />
-
-          <div className="absolute text-white bottom-10 left-8">
-            <h2 className="text-3xl font-bold md:text-4xl">
-              Step into the future.
-            </h2>
-            <p className="mt-3 text-lg leading-8">
-              Join our community and get exclusive <br />
-              access to limited drops.
-            </p>
-          </div>
-
-          <div className="absolute p-3 bg-white rounded-full shadow-md bottom-6 right-6">
-            <FaUser className="text-lg text-gray-700" />
-          </div>
+    <div className="auth-container">
+      {/* Left Side */}
+      <div className="auth-left-panel">
+        <img
+          src={loginImage}
+          alt="Login Shoe"
+          className="auth-image"
+        />
+        <div className="auth-overlay"></div>
+        <div className="auth-overlay-content">
+          <h2 className="auth-heading-img">Step into the future.</h2>
+          <p className="auth-subheading-img">
+            Join our community and get exclusive <br />
+            access to limited drops.
+          </p>
         </div>
+      </div>
 
-        {/* Right Side */}
-        <div className="w-full px-8 py-12 md:w-1/2 md:px-16">
-          <h1 className="text-4xl font-bold md:text-5xl text-slate-900">
-            Welcome Back
-          </h1>
-
-          <p className="mt-4 text-[#6f7d95] text-lg leading-8 max-w-md">
+      {/* Right Side */}
+      <div className="auth-right-panel">
+        <div className="auth-form-wrapper">
+          <h1 className="auth-title">Welcome Back</h1>
+          <p className="auth-subtitle">
             Sign in to your Solevora account to access your orders and wishlist.
           </p>
 
-          <form className="mt-10" onSubmit={handleLogin}>
-            <div className="mb-6">
-              <label className="block text-[#24324a] font-semibold mb-3">
-                Email Address
-              </label>
-
-              <div className="flex items-center bg-[#f4f4f4] rounded-xl px-4 h-16">
-                <HiOutlineMail className="text-[#94a3b8] text-xl mr-3" />
+          <form onSubmit={handleLogin}>
+            <div className="auth-form-group">
+              <label className="auth-label">Email Address</label>
+              <div className="auth-input-wrapper">
+                <HiOutlineMail className="auth-icon" />
                 <input
                   type="email"
                   placeholder="name@example.com"
-                  className="w-full text-lg bg-transparent outline-none text-slate-700"
+                  className="auth-input"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
 
-            <div className="mb-3">
-              <label className="block text-[#24324a] font-semibold mb-3">
-                Password
-              </label>
-
-              <div className="flex items-center bg-[#f4f4f4] rounded-xl px-4 h-16">
-                <LuLock className="text-[#94a3b8] text-xl mr-3" />
+            <div className="auth-form-group">
+              <label className="auth-label">Password</label>
+              <div className="auth-input-wrapper">
+                <LuLock className="auth-icon" />
                 <input
                   type="password"
                   placeholder="••••••••"
-                  className="w-full text-lg bg-transparent outline-none text-slate-700"
+                  className="auth-input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </div>
 
-            <div className="mt-4 text-right">
-              <Link to="/forgot-password" className="font-medium text-orange-500">
-  Forgot Password?
-</Link>
+            <div style={{textAlign: "right", marginTop: "-0.5rem", marginBottom: "2rem"}}>
+              <Link to="/forgot-password" style={{color: "#f97316", fontWeight: "600", textDecoration: "none"}}>
+                Forgot Password?
+              </Link>
             </div>
 
-            <button
-              type="submit"
-              className="w-full py-4 mt-10 text-xl font-semibold text-white transition bg-orange-500 hover:bg-orange-600 rounded-xl"
-            >
+            <button type="submit" className="auth-submit-btn">
               Sign In
             </button>
 
-            {message && (
-              <p className="mt-4 text-sm text-center text-red-600">{message}</p>
-            )}
+            {message && <p className="auth-error">{message}</p>}
           </form>
 
-          <div className="flex items-center mb-8 mt-14">
-            <div className="flex-1 border-t border-gray-300"></div>
-            <span className="px-4 text-sm text-gray-400">
-              Or continue with
-            </span>
-            <div className="flex-1 border-t border-gray-300"></div>
+          <div className="auth-divider">
+            <span>Or continue with</span>
           </div>
 
-          <div className="flex gap-4">
+          <div className="auth-social-buttons">
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="flex items-center justify-center flex-1 gap-2 border border-gray-300 h-14 rounded-xl hover:bg-white"
+              className="auth-social-btn"
             >
-              <FcGoogle className="text-xl" />
+              <FcGoogle size={22} />
               Google
             </button>
 
             <button
               type="button"
               onClick={handleAppleLogin}
-              className="flex items-center justify-center flex-1 gap-2 border border-gray-300 h-14 rounded-xl hover:bg-white"
+              className="auth-social-btn"
             >
-              <FaApple className="text-xl" />
+              <FaApple size={20} />
               Apple
             </button>
           </div>
 
-          <p className="mt-10 text-center text-gray-500">
-            Don&apos;t have an account?
-            <Link to="/register" className="ml-2 text-orange-500 cursor-pointer">
-              Sign Up
-            </Link>
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-10 text-sm text-center text-gray-400">
-        <p>© 2024 Solevora. All rights reserved.</p>
-        <div className="flex justify-center gap-6 mt-2">
-          <span className="cursor-pointer">Privacy Policy</span>
-          <span className="cursor-pointer">Terms of Service</span>
+          <Link to="/register" className="auth-link-back" style={{marginTop: "1rem"}}>
+            Don&apos;t have an account? <span style={{color: "#f97316"}}>Sign Up</span>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,36 +1,82 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import axios from 'axios';
 
 const WishlistContext = createContext();
 
 export const WishlistProvider = ({ children }) => {
-    // Load local storage if available
-    const [wishlist, setWishlist] = useState(() => {
-        const localData = localStorage.getItem('solevora_wishlist');
-        return localData ? JSON.parse(localData) : [];
-    });
+    const [wishlist, setWishlist] = useState([]);
 
-    useEffect(() => {
-        localStorage.setItem('solevora_wishlist', JSON.stringify(wishlist));
-    }, [wishlist]);
-
-    const addToWishlist = (product) => {
-        setWishlist((prev) => {
-            const existingItem = prev.find(item => item.id === product.id);
-            if (existingItem) return prev; // Don't add if already there
-            return [...prev, product];
-        });
+    const getUserId = () => {
+        const userStr = localStorage.getItem('user');
+        return userStr ? JSON.parse(userStr).id : null;
     };
 
-    const removeFromWishlist = (productId) => {
-        setWishlist(prev => prev.filter(item => item.id !== productId));
+    const fetchWishlist = async () => {
+        const userId = getUserId();
+        if (userId) {
+            try {
+                const res = await axios.get(`http://localhost:5000/api/wishlist/${userId}`);
+                setWishlist(res.data);
+            } catch (err) {
+                console.error("Failed to fetch wishlist");
+            }
+        } else {
+            const localData = localStorage.getItem('solevora_wishlist');
+            if (localData) setWishlist(JSON.parse(localData));
+        }
+    };
+
+    useEffect(() => {
+        fetchWishlist();
+    }, []);
+
+    const addToWishlist = async (product) => {
+        const userId = getUserId();
+        if (userId) {
+            try {
+                await axios.post('http://localhost:5000/api/wishlist', {
+                    userId,
+                    productId: product.id
+                });
+                fetchWishlist();
+            } catch (err) {
+                console.error("Failed to add to wishlist");
+            }
+        } else {
+            setWishlist((prev) => {
+                if (prev.find(item => item.id === product.id)) return prev;
+                const newWishlist = [...prev, product];
+                localStorage.setItem('solevora_wishlist', JSON.stringify(newWishlist));
+                return newWishlist;
+            });
+        }
+    };
+
+    const removeFromWishlist = async (productId) => {
+        const userId = getUserId();
+        if (userId) {
+            try {
+                await axios.delete(`http://localhost:5000/api/wishlist/${userId}/${productId}`);
+                fetchWishlist();
+            } catch (err) {
+                console.error("Failed to remove from wishlist");
+            }
+        } else {
+            setWishlist(prev => {
+                const newWishlist = prev.filter(item => item.id !== productId);
+                localStorage.setItem('solevora_wishlist', JSON.stringify(newWishlist));
+                return newWishlist;
+            });
+        }
     };
 
     const isInWishlist = (productId) => {
-        return wishlist.some(item => item.id === productId);
+        return wishlist.some(item => item.id == productId);
     };
 
     const clearWishlist = () => {
         setWishlist([]);
+        localStorage.removeItem('solevora_wishlist');
     };
 
     return (

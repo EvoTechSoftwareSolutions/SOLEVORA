@@ -41,13 +41,21 @@ const ProfileLayout = () => {
                         {/* Profile Section */}
                         <div className="sidebar-user-section">
                             <div className="sidebar-avatar-wrapper">
-                                <img className="sidebar-avatar-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZwRIB9E2bVLjx2kVia-eDWU4btLpIpUV64ODyiXAE6uhnqHH3CyAk64bsF9R1SdiAa4dJkpn6m9XLr8X_dz4fBCKkdY0DLuCpqzXMRTER2GFJclsl_g4avvEvYCE-PtIMUGcM2aoWD6TfdIrtq1Z34_HdT4PX5Vg_H2o10EnHxlCmDJT9p6uyxEHXjFM8EYQTRRFBUQsMPQhTgXYx_7Dd3MHTpELJb11V8EqaN3Pl1j4lmlCJzbvfQrGcwdDyg5Ww660JxTgyr70" alt="Marcus Sterling" />
+                                <img 
+                                    className="sidebar-avatar-img" 
+                                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus" 
+                                    alt="User Avatar" 
+                                />
                                 <div className="sidebar-status-check">
                                     <span className="material-symbols-outlined">check</span>
                                 </div>
                             </div>
                             <div className="sidebar-user-info">
-                                <h4>Marcus Sterling</h4>
+                                <h4>{(() => {
+                                    const userStr = localStorage.getItem("user");
+                                    if (userStr) return JSON.parse(userStr).name;
+                                    return "Valued Customer";
+                                })()}</h4>
                                 <p className="sidebar-user-membership">Gold Member</p>
                             </div>
                         </div>

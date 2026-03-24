@@ -26,6 +26,10 @@ const Order = sequelize.define('Order', {
     email: {
         type: DataTypes.STRING,
         allowNull: true
+    },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     }
 }, {
     timestamps: true,

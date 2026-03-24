@@ -2,19 +2,30 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import './Dashboard.css';
 
 const Dashboard = () => {
     const { checkoutData } = useCart();
+    const { wishlist } = useWishlist();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
+    
+    // Get logged-in user
+    const getLoggedInUser = () => {
+        const userStr = localStorage.getItem("user");
+        if (userStr) return JSON.parse(userStr);
+        return { name: checkoutData.fullName || 'Valued Customer', email: checkoutData.email };
+    };
+    
+    const user = getLoggedInUser();
 
     useEffect(() => {
         const fetchOrders = async () => {
-            if (!checkoutData.email) return;
+            if (!user.email) return;
             setLoading(true);
             try {
-                const response = await axios.get(`http://localhost:5000/api/orders/search?email=${checkoutData.email}`);
+                const response = await axios.get(`http://localhost:5000/api/orders/search?email=${user.email}`);
                 setOrders(response.data);
             } catch (error) {
                 console.error('Error fetching orders:', error);
@@ -23,9 +34,9 @@ const Dashboard = () => {
             }
         };
         fetchOrders();
-    }, [checkoutData.email]);
+    }, [user.email]);
 
-    const userName = checkoutData.fullName || 'Valued Customer';
+    const userName = user.name;
     const recentOrders = orders.slice(0, 3);
     const totalSpent = orders.reduce((sum, order) => sum + parseFloat(order.total_amount), 0);
 
@@ -48,6 +59,20 @@ const Dashboard = () => {
             default:
                 return '';
         }
+    };
+
+    const getMembershipTier = (count) => {
+        if (count >= 10) return "Platinum";
+        if (count >= 5) return "Gold";
+        if (count >= 1) return "Silver";
+        return "Bronze";
+    };
+
+    const nextTierInfo = (count) => {
+        if (count >= 10) return "Max Tier";
+        if (count >= 5) return `${10 - count} orders until Platinum`;
+        if (count >= 1) return `${5 - count} orders until Gold`;
+        return "1 order until Silver";
     };
 
     return (
@@ -75,10 +100,10 @@ const Dashboard = () => {
                         <p>Solevora Points</p>
                         <span className="material-symbols-outlined pdb-icon-color">pentagon</span>
                     </div>
-                    <h3 className="pdb-stat-value">2,450</h3>
+                    <h3 className="pdb-stat-value">{orders.length * 100}</h3>
                     <p className="pdb-stat-change pdb-positive">
                         <span className="material-symbols-outlined pdb-trending-icon">trending_up</span>
-                        +15% from last month
+                        Earned from {orders.length} purchases
                     </p>
                 </div>
 
@@ -91,8 +116,8 @@ const Dashboard = () => {
                         <p>Membership</p>
                         <span className="material-symbols-outlined pdb-icon-color">stars</span>
                     </div>
-                    <h3 className="pdb-stat-value">Gold Tier</h3>
-                    <p className="pdb-stat-subtitle">550 pts until Platinum</p>
+                    <h3 className="pdb-stat-value">{getMembershipTier(orders.length)} Tier</h3>
+                    <p className="pdb-stat-subtitle">{nextTierInfo(orders.length)}</p>
                 </div>
 
                 {/* Total Spent Card */}
@@ -156,26 +181,20 @@ const Dashboard = () => {
                         <Link to="/profile/wishlist" className="pdb-view-link">Manage</Link>
                     </div>
                     <div className="pdb-wishlist-grid">
-                        <div className="pdb-mini-wishlist-card">
-                            <div className="pdb-wishlist-img-box">
-                                <span className="material-symbols-outlined pdb-heart-icon">favorite_border</span>
-                                <img src="https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=150&h=150&fit=crop" alt="Wishlist item" />
+                        {wishlist.length === 0 ? (
+                            <p style={{ padding: '10px' }}>Your wishlist is empty.</p>
+                        ) : wishlist.slice(0, 2).map((item) => (
+                            <div key={item.id} className="pdb-mini-wishlist-card">
+                                <div className="pdb-wishlist-img-box">
+                                    <span className="material-symbols-outlined pdb-heart-icon">favorite_border</span>
+                                    <img src={item.image_url} alt={item.name} />
+                                </div>
+                                <div className="pdb-wishlist-info">
+                                    <h4>{item.name}</h4>
+                                    <p>${item.price}</p>
+                                </div>
                             </div>
-                            <div className="pdb-wishlist-info">
-                                <h4>Air Max Pulse</h4>
-                                <p>$160.00</p>
-                            </div>
-                        </div>
-                        <div className="pdb-mini-wishlist-card">
-                            <div className="pdb-wishlist-img-box">
-                                <span className="material-symbols-outlined pdb-heart-icon">favorite_border</span>
-                                <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=150&h=150&fit=crop" alt="Wishlist item" />
-                            </div>
-                            <div className="pdb-wishlist-info">
-                                <h4>Court Vision Low</h4>
-                                <p>$85.00</p>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </div>
@@ -193,7 +212,7 @@ const Dashboard = () => {
                         </div>
                         <div className="pdb-overview-card-info">
                             <label>EMAIL ADDRESS</label>
-                            <p>{checkoutData.email || 'Not provided'}</p>
+                            <p>{user.email || 'Not provided'}</p>
                         </div>
                     </div>
 
@@ -206,7 +225,7 @@ const Dashboard = () => {
                         </div>
                         <div className="pdb-overview-card-info">
                             <label>PHONE NUMBER</label>
-                            <p>{checkoutData.phone || 'Not provided'}</p>
+                            <p>{user.phone || 'Not provided'}</p>
                         </div>
                     </div>
 
@@ -218,15 +237,8 @@ const Dashboard = () => {
                             <Link to="/profile/addresses" className="pdb-edit-link">EDIT</Link>
                         </div>
                         <div className="pdb-overview-card-info">
-                            <label>DEFAULT ADDRESS</label>
-                            <p>
-                                {checkoutData.streetAddress ? (
-                                    <>
-                                        {checkoutData.streetAddress},<br />
-                                        {checkoutData.city}, {checkoutData.postalCode}
-                                    </>
-                                ) : 'No address saved'}
-                            </p>
+                            <label>LOCATION</label>
+                            <p>{user.location || 'No location saved'}</p>
                         </div>
                     </div>
                 </div>

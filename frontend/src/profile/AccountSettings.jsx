@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './AccountSettings.css';
 
 const AccountSettings = () => {
     const [profileData, setProfileData] = useState({
-        fullName: 'Alex Morgan',
-        email: 'alex.morgan@example.com',
-        phone: '+1 (555) 000-0000',
-        location: 'San Francisco, CA',
+        fullName: '',
+        email: '',
+        phone: '',
+        location: '',
     });
 
     const [passwordData, setPasswordData] = useState({
-        currentPassword: '••••••••',
+        currentPassword: '',
         newPassword: '',
         confirmPassword: '',
     });
+
+    const [message, setMessage] = useState("");
 
     const [twoFactor, setTwoFactor] = useState(false);
 
@@ -23,6 +26,39 @@ const AccountSettings = () => {
         usageReports: false,
     });
 
+    const getUserId = () => {
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+            return JSON.parse(userStr).id;
+        }
+        return null;
+    };
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const userId = getUserId();
+            if (!userId) return;
+
+            try {
+                const res = await axios.get(`http://localhost:5000/user/${userId}`);
+                setProfileData({
+                    fullName: res.data.name || '',
+                    email: res.data.email || '',
+                    phone: res.data.phone || '',
+                    location: res.data.location || ''
+                });
+                setPreferences({
+                    newsletter: res.data.newsletter,
+                    pushNotifications: res.data.pushNotifications,
+                    usageReports: res.data.usageReports
+                });
+            } catch (err) {
+                console.error("Failed to fetch profile");
+            }
+        };
+        fetchProfile();
+    }, []);
+
     const handleProfileChange = (e) => {
         setProfileData({ ...profileData, [e.target.name]: e.target.value });
     };
@@ -31,12 +67,62 @@ const AccountSettings = () => {
         setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
     };
 
+    const saveChanges = async (type) => {
+        const userId = getUserId();
+        if (!userId) {
+            setMessage("You are not logged in!");
+            return;
+        }
+        
+        try {
+            let res;
+            if (type === 'profile' || type === 'preferences') {
+                res = await axios.put(`http://localhost:5000/user/${userId}`, {
+                    name: profileData.fullName,
+                    email: profileData.email,
+                    phone: profileData.phone,
+                    location: profileData.location,
+                    ...preferences
+                });
+                localStorage.setItem("user", JSON.stringify(res.data.user));
+            } else if (type === 'password') {
+                if (passwordData.newPassword !== passwordData.confirmPassword) {
+                    setMessage("Passwords do not match");
+                    return;
+                }
+                res = await axios.put(`http://localhost:5000/user/${userId}/password`, {
+                    currentPassword: passwordData.currentPassword,
+                    newPassword: passwordData.newPassword
+                });
+                setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+            }
+
+            setMessage(res.data.message);
+            setTimeout(() => setMessage(""), 3000); 
+        } catch (err) {
+            setMessage(err.response?.data?.message || "Operation failed");
+        }
+    };
+
+    const deleteAccount = async () => {
+        if (!window.confirm("Are you sure you want to delete your account? This is permanent!")) return;
+        const userId = getUserId();
+        try {
+            await axios.delete(`http://localhost:5000/user/${userId}`);
+            localStorage.removeItem("user");
+            window.location.href = "/";
+        } catch (err) {
+            setMessage("Failed to delete account");
+        }
+    };
+
     return (
         <div className="as-container">
             {/* Page Header */}
             <div className="as-header">
                 <h2>Account Management</h2>
                 <p>Review your information and update your security preferences.</p>
+                {message && <div style={{marginTop: "1rem", color: "#f97316", fontWeight: "600"}}>{message}</div>}
             </div>
 
             {/* Profile Information Section */}
@@ -88,7 +174,7 @@ const AccountSettings = () => {
                     </div>
                 </div>
                 <div className="as-card-actions">
-                    <button className="as-btn-primary">Save Changes</button>
+                    <button className="as-btn-primary" onClick={() => saveChanges('profile')}>Save Changes</button>
                 </div>
             </div>
 
@@ -155,7 +241,7 @@ const AccountSettings = () => {
                 </div>
 
                 <div className="as-card-actions">
-                    <button className="as-btn-primary">Update Password</button>
+                    <button className="as-btn-primary" onClick={() => saveChanges('password')}>Update Password</button>
                 </div>
             </div>
 
@@ -230,7 +316,7 @@ const AccountSettings = () => {
                     </div>
                 </div>
                 <div className="as-card-actions">
-                    <button className="as-btn-primary">Save Preferences</button>
+                    <button className="as-btn-primary" onClick={() => saveChanges('preferences')}>Save Preferences</button>
                 </div>
             </div>
 
@@ -240,7 +326,7 @@ const AccountSettings = () => {
                     <h4>Delete Account</h4>
                     <p>Once you delete your account, there is no going back. Please be certain.</p>
                 </div>
-                <button className="as-btn-delete">Delete Account</button>
+                <button className="as-btn-delete" onClick={deleteAccount}>Delete Account</button>
             </div>
         </div>
     );

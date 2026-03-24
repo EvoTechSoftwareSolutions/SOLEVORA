@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import Modal from '../../components/ui/Modal';
 import '../../styles/user/PaymentDetails.css';
 
 const PaymentDetails = () => {
@@ -11,6 +12,8 @@ const PaymentDetails = () => {
   const [paymentMethod, setPaymentMethod] = useState('creditcard');
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: '', body: '' });
   const [formData, setFormData] = useState({
     cardholderName: '',
     cardNumber: '',
@@ -18,6 +21,11 @@ const PaymentDetails = () => {
     cvv: '',
     saveCard: false,
   });
+
+  const showMessage = (title, body) => {
+    setModalContent({ title, body });
+    setIsModalOpen(true);
+  };
 
   const grossTotal = cartTotal;
   const promoDiscount = promoApplied ? grossTotal * 0.1 : 0;
@@ -35,12 +43,12 @@ const PaymentDetails = () => {
 
   const handleApplyPromo = () => {
     if (promoCode.trim().toLowerCase() === 'save10') setPromoApplied(true);
-    else alert('Invalid promo code. Try "SAVE10"');
+    else showMessage('Invalid Promo', 'The code you entered is invalid. Try "SAVE10" for a discount.');
   };
 
   const handlePlaceOrder = async () => {
     if (paymentMethod === 'creditcard' && (!formData.cardNumber || !formData.cvv)) {
-        alert('Please enter valid payment details.');
+        showMessage('Invalid Details', 'Please enter valid payment details before placing your order.');
         return;
     }
     
@@ -67,7 +75,7 @@ const PaymentDetails = () => {
         navigate('/verify-code', { state: { order: orderData, items: currentItems } });
     } catch (error) {
         console.error('Error placing order:', error);
-        alert('There was an error placing your order. Please try again.');
+        showMessage('Order Failed', 'There was an error placing your order. Please check your bank and try again.');
     }
   };
 
@@ -318,7 +326,18 @@ const PaymentDetails = () => {
             </p>
           </div>
 
-        </div>
+        {/* Modal for Messages */}
+        <Modal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)}
+          title={modalContent.title}
+          actions={
+            <button className="modal-btn modal-btn-confirm" onClick={() => setIsModalOpen(false)}>Got it</button>
+          }
+        >
+          <p>{modalContent.body}</p>
+        </Modal>
+
       </div>
     </div>
   );
