@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import PropTypes from "prop-types";
 import "../../styles/user/ui/Card.css";
 import { FaStar } from "react-icons/fa";
 
@@ -40,14 +39,6 @@ const Card = ({ image, title, description, price, link }) => {
       </div>
     </div>
   );
-};
-
-Card.propTypes = {
-  image: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
-  description: PropTypes.string,
-  price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  link: PropTypes.string,
 };
 
 export default Card;
