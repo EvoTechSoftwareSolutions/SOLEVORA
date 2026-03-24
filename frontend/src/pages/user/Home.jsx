@@ -11,9 +11,11 @@ import {
   ShoppingCartIcon,
   FaSearch,
   HiOutlineAdjustmentsHorizontal,
-  FaPlus 
+  FaPlus,
 } from "../../components/common/icons";
 import shoe from "../../assets/image/orangeshoe.png";
+import crosslegsImg from "../../assets/image/crosslegs.jpg";
+import redshoe from "../../assets/image/redshoe.png";
 import greenshoe from "../../assets/image/greenshoe.png";
 import premium from "../../assets/image/premium.svg";
 import happyface from "../../assets/image/happyface.svg";
@@ -100,13 +102,12 @@ const categories = [
   },
 ];
 
-
 const Home = () => {
   const [openIndex, setOpenIndex] = useState(null);
 
-const toggleFAQ = (index) => {
-  setOpenIndex(openIndex === index ? null : index);
-};
+  const toggleFAQ = (index) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
   return (
     <div className="main-container">
       <div className="banner">
@@ -343,110 +344,191 @@ const toggleFAQ = (index) => {
       </section>
 
       <section className="faq-containers">
-  <h2>Frequently Asked Questions</h2>
+        <h2>Frequently Asked Questions</h2>
 
-  <div className="search-faq">
-    <FaSearch className="faq-icon" />
-    <input type="text" placeholder="Search..." />
-  </div>
+        <div className="search-faq">
+          <FaSearch className="faq-icon" />
+          <input type="text" placeholder="Search..." />
+        </div>
 
-<div className="faqs">
-  <div className="questions" onClick={() => toggleFAQ(0)}>
-    <h4>Do you offer free shipping?</h4>
-    <FaPlus className={`dropdown ${openIndex === 0 ? "active" : ""}`} />
-  </div>
+        <div className="faqs">
+          <div className="questions" onClick={() => toggleFAQ(0)}>
+            <h4>Do you offer free shipping?</h4>
+            <FaPlus className={`dropdown ${openIndex === 0 ? "active" : ""}`} />
+          </div>
 
-  <p className={`answer ${openIndex === 0 ? "show" : ""}`}>
-    Yes, we provide free shipping on selected orders. Delivery times may vary depending on your location.
-  </p>
-</div>
+          <p className={`answer ${openIndex === 0 ? "show" : ""}`}>
+            Yes, we provide free shipping on selected orders. Delivery times may
+            vary depending on your location.
+          </p>
+        </div>
 
-<div className="faqs">
-  <div className="questions" onClick={() => toggleFAQ(1)}>
-    <h4>Do you provide outside free shipping?</h4>
-    <FaPlus className={`dropdown ${openIndex === 1 ? "active" : ""}`} />
-  </div>
+        <div className="faqs">
+          <div className="questions" onClick={() => toggleFAQ(1)}>
+            <h4>Do you provide outside free shipping?</h4>
+            <FaPlus className={`dropdown ${openIndex === 1 ? "active" : ""}`} />
+          </div>
 
-  <p className={`answer ${openIndex === 1 ? "show" : ""}`}>
-    Yes, we provide free shipping on selected orders. Delivery times may vary depending on your location.
-  </p>
-</div>
-<div className="faqs">
-  <div className="questions" onClick={() => toggleFAQ(1)}>
-    <h4>How long does delivery take?</h4>
-    <FaPlus className={`dropdown ${openIndex === 1 ? "active" : ""}`} />
-  </div>
-  <p className={`answer ${openIndex === 1 ? "show" : ""}`}>
-    Delivery usually takes 3–7 business days depending on your location.
-  </p>
-</div>
+          <p className={`answer ${openIndex === 1 ? "show" : ""}`}>
+            Yes, we provide free shipping on selected orders. Delivery times may
+            vary depending on your location.
+          </p>
+        </div>
+        <div className="faqs">
+          <div className="questions" onClick={() => toggleFAQ(1)}>
+            <h4>How long does delivery take?</h4>
+            <FaPlus className={`dropdown ${openIndex === 1 ? "active" : ""}`} />
+          </div>
+          <p className={`answer ${openIndex === 1 ? "show" : ""}`}>
+            Delivery usually takes 3–7 business days depending on your location.
+          </p>
+        </div>
 
-<div className="faqs">
-  <div className="questions" onClick={() => toggleFAQ(2)}>
-    <h4>Can I return or exchange products?</h4>
-    <FaPlus className={`dropdown ${openIndex === 2 ? "active" : ""}`} />
-  </div>
-  <p className={`answer ${openIndex === 2 ? "show" : ""}`}>
-    Yes, we offer easy returns and exchanges within 7 days of delivery.
-  </p>
-</div>
+        <div className="faqs">
+          <div className="questions" onClick={() => toggleFAQ(2)}>
+            <h4>Can I return or exchange products?</h4>
+            <FaPlus className={`dropdown ${openIndex === 2 ? "active" : ""}`} />
+          </div>
+          <p className={`answer ${openIndex === 2 ? "show" : ""}`}>
+            Yes, we offer easy returns and exchanges within 7 days of delivery.
+          </p>
+        </div>
 
-<div className="faqs">
-  <div className="questions" onClick={() => toggleFAQ(3)}>
-    <h4>Are your products original?</h4>
-    <FaPlus className={`dropdown ${openIndex === 3 ? "active" : ""}`} />
-  </div>
-  <p className={`answer ${openIndex === 3 ? "show" : ""}`}>
-    All our products are 100% authentic and sourced from trusted suppliers.
-  </p>
-</div>
+        <div className="faqs">
+          <div className="questions" onClick={() => toggleFAQ(3)}>
+            <h4>Are your products original?</h4>
+            <FaPlus className={`dropdown ${openIndex === 3 ? "active" : ""}`} />
+          </div>
+          <p className={`answer ${openIndex === 3 ? "show" : ""}`}>
+            All our products are 100% authentic and sourced from trusted
+            suppliers.
+          </p>
+        </div>
 
-<div className="faqs">
-  <div className="questions" onClick={() => toggleFAQ(4)}>
-    <h4>Do you offer discounts or promotions?</h4>
-    <FaPlus className={`dropdown ${openIndex === 4 ? "active" : ""}`} />
-  </div>
-  <p className={`answer ${openIndex === 4 ? "show" : ""}`}>
-    Yes, we regularly offer discounts and seasonal promotions.
-  </p>
-</div>
+        <div className="faqs">
+          <div className="questions" onClick={() => toggleFAQ(4)}>
+            <h4>Do you offer discounts or promotions?</h4>
+            <FaPlus className={`dropdown ${openIndex === 4 ? "active" : ""}`} />
+          </div>
+          <p className={`answer ${openIndex === 4 ? "show" : ""}`}>
+            Yes, we regularly offer discounts and seasonal promotions.
+          </p>
+        </div>
 
-<div className="faqs">
-  <div className="questions" onClick={() => toggleFAQ(5)}>
-    <h4>How can I contact customer support?</h4>
-    <FaPlus className={`dropdown ${openIndex === 5 ? "active" : ""}`} />
-  </div>
-  <p className={`answer ${openIndex === 5 ? "show" : ""}`}>
-    You can contact us via email or phone, and our support team will assist you promptly.
-  </p>
-</div>
-</section>
+        <div className="faqs">
+          <div className="questions" onClick={() => toggleFAQ(5)}>
+            <h4>How can I contact customer support?</h4>
+            <FaPlus className={`dropdown ${openIndex === 5 ? "active" : ""}`} />
+          </div>
+          <p className={`answer ${openIndex === 5 ? "show" : ""}`}>
+            You can contact us via email or phone, and our support team will
+            assist you promptly.
+          </p>
+        </div>
+      </section>
 
-<section className="ads">
-      <div className="yellow-banner">
-  <div className="banner-details">
-    <span className="tag">Today only</span>
-    <h3>Buy One Get One Free</h3>
+      <section className="ads">
+        <div className="yellow-banner">
+          <div className="banner-details">
+            <span className="tag">Today only</span>
+            <h3>Buy One Get One Free</h3>
+            <p>
+              Mix and match from our entire collection. No minimum spend
+              required.
+            </p>
+
+            <Link to="/category" className="deal-btn">
+              Grab The Deal
+            </Link>
+          </div>
+
+          <div className="banner-img">
+            <img src={greenshoe} alt="offer" />
+          </div>
+
+          <div className="offer-circle">
+            <span>BUY 1</span>
+            <h3>GET</h3>
+            <span>FREE</span>
+          </div>
+        </div>
+        <div className="blue-banner">
+          <div className="banner-details-blue">
+            <span className="tag-blue">• Just Dropped</span>
+            <h3>
+              <span className="color1">New</span>{" "}
+              <span className="color2">Arrivals</span>
+            </h3>{" "}
+            <p>
+              Fresh kicks every week. Be first to cop the latest drops before
+              they sell out.
+            </p>
+            <Link to="/category" className="deal-btn-blue">
+              Explore New Drops
+            </Link>
+          </div>
+
+          <div className="banner-img">
+            <img src={redshoe} alt="offer" />
+          </div>
+
+          <div className="right-section-blue">
+            <span>Exclusive Collab</span>
+            <span>Limited Edition</span>
+            <span>Free Shipping</span>
+          </div>
+        </div>
+        <div className="small-banner">
+          <div className="black-banner">
+            <div className="top-details">
+            <div className="banner-details-black">
+                <span className="tag-black">• Just Dropped</span>
+              <h3>
+                <span className="color3">Sale</span>{" "}
+                <span className="color4">Drop</span>
+              </h3>{" "}
+            </div>
+                          <img src={brands} alt="" />
+
+            </div>
+            <div className="bottom-details">
+              <div className="details-btn">
+                <p>Biggest discounts of the season — all styles, all sizes</p>
+                <Link to="/category" className="deal-btn-black">
+                  Shop THe Sale
+                </Link>
+              </div>
+              <div className="orange-circle">
+                <h5>50%</h5>
+                <span>OFF</span>
+              </div>
+            </div>
+          </div>
+
+        <div className="lite">
+  <h2>
+    Amazing Deals <br />
+    Start in The Year
+  </h2>
+
+  <img src={crosslegsImg} alt="shoes" />
+
+  <div className="lite-content">
+    <div className="sale-box">
+      <span>Sale</span>
+      <span className="percent">40%</span>
+      <span>OFF</span>
+    </div>
+
     <p>
-      Mix and match from our entire collection. No minimum spend required.
+      Amazing deals start the year with style, comfort, and savings.
+      Discover premium shoes crafted for everyday performance and lasting comfort.
+      Step confidently into the new year with unbeatable prices.
     </p>
-
-    <Link to="/category" className="deal-btn">
-      Grab The Deal
-    </Link>
-  </div>
-
-  <div className="banner-img">
-    <img src={greenshoe} alt="offer" />
-  </div>
-
-  <div className="offer-circle">
-    <span>BUY 1</span>
-    <h3>GET</h3>
-    <span>FREE</span>
   </div>
 </div>
-</section>
+        </div>
+      </section>
     </div>
   );
 };
