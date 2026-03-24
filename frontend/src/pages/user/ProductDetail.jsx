@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 import '../../styles/user/ProductDetail.css';
 
 function ProductDetail() {
     const { id } = useParams();
+    const { addToCart } = useCart();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedSize, setSelectedSize] = useState('9.0');
@@ -111,7 +113,10 @@ function ProductDetail() {
                         </div>
 
                         <div className="buy-actions">
-                            <button className="add-cart-btn" onClick={() => alert(`${product.name} added to cart!`)}>
+                            <button className="add-cart-btn" onClick={() => {
+                                addToCart(product, selectedSize);
+                                alert(`${product.name} (Size: ${selectedSize}) added to cart!`);
+                            }}>
                                 <span className="material-symbols-outlined">shopping_bag</span>
                                 Add to Cart
                             </button>

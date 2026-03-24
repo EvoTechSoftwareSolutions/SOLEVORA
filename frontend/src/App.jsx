@@ -6,6 +6,7 @@ import UserRoutes from './routes/UserRoutes';
 import AdminRoutes from './routes/AdminRoutes';
 import ProfileRoutes from './routes/ProfileRoutes';
 
+import { CartProvider } from './context/CartContext';
 import './App.css';
 
 /**
@@ -16,11 +17,8 @@ import './App.css';
 function App() {
   return (
     <BrowserRouter>
-      {/* 
-        Professional Hint: Suspense provides a fallback UI while lazy-loaded 
-        components are being fetched. 
-      */}
-      <Suspense fallback={<div className="global-loader">Loading...</div>}>
+      <CartProvider>
+        <Suspense fallback={<div className="global-loader">Loading...</div>}>
         <Routes>
           {/* User Facing Module (Shopper Pages) */}
           {UserRoutes}
@@ -32,9 +30,9 @@ function App() {
           {ProfileRoutes}
 
           {/* Default Route: Redirect to Home or a 404 Page */}
-          <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
       </Suspense>
+      </CartProvider>
     </BrowserRouter>
   );
 }

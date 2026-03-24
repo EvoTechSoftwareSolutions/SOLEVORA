@@ -1,62 +1,57 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 import '../../styles/user/Cart.css';
 
 const Cart = () => {
-  // Sample data to match the mockup image
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Air Vora Elite',
-      color: 'Blaze Orange',
-      size: '42',
-      price: 120.00,
-      quantity: 1,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDcVWKRIEQKTdczefQ26RyCmwjQxO2wxh6uZTJzQf6vtd5FKc56wtqnzYUyXDp1A9R1QUzEDGxFZTR9fiT78MSQJyWa-QRIKW6cNjZzuitgKpdvoNrjSXPiEOsHB6WRXhN2pHVQc-0RVUQyUTlgAt94vEyTD_fzESIGVBwu4DVh9umTXNSJST2iubUsbKaYCkjUnHOkEqGlqxIRpocYo6_vlMKSBHSHxyHg8J5LF58NrUuKVcDkW8URlTqsRrXMHAp-F464FBRb2o8'
-    },
-    {
-      id: 2,
-      name: 'Cloud Walker Pro',
-      color: 'Blaze Orange',
-      size: '42',
-      price: 120.00,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop'
-    }
-  ]);
-
-  // Selected item ids (checkboxes). Default: select all.
-  const [selectedItemIds, setSelectedItemIds] = useState(() => new Set(cartItems.map((i) => i.id)));
+  const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
+  
+  // Selected item ids for checkout selection. Default: select all.
+  const [selectedItemIds, setSelectedItemIds] = useState(() => new Set(cart.map((i) => `${i.id}-${i.size}`)));
 
   const recommendedProducts = [
     { id: 101, name: 'Air Max 90', brand: 'Nike', price: 130, image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop' },
     { id: 102, name: 'UltraBoost 23', brand: 'Adidas', price: 180, image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=400&fit=crop' },
-    { id: 103, name: '550 Vintage', brand: 'New Balance', price: 180, image: 'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&h=400&fit=crop' },
-    { id: 104, name: '550 Vintage', brand: 'New Balance', price: 180, image: 'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&h=400&fit=crop' }
+    { id: 103, name: '550 Vintage', brand: 'New Balance', price: 180, image: 'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&h=400&fit=crop' }
   ];
 
-  const selectedItems = cartItems.filter((item) => selectedItemIds.has(item.id));
+  const selectedItems = cart.filter((item) => selectedItemIds.has(`${item.id}-${item.size}`));
   const selectedSubtotal = selectedItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const shipping = selectedItems.length ? 15.0 : 0.0;
   const tax = selectedSubtotal * 0.08;
   const total = selectedSubtotal + shipping + tax;
 
-  const allSelected = cartItems.length > 0 && selectedItemIds.size === cartItems.length;
+  const allSelected = cart.length > 0 && selectedItemIds.size === cart.length;
 
   const handleToggleAll = (e) => {
     const shouldSelectAll = e.target.checked;
-    setSelectedItemIds(new Set(shouldSelectAll ? cartItems.map((i) => i.id) : []));
+    setSelectedItemIds(new Set(shouldSelectAll ? cart.map((i) => `${i.id}-${i.size}`) : []));
   };
 
-  const handleToggleItem = (itemId) => {
+  const handleToggleItem = (key) => {
     setSelectedItemIds((prev) => {
       const next = new Set(prev);
-      if (next.has(itemId)) next.delete(itemId);
-      else next.add(itemId);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
   };
+
+  if (cart.length === 0) {
+    return (
+        <div className="cart-page">
+            <div className="container" style={{ textAlign: 'center', padding: '100px 20px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '80px', color: '#ccc', marginBottom: '20px' }}>shopping_cart_off</span>
+                <h2>Your cart is empty</h2>
+                <p style={{ color: '#666', marginBottom: '30px' }}>Looks like you haven't added anything to your cart yet.</p>
+                <Link to="/category" className="checkout-btn" style={{ display: 'inline-block', width: 'auto', padding: '15px 40px' }}>
+                    Start Shopping
+                </Link>
+            </div>
+        </div>
+    );
+  }
 
   return (
     <div className="cart-page">
@@ -65,7 +60,7 @@ const Cart = () => {
         <div className="cart-header">
           <h2>
             <span className="material-symbols-outlined c-icon">shopping_bag</span>
-            Shopping Cart <span className="item-count">({cartItems.length} items)</span>
+            Shopping Cart <span className="item-count">({cart.length} items)</span>
           </h2>
         </div>
 
@@ -80,47 +75,47 @@ const Cart = () => {
         <div className="cart-main-layout">
           {/* Cart Items List */}
           <div className="cart-items-list">
-            {cartItems.map((item) => (
-              <div key={item.id} className="cart-item-card">
+            {cart.map((item) => (
+              <div key={`${item.id}-${item.size}`} className="cart-item-card">
                 <div className="item-check">
                     <input
                       type="checkbox"
-                      checked={selectedItemIds.has(item.id)}
-                      onChange={() => handleToggleItem(item.id)}
+                      checked={selectedItemIds.has(`${item.id}-${item.size}`)}
+                      onChange={() => handleToggleItem(`${item.id}-${item.size}`)}
                     />
                 </div>
                 <div className="item-image">
-                  <img src={item.image} alt={item.name} />
+                  <img src={item.image_url} alt={item.name} />
                 </div>
                 <div className="item-details">
                   <h3>{item.name}</h3>
-                  <p className="item-meta">Color : {item.color}</p>
+                  <p className="item-meta">Color : {item.color || 'Standard'}</p>
                   <p className="item-meta">Size  : {item.size}</p>
                 </div>
                 <div className="item-quantity">
                   <div className="qty-selector">
-                    <button>-</button>
+                    <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}>-</button>
                     <span>{item.quantity}</span>
-                    <button>+</button>
+                    <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}>+</button>
                   </div>
                 </div>
                 <div className="item-price">
-                  ${item.price.toFixed(2)}
+                  ${(item.price * item.quantity).toFixed(2)}
                 </div>
-                <button className="item-remove">
+                <button className="item-remove" onClick={() => removeFromCart(item.id, item.size)}>
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
             ))}
 
             <div className="cart-footer-links">
-                <Link to="/home" className="back-link">
+                <Link to="/category" className="back-link">
                     <span className="material-symbols-outlined">west</span>
-                    Back
+                    Back to Shop
                 </Link>
-                <Link to="/home" className="add-more-link">
+                <Link to="/category" className="add-more-link">
                     <span className="material-symbols-outlined">add_circle</span>
-                    Add Items
+                    Add More Items
                 </Link>
             </div>
           </div>
@@ -137,7 +132,7 @@ const Cart = () => {
               <span className="value">${shipping.toFixed(2)}</span>
             </div>
             <div className="summary-row">
-              <span className="label">Tax</span>
+              <span className="label">Tax (8%)</span>
               <span className="value">${tax.toFixed(2)}</span>
             </div>
             <div className="summary-total">
@@ -146,7 +141,7 @@ const Cart = () => {
             </div>
 
             <Link to="/shipping" className="checkout-btn">
-              Checkout <span className="material-symbols-outlined">credit_card</span>
+              Proceed to Checkout <span className="material-symbols-outlined">credit_card</span>
             </Link>
 
             <div className="payment-icons">

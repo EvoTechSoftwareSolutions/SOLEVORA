@@ -1,66 +1,48 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 import '../../styles/user/ShippingMethod.css';
 
 const ShippingMethod = () => {
   const navigate = useNavigate();
+  const { cart, cartTotal } = useCart();
   const [selectedMethod, setSelectedMethod] = useState('standard');
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
 
   const shippingMethods = [
-    {
-      id: 'standard',
-      name: 'Standard Shipping',
-      time: '3-5 business days',
-      price: 0,
-    },
-    {
-      id: 'express',
-      name: 'Express Shipping',
-      time: '1-2 business days',
-      price: 15.00,
-    },
-    {
-      id: 'nextday',
-      name: 'Next Day Delivery',
-      time: 'Delivery by tomorrow',
-      price: 25.00,
-    },
+    { id: 'standard', name: 'Standard Shipping', time: '3-5 business days', price: 0 },
+    { id: 'express', name: 'Express Shipping', time: '1-2 business days', price: 15.00 },
+    { id: 'nextday', name: 'Next Day Delivery', time: 'Delivery by tomorrow', price: 25.00 },
   ];
 
-  const cartItems = [
-    {
-      id: 1,
-      name: 'Solar Speed Runner v2',
-      variant: 'Size: 42 | Orange Pulse',
-      qty: 1,
-      price: 189.00,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDcVWKRIEQKTdczefQ26RyCmwjQxO2wxh6uZTJzQf6vtd5FKc56wtqnzYUyXDp1A9R1QUzEDGxFZTR9fiT78MSQJyWa-QRIKW6cNjZzuitgKpdvoNrjSXPiEOsHB6WRXhN2pHVQc-0RVUQyUTlgAt94vEyTD_fzESIGVBwu4DVh9umTXNSJST2iubUsbKaYCkjUnHOkEqGlqxIRpocYo6_vlMKSBHSHxyHg8J5LF58NrUuKVcDkW8URlTqsRrXMHAp-F464FBRb2o8',
-    },
-    {
-      id: 2,
-      name: 'Luna Air Cushion',
-      variant: 'Size: 42 | White Goud',
-      qty: 1,
-      price: 245.00,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAqK9Sm3g31W8dSYXrTsjJCRucyq1dONto1nYxeUhceUsZFAhGq2PTfHOF4fCGykvAz09YeXckKlMt2UKyfcvRiaUffbjFqUKRpLU7qqScOt6z5RU2crSmXOW7EVKbPUc2_bVtc5IK3szkdnm849wNd4_ylK17tvOXZOveurNFQHQj_EQpCnBccSYgri-rLXg2OABRBvCEneGRF_DsbWnTf7kDGwS-RikDI0aWgRm8ImpgSvfIPePD7WOVY1wIL2ctbdIC4ia2-w1M',
-    },
-  ];
-
-  const grossTotal = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const promoDiscount = promoApplied ? grossTotal : 0;
+  const grossTotal = cartTotal;
+  const promoDiscount = promoApplied ? grossTotal * 0.1 : 0;
   const currentShipping = shippingMethods.find(m => m.id === selectedMethod)?.price || 0;
-  const estimatedTax = 12.00;
+  const estimatedTax = grossTotal * 0.08;
   const total = grossTotal - promoDiscount + currentShipping + estimatedTax;
 
   const handleApplyPromo = () => {
-    if (promoCode.trim()) setPromoApplied(true);
+    if (promoCode.trim().toLowerCase() === 'save10') setPromoApplied(true);
+    else alert('Invalid promo code. Try "SAVE10"');
   };
 
   const handleContinueToPayment = () => {
     navigate('/payment');
   };
+
+  if (cart.length === 0) {
+    return (
+        <div className="sm-page">
+            <div className="sm-container" style={{ textAlign: 'center', padding: '100px 20px' }}>
+                <h2>Your cart is empty</h2>
+                <Link to="/category" className="sm-continue-btn" style={{ display: 'inline-block', width: 'auto', marginTop: '20px' }}>
+                    Shop Now
+                </Link>
+            </div>
+        </div>
+    );
+  }
 
   return (
     <div className="sm-page">
@@ -155,17 +137,17 @@ const ShippingMethod = () => {
 
             {/* Horizontal scroll item cards */}
             <div className="sm-items-scroll">
-              {cartItems.map(item => (
-                <div key={item.id} className="sm-item-card">
-                  <div className="sm-item-img-wrap">
-                    <img src={item.image} alt={item.name} className="sm-item-img" />
-                    <span className="sm-qty-badge">{item.qty}</span>
+              {cart.map(item => (
+                <div key={`${item.id}-${item.size}`} className="si-item-card">
+                  <div className="si-item-img-wrap">
+                    <img src={item.image_url} alt={item.name} className="si-item-img" />
+                    <span className="si-qty-badge">{item.quantity}</span>
                   </div>
-                  <p className="sm-item-name">{item.name}</p>
-                  <p className="sm-item-variant">{item.variant}</p>
-                  <div className="sm-item-footer">
-                    <span className="sm-item-qty-lbl">Qty: {item.qty}</span>
-                    <span className="sm-item-price">${item.price.toFixed(2)}</span>
+                  <p className="si-item-name">{item.name}</p>
+                  <p className="si-item-variant">Size: {item.size}</p>
+                  <div className="si-item-footer">
+                    <span className="si-item-qty-lbl">Qty: {item.quantity}</span>
+                    <span className="si-item-price">${(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 </div>
               ))}
