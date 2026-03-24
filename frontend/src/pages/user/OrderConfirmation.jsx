@@ -1,31 +1,25 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/user/OrderConfirmation.css';
 
 const OrderConfirmation = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { order, items } = location.state || {};
 
-  const orderedItems = [
-    {
-      id: 1,
-      name: 'Solar Speed Runner v2',
-      variant: 'Size: 42 | Color: Orange Pulse',
-      price: 189.00,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDcVWKRIEQKTdczefQ26RyCmwjQxO2wxh6uZTJzQf6vtd5FKc56wtqnzYUyXDp1A9R1QUzEDGxFZTR9fiT78MSQJyWa-QRIKW6cNjZzuitgKpdvoNrjSXPiEOsHB6WRXhN2pHVQc-0RVUQyUTlgAt94vEyTD_fzESIGVBwu4DVh9umTXNSJST2iubUsbKaYCkjUnHOkEqGlqxIRpocYo6_vlMKSBHSHxyHg8J5LF58NrUuKVcDkW8URlTqsRrXMHAp-F464FBRb2o8',
-    },
-    {
-      id: 2,
-      name: 'Lunar Air Cushion',
-      variant: 'Size: 42 | Color: White Cloud',
-      price: 189.00,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAqK9Sm3g31W8dSYXrTsjJCRucyq1dONto1nYxeUhceUsZFAhGq2PTfHOF4fCGykvAz09YeXckKlMt2UKyfcvRiaUffbjFqUKRpLU7qqScOt6z5RU2crSmXOW7EVKbPUc2_bVtc5IK3szkdnm849wNd4_ylK17tvOXZOveurNFQHQj_EQpCnBccSYgri-rLXg2OABRBvCEneGRF_DsbWnTf7kDGwS-RikDI0aWgRm8ImpgSvfIPePD7WOVY1wIL2ctbdIC4ia2-w1M',
-    },
-  ];
+  if (!order) {
+    return (
+        <div className="oc-page" style={{ textAlign: 'center', padding: '100px' }}>
+            <h2>No order data found.</h2>
+            <Link to="/home" className="oc-continue-btn">GO HOME</Link>
+        </div>
+    );
+  }
 
-  const subtotal = 434.00;
-  const shippingCharge = 0;
-  const estimatedTax = 12.00;
-  const total = 446.00;
+  const orderedItems = items || [];
+  const subtotal = orderedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const estimatedTax = subtotal * 0.08;
+  const total = subtotal + estimatedTax;
 
   return (
     <div className="oc-page">
@@ -38,7 +32,7 @@ const OrderConfirmation = () => {
            </div>
            <h1 className="oc-title">Thank you for your order!</h1>
            <p className="oc-subtitle">
-             Your order <span className="oc-order-number">#SV-98234</span> has been placed and is being processed.
+             Your order <span className="oc-order-number">#ORD-{order.id}</span> has been placed and is being processed.
            </p>
         </div>
 
@@ -46,21 +40,21 @@ const OrderConfirmation = () => {
         <div className="oc-summary-card">
           <div className="oc-card-header">
             <h2 className="oc-card-title">Order Summary</h2>
-            <span className="oc-item-count">{orderedItems.length + 1} ITEMS</span>
+            <span className="oc-item-count">{orderedItems.length} ITEMS</span>
           </div>
 
           <div className="oc-items-list">
-             {orderedItems.map((item) => (
-                <div key={item.id} className="oc-item-row">
+             {orderedItems.map((item, idx) => (
+                <div key={idx} className="oc-item-row">
                    <div className="oc-item-visual">
-                      <img src={item.image} alt={item.name} className="oc-item-img" />
+                      <img src={item.image_url} alt={item.name} className="oc-item-img" />
                    </div>
                    <div className="oc-item-details">
                       <h4 className="oc-item-name">{item.name}</h4>
-                      <p className="oc-item-variant">{item.variant}</p>
+                      <p className="oc-item-variant">Size: {item.size} | Qty: {item.quantity}</p>
                    </div>
                    <div className="oc-item-price">
-                      ${item.price.toFixed(2)}
+                      ${(item.price * item.quantity).toFixed(2)}
                    </div>
                 </div>
              ))}
@@ -97,13 +91,13 @@ const OrderConfirmation = () => {
 
           <div className="oc-card-footer">
              <span className="material-symbols-outlined oc-info-icon">info</span>
-             <p className="oc-footer-text">A confirmation email has been sent to <span className="oc-bold">user@example.com</span></p>
+             <p className="oc-footer-text">A confirmation email has been sent to <span className="oc-bold">{order.email}</span></p>
           </div>
         </div>
 
         {/* Bottom Actions */}
         <div className="oc-actions">
-           <button className="oc-track-btn" onClick={() => navigate('/orders')}>
+           <button className="oc-track-btn" onClick={() => navigate('/profile/orders')}>
               TRACK ORDER
            </button>
            <button className="oc-continue-btn" onClick={() => navigate('/home')}>

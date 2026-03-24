@@ -1,0 +1,361 @@
+.track-order-page {
+    padding: 80px 20px;
+    background: #fdfdfd;
+    min-height: calc(100vh - 100px);
+}
+
+.track-container {
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.track-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.track-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin-bottom: 15px;
+}
+
+.track-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.track-form-card {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    margin-bottom: 40px;
+}
+
+.track-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 20px;
+    align-items: end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.form-group input {
+    padding: 15px 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+}
+
+.form-group input:focus {
+    border-color: #ff5e3a;
+    background: #ffffff;
+}
+
+.track-btn {
+    background: #1a1a1a;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 52px;
+}
+
+.track-btn:hover {
+    background: #ff5e3a;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 94, 58, 0.3);
+}
+
+.track-btn:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.track-error {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fef2f2;
+    color: #ef4444;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.tracking-results-card {
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    padding: 40px;
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.results-header h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin-bottom: 5px;
+}
+
+.order-date {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.status-badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.status-badge.pending { background: #fef3c7; color: #d97706; }
+.status-badge.processing { background: #e0f2fe; color: #0284c7; }
+.status-badge.shipped { background: #dbeafe; color: #1d4ed8; }
+.status-badge.delivered { background: #d1fae5; color: #059669; }
+.status-badge.cancelled { background: #fee2e2; color: #dc2626; }
+
+/* Stepper */
+.tracking-stepper {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 50px;
+}
+
+.tracking-stepper::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 40px;
+    right: 40px;
+    height: 4px;
+    background: #f3f4f6;
+    z-index: 1;
+}
+
+.stepper-item {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.step-point {
+    width: 34px;
+    height: 34px;
+    background: #f3f4f6;
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.stepper-item.completed .step-point {
+    background: #10b981;
+}
+
+.stepper-item.completed::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: -50%;
+    width: 100%;
+    height: 4px;
+    background: #10b981;
+    z-index: -1;
+}
+
+.stepper-item:first-child::before {
+    display: none;
+}
+
+.stepper-item.active .step-point {
+    background: #10b981;
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.2);
+}
+
+.step-label {
+    font-weight: 600;
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+.stepper-item.completed .step-label,
+.stepper-item.active .step-label {
+    color: #1a1a1a;
+}
+
+/* Order Contents */
+.order-contents {
+    margin-bottom: 30px;
+}
+
+.order-contents h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+}
+
+.items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.tracking-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px;
+    border: 1px solid #f3f4f6;
+    border-radius: 16px;
+}
+
+.item-image-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f9fafb;
+    flex-shrink: 0;
+}
+
+.item-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-details {
+    flex: 1;
+}
+
+.item-details h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #1a1a1a;
+}
+
+.item-details p {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.item-price {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #1a1a1a;
+}
+
+/* Shipping Details */
+.shipping-details-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #f9fafb;
+    padding: 25px;
+    border-radius: 16px;
+    gap: 40px;
+}
+
+.shipping-details-box h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #4b5563;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.shipping-details-box p {
+    color: #1a1a1a;
+    line-height: 1.6;
+    font-weight: 500;
+}
+
+.total-amount {
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+    color: #ff5e3a !important;
+}
+
+@media (max-width: 768px) {
+    .track-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .tracking-stepper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+    
+    .tracking-stepper::before {
+        top: 0;
+        bottom: 0;
+        left: 20px;
+        width: 4px;
+        height: auto;
+    }
+    
+    .stepper-item {
+        flex-direction: row;
+        width: 100%;
+    }
+    
+    .stepper-item.completed::before {
+        top: -20px;
+        bottom: 20px;
+        left: 20px;
+        width: 4px;
+        height: auto;
+    }
+    
+    .shipping-details-box {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}

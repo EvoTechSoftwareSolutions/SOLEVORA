@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 import '../../styles/user/Category.css';
 
 const Category = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const { addToCart } = useCart();
+    const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -49,8 +51,14 @@ const Category = () => {
                             {product.stock_quantity < 10 && (
                                 <span className="badge">Limited Stock</span>
                             )}
-                            <button className="wishlist-btn" title="Add to Wishlist">
-                                <span className="material-symbols-outlined">favorite</span>
+                            <button 
+                                className={`wishlist-btn ${isInWishlist(product.id) ? 'active' : ''}`} 
+                                title="Add to Wishlist"
+                                onClick={() => isInWishlist(product.id) ? removeFromWishlist(product.id) : addToWishlist(product)}
+                            >
+                                <span className="material-symbols-outlined">
+                                    {isInWishlist(product.id) ? 'favorite' : 'favorite_border'}
+                                </span>
                             </button>
                             
                             <div className="card-image-box">

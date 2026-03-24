@@ -14,6 +14,7 @@ const ShippingMethod = lazy(() => import('../pages/user/ShippingMethod'));
 const PaymentDetails = lazy(() => import('../pages/user/PaymentDetails'));
 const VerificationCode = lazy(() => import('../pages/user/VerificationCode'));
 const OrderConfirmation = lazy(() => import('../pages/user/OrderConfirmation'));
+const TrackOrder = lazy(() => import('../pages/user/TrackOrder'));
 
 //UserRoutes
 
@@ -29,6 +30,7 @@ const UserRoutes = (
     <Route path="payment" element={<PaymentDetails />} />
     <Route path="verify-code" element={<VerificationCode />} />
     <Route path="order-success" element={<OrderConfirmation />} />
+    <Route path="track-order" element={<TrackOrder />} />
   </Route>
 );
 

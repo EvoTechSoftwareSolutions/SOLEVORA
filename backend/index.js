@@ -12,6 +12,7 @@ import OrderItem from './models/OrderItem.js';
 // Import Routes
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use(express.json());
 // Register Routes
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Test the database connection and sync models
 const initDb = async () => {

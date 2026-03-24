@@ -42,14 +42,40 @@ export const CartProvider = ({ children }) => {
         );
     };
 
-    const clearCart = () => setCart([]);
+    const [checkoutData, setCheckoutData] = useState({
+        fullName: '',
+        email: '',
+        phone: '',
+        streetAddress: '',
+        city: '',
+        postalCode: '',
+        shippingMethod: 'Economy (Free)'
+    });
+
+    const updateCheckoutData = (newData) => {
+        setCheckoutData(prev => ({ ...prev, ...newData }));
+    };
+
+    const clearCart = () => {
+        setCart([]);
+        setCheckoutData({
+            fullName: '',
+            email: '',
+            phone: '',
+            streetAddress: '',
+            city: '',
+            postalCode: '',
+            shippingMethod: 'Economy (Free)'
+        });
+    };
 
     const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
     const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
     return (
         <CartContext.Provider value={{ 
-            cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, cartCount 
+            cart, addToCart, removeFromCart, updateQuantity, clearCart, 
+            cartTotal, cartCount, checkoutData, updateCheckoutData
         }}>
             {children}
         </CartContext.Provider>

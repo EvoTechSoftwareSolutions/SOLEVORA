@@ -1,44 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = () => {
     const [chartFilter, setChartFilter] = useState('Monthly');
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    const recentOrders = [
-        {
-            id: '#ORD-9421',
-            customerName: 'Alex\nRivera',
-            avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-            product: 'Zenith\nRunner X',
-            amount: '$189.00',
-            status: 'COMPLETED'
-        },
-        {
-            id: '#ORD-9420',
-            customerName: 'Sarah\nJenkins',
-            avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-            product: 'Urban\nGlide Pro',
-            amount: '$145.50',
-            status: 'PROCESSING'
-        },
-        {
-            id: '#ORD-9419',
-            customerName: 'James\nWilson',
-            avatar: 'https://randomuser.me/api/portraits/men/46.jpg',
-            product: 'Mountain\nPeak XT',
-            amount: '$210.00',
-            status: 'CANCELLED'
-        },
-        {
-            id: '#ORD-9418',
-            customerName: 'Emily\nChen',
-            avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
-            product: 'Swift Step\nAir',
-            amount: '$120.00',
-            status: 'COMPLETED'
-        }
-    ];
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/admin/stats');
+                setStats(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching admin stats:', error);
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
+
+    if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading dashboard...</div>;
+    
+    const recentOrders = stats.recentOrders || [];
 
     const topSelling = [
         {
@@ -86,7 +72,7 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="metric-title-top">Total Revenue</div>
-                    <div className="metric-value-top">$128,430.00</div>
+                    <div className="metric-value-top">${stats.totalRevenue.toLocaleString()}</div>
                 </div>
 
                 {/* Card 2 */}
@@ -100,7 +86,7 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="metric-title-top">Total Orders</div>
-                    <div className="metric-value-top">1,240</div>
+                    <div className="metric-value-top">{stats.totalOrders}</div>
                 </div>
 
                 {/* Card 3 */}
@@ -113,8 +99,8 @@ const Dashboard = () => {
                             +5.4% <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
                         </div>
                     </div>
-                    <div className="metric-title-top">New Customers</div>
-                    <div className="metric-value-top">320</div>
+                    <div className="metric-title-top">Products in Catalog</div>
+                    <div className="metric-value-top">{stats.totalProducts}</div>
                 </div>
 
                 {/* Card 4 */}
@@ -124,14 +110,15 @@ const Dashboard = () => {
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path><path d="M5 13a10 10 0 0 1 14 0"></path><path d="M8.5 16.5a5 5 0 0 1 7 0"></path></svg>
                         </div>
                         <div className="trend-badge trend-down">
-                            -2.1% <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>
+                            Low Stock <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>
                         </div>
                     </div>
-                    <div className="metric-title-top">Active Sessions</div>
-                    <div className="metric-value-top">85</div>
+                    <div className="metric-title-top">Low Stock Items</div>
+                    <div className="metric-value-top">{stats.lowStockItems}</div>
                 </div>
             </div>
 
+            {/* Charts Area */}
             {/* Charts Area */}
             <div className="chart-card">
                 <div className="chart-header">
@@ -195,7 +182,6 @@ const Dashboard = () => {
                             <tr>
                                 <th>ORDER ID</th>
                                 <th>CUSTOMER</th>
-                                <th>PRODUCT</th>
                                 <th>AMOUNT</th>
                                 <th>STATUS</th>
                             </tr>
@@ -203,22 +189,18 @@ const Dashboard = () => {
                         <tbody>
                             {recentOrders.map(order => (
                                 <tr key={order.id}>
-                                    <td className="td-order-id">{order.id}</td>
+                                    <td className="td-order-id">#ORD-{order.id}</td>
                                     <td>
                                         <div className="td-customer-flex">
-                                            <img src={order.avatar} alt="avatar" />
                                             <div className="td-customer-name">
-                                                {order.customerName.split('\n').map((line, i) => <div key={i}>{line}</div>)}
+                                                {order.email}
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="td-product-name">
-                                        {order.product.split('\n').map((line, i) => <div key={i}>{line}</div>)}
-                                    </td>
-                                    <td className="td-amount">{order.amount}</td>
+                                    <td className="td-amount">${parseFloat(order.total_amount).toFixed(2)}</td>
                                     <td>
                                         <div className={`status-pill status-${order.status.toLowerCase()}`}>
-                                            {order.status}
+                                            {order.status.toUpperCase()}
                                         </div>
                                     </td>
                                 </tr>

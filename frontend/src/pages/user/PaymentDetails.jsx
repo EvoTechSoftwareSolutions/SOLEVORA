@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import '../../styles/user/PaymentDetails.css';
 
 const PaymentDetails = () => {
   const navigate = useNavigate();
-  const { cart, cartTotal } = useCart();
+  const { cart, cartTotal, checkoutData, clearCart } = useCart();
   
   const [paymentMethod, setPaymentMethod] = useState('creditcard');
   const [promoCode, setPromoCode] = useState('');
@@ -37,13 +38,37 @@ const PaymentDetails = () => {
     else alert('Invalid promo code. Try "SAVE10"');
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (paymentMethod === 'creditcard' && (!formData.cardNumber || !formData.cvv)) {
         alert('Please enter valid payment details.');
         return;
     }
-    console.log('Finalizing order:', { formData, paymentMethod, cart, total });
-    navigate('/verify-code');
+    
+    try {
+        const orderPayload = {
+            total_amount: total,
+            status: 'paid', // Mark as paid for demo purposes
+            shipping_address: `${checkoutData.streetAddress}, ${checkoutData.city}, ${checkoutData.postalCode}`,
+            contact_number: checkoutData.phone,
+            email: checkoutData.email,
+            items: cart.map(item => ({
+                productId: item.id,
+                quantity: item.quantity,
+                price: item.price,
+                size: item.size
+            }))
+        };
+
+        const response = await axios.post('http://localhost:5000/api/orders', orderPayload);
+        console.log('Order created:', response.data);
+        const orderData = response.data;
+        const currentItems = [...cart];
+        clearCart();
+        navigate('/verify-code', { state: { order: orderData, items: currentItems } });
+    } catch (error) {
+        console.error('Error placing order:', error);
+        alert('There was an error placing your order. Please try again.');
+    }
   };
 
   if (cart.length === 0) {

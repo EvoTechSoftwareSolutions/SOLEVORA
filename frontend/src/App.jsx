@@ -7,6 +7,7 @@ import AdminRoutes from './routes/AdminRoutes';
 import ProfileRoutes from './routes/ProfileRoutes';
 
 import { CartProvider } from './context/CartContext';
+import { WishlistProvider } from './context/WishlistContext';
 import './App.css';
 
 /**
@@ -17,8 +18,9 @@ import './App.css';
 function App() {
   return (
     <BrowserRouter>
-      <CartProvider>
-        <Suspense fallback={<div className="global-loader">Loading...</div>}>
+      <WishlistProvider>
+        <CartProvider>
+          <Suspense fallback={<div className="global-loader">Loading...</div>}>
         <Routes>
           {/* User Facing Module (Shopper Pages) */}
           {UserRoutes}
@@ -33,6 +35,7 @@ function App() {
         </Routes>
       </Suspense>
       </CartProvider>
+      </WishlistProvider>
     </BrowserRouter>
   );
 }

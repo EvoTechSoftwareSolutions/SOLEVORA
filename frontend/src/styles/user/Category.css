@@ -96,7 +96,7 @@
     z-index: 2;
 }
 
-.wishlist-btn:hover {
+.wishlist-btn:hover, .wishlist-btn.active {
     color: #ff5e3a;
     transform: scale(1.1);
 }

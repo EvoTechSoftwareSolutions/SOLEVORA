@@ -64,6 +64,7 @@ const UserLayout = () => {
                 <h5>Shop</h5>
                 <Link to="/home">New Arrivals</Link>
                 <Link to="/category">Categories</Link>
+                <Link to="/track-order">Track Order</Link>
               </div>
               <div className="f-col">
                 <h5>Information</h5>

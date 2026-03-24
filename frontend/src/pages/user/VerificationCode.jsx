@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/user/VerificationCode.css';
 
 const VerificationCode = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(30);
 
@@ -39,7 +40,7 @@ const VerificationCode = () => {
   const handleVerify = () => {
     const fullCode = code.join('');
     if (fullCode.length === 6) {
-      navigate('/order-success');
+      navigate('/order-success', { state: location.state });
     } else {
       alert('Please enter all 6 digits.');
     }

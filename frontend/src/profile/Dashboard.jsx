@@ -1,15 +1,62 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 import './Dashboard.css';
 
 const Dashboard = () => {
+    const { checkoutData } = useCart();
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchOrders = async () => {
+            if (!checkoutData.email) return;
+            setLoading(true);
+            try {
+                const response = await axios.get(`http://localhost:5000/api/orders/search?email=${checkoutData.email}`);
+                setOrders(response.data);
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchOrders();
+    }, [checkoutData.email]);
+
+    const userName = checkoutData.fullName || 'Valued Customer';
+    const recentOrders = orders.slice(0, 3);
+    const totalSpent = orders.reduce((sum, order) => sum + parseFloat(order.total_amount), 0);
+
+    const formatDate = (dateString) => {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    };
+
+    const getStatusClass = (status) => {
+        switch (status.toLowerCase()) {
+            case 'pending':
+                return 'pdb-pill-pending';
+            case 'shipped':
+            case 'in transit':
+                return 'pdb-pill-transit';
+            case 'delivered':
+                return 'pdb-pill-delivered';
+            case 'cancelled':
+                return 'pdb-pill-cancelled';
+            default:
+                return '';
+        }
+    };
+
     return (
         <div className="pdb-container">
             {/* Header Section */}
             <div className="pdb-header">
                 <div className="pdb-welcome-info">
-                    <h2>Welcome back, Marcus!</h2>
-                    <p>You have 2 items arriving soon and 1250 points to spend.</p>
+                    <h2>Welcome back, {userName}!</h2>
+                    <p>You have {orders.length} orders in your history.</p>
                 </div>
                 <button className="pdb-upgrade-btn">
                     <span className="material-symbols-outlined pdb-upgrade-icon">rocket_launch</span>
@@ -57,8 +104,8 @@ const Dashboard = () => {
                         <p>Total Spent</p>
                         <span className="material-symbols-outlined pdb-icon-color">account_balance_wallet</span>
                     </div>
-                    <h3 className="pdb-stat-value">$1,892.40</h3>
-                    <p className="pdb-stat-subtitle">Across 12 orders</p>
+                    <h3 className="pdb-stat-value">${totalSpent.toFixed(2)}</h3>
+                    <p className="pdb-stat-subtitle">Across {orders.length} orders</p>
                 </div>
             </div>
 
@@ -70,32 +117,36 @@ const Dashboard = () => {
                         <Link to="/profile/orders" className="pdb-view-link">View All</Link>
                     </div>
                     <div className="pdb-orders-list">
-                        <div className="pdb-mini-order">
-                            <div className="pdb-mini-order-img">
-                                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=150&h=150&fit=crop" alt="Order product" />
+                        {loading ? (
+                            <p>Loading your orders...</p>
+                        ) : recentOrders.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '20px' }}>
+                                <p>No orders found for your account.</p>
+                                <Link to="/category" className="pdb-view-link">Start Shopping</Link>
                             </div>
-                            <div className="pdb-mini-order-info">
-                                <h4>#ORD-28491</h4>
-                                <p>Placed on Oct 12, 2023</p>
-                            </div>
-                            <div className="pdb-mini-order-meta">
-                                <span className="pdb-mini-price">$245.00</span>
-                                <span className="pdb-mini-status pdb-pill-transit">IN TRANSIT</span>
-                            </div>
-                        </div>
-                        <div className="pdb-mini-order">
-                            <div className="pdb-mini-order-img">
-                                <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=150&h=150&fit=crop" alt="Order product" />
-                            </div>
-                            <div className="pdb-mini-order-info">
-                                <h4>#ORD-28455</h4>
-                                <p>Placed on Sep 28, 2023</p>
-                            </div>
-                            <div className="pdb-mini-order-meta">
-                                <span className="pdb-mini-price">$180.00</span>
-                                <span className="pdb-mini-status pdb-pill-delivered">DELIVERED</span>
-                            </div>
-                        </div>
+                        ) : recentOrders.map(order => {
+                            const firstItem = order.items && order.items[0];
+                            const product = firstItem?.product;
+                            const imageUrl = product?.image_url || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=150&h=150&fit=crop";
+
+                            return (
+                                <div className="pdb-mini-order" key={order.id}>
+                                    <div className="pdb-mini-order-img">
+                                        <img src={imageUrl} alt="Order product" />
+                                    </div>
+                                    <div className="pdb-mini-order-info">
+                                        <h4>#ORD-{order.id}</h4>
+                                        <p>Placed on {formatDate(order.createdAt)}</p>
+                                    </div>
+                                    <div className="pdb-mini-order-meta">
+                                        <span className="pdb-mini-price">${parseFloat(order.total_amount).toFixed(2)}</span>
+                                        <span className={`pdb-mini-status ${getStatusClass(order.status)}`}>
+                                            {order.status.toUpperCase()}
+                                        </span>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -142,7 +193,7 @@ const Dashboard = () => {
                         </div>
                         <div className="pdb-overview-card-info">
                             <label>EMAIL ADDRESS</label>
-                            <p>marcus.s@solevora.com</p>
+                            <p>{checkoutData.email || 'Not provided'}</p>
                         </div>
                     </div>
 
@@ -155,7 +206,7 @@ const Dashboard = () => {
                         </div>
                         <div className="pdb-overview-card-info">
                             <label>PHONE NUMBER</label>
-                            <p>+1 (555) 123-4567</p>
+                            <p>{checkoutData.phone || 'Not provided'}</p>
                         </div>
                     </div>
 
@@ -168,7 +219,14 @@ const Dashboard = () => {
                         </div>
                         <div className="pdb-overview-card-info">
                             <label>DEFAULT ADDRESS</label>
-                            <p>2491 Madison Ave,<br />New York, NY 10016</p>
+                            <p>
+                                {checkoutData.streetAddress ? (
+                                    <>
+                                        {checkoutData.streetAddress},<br />
+                                        {checkoutData.city}, {checkoutData.postalCode}
+                                    </>
+                                ) : 'No address saved'}
+                            </p>
                         </div>
                     </div>
                 </div>

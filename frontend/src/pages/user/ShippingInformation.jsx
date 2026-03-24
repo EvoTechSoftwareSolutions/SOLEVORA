@@ -5,18 +5,11 @@ import '../../styles/user/ShippingInformation.css';
 
 const ShippingInformation = () => {
   const navigate = useNavigate();
-  const { cart, cartTotal } = useCart();
+  const { cart, cartTotal, checkoutData, updateCheckoutData } = useCart();
   
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    streetAddress: '',
-    city: '',
-    postalCode: '',
-  });
+  const [formData, setFormData] = useState(checkoutData);
 
   const grossTotal = cartTotal;
   const promoDiscount = promoApplied ? grossTotal * 0.1 : 0; // 10% discount for example
@@ -33,12 +26,12 @@ const ShippingInformation = () => {
     else alert('Invalid promo code. Try "SAVE10"');
   };
 
-  const handlePlaceOrder = () => {
+  const handleContinue = () => {
     if (!formData.fullName || !formData.email || !formData.streetAddress) {
         alert('Please fill in required shipping fields.');
         return;
     }
-    console.log('Placing order:', formData, cart);
+    updateCheckoutData(formData);
     navigate('/shipping-method');
   };
 
@@ -194,7 +187,7 @@ const ShippingInformation = () => {
                 <button 
                   type="button" 
                   className="si-form-continue-btn"
-                  onClick={() => navigate('/shipping-method')}
+                  onClick={handleContinue}
                 >
                   Continue to Shipping Method
                   <span className="material-symbols-outlined">arrow_forward</span>
@@ -264,9 +257,9 @@ const ShippingInformation = () => {
             </div>
 
             {/* Place Order */}
-            <button className="si-place-order-btn" onClick={handlePlaceOrder}>
+            <button className="si-place-order-btn" onClick={handleContinue}>
               <span className="material-symbols-outlined">local_shipping</span>
-              Place Order
+              Continue
             </button>
 
             {/* Terms */}

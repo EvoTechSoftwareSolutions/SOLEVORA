@@ -5,7 +5,7 @@ import '../../styles/user/ShippingMethod.css';
 
 const ShippingMethod = () => {
   const navigate = useNavigate();
-  const { cart, cartTotal } = useCart();
+  const { cart, cartTotal, updateCheckoutData } = useCart();
   const [selectedMethod, setSelectedMethod] = useState('standard');
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
@@ -18,7 +18,8 @@ const ShippingMethod = () => {
 
   const grossTotal = cartTotal;
   const promoDiscount = promoApplied ? grossTotal * 0.1 : 0;
-  const currentShipping = shippingMethods.find(m => m.id === selectedMethod)?.price || 0;
+  const currentShippingObj = shippingMethods.find(m => m.id === selectedMethod);
+  const currentShipping = currentShippingObj?.price || 0;
   const estimatedTax = grossTotal * 0.08;
   const total = grossTotal - promoDiscount + currentShipping + estimatedTax;
 
@@ -28,6 +29,9 @@ const ShippingMethod = () => {
   };
 
   const handleContinueToPayment = () => {
+    updateCheckoutData({
+        shippingMethod: currentShippingObj.name
+    });
     navigate('/payment');
   };
 
@@ -195,9 +199,9 @@ const ShippingMethod = () => {
             </div>
 
             {/* Place Order - Note: This link might just confirm for now */}
-            <button className="sm-place-order-btn">
+            <button className="sm-place-order-btn" onClick={handleContinueToPayment}>
               <span className="material-symbols-outlined">local_shipping</span>
-              Place Order
+              Continue to Payment
             </button>
 
             {/* Terms */}
