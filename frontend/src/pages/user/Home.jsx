@@ -37,17 +37,11 @@ const Home = () => {
     <div className="main-container">
       <div className="banner">
         <div className="banner-text">
-<<<<<<< HEAD
-<h1 className="banner-text">
-  Get More comfortable without <span className="highlight">Brands</span>
-</h1>          <p>
-=======
           <h1 className="banner-text">
             Get More comfortable without{" "}
             <span className="highlight">Brands</span>
-          </h1>{" "}
+          </h1>
           <p>
->>>>>>> 0e23cb6d178aa1d915ce44b1ab3a5267f3a86613
             Discover the latest styles and must-have essentials. Fast shipping,
             easy returns, and secure checkoutshop now and find something you’ll
             love. Discover the latest styles and must-have essentials.Fast
