@@ -1,13 +1,14 @@
 {
-  "name": "solevora-profile-page",
+  "name": "solevora",
   "version": "1.0.0",
-  "description": "Solevora profile dashboard frontend served with Node.js",
-  "main": "server.js",
+  "private": true,
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install"
   },
-  "dependencies": {
-    "express": "^4.19.2"
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }
