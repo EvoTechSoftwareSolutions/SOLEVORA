@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import CheckEmail from "./pages/CheckEmail";
 import ResetPassword from "./pages/ResetPassword";
+import ResetSuccess from "./pages/ResetSuccess";
 
 function App() {
   return (
@@ -13,7 +14,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/check-email" element={<CheckEmail />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reset-password/:token?" element={<ResetPassword />} />
+        <Route path="/reset-success" element={<ResetSuccess />} />
       </Routes>
     </BrowserRouter>
   );

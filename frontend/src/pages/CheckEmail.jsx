@@ -36,7 +36,6 @@ function CheckEmail() {
         {/* Right Side */}
         <div className="w-full md:w-[62%] bg-[#f5f5f5] flex items-center justify-center px-6 md:px-20 py-14">
           <div className="w-full max-w-md">
-            {/* Icon */}
             <div className="w-20 h-20 rounded-full bg-[#fdf0e9] flex items-center justify-center">
               <HiOutlineMailOpen className="text-4xl text-orange-500" />
             </div>
@@ -52,11 +51,12 @@ function CheckEmail() {
             </p>
 
             <Link
-  to="/reset-password"
-  className="flex items-center justify-center w-full h-16 text-xl font-semibold text-white transition bg-orange-500 mt-14 rounded-2xl hover:bg-orange-600"
->
-  Create New Password →
-</Link>
+              to="/"
+              className="flex items-center justify-center w-full h-16 text-xl font-semibold text-white transition bg-orange-500 mt-14 rounded-2xl hover:bg-orange-600"
+            >
+              Back to Login →
+            </Link>
+
             <p className="mt-8 text-base text-[#6a5d57]">
               Didn&apos;t receive the email?{" "}
               <span className="font-semibold text-orange-500 cursor-pointer">

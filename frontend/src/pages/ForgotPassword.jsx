@@ -1,8 +1,38 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import forgotImage from "../assets/shoe.png";
 
 function ForgotPassword() {
   const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setMessage("Please enter your email address");
+      return;
+    }
+
+    try {
+      const res = await axios.post("http://localhost:5000/forgot-password", {
+        email,
+      });
+
+      setMessage(res.data.message);
+
+      setTimeout(() => {
+        navigate("/check-email");
+      }, 1000);
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        setMessage(error.response.data.message);
+      } else {
+        setMessage("Something went wrong");
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f3f3f3]">
@@ -47,7 +77,13 @@ function ForgotPassword() {
               send you a link to reset it.
             </p>
 
-            <form className="space-y-8 mt-14">
+            <form
+              className="space-y-8 mt-14"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleForgotPassword();
+              }}
+            >
               <div>
                 <label className="block text-[12px] font-semibold tracking-[0.2em] uppercase text-[#5b514b] mb-4">
                   Email Address
@@ -56,17 +92,22 @@ function ForgotPassword() {
                 <input
                   type="email"
                   placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full h-16 rounded-2xl bg-[#eceff3] px-5 text-lg text-gray-700 placeholder:text-[#a3a7ad] outline-none"
                 />
               </div>
 
               <button
-                type="button"
-                onClick={() => navigate("/check-email")}
+                type="submit"
                 className="w-full h-16 text-xl font-semibold text-white transition bg-orange-500 rounded-2xl hover:bg-orange-600"
               >
                 Send Reset Link →
               </button>
+
+              {message && (
+                <p className="text-sm text-center text-blue-600">{message}</p>
+              )}
             </form>
 
             <div className="mt-12 text-center">

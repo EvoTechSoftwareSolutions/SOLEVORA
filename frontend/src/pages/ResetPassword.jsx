@@ -1,15 +1,59 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 import { LuEye, LuCircleCheck, LuCircle } from "react-icons/lu";
 import resetImage from "../assets/reset-password.png";
 
 function ResetPassword() {
+  const navigate = useNavigate();
+  const { token } = useParams();
+
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
+
+  if (!token) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f4f4]">
+        <p className="text-xl text-red-500">Invalid reset link</p>
+      </div>
+    );
+  }
 
   const hasMinLength = newPassword.length >= 8;
   const hasSpecialAndNumber =
     /[0-9]/.test(newPassword) && /[^A-Za-z0-9]/.test(newPassword);
+
+  const handleResetPassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      setMessage("Please fill all fields");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setMessage("Passwords do not match");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/reset-password/${token}`,
+        { newPassword }
+      );
+
+      setMessage(res.data.message);
+
+      setTimeout(() => {
+        navigate("/reset-success");
+      }, 1000);
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        setMessage(error.response.data.message);
+      } else {
+        setMessage("Reset failed");
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f4f4f4]">
@@ -37,7 +81,6 @@ function ResetPassword() {
             </p>
           </div>
 
-          {/* Bottom slider */}
           <div className="absolute z-10 flex items-center gap-4 -translate-x-1/2 bottom-12 left-1/2">
             <div className="w-20 h-1 bg-orange-500 rounded-full"></div>
             <div className="w-10 h-1 rounded-full bg-gray-500/60"></div>
@@ -59,8 +102,13 @@ function ResetPassword() {
               to ensure maximum security.
             </p>
 
-            <form className="space-y-8 mt-14">
-              {/* New Password */}
+            <form
+              className="space-y-8 mt-14"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleResetPassword();
+              }}
+            >
               <div>
                 <label className="block text-[12px] uppercase tracking-[0.18em] text-[#a19da2] font-semibold mb-4">
                   New Password
@@ -78,7 +126,6 @@ function ResetPassword() {
                 </div>
               </div>
 
-              {/* Confirm Password */}
               <div>
                 <label className="block text-[12px] uppercase tracking-[0.18em] text-[#a19da2] font-semibold mb-4">
                   Confirm Password
@@ -96,7 +143,6 @@ function ResetPassword() {
                 </div>
               </div>
 
-              {/* Security Check Box */}
               <div className="rounded-2xl bg-[#ece9e9] px-5 py-5">
                 <p className="text-[12px] uppercase tracking-[0.16em] text-[#9d9ca2] font-semibold flex items-center gap-2">
                   <span>ⓘ</span> Security Check
@@ -124,11 +170,15 @@ function ResetPassword() {
               </div>
 
               <button
-                type="button"
+                type="submit"
                 className="w-full h-16 rounded-full bg-orange-500 text-white text-2xl font-semibold hover:bg-orange-600 transition shadow-[0_10px_20px_rgba(255,102,0,0.15)]"
               >
                 Reset Password →
               </button>
+
+              {message && (
+                <p className="mt-4 text-sm text-center text-blue-600">{message}</p>
+              )}
             </form>
 
             <div className="text-center mt-14">
