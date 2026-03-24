@@ -109,7 +109,6 @@ const UserLayout = () => {
         {/* Footer Links */}
         <div className="footer-links">
           <div className="footer-main">
-            {/* Contact */}
             <div className="contact">
               <img src="/" alt="logo" />
               <p>

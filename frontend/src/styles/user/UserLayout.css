@@ -115,7 +115,7 @@
 
 /* Menu open class */
 .navbar__menu.open {
-  max-height: 500px; /* adjust depending on number of links */
+  max-height: 500px; 
 }
 /*footer */
 .footer {
@@ -187,9 +187,9 @@
   gap: 30px;
 }
 
-/* CONTACT */
 .contact {
   max-width: 300px;
+  
 }
 
 .contact p {
@@ -216,7 +216,6 @@
   font-size: 14px;
 }
 
-/* RIGHT SECTION */
 .right-section {
   display: flex;
   max-width: 600px;
@@ -299,9 +298,18 @@
   color: #FFA007;
 }
 
-/* ================= RESPONSIVE ================= */
+.contact-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.icon-size {
+  width: 20px;
+  height: 20px;
+  color: #FF6A00;
+}
 
-/* TABLET */
+
 @media (max-width: 992px) {
   .right-section {
     gap: 30px;
@@ -326,6 +334,8 @@
 
   .footer-main {
     flex-direction: column;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .right-section {
@@ -405,18 +415,20 @@
   .subscribe-text p {
     font-size: 13px;
   }
+  .footer-main {
+  padding: 0 0px;
+}
+.privacy-section {
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+  
 }
 
-.contact-icons {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.icon-size {
-  width: 20px;
-  height: 20px;
-  color: #FF6A00;
-}
+
 
 @media (max-width: 992px) {
   .navbar__menu {
