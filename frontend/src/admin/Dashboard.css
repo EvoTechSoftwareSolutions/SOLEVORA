@@ -20,7 +20,7 @@ body {
 
 /* Sidebar */
 .sidebar {
-    width: 250px;
+    width: 220px;
     background-color: #fcead8;
     /* Matches the beige */
     display: flex;
@@ -33,7 +33,7 @@ body {
 }
 
 .sidebar-logo h2 {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 800;
     letter-spacing: -1px;
     margin: 0;
@@ -68,14 +68,14 @@ body {
 .nav-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 15px;
-    border-radius: 8px;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
     cursor: pointer;
     color: #444;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     transition: all 0.2s ease;
 }
 
@@ -230,8 +230,8 @@ body {
 .metric-card-top {
     background-color: #faead3;
     /* Match the exact card background */
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 10px;
+    padding: 16px;
     position: relative;
 }
 
@@ -309,7 +309,7 @@ body {
 }
 
 .metric-value-top {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 800;
     color: #111;
 }
@@ -317,9 +317,9 @@ body {
 /* Charts Area */
 .chart-card {
     background-color: #fff;
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 25px;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
 .chart-header {
@@ -330,7 +330,7 @@ body {
 }
 
 .chart-title h3 {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: #111;
     margin-bottom: 4px;
@@ -403,8 +403,8 @@ body {
 /* Base Card */
 .base-card {
     background-color: #fff;
-    border-radius: 12px;
-    padding: 25px;
+    border-radius: 10px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
 }
@@ -417,14 +417,14 @@ body {
 }
 
 .card-title-main {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: #111;
 }
 
 .view-all-link {
     color: #f66d3b;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
@@ -438,8 +438,8 @@ body {
 
 .recent-orders-table th {
     text-align: left;
-    padding: 10px 10px 10px 0;
-    font-size: 11px;
+    padding: 8px 8px 8px 0;
+    font-size: 10px;
     font-weight: 600;
     color: #888;
     border-bottom: 1px solid #eee;
@@ -447,7 +447,7 @@ body {
 }
 
 .recent-orders-table td {
-    padding: 16px 10px 16px 0;
+    padding: 14px 8px 14px 0;
     border-bottom: 1px solid #f9f9f9;
     vertical-align: middle;
 }
@@ -533,9 +533,9 @@ body {
 }
 
 .top-item-img {
-    width: 50px;
-    height: 50px;
-    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
     background-color: #f3f4f6;
     border: 1px solid #eee;
     object-fit: cover;
@@ -546,7 +546,7 @@ body {
 }
 
 .top-item-name {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: #111;
     margin-bottom: 2px;

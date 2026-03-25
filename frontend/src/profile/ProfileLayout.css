@@ -18,7 +18,7 @@
 
 /* --- Sidebar --- */
 .profile-sidebar {
-    width: 288px;
+    width: 260px;
     background-color: #f9f1e8;
     border-right: 1px solid #f1f5f9;
     display: flex;
@@ -31,20 +31,20 @@
 }
 
 .profile-sidebar-content {
-    padding: 32px;
+    padding: 24px;
 }
 
 .sidebar-user-section {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
 .sidebar-avatar-wrapper {
     position: relative;
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
 }
 
 .sidebar-avatar-img {
@@ -78,7 +78,7 @@
 
 .sidebar-user-info h4 {
     margin: 0;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
     color: #1e293b;
     line-height: 1.2;
@@ -104,13 +104,13 @@
 .sidebar-link {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    border-radius: 12px;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: 10px;
     text-decoration: none;
     color: #64748b;
     transition: all 0.3s;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
 }
 
@@ -127,7 +127,7 @@
 }
 
 .sidebar-link span:first-child {
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .sidebar-link.active span {
@@ -143,17 +143,17 @@
 .logout-link {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
+    gap: 10px;
+    padding: 8px 14px;
     text-decoration: none;
     color: #ef4444;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     transition: all 0.2s;
 }
 
 .logout-link span {
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .logout-link:hover {
@@ -168,8 +168,8 @@
 
 .offer-card-inner {
     background-color: #0c121e;
-    border-radius: 16px;
-    padding: 24px;
+    border-radius: 14px;
+    padding: 20px;
     position: relative;
     overflow: hidden;
 }
@@ -189,7 +189,7 @@
 
 .offer-bg-icon span {
     color: #ffffff;
-    font-size: 60px;
+    font-size: 50px;
 }
 
 .offer-label {
@@ -203,9 +203,9 @@
 
 .offer-title {
     color: #ffffff;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
 }
 
 .offer-desc {
@@ -221,18 +221,18 @@
 
 .shop-now-btn {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     background-color: #ff6d2e;
     color: #ffffff;
     border: none;
-    border-radius: 12px;
-    font-size: 12px;
+    border-radius: 10px;
+    font-size: 11px;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 10px 15px -3px rgba(255, 109, 46, 0.2);
+    box-shadow: 0 8px 12px -3px rgba(255, 109, 46, 0.2);
 }
 
 .shop-now-btn:hover {
@@ -243,7 +243,7 @@
 .profile-content-area {
     flex: 1;
     background-color: #f8fafc;
-    padding: 40px;
+    padding: 32px;
 }
 
 /* --- Responsive --- */
