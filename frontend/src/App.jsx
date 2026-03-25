@@ -5,6 +5,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import CheckEmail from "./pages/CheckEmail";
 import ResetPassword from "./pages/ResetPassword";
 import ResetSuccess from "./pages/ResetSuccess";
+import CategoryPage from "./pages/CategoryPage";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/check-email" element={<CheckEmail />} />
         <Route path="/reset-password/:token?" element={<ResetPassword />} />
         <Route path="/reset-success" element={<ResetSuccess />} />
+        <Route path="/category" element={<CategoryPage />} />
       </Routes>
     </BrowserRouter>
   );

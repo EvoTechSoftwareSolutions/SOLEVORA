@@ -1,115 +1,176 @@
-import React from "react";
 import { Link } from "react-router-dom";
-import footerLogo from '../../assets/image/Footerlogo.png';
-import './Footer.css';
+import {
+  HiOutlineLocationMarker,
+  HiOutlinePhone,
+  HiOutlineMail,
+} from "react-icons/hi";
+import { FaInstagram, FaTwitter, FaFacebookF } from "react-icons/fa";
 
-const Footer = () => {
+import footerLogo from "../../assets/image/footerlogo.png"; // keep your path
+
+function Footer() {
   return (
-    <footer className="footer-area">
-      {/* Newsletter Strip */}
-      <div className="footer-newsletter">
-        <div className="footer-container newsletter-row">
-          <div className="newsletter-left">
-            <h3 className="newsletter-title">Join the Future</h3>
-            <p className="newsletter-subtitle">Subscribe for exclusive drops and 10% off your first order.</p>
-          </div>
-          <div className="newsletter-right">
-            <div className="newsletter-form">
-              <input type="email" placeholder="Enter your email" />
-              <button className="newsletter-submit" aria-label="Subscribe">
-                <span className="material-symbols-outlined">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <footer className="bg-[#0c0c0c] text-white">
 
-      {/* Main Footer Section */}
-      <div className="footer-main-section">
-        <div className="footer-container main-footer-row">
-          {/* Brand Column */}
-          <div className="footer-brand-col">
-            <Link to="/" className="footer-logo">
-              <img src={footerLogo} alt="SoleVora Logo" />
-            </Link>
-            <p className="brand-description">
-              Step into the future with cutting-edge footwear designed for the
-              next generation of athletes and style pioneers.
+      {/* Newsletter */}
+      <div className="border-b border-white/10">
+        {/* 🔥 ONLY CHANGE → reduce gap slightly */}
+        <div className="max-w-[1440px] mx-auto px-3 sm:px-4 md:px-5 lg:px-6 py-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          
+          <div>
+            <h3 className="text-2xl font-semibold">Join the Future</h3>
+            <p className="max-w-md mt-2 text-sm text-white/60">
+              Subscribe for drops and 10% off your first order.
             </p>
-            <div className="footer-contact-info">
-              <div className="contact-item">
-                <span className="material-symbols-outlined icon-orange">location_on</span>
-                <span>123 Future Street, Tech City, TC 12345</span>
-              </div>
-              <div className="contact-item">
-                <span className="material-symbols-outlined icon-orange">call</span>
-                <span>+1 (555) 123-4567</span>
-              </div>
-              <div className="contact-item">
-                <span className="material-symbols-outlined icon-orange">mail</span>
-                <span>hello@solevoro.com</span>
-              </div>
-            </div>
           </div>
 
-          {/* Links Columns */}
-          <div className="footer-links-grid">
-            <div className="link-column">
-              <h4>Shop</h4>
-              <Link to="/category">New Arrivals</Link>
-              <Link to="/category">Best Sellers</Link>
-              <Link to="/category">Running</Link>
-              <Link to="/category">Lifestyle</Link>
-              <Link to="/category">Basketball</Link>
-            </div>
-            <div className="link-column">
-              <h4>Support</h4>
-              <Link to="/contact">Contact Us</Link>
-              <Link to="/faq">FAQs</Link>
-              <Link to="/shipping">Shipping Info</Link>
-              <Link to="/returns">Returns</Link>
-              <Link to="/size-guide">Size Guide</Link>
-            </div>
-            <div className="link-column">
-              <h4>Company</h4>
-              <Link to="/about">About Us</Link>
-              <Link to="/careers">Careers</Link>
-              <Link to="/press">Press</Link>
-              <Link to="/sustainability">Sustainability</Link>
-            </div>
+          <div className="flex flex-col w-full gap-3 lg:w-auto sm:flex-row">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="w-full sm:w-[320px] rounded-full bg-white text-[#222] px-5 py-3 outline-none"
+            />
+            <button className="rounded-full bg-[#f28b2f] hover:bg-[#de7c26] transition duration-300 px-6 py-3 font-medium">
+              →
+            </button>
           </div>
-        </div>
 
-        {/* Legal Bar (inside main footer section) */}
-        <div className="footer-container legal-bar">
-           <div className="legal-links">
-             <span className="dot"></span>
-             <Link to="/privacy">Privacy & Policy</Link>
-             <span className="dot"></span>
-             <Link to="/terms">Terms & Conditions</Link>
-           </div>
         </div>
       </div>
 
-      {/* Footer Bottom Bar */}
-      <div className="footer-bottom-bar">
-        <div className="footer-container bottom-row">
-          <p className="copyright">© 2026 SoleVora. All rights reserved.</p>
-          <div className="social-links">
-            <a href="#" aria-label="Instagram">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-            </a>
-            <a href="#" aria-label="Twitter">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-            </a>
-            <a href="#" aria-label="Facebook">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-            </a>
+      {/* Main Footer */}
+      <div className="max-w-[1440px] mx-auto px-3 sm:px-4 md:px-5 lg:px-6 py-12 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-10">
+        
+        {/* Brand */}
+        <div className="xl:col-span-2">
+
+          {/* 🔥 ONLY CHANGE → increase logo size */}
+          <img
+            src={footerLogo}
+            alt="Footer Logo"
+            className="object-contain h-20 mb-5 md:h-24 lg:h-28"
+          />
+
+          <p className="max-w-md text-sm leading-7 text-white/60">
+            Step into the future with cutting-edge footwear designed for
+            comfort, performance, and elevated style.
+          </p>
+
+          <div className="mt-6 space-y-3 text-sm text-white/70">
+            <div className="flex items-center gap-3">
+              <HiOutlineLocationMarker className="text-[#f28b2f]" size={18} />
+              <span>123 Future Street, Tech City, TC 12345</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <HiOutlinePhone className="text-[#f28b2f]" size={18} />
+              <span>(+1) 555 123 4567</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <HiOutlineMail className="text-[#f28b2f]" size={18} />
+              <span>hello@solevora.com</span>
+            </div>
           </div>
         </div>
+
+        {/* Shop */}
+        <div>
+          <h4 className="mb-4 font-semibold">Shop</h4>
+          <div className="space-y-3 text-sm text-white/60">
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              New Arrivals
+            </Link>
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              Best Sellers
+            </Link>
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              Running
+            </Link>
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              Lifestyle
+            </Link>
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              Basketball
+            </Link>
+          </div>
+        </div>
+
+        {/* Support */}
+        <div>
+          <h4 className="mb-4 font-semibold">Support</h4>
+          <div className="space-y-3 text-sm text-white/60">
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              Contact Us
+            </Link>
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              FAQs
+            </Link>
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              Shipping Info
+            </Link>
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              Returns
+            </Link>
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              Size Guide
+            </Link>
+          </div>
+        </div>
+
+        {/* Company */}
+        <div>
+          <h4 className="mb-4 font-semibold">Company</h4>
+          <div className="space-y-3 text-sm text-white/60">
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              About Us
+            </Link>
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              Careers
+            </Link>
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              Press
+            </Link>
+            <Link to="/" className="block hover:text-[#f28b2f] transition">
+              Sustainability
+            </Link>
+          </div>
+        </div>
+
       </div>
+
+      {/* Bottom */}
+      <div className="border-t border-white/10">
+        <div className="max-w-[1440px] mx-auto px-3 sm:px-4 md:px-5 lg:px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-white/50">
+          
+          <p>© 2026 Solevora. All rights reserved.</p>
+
+          <div className="flex items-center gap-5">
+            <Link to="/" className="hover:text-[#f28b2f] transition">
+              Privacy Policy
+            </Link>
+            <Link to="/" className="hover:text-[#f28b2f] transition">
+              Terms & Conditions
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-4 text-white/70">
+            <a href="#" className="hover:text-[#f28b2f] transition">
+              <FaInstagram />
+            </a>
+            <a href="#" className="hover:text-[#f28b2f] transition">
+              <FaTwitter />
+            </a>
+            <a href="#" className="hover:text-[#f28b2f] transition">
+              <FaFacebookF />
+            </a>
+          </div>
+
+        </div>
+      </div>
+
     </footer>
   );
-};
+}
 
 export default Footer;
