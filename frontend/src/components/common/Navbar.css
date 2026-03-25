@@ -55,9 +55,16 @@
 }
 
 .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 150px;
+  width: 100%;
+  
+}
+
+.icon-btn.responsive{
+    display: none;
 }
 
 .icon-btn {
@@ -151,4 +158,10 @@
         box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
         z-index: 999;
     }
+    .icon-btn.responsive{
+    display: block;
+}
+.icon-btn.desktop{
+    display: none;
+}
 }
