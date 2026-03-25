@@ -3,7 +3,17 @@ import Category from '../models/Category.js';
 
 export const getAllProducts = async (req, res) => {
     try {
+        const { category } = req.query;
+        let whereClause = {};
+        
+        if (category && category !== 'All') {
+            whereClause = {
+                '$category.name$': category
+            };
+        }
+
         const products = await Product.findAll({
+            where: whereClause,
             include: [{ model: Category, as: 'category' }]
         });
         res.status(200).json(products);

@@ -105,6 +105,40 @@ const categories = [
 
 const Home = () => {
   const [openIndex, setOpenIndex] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [dbCategories, setDbCategories] = useState([]);
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDbCategories();
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [activeCategory]);
+
+  const fetchDbCategories = async () => {
+    try {
+      const resp = await axios.get('http://localhost:5000/api/categories');
+      setDbCategories(resp.data);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  };
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const resp = await axios.get(`http://localhost:5000/api/products?category=${activeCategory}`);
+      setProducts(resp.data);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -147,12 +181,23 @@ const Home = () => {
         <div className="filter">
           <div className="filter-categories">
             <ul>
-              <li className="active">All</li>
-              <li>Running</li>
-              <li>Casual</li>
-              <li>Lifestyle</li>
-              <li>Basketball</li>
-              <li>Training</li>
+              <li 
+                className={activeCategory === 'All' ? 'active' : ''} 
+                onClick={() => setActiveCategory('All')}
+                style={{ cursor: 'pointer' }}
+              >
+                All
+              </li>
+              {dbCategories.map(cat => (
+                <li 
+                  key={cat.id} 
+                  className={activeCategory === cat.name ? 'active' : ''} 
+                  onClick={() => setActiveCategory(cat.name)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {cat.name}
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -166,14 +211,18 @@ const Home = () => {
         </div>
 
         <div className="hero-cards">
-          {cardData.map((item) => (
+          {loading ? (
+            <div style={{ colSpan: '4', textAlign: 'center', width: '100%', padding: '40px' }}>Loading products...</div>
+          ) : products.length === 0 ? (
+            <div style={{ colSpan: '4', textAlign: 'center', width: '100%', padding: '40px' }}>No products found in this category.</div>
+          ) : products.map((item) => (
             <Card
               key={item.id}
-              image={item.image}
-              title={item.title}
+              image={item.image_url}
+              title={item.name}
               description={item.description}
               price={item.price}
-              link={item.link}
+              link={`/product/${item.id}`}
             />
           ))}
         </div>
@@ -195,14 +244,15 @@ const Home = () => {
         </div>
         <div className="circle-grid">
           {categories.map((cat, index) => (
-            <div
+            <Link 
+              to={`/category?type=${cat.name}`}
               key={index}
               className="category-circle"
-              style={{ backgroundColor: cat.color }}
+              style={{ backgroundColor: cat.color, textDecoration: 'none' }}
             >
               <img src={cat.image} alt={cat.name} className={cat.className} />
               <span className="category-circle__label">{cat.name}</span>
-            </div>
+            </Link>
           ))}
         </div>
       </section>

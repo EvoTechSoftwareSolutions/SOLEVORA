@@ -1,49 +1,41 @@
-/* Header Section - Exactly Like Profile Navigation */
+/* Navbar Premium Styles */
 .header-main {
-  height: 80px;
-  background-color: var(--color-white);
-  border-bottom: 1px solid #f1f5f9;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    height: 80px;
+    background-color: var(--color-white);
+    border-bottom: 1px solid #f1f5f9;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
 .nav-container {
-    max-width: 1400px;
-    width: 100%;
-    margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 40px;
-}
-
-.nav-logo-link {
-    display: flex;
-    align-items: center;
+    width: 100%;
 }
 
 .nav-logo-img {
-    height: 85px; /* Further increased from 70px to 85px */
+    height: 70px;
     width: auto;
 }
 
 .nav-menu {
     display: flex;
     align-items: center;
-    gap: 50px; /* matched to mockup spacing */
+    gap: 40px;
 }
 
 .nav-link {
-    font-size: 16px; /* refined to match mockup */
-    font-weight: 700;
-    color: #1a1a1a;
+    font-size: 15px;
+    font-weight: 600;
+    color: #475569;
     text-decoration: none;
-    transition: all 0.3s ease;
-    padding-bottom: 6px;
+    transition: all 0.2s ease;
+    padding: 8px 0;
     position: relative;
 }
 
@@ -51,88 +43,71 @@
     color: var(--color-primary);
 }
 
-/* Active underline exactly like mockup */
-.nav-link::after {
+.nav-link.active::after {
     content: '';
     position: absolute;
-    bottom: 0;
+    bottom: -2px;
     left: 0;
-    width: 0;
-    height: 3px;
+    width: 100%;
+    height: 2px;
     background-color: var(--color-primary);
-    transition: width 0.3s ease;
     border-radius: 2px;
 }
 
-.nav-link.active::after, .nav-link:hover::after {
-    width: 100%;
-}
-
 .nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 32px; /* matched mockup icon spacing */
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 .icon-btn {
-  text-decoration: none;
-  color: #121212;
-  position: relative;
-  transition: opacity 0.2s;
-  display: flex;
-  align-items: center;
+    color: #1e293b;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
 }
 
 .icon-btn:hover {
     color: var(--color-primary);
 }
 
-.icon-btn span {
+.material-symbols-outlined {
     font-size: 26px;
 }
 
-.mobile-toggle {
-    display: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-/* User profile Specific */
 .profile-btn-active {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     background: #f8fafc;
-    padding: 4px 12px;
+    padding: 6px 12px;
     border-radius: 100px;
     border: 1px solid #e2e8f0;
+    gap: 8px;
 }
 
 .user-name-abbr {
-    font-weight: 700;
-    font-size: 12px;
     background: var(--color-primary);
     color: white;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+    font-size: 11px;
+    font-weight: 800;
 }
 
 .login-nav-link {
     font-weight: 700;
-    color: #334155;
+    color: #475569;
     text-decoration: none;
     font-size: 14px;
 }
 
 .register-nav-btn {
-    background-color: var(--color-primary);
+    background: var(--color-primary);
     color: white;
-    padding: 10px 24px;
+    padding: 10px 22px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: 700;
@@ -141,37 +116,39 @@
 }
 
 .register-nav-btn:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 109, 46, 0.2);
 }
 
-@media (max-width: 768px) {
+.mobile-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #1e293b;
+}
+
+@media (max-width: 992px) {
+    .nav-menu {
+        display: none; /* Logic for mobile menu would go here */
+    }
+    
     .mobile-toggle {
         display: block;
     }
 
-    .nav-menu {
+    .nav-menu.mobile-active {
+        display: flex;
         position: absolute;
         top: 80px;
         left: 0;
         width: 100%;
         background: white;
         flex-direction: column;
-        padding: 20px;
-        gap: 20px;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        transform: translateY(-150%);
-        transition: transform 0.3s ease-in-out;
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .nav-menu.mobile-active {
-        transform: translateY(0);
-        opacity: 1;
-        pointer-events: all;
-    }
-
-    .nav-actions .login-nav-link, .nav-actions .register-nav-btn {
-        display: none; /* Hide on mobile to keep it clean */
+        padding: 40px 20px;
+        gap: 30px;
+        border-bottom: 1px solid #f1f5f9;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        z-index: 999;
     }
 }

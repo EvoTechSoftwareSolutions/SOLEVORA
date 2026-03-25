@@ -1,21 +1,3 @@
-:root {
-  --color-primary: #ff6d2e;      
-  --color-bg-light: #f8f6f5;    
-  --color-white: #ffffff;
-  --color-text-main: #0f172a;
-  --color-text-slate: #64748b;
-  --font-display: 'Manrope', sans-serif;
-  --font-inter: 'Inter', sans-serif;
-}
-
-body {
-  margin: 0;
-  font-family: var(--font-display);
-  background-color: var(--color-bg-light);
-  color: var(--color-text-main);
-  -webkit-font-smoothing: antialiased;
-}
-
 .layout-wrapper {
   min-height: 100vh;
   display: flex;
