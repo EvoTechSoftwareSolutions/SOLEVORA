@@ -1,5 +1,5 @@
 /* Profile Layout Styles */
-.profile-layout-container {
+.profile-layout-wrapper {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -8,73 +8,12 @@
     font-family: 'Inter', sans-serif;
 }
 
-/* --- Top Navigation --- */
-.profile-top-nav {
-    height: 80px;
-    background-color: #ffffff;
-    border-bottom: 1px solid #f1f5f9;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 40px;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-}
-
-.profile-logo-link img {
-    height: 55px;
-    width: auto;
-}
-
-.profile-main-nav {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-}
-
-.profile-nav-link {
-    font-size: 14px;
-    font-weight: 700;
-    color: #334155;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.profile-nav-link:hover {
-    color: #ff6d2e;
-}
-
-.profile-nav-icons {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-}
-
-.profile-icon-btn {
-    background: none;
-    border: none;
-    color: #475569;
-    cursor: pointer;
-    transition: color 0.2s;
-    padding: 0;
-    display: flex;
-    align-items: center;
-}
-
-.profile-icon-btn:hover {
-    color: #ff6d2e;
-}
-
-.profile-icon-btn span {
-    font-size: 26px;
-}
-
 /* --- Main Layout Wrapper --- */
 .profile-main-wrapper {
     display: flex;
     flex: 1;
+    position: relative;
+    padding-top: 0;
 }
 
 /* --- Sidebar --- */
@@ -84,10 +23,11 @@
     border-right: 1px solid #f1f5f9;
     display: flex;
     flex-direction: column;
-    position: fixed;
     height: calc(100vh - 80px);
+    position: sticky;
     top: 80px;
     overflow-y: auto;
+    flex-shrink: 0;
 }
 
 .profile-sidebar-content {
@@ -302,6 +242,26 @@
 /* --- Main Content Area --- */
 .profile-content-area {
     flex: 1;
-    margin-left: 288px;
     background-color: #f8fafc;
+    padding: 40px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 1024px) {
+    .profile-main-wrapper {
+        flex-direction: column;
+    }
+
+    .profile-sidebar {
+        width: 100%;
+        min-height: auto;
+        border-right: none;
+        border-bottom: 1px solid #f1f5f9;
+        position: static;
+    }
+
+    .profile-content-area {
+        margin-left: 0;
+        padding: 24px;
+    }
 }

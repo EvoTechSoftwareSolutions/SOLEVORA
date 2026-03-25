@@ -1,39 +1,16 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import logo from '../assets/logo.png';
+import Navbar from '../components/common/Navbar';
+import Footer from '../components/common/Footer';
 import './ProfileLayout.css';
 
 const ProfileLayout = () => {
     const location = useLocation();
 
     return (
-        <div className="profile-layout-container">
-            {/* Top Navigation Bar */}
-            <header className="profile-top-nav">
-                <Link to="/" className="profile-logo-link">
-                    <img src={logo} alt="SoleVoro Logo" />
-                </Link>
-
-                <nav className="profile-main-nav">
-                    <Link to="/" className="profile-nav-link">Home</Link>
-                    <Link to="/category" className="profile-nav-link">Category</Link>
-                    <Link to="/about" className="profile-nav-link">About</Link>
-                    <Link to="/contact" className="profile-nav-link">Contact</Link>
-                </nav>
-
-                <div className="profile-nav-icons">
-                    <button className="profile-icon-btn">
-                        <span className="material-symbols-outlined">shopping_cart</span>
-                    </button>
-                    <button className="profile-icon-btn">
-                        <span className="material-symbols-outlined">person</span>
-                    </button>
-                    <button className="profile-icon-btn">
-                        <span className="material-symbols-outlined">favorite</span>
-                    </button>
-                </div>
-            </header>
-
+        <div className="profile-layout-wrapper">
+            <Navbar />
+            
             <div className="profile-main-wrapper">
                 {/* Sidebar */}
                 <aside className="profile-sidebar">
@@ -115,6 +92,8 @@ const ProfileLayout = () => {
                     <Outlet />
                 </main>
             </div>
+
+            <Footer />
         </div>
     );
 };
