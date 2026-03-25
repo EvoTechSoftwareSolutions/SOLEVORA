@@ -85,15 +85,16 @@ const UserLayout = () => {
           </div>
         </div>
 
-        {/* Main Footer */}
-        <div className="footer-main">
-          <div className="footer-container footer-grid">
-
-            {/* Brand Column */}
-            <div className="f-col company-info">
-              <img src={logo} alt="SoleVora Logo" className="f-logo" />
-              <p className="f-brand-desc">Step into the future with cutting-edge footwear designed for the next generation of athletes and style pioneers.</p>
-              <div className="contact-details">
+        {/* Footer Links */}
+        <div className="footer-links">
+          <div className="footer-main">
+            <div className="contact">
+              <img src="/" alt="logo" />
+              <p>
+                Step into the future with cutting-edge footwear designed for the
+                next generation of athletes and style pioneers.
+              </p>
+              <div className="contact-icons">
                 <div className="contact-item">
                   <span className="material-symbols-outlined">location_on</span>
                   <span>123 Future Street, Tech City, TC 12345</span>
