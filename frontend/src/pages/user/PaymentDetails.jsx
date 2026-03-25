@@ -48,16 +48,18 @@ const PaymentDetails = () => {
 
   const handlePlaceOrder = async () => {
     if (paymentMethod === 'creditcard' && (!formData.cardNumber || !formData.cvv)) {
-        showMessage('Invalid Details', 'Please enter valid payment details before placing your order.');
-        return;
+        // showMessage('Invalid Details', 'Please enter valid payment details before placing your order.');
+        // return;
+        // Letting PayHere handle credit card details for security.
     }
+    
     const userStr = localStorage.getItem("user");
     const user = userStr ? JSON.parse(userStr) : null;
     
     try {
+        // 1. Create a pending order in the backend
         const orderPayload = {
             total_amount: total,
-            status: 'paid', // Mark as paid for demo purposes
             shipping_address: `${checkoutData.streetAddress}, ${checkoutData.city}, ${checkoutData.postalCode}`,
             contact_number: checkoutData.phone,
             email: checkoutData.email || user?.email,
@@ -71,14 +73,61 @@ const PaymentDetails = () => {
         };
 
         const response = await axios.post('http://localhost:5000/api/orders', orderPayload);
-        console.log('Order created:', response.data);
         const orderData = response.data;
-        const currentItems = [...cart];
-        clearCart();
-        navigate('/verify-code', { state: { order: orderData, items: currentItems } });
+        
+        // 2. Get the payment hash from the backend
+        const hashResponse = await axios.post('http://localhost:5000/api/payment/hash', {
+            order_id: orderData.id,
+            amount: total,
+            currency: 'LKR' // PayHere Sandbox usually uses LKR or USD
+        });
+        
+        const { hash, merchant_id } = hashResponse.data;
+
+        // 3. Prepare PayHere payment object
+        const payment = {
+            "sandbox": true,
+            "merchant_id": merchant_id,
+            "return_url": "http://localhost:5173/order-confirmation", 
+            "cancel_url": "http://localhost:5173/payment",
+            "notify_url": "http://localhost:5000/api/payment/notify",
+            "order_id": orderData.id.toString(),
+            "items": "SoleVora Order",
+            "amount": total.toFixed(2),
+            "currency": "LKR",
+            "hash": hash,
+            "first_name": user?.name?.split(' ')[0] || "Guest",
+            "last_name": user?.name?.split(' ')[1] || "User",
+            "email": user?.email || checkoutData.email,
+            "phone": checkoutData.phone,
+            "address": checkoutData.streetAddress,
+            "city": checkoutData.city,
+            "country": "Sri Lanka",
+        };
+
+        // 4. Start PayHere Payment
+        window.payhere.onCompleted = function onCompleted(orderId) {
+            console.log("Payment completed. OrderID:" + orderId);
+            const currentItems = [...cart];
+            clearCart();
+            navigate('/order-confirmation', { state: { order: orderData, items: currentItems } });
+        };
+
+        window.payhere.onDismissed = function onDismissed() {
+            console.log("Payment dismissed");
+            showMessage('Payment Dismissed', 'You closed the payment window. Please try again to complete your order.');
+        };
+
+        window.payhere.onError = function onError(error) {
+            console.log("Error:"  + error);
+            showMessage('Payment Error', 'There was an error processing your payment: ' + error);
+        };
+
+        window.payhere.startPayment(payment);
+
     } catch (error) {
         console.error('Error placing order:', error);
-        showMessage('Order Failed', 'There was an error placing your order. Please check your bank and try again.');
+        showMessage('Order Failed', 'There was an error placing your order. Please check your connection and try again.');
     }
   };
 

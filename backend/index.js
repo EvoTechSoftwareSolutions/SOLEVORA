@@ -19,6 +19,7 @@ import adminRoutes from './routes/adminRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import addressRoutes from './routes/addressRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/payment', paymentRoutes);
 // The frontend calls these endpoints at the root (e.g. /register, not /api/register)
 app.use('/', authRoutes);
 
