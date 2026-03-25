@@ -117,6 +117,7 @@ const Home = () => {
             <span className="highlight">Brands</span>
           </h1>{" "}
           <p>
+            asdasdas
             Discover the latest styles and must-have essentials. Fast shipping,
             easy returns, and secure checkoutshop now and find something you’ll
             love. Discover the latest styles and must-have essentials.Fast
