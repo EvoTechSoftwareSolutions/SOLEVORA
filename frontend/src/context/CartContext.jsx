@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import Toast from '../components/ui/Toast';
 
 const CartContext = createContext();
 
@@ -9,9 +10,15 @@ export const CartProvider = ({ children }) => {
         return localData ? JSON.parse(localData) : [];
     });
 
+    const [toast, setToast] = useState(null);
+
     useEffect(() => {
         localStorage.setItem('solevora_cart', JSON.stringify(cart));
     }, [cart]);
+
+    const showToast = (message, type = 'success') => {
+        setToast({ message, type, id: Date.now() });
+    };
 
     const addToCart = (product, size) => {
         setCart((prevCart) => {
@@ -25,8 +32,10 @@ export const CartProvider = ({ children }) => {
             }
             return [...prevCart, { ...product, size, quantity: 1 }];
         });
+        showToast(`${product.name} (Size: ${size}) added to your cart!`);
     };
 
+    // ... handle removeFromCart, updateQuantity, clearCart ...
     const removeFromCart = (productId, size) => {
         setCart(prevCart => prevCart.filter(item => !(item.id === productId && item.size === size)));
     };
@@ -76,9 +85,17 @@ export const CartProvider = ({ children }) => {
     return (
         <CartContext.Provider value={{ 
             cart, addToCart, removeFromCart, updateQuantity, clearCart, 
-            cartTotal, cartCount, checkoutData, updateCheckoutData
+            cartTotal, cartCount, checkoutData, updateCheckoutData, showToast
         }}>
             {children}
+            {toast && (
+                <Toast 
+                    key={toast.id}
+                    message={toast.message} 
+                    type={toast.type} 
+                    onClose={() => setToast(null)} 
+                />
+            )}
         </CartContext.Provider>
     );
 };

@@ -18,7 +18,7 @@ const MyOrders = () => {
         return checkoutData.email || null;
     };
     
-    const userEmail = getLoggedInEmail(); 
+    const userEmail = getLoggedInEmail()?.trim(); 
 
     useEffect(() => {
         const fetchOrders = async () => {

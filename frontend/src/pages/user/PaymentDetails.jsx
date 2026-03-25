@@ -51,6 +51,8 @@ const PaymentDetails = () => {
         showMessage('Invalid Details', 'Please enter valid payment details before placing your order.');
         return;
     }
+    const userStr = localStorage.getItem("user");
+    const user = userStr ? JSON.parse(userStr) : null;
     
     try {
         const orderPayload = {
@@ -58,7 +60,8 @@ const PaymentDetails = () => {
             status: 'paid', // Mark as paid for demo purposes
             shipping_address: `${checkoutData.streetAddress}, ${checkoutData.city}, ${checkoutData.postalCode}`,
             contact_number: checkoutData.phone,
-            email: checkoutData.email,
+            email: checkoutData.email || user?.email,
+            userId: user?.id || null,
             items: cart.map(item => ({
                 productId: item.id,
                 quantity: item.quantity,
@@ -340,6 +343,7 @@ const PaymentDetails = () => {
 
       </div>
     </div>
+  </div>
   );
 };
 

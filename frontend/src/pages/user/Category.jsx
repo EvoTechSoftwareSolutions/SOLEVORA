@@ -81,7 +81,6 @@ const Category = () => {
                                         className="add-btn" 
                                         onClick={() => {
                                             addToCart(product, '9.0'); // Default size
-                                            alert(`${product.name} added to cart!`);
                                         }}
                                         title="Quick Add to Cart"
                                     >

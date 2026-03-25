@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import Modal from '../../components/ui/Modal';
 import '../../styles/user/ShippingMethod.css';
 
 const ShippingMethod = () => {
@@ -9,6 +10,13 @@ const ShippingMethod = () => {
   const [selectedMethod, setSelectedMethod] = useState('standard');
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: '', body: '' });
+
+  const showMessage = (title, body) => {
+    setModalContent({ title, body });
+    setIsModalOpen(true);
+  };
 
   const shippingMethods = [
     { id: 'standard', name: 'Standard Shipping', time: '3-5 business days', price: 0 },
@@ -25,7 +33,7 @@ const ShippingMethod = () => {
 
   const handleApplyPromo = () => {
     if (promoCode.trim().toLowerCase() === 'save10') setPromoApplied(true);
-    else alert('Invalid promo code. Try "SAVE10"');
+    else showMessage('Invalid Promo', 'The code you entered is invalid. Try "SAVE10" for a discount.');
   };
 
   const handleContinueToPayment = () => {
@@ -142,16 +150,16 @@ const ShippingMethod = () => {
             {/* Horizontal scroll item cards */}
             <div className="sm-items-scroll">
               {cart.map(item => (
-                <div key={`${item.id}-${item.size}`} className="si-item-card">
-                  <div className="si-item-img-wrap">
-                    <img src={item.image_url} alt={item.name} className="si-item-img" />
-                    <span className="si-qty-badge">{item.quantity}</span>
+                <div key={`${item.id}-${item.size}`} className="sm-item-card">
+                  <div className="sm-item-img-wrap">
+                    <img src={item.image_url} alt={item.name} className="sm-item-img" />
+                    <span className="sm-qty-badge">{item.quantity}</span>
                   </div>
-                  <p className="si-item-name">{item.name}</p>
-                  <p className="si-item-variant">Size: {item.size}</p>
-                  <div className="si-item-footer">
-                    <span className="si-item-qty-lbl">Qty: {item.quantity}</span>
-                    <span className="si-item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                  <p className="sm-item-name">{item.name}</p>
+                  <p className="sm-item-variant">Size: {item.size}</p>
+                  <div className="sm-item-footer">
+                    <span className="sm-item-qty-lbl">Qty: {item.quantity}</span>
+                    <span className="sm-item-price">${(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 </div>
               ))}
@@ -213,6 +221,19 @@ const ShippingMethod = () => {
           </div>
 
         </div>
+
+        {/* Modal for Messages */}
+        <Modal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)}
+          title={modalContent.title}
+          actions={
+            <button className="modal-btn modal-btn-confirm" onClick={() => setIsModalOpen(false)}>Got it</button>
+          }
+        >
+          <p>{modalContent.body}</p>
+        </Modal>
+
       </div>
     </div>
   );

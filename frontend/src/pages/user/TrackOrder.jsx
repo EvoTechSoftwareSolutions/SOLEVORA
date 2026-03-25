@@ -18,7 +18,7 @@ const TrackOrder = () => {
         try {
             // First we get all orders for the user since backend doesn't have a direct "get order by id AND email"
             // Wait, we have getOrdersByEmail. Let's fetch and filter.
-            const response = await axios.get(`http://localhost:5000/api/orders/user/${email}`);
+            const response = await axios.get(`http://localhost:5000/api/orders/search?email=${email}`);
             
             // Clean up the searched ID (remove # or ORD- prefix if user typed it)
             const cleanId = orderId.replace(/[^0-9]/g, '');
@@ -87,7 +87,7 @@ const TrackOrder = () => {
                         <div className="results-header">
                             <div>
                                 <h2>Order #ORD-{orderInfo.id}</h2>
-                                <p className="order-date">Placed on {new Date(orderInfo.created_at).toLocaleDateString()}</p>
+                                <p className="order-date">Placed on {new Date(orderInfo.createdAt).toLocaleDateString()}</p>
                             </div>
                             <div className={`status-badge ${orderInfo.status.toLowerCase()}`}>
                                 {orderInfo.status.toUpperCase()}
@@ -115,10 +115,10 @@ const TrackOrder = () => {
                                 {orderInfo.items.map((item, idx) => (
                                     <div key={idx} className="tracking-item">
                                         <div className="item-image-wrap">
-                                            <img src={item.image_url} alt={item.name} />
+                                            <img src={item.product?.image_url} alt={item.product?.name} />
                                         </div>
                                         <div className="item-details">
-                                            <h4>{item.name}</h4>
+                                            <h4>{item.product?.name}</h4>
                                             <p>Size: {item.size} | Qty: {item.quantity}</p>
                                         </div>
                                         <div className="item-price">
@@ -132,9 +132,8 @@ const TrackOrder = () => {
                         <div className="shipping-details-box">
                             <div>
                                 <h4>Shipping To</h4>
-                                <p>{orderInfo.full_name}</p>
-                                <p>{orderInfo.street_address}</p>
-                                <p>{orderInfo.city}, {orderInfo.postal_code}</p>
+                                <p>{orderInfo.email}</p>
+                                <p>{orderInfo.shipping_address}</p>
                             </div>
                             <div>
                                 <h4>Total Paid</h4>
