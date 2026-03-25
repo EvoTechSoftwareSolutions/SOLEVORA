@@ -1,27 +1,13 @@
 import { Link } from "react-router-dom";
-import { FaStar, FaHeart, FaRegHeart } from "react-icons/fa";
-import { useWishlist } from "../../context/WishlistContext";
+import PropTypes from "prop-types";
 import "../../styles/user/ui/Card.css";
+import { FaStar } from "react-icons/fa";
 
-const Card = ({ id, image, title, description, price, link }) => {
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  const isSaved = (id && isInWishlist) ? isInWishlist(id) : false;
-
-  const toggleWishlist = (e) => {
-    e.preventDefault();
-    if (isSaved) {
-        removeFromWishlist(id);
-    } else {
-        addToWishlist({ id, image_url: image, name: title, price });
-    }
-  };
+const Card = ({ image, title, description, price, link }) => {
   return (
     <div className="card">
       <div className="card-image">
         <img src={image} alt={title} />
-        <button className={`wishlist-toggle ${isSaved ? 'active' : ''}`} onClick={toggleWishlist}>
-            {isSaved ? <FaHeart /> : <FaRegHeart />}
-        </button>
       </div>
 
       <div className="card-content">
@@ -54,6 +40,14 @@ const Card = ({ id, image, title, description, price, link }) => {
       </div>
     </div>
   );
+};
+
+Card.propTypes = {
+  image: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  link: PropTypes.string,
 };
 
 export default Card;

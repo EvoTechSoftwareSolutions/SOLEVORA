@@ -8,7 +8,7 @@ import {
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaPlus  } from "react-icons/fa";
 import { HiOutlineAdjustmentsHorizontal } from "react-icons/hi2";
 
 export {
@@ -19,6 +19,7 @@ export {
   MapPinIcon,
   PhoneIcon,
   EnvelopeIcon,
+  FaPlus ,
   FaSearch,
   HiOutlineAdjustmentsHorizontal,
 };
