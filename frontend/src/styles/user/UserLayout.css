@@ -118,8 +118,15 @@ body {
 .footer-newsletter {
   background-color: #1a1a1a;
   border-bottom: 1px solid #2a2a2a;
-  padding: 52px 0;
+  padding: 40px 0;
   color: #ffffff;
+}
+
+.newsletter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
 }
 
 .navbar__menu {
@@ -219,17 +226,18 @@ body {
 }
 
 .newsletter-text h3 {
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 800;
   color: #ffffff;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
 }
 
 .newsletter-text p {
   color: #94a3b8;
-  font-size: 14px;
-  line-height: 1.5;
-  max-width: 280px;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 400px;
   margin: 0;
 }
 
@@ -277,10 +285,17 @@ body {
 }
 
 /* --- Main Footer --- */
-.footer-main {
+.footer-links {
   background-color: #1a1a1a;
   color: #ffffff;
-  padding: 60px 0 0;
+  padding: 40px 0 0;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 60px;
+  padding-bottom: 48px;
 }
 
 .contact {
@@ -289,10 +304,10 @@ body {
 }
 
 /* Brand Column */
-.company-info .f-logo {
-  height: 120px; /* Increased from 70px to 95px */
+.f-logo {
+  height: 75px; 
   width: auto;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   filter: brightness(0) invert(1);
   display: block;
 }
@@ -301,7 +316,7 @@ body {
   color: #94a3b8;
   font-size: 13px;
   line-height: 1.65;
-  margin-bottom: 28px;
+  margin-bottom: 15px;
 }
 
 .contact-details {
@@ -330,7 +345,7 @@ body {
   font-size: 14px;
   font-weight: 700;
   color: #ffffff;
-  margin: 0 0 20px;
+  margin: 0 0 15px;
   letter-spacing: 0.01em;
 }
 
@@ -350,7 +365,7 @@ body {
 /* --- Legal Row (inside dark footer) --- */
 .footer-legal-row {
   border-top: 1px solid #2a2a2a;
-  padding: 24px 0;
+  padding: 16px 0;
   display: flex;
   justify-content: flex-end;
 }
@@ -386,7 +401,7 @@ body {
 .footer-bottom-bar {
   background-color: #111111;
   border-top: 1px solid #2a2a2a;
-  padding: 18px 0;
+  padding: 12px 0;
 }
 
 .bottom-bar-row {
@@ -448,10 +463,14 @@ body {
     width: 100%;
   }
 
-  .footer-main {
-    flex-direction: column;
-    flex-direction: column;
-    justify-content: center;
+  .footer-links {
+    padding-top: 40px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding-bottom: 40px;
   }
 
   .right-section {
@@ -540,9 +559,9 @@ body {
     gap: 12px;
     text-align: center;
   }
-  .footer-main {
-  padding: 0 0px;
-}
+  .footer-links {
+    padding: 0 0px;
+  }
 .privacy-section {
   display: flex;
   gap: 20px;
