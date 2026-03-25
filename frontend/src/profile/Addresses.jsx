@@ -102,14 +102,6 @@ const Addresses = () => {
 
             <div className="addr-card-inner">
               <div className="addr-card-top">
-                <div
-                  className="addr-map-snippet"
-                  style={{ backgroundColor: '#f1f1f1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  aria-hidden="true"
-                >
-                    <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#ccc' }}>map</span>
-                </div>
-
                 <div className="addr-card-details">
                   <h3 className="addr-card-heading">
                     <span className="material-symbols-outlined addr-card-heading-icon">{addr.icon || 'location_on'}</span>
