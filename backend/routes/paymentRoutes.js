@@ -1,9 +1,9 @@
 import express from 'express';
-import PaymentController from '../controllers/PaymentController.js';
+import { generatePaymentHash, handlePaymentNotification } from '../controllers/PaymentController.js';
 
 const router = express.Router();
 
-router.post('/generate-hash', PaymentController.generatePaymentHash);
-router.post('/notify', PaymentController.handlePaymentNotification);
+router.post('/hash', generatePaymentHash);
+router.post('/notify', handlePaymentNotification);
 
 export default router;

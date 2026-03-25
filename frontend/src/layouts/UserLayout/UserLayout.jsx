@@ -1,67 +1,13 @@
-import { useState } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
-import logo from '../../assets/logo.png';
+import { Outlet } from "react-router-dom";
+import Navbar from "../../components/common/Navbar";
+import Footer from "../../components/common/Footer";
 import "../../styles/user/UserLayout.css";
 import "../../styles/user/Home.css";
 
 const UserLayout = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const location = useLocation();
-
-  const handleToggle = () => setMenuOpen(!menuOpen);
-
   return (
     <div className="layout-wrapper">
-      {/* Top Navigation Bar - Matching Mockup Precisely */}
-      <header className="header-main">
-        <nav className="nav-container container">
-          <Link to="/" className="nav-logo-link">
-            <img src={logo} alt="SoleVoro Logo" className="nav-logo-img" />
-          </Link>
-
-          <nav className="nav-menu">
-            <Link to="/" className={`nav-link ${location.pathname === '/' || location.pathname === '/home' ? 'active' : ''}`}>Home</Link>
-            <Link to="/category" className={`nav-link ${location.pathname === '/category' ? 'active' : ''}`}>Category</Link>
-            <Link to="/about" className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}>About</Link>
-            <Link to="/contact" className={`nav-link ${location.pathname === '/contact' ? 'active' : ''}`}>Contact</Link>
-          </nav>
-
-          <div className="nav-actions">
-            {localStorage.getItem('user') ? (
-              <>
-                <Link to="/cart" className="icon-btn">
-                  <span className="material-symbols-outlined">shopping_cart</span>
-                </Link>
-                <Link to="/profile/wishlist" className="icon-btn">
-                  <span className="material-symbols-outlined">favorite</span>
-                </Link>
-                <Link to="/profile" className="icon-btn profile-btn-active">
-                  <span className="material-symbols-outlined">person</span>
-                  <span className="user-name-abbr">
-                    {JSON.parse(localStorage.getItem('user')).name?.charAt(0) || 'U'}
-                  </span>
-                </Link>
-                <Link to="/logout" className="icon-btn logout-nav-btn" title="Logout">
-                  <span className="material-symbols-outlined">logout</span>
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link to="/cart" className="icon-btn">
-                  <span className="material-symbols-outlined">shopping_cart</span>
-                </Link>
-                <Link to="/login" className="login-nav-link">Login</Link>
-                <Link to="/register" className="register-nav-btn">Sign Up</Link>
-              </>
-            )}
-            <button className="mobile-toggle" onClick={handleToggle}>
-              ☰
-            </button>
-          </div>
-        </nav>
-      </header>
-
-      {/* Main Content Area */}
+      <Navbar />
       <main className="main-content">
         <Outlet />
       </main>

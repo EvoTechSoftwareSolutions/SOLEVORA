@@ -4,8 +4,8 @@ import Product from '../models/Product.js';
 
 export const createOrder = async (req, res) => {
     try {
-        const { total_amount, status, shipping_address, contact_number, email, userId, items } = req.body;
-        const order = await Order.create({ total_amount, status, shipping_address, contact_number, email, userId });
+        const { total_amount, shipping_address, contact_number, email, userId, items } = req.body;
+        const order = await Order.create({ total_amount, status: 'pending', shipping_address, contact_number, email, userId });
         
         if (items && items.length > 0) {
             const orderItems = items.map(item => ({

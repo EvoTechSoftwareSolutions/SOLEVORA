@@ -1,69 +1,69 @@
 import crypto from 'crypto';
 import Order from '../models/Order.js';
 
-const generatePaymentHash = async (req, res) => {
+export const generatePaymentHash = async (req, res) => {
     try {
-        const { orderId, amount, currency } = req.body;
-        const merchantId = process.env.PAYHERE_MERCHANT_ID;
-        const merchantSecret = process.env.PAYHERE_SECRET;
-
-        // PayHere Hash format: md5(merchant_id + order_id + amount + currency + md5(merchant_secret).toUpperCase())
-        const hashedSecret = crypto.createHash('md5').update(merchantSecret).digest('hex').toUpperCase();
+        const { order_id, amount, currency } = req.body;
         
-        // Ensure amount is formatted to 2 decimal places as required by PayHere
-        const formattedAmount = parseFloat(amount).toFixed(2);
+        const merchant_id = process.env.PAYHERE_MERCHANT_ID?.trim();
+        const merchant_secret = process.env.PAYHERE_SECRET?.trim();
         
-        const sourceString = merchantId + orderId + formattedAmount + currency + hashedSecret;
-        const finalHash = crypto.createHash('md5').update(sourceString).digest('hex').toUpperCase();
-
         console.log('--- PayHere Hash Generation Debug ---');
-        console.log('Merchant ID:', merchantId);
-        console.log('Order ID:', orderId);
-        console.log('Amount:', formattedAmount);
+        console.log('Merchant ID:', merchant_id);
+        console.log('Order ID:', order_id);
+        console.log('Amount:', amount);
         console.log('Currency:', currency);
-        console.log('Hash Source String:', sourceString);
-        console.log('Generated Hash:', finalHash);
+        
+        const hashedSecret = crypto.createHash('md5').update(merchant_secret).digest('hex').toUpperCase();
+        const amountFormatted = Number(amount).toFixed(2);
+        
+        const hashSource = merchant_id + order_id.toString() + amountFormatted + currency + hashedSecret;
+        console.log('Hash Source String:', hashSource);
+        
+        const hash = crypto.createHash('md5').update(hashSource).digest('hex').toUpperCase();
+        console.log('Generated Hash:', hash);
         console.log('-------------------------------------');
-
-        res.json({ hash: finalHash });
+        
+        res.status(200).json({ hash, merchant_id });
     } catch (error) {
         console.error('Error generating hash:', error);
-        res.status(500).json({ error: 'Failed to generate payment hash' });
+        res.status(500).json({ message: 'Error generating payment hash' });
     }
 };
 
-const handlePaymentNotification = async (req, res) => {
+export const handlePaymentNotification = async (req, res) => {
     try {
-        const { order_id, status_code, md5sig, merchant_id, payhere_amount, payhere_currency } = req.body;
-        const merchantSecret = process.env.PAYHERE_SECRET;
-
-        // Verify the notification signature
-        const hashedSecret = crypto.createHash('md5').update(merchantSecret).digest('hex').toUpperCase();
-        const verifyString = merchant_id + order_id + payhere_amount + payhere_currency + status_code + hashedSecret;
-        const expectedSig = crypto.createHash('md5').update(verifyString).digest('hex').toUpperCase();
-
-        if (md5sig !== expectedSig) {
-            console.error('Invalid PayHere signature received!');
-            return res.status(400).send('Invalid Signature');
+        const { merchant_id, order_id, payment_id, payhere_amount, payhere_currency, status_code, md5sig } = req.body;
+        
+        const merchant_secret = process.env.PAYHERE_SECRET;
+        const hashedSecret = crypto.createHash('md5').update(merchant_secret).digest('hex').toUpperCase();
+        
+        // Verify signature
+        const localSigSource = merchant_id + order_id + payhere_amount + payhere_currency + status_code + hashedSecret;
+        const localSig = crypto.createHash('md5').update(localSigSource).digest('hex').toUpperCase();
+        
+        if (localSig === md5sig) {
+            if (status_code === '2') {
+                // Payment Success
+                await Order.update({ status: 'paid' }, { where: { id: order_id } });
+                console.log(`Order ${order_id} marked as paid.`);
+            } else if (status_code === '0') {
+                // Pending
+                await Order.update({ status: 'pending' }, { where: { id: order_id } });
+            } else if (status_code === '-1') {
+                // Cancelled
+                await Order.update({ status: 'cancelled' }, { where: { id: order_id } });
+            } else if (status_code === '-2') {
+                // Failed
+                await Order.update({ status: 'pending' }, { where: { id: order_id } }); // Or keep as pending
+            }
+            res.status(200).send('OK');
+        } else {
+            console.error('Invalid signature from PayHere');
+            res.status(400).send('Invalid signature');
         }
-
-        // status_code 2 means success
-        if (status_code === '2') {
-            await Order.update({ status: 'paid' }, { where: { id: order_id } });
-            console.log(`Order ${order_id} marked as PAID via PayHere notification.`);
-        } else if (status_code === '-2') { //-2 means failed
-            await Order.update({ status: 'failed' }, { where: { id: order_id } });
-            console.log(`Order ${order_id} marked as FAILED via PayHere notification.`);
-        }
-
-        res.status(200).send('OK');
     } catch (error) {
-        console.error('Error handling payment notification:', error);
-        res.status(500).send('Error');
+        console.error('Error handling notification:', error);
+        res.status(500).send('Internal Server Error');
     }
-};
-
-export default {
-    generatePaymentHash,
-    handlePaymentNotification
 };

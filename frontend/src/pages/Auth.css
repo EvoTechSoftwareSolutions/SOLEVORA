@@ -63,23 +63,23 @@
 }
 
 .auth-heading-img {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 800;
   line-height: 1.1;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
 @media (min-width: 768px) {
   .auth-heading-img {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
   }
 }
 
 .auth-subheading-img {
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: #e2e8f0;
   max-width: 80%;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 /* Right Panel */
@@ -105,18 +105,18 @@
 }
 
 .auth-title {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 800;
   color: #0f172a;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.6rem;
   line-height: 1.2;
 }
 
 .auth-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #64748b;
-  margin-bottom: 1rem;
-  line-height: 1.5;
+  margin-bottom: 0.8rem;
+  line-height: 1.4;
 }
 
 .auth-form-group {
@@ -148,9 +148,9 @@
   align-items: center;
   background-color: white;
   border: 1px solid #cbd5e1;
-  border-radius: 12px;
-  height: 42px;
-  padding: 0 1rem;
+  border-radius: 10px;
+  height: 38px;
+  padding: 0 0.8rem;
   transition: all 0.3s ease;
 }
 
@@ -165,7 +165,7 @@
   background: transparent;
   border: none;
   outline: none;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #1e293b;
 }
 
@@ -181,19 +181,19 @@
 
 .auth-submit-btn {
   width: 100%;
-  height: 50px;
+  height: 44px;
   background-color: #f97316;
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 0.9rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 1rem;
+  margin-top: 0.8rem;
 }
 
 .auth-submit-btn:hover {
@@ -240,16 +240,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  height: 48px;
+  gap: 0.4rem;
+  height: 44px;
   background-color: white;
   border: 1px solid #cbd5e1;
-  border-radius: 12px;
+  border-radius: 10px;
   font-weight: 600;
   color: #334155;
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .auth-social-btn:hover {
@@ -274,26 +274,26 @@
 
 /* Check email icon */
 .auth-check-icon {
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   background-color: #ffedd5;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .auth-check-icon svg {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   color: #f97316;
 }
 
 .auth-security-box {
   background-color: #f1f5f9;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-top: 1rem;
+  border-radius: 10px;
+  padding: 1.2rem;
+  margin-top: 0.8rem;
 }
 
 .auth-security-title {

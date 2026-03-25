@@ -54,10 +54,10 @@
 }
 
 .banner-text h1 {
-  font-size: 65px;
+  font-size: 48px;
   font-weight: 700;
   color: #1a2332;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   line-height: 1.2;
 }
 
@@ -70,22 +70,22 @@
 }
 
 .banner-text p {
-  font-size: 16px;
+  font-size: 14px;
   color: #6b6b6b;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   line-height: 1.6;
 }
 
 .shop-button {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 24px;
-  font-size: 18px;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 16px;
   font-weight: 600;
   color: #fff;
   text-decoration: none;
-  border-radius: 10px;
+  border-radius: 8px;
   background: linear-gradient(90deg, #ffa007, #f97316);
   transition: all 0.3s ease-out;
 }
@@ -142,13 +142,13 @@
 
 .intro h1 {
   color: #0f172a;
-  font-size: 60px;
+  font-size: 48px;
   font-weight: 600;
 }
 
 .intro p {
   color: #757575;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
 }
 .hero {
@@ -283,7 +283,7 @@
 
 .intro-section__title {
   color: #0f172a;
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
 }
 
@@ -325,8 +325,8 @@
 }
 .category-circle {
   position: relative;
-  width: 170px;
-  height: 170px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   overflow: hidden;
   display: flex;
@@ -348,8 +348,8 @@
   top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 160px;
-  height: 160px;
+  width: 130px;
+  height: 130px;
   object-fit: contain;
 }
 
@@ -369,12 +369,12 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 2;
-  width: 100px;
-  padding: 6px 12px;
-  font-size: 14px;
+  width: 80px;
+  padding: 4px 8px;
+  font-size: 12px;
   font-weight: 500;
   background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 16px;
+  border-radius: 12px;
   text-align: center;
   pointer-events: none;
 }
@@ -387,7 +387,7 @@
   text-align: center;
 }
 .brands h1 {
-  font-size: 60px;
+  font-size: 48px;
   font-weight: 800;
 }
 
@@ -432,13 +432,13 @@
 }
 
 .why-us-intro h1 {
-  font-size: 48px;
+  font-size: 40px;
   font-weight: 800;
   line-height: 1.2;
 }
 
 .why-us-intro p {
-  font-size: 16px;
+  font-size: 14px;
   color: #1a1a1a;
   line-height: 1.6;
 }
@@ -469,19 +469,19 @@
 .why-us-card {
   display: flex;
   flex-direction: column;
-  max-width: 250px;
-  max-height: 230px;
+  max-width: 220px;
+  max-height: 200px;
   text-align: justify;
   border: #1a1a1a solid 2px;
-  border-radius: 26px;
-  padding: 20px;
+  border-radius: 20px;
+  padding: 16px;
 }
 
 .why-us-card h3 {
-  font-size: 16px;
+  font-size: 14px;
 }
 .why-us-card p {
-  font-size: 12px;
+  font-size: 11px;
   color: #475569;
 }
 .why-us-card-icon {
@@ -519,13 +519,13 @@
 }
 
 .banner-2 h1 {
-  font-size: 70px;
+  font-size: 56px;
   color: #fff;
   line-height: 36px;
 }
 .banner-2 p {
   color: #b5b8bc;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .shop-button-2 {

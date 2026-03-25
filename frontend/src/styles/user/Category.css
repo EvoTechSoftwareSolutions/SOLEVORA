@@ -15,30 +15,30 @@
 }
 
 .category-header h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 800;
     color: #1a1a1a;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .category-header p {
     color: #666;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
 }
 
 .product-card {
     background: white;
-    border-radius: 20px;
+    border-radius: 16px;
     overflow: hidden;
     position: relative;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.05);
 }
 
 .product-card:hover {
@@ -66,23 +66,23 @@
 
 .badge {
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: 12px;
+    left: 12px;
     background: #ff5e3a;
     color: white;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.75rem;
     font-weight: 600;
     z-index: 2;
 }
 
 .wishlist-btn {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 40px;
-    height: 40px;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
     background: white;
     border: none;
     border-radius: 50%;
@@ -90,7 +90,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     color: #666;
     transition: all 0.3s ease;
     z-index: 2;
@@ -102,26 +102,26 @@
 }
 
 .wishlist-btn .material-symbols-outlined {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .card-details {
-    padding: 20px;
+    padding: 16px;
 }
 
 .card-category {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #ff5e3a;
     font-weight: 700;
     text-transform: uppercase;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     display: block;
 }
 
 .product-card h3 {
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 700;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     color: #1a1a1a;
 }
 
@@ -132,7 +132,7 @@
 }
 
 .price {
-    font-size: 1.35rem;
+    font-size: 1.2rem;
     font-weight: 800;
     color: #1a1a1a;
 }
@@ -145,12 +145,12 @@
 
 .view-btn {
     flex: 1;
-    padding: 10px;
+    padding: 8px;
     border: 2px solid #1a1a1a;
     background: transparent;
-    border-radius: 12px;
+    border-radius: 10px;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
@@ -164,12 +164,12 @@
 }
 
 .add-btn {
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
     background: #1a1a1a;
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -126,7 +126,6 @@ function ProductDetail() {
                         <div className="buy-actions">
                             <button className="add-cart-btn" onClick={() => {
                                 addToCart(product, selectedSize);
-                                // Better feedback than alert
                             }}>
                                 <span className="material-symbols-outlined">shopping_bag</span>
                                 Add to Cart
