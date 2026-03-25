@@ -23,43 +23,74 @@ const Navbar = () => {
           <Link to="/category" className={`nav-link ${location.pathname === '/category' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>Category</Link>
           <Link to="/about" className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>About</Link>
           <Link to="/contact" className={`nav-link ${location.pathname === '/contact' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>Contact</Link>
-        </nav>
-
-        <div className="nav-actions">
+      <div className="nav-actions">
           {user ? (
             <>
-              <Link to="/cart" className="icon-btn">
+              <Link to="/cart" className="icon-btn responsive">
                 <span className="material-symbols-outlined">shopping_cart</span>
               </Link>
-              <Link to="/profile" className="icon-btn">
+              <Link to="/profile" className="icon-btn responsive">
                 <span className="material-symbols-outlined">person</span>
               </Link>
-              <Link to="/profile/wishlist" className="icon-btn">
+              <Link to="/profile/wishlist" className="icon-btn responsive">
                 <span className="material-symbols-outlined">favorite</span>
               </Link>
-              <Link to="/logout" className="icon-btn logout-nav-btn" title="Logout">
+              <Link to="/logout" className="icon-btn logout-nav-btn responsive" title="Logout">
                 <span className="material-symbols-outlined">logout</span>
               </Link>
             </>
           ) : (
             <>
-              <Link to="/cart" className="icon-btn">
+              <Link to="/cart" className="icon-btn responsive">
                 <span className="material-symbols-outlined">shopping_cart</span>
               </Link>
-              <Link to="/login" className="icon-btn">
+              <Link to="/login" className="icon-btn responsive">
                 <span className="material-symbols-outlined">person</span>
               </Link>
-              <Link to="/login" className="icon-btn">
+              <Link to="/login" className="icon-btn responsive">
                 <span className="material-symbols-outlined">favorite</span>
               </Link>
             </>
           )}
-          <button className="mobile-toggle" onClick={handleToggle}>
+        </div>
+        </nav>
+
+        <div className="nav-actions">
+          {user ? (
+            <>
+              <Link to="/cart" className="icon-btn desktop">
+                <span className="material-symbols-outlined">shopping_cart</span>
+              </Link>
+              <Link to="/profile" className="icon-btn desktop">
+                <span className="material-symbols-outlined">person</span>
+              </Link>
+              <Link to="/profile/wishlist" className="icon-btn desktop">
+                <span className="material-symbols-outlined">favorite</span>
+              </Link>
+              <Link to="/logout" className="icon-btn logout-nav-btn desktop" title="Logout">
+                <span className="material-symbols-outlined">logout</span>
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to="/cart" className="icon-btn desktop">
+                <span className="material-symbols-outlined">shopping_cart</span>
+              </Link>
+              <Link to="/login" className="icon-btn desktop">
+                <span className="material-symbols-outlined">person</span>
+              </Link>
+              <Link to="/login" className="icon-btn desktop">
+                <span className="material-symbols-outlined ">favorite</span>
+              </Link>
+            </>
+          )}
+         
+        </div>
+         <button className="mobile-toggle" onClick={handleToggle}>
             <span className="material-symbols-outlined">
                 {menuOpen ? 'close' : 'menu'}
             </span>
           </button>
-        </div>
       </nav>
     </header>
   );

@@ -1,8 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-<<<<<<< HEAD
-=======
 
 :root {
   --color-primary: #ff6d2e;
@@ -33,4 +31,3 @@ body {
   padding-right: 40px;
   max-width: 1400px;
 }
->>>>>>> e00524b1af28f5203323a0162416eda9c8ea9bdf

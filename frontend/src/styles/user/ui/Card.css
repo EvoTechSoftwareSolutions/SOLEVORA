@@ -66,7 +66,9 @@
   color: #1A1A1A;
   font-weight: 600;
 }
-
+.review-star{
+  display: flex;
+}
 .star-icon {
   color: gold;
   font-size: 15px;
