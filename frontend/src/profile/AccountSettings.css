@@ -1,0 +1,381 @@
+/* =============================================
+   Account Settings Page Styles
+   All classes prefixed with 'as-' to avoid global conflicts
+   ============================================= */
+
+.as-container {
+    padding: 2.5rem;
+    background-color: #f8f6f5;
+    min-height: 100%;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ---------- Page Header ---------- */
+.as-header {
+    margin-bottom: 2rem;
+}
+
+.as-header h2 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.025em;
+}
+
+.as-header p {
+    color: #94a3b8;
+    font-weight: 500;
+    margin: 0;
+    font-size: 0.9375rem;
+}
+
+/* ---------- Settings Card ---------- */
+.as-card {
+    background-color: #ffffff;
+    border-radius: 1.25rem;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1eeec;
+}
+
+.as-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 1.5rem;
+}
+
+.as-card-title h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+}
+
+.as-card-icon {
+    font-size: 1.25rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+}
+
+.as-card-icon.as-profile-icon {
+    color: #ff6d2e;
+    background-color: rgba(255, 109, 46, 0.08);
+}
+
+.as-card-icon.as-security-icon {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.08);
+}
+
+.as-card-icon.as-preferences-icon {
+    color: #ff6d2e;
+    background-color: rgba(255, 109, 46, 0.08);
+}
+
+/* ---------- Form Grid ---------- */
+.as-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.as-form-grid.as-single-col-first .as-form-group.as-full-width {
+    grid-column: 1 / 2;
+}
+
+.as-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.as-form-group label {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 0.5rem;
+}
+
+.as-form-group input {
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e0de;
+    border-radius: 0.625rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #0f172a;
+    background-color: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: 'Manrope', sans-serif;
+    outline: none;
+}
+
+.as-form-group input:focus {
+    border-color: #ff6d2e;
+    box-shadow: 0 0 0 3px rgba(255, 109, 46, 0.1);
+}
+
+.as-form-group input::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+/* ---------- Card Actions ---------- */
+.as-card-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.as-btn-primary {
+    padding: 0.75rem 1.75rem;
+    background-color: #ff6d2e;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: 'Manrope', sans-serif;
+    letter-spacing: 0.01em;
+}
+
+.as-btn-primary:hover {
+    background-color: #e85d1f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 109, 46, 0.3);
+}
+
+.as-btn-primary:active {
+    transform: translateY(0);
+}
+
+/* ---------- Two-Factor Authentication ---------- */
+.as-two-factor-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff5f0;
+    border: 1px solid #ffe8dd;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.as-two-factor-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.as-two-factor-icon-wrap {
+    width: 2.25rem;
+    height: 2.25rem;
+    background-color: rgba(255, 109, 46, 0.12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.as-two-factor-icon {
+    font-size: 1.125rem;
+    color: #ff6d2e;
+}
+
+.as-two-factor-info h4 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.125rem 0;
+}
+
+.as-two-factor-info p {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* ---------- Toggle Switch ---------- */
+.as-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.as-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.as-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #d1d5db;
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+}
+
+.as-toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.as-toggle-switch input:checked + .as-toggle-slider {
+    background-color: #ff6d2e;
+}
+
+.as-toggle-switch input:checked + .as-toggle-slider::before {
+    transform: translateX(20px);
+}
+
+/* ---------- Preferences ---------- */
+.as-preferences-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.as-preference-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f5f3f1;
+}
+
+.as-preference-item:last-child {
+    border-bottom: none;
+}
+
+.as-preference-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.as-preference-icon-wrap {
+    width: 2.25rem;
+    height: 2.25rem;
+    background-color: #f1f5f9;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.as-preference-icon {
+    font-size: 1.125rem;
+    color: #64748b;
+}
+
+.as-preference-info h4 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.125rem 0;
+}
+
+.as-preference-info p {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* ---------- Delete Account ---------- */
+.as-delete-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff5f5;
+    border: 1px solid #fecaca;
+    border-radius: 1rem;
+    padding: 1.25rem 1.75rem;
+    margin-top: 0.5rem;
+}
+
+.as-delete-info h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #dc2626;
+    margin: 0 0 0.25rem 0;
+}
+
+.as-delete-info p {
+    font-size: 0.8125rem;
+    color: #94a3b8;
+    margin: 0;
+    font-weight: 500;
+}
+
+.as-btn-delete {
+    padding: 0.625rem 1.5rem;
+    background-color: transparent;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+    border-radius: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: 'Manrope', sans-serif;
+    white-space: nowrap;
+}
+
+.as-btn-delete:hover {
+    background-color: #dc2626;
+    color: #ffffff;
+    border-color: #dc2626;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+    .as-container {
+        padding: 1.5rem;
+    }
+
+    .as-header h2 {
+        font-size: 1.75rem;
+    }
+
+    .as-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .as-form-grid.as-single-col-first .as-form-group.as-full-width {
+        grid-column: 1;
+    }
+
+    .as-two-factor-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .as-delete-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}

@@ -1,0 +1,267 @@
+/* Profile Layout Styles */
+.profile-layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- Main Layout Wrapper --- */
+.profile-main-wrapper {
+    display: flex;
+    flex: 1;
+    position: relative;
+    padding-top: 0;
+}
+
+/* --- Sidebar --- */
+.profile-sidebar {
+    width: 260px;
+    background-color: #f9f1e8;
+    border-right: 1px solid #f1f5f9;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 80px);
+    position: sticky;
+    top: 80px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.profile-sidebar-content {
+    padding: 24px;
+}
+
+.sidebar-user-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.sidebar-avatar-wrapper {
+    position: relative;
+    width: 56px;
+    height: 56px;
+}
+
+.sidebar-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 9999px;
+    border: 2px solid rgba(255, 109, 46, 0.2);
+    padding: 2px;
+}
+
+.sidebar-status-check {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    background-color: #ff6d2e;
+    color: #ffffff;
+    width: 20px;
+    height: 20px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+}
+
+.sidebar-status-check span {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.sidebar-user-info h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.sidebar-user-membership {
+    margin: 0;
+    font-size: 8px;
+    font-weight: 900;
+    color: #ff6d2e;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* --- Sidebar Navigation --- */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 32px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #64748b;
+    transition: all 0.3s;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.sidebar-link:hover {
+    color: #1e293b;
+    background-color: rgba(0,0,0,0.02);
+}
+
+.sidebar-link.active {
+    background-color: #ff6d2e;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 10px 15px -3px rgba(255, 109, 46, 0.3), 0 4px 6px -4px rgba(255, 109, 46, 0.3);
+}
+
+.sidebar-link span:first-child {
+    font-size: 16px;
+}
+
+.sidebar-link.active span {
+    font-weight: bold;
+}
+
+.sidebar-bottom-section {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 32px;
+    margin-top: 32px;
+}
+
+.logout-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    text-decoration: none;
+    color: #ef4444;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.logout-link span {
+    font-size: 16px;
+}
+
+.logout-link:hover {
+    color: #dc2626;
+}
+
+/* --- Offer Card --- */
+.sidebar-offer-card {
+    margin-top: auto;
+    padding: 0 24px 40px 24px;
+}
+
+.offer-card-inner {
+    background-color: #0c121e;
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.offer-bg-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 8px;
+    opacity: 0.1;
+    transition: transform 0.3s;
+}
+
+.offer-card-inner:hover .offer-bg-icon {
+    transform: scale(1.1);
+}
+
+.offer-bg-icon span {
+    color: #ffffff;
+    font-size: 50px;
+}
+
+.offer-label {
+    font-size: 10px;
+    font-weight: 900;
+    color: #ff6d2e;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+}
+
+.offer-title {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+}
+
+.offer-desc {
+    font-size: 10px;
+    color: #94a3b8;
+    margin: 0 0 24px 0;
+}
+
+.offer-code {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.shop-now-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #ff6d2e;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 8px 12px -3px rgba(255, 109, 46, 0.2);
+}
+
+.shop-now-btn:hover {
+    background-color: #f97316;
+}
+
+/* --- Main Content Area --- */
+.profile-content-area {
+    flex: 1;
+    background-color: #f8fafc;
+    padding: 32px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 1024px) {
+    .profile-main-wrapper {
+        flex-direction: column;
+    }
+
+    .profile-sidebar {
+        width: 100%;
+        min-height: auto;
+        border-right: none;
+        border-bottom: 1px solid #f1f5f9;
+        position: static;
+    }
+
+    .profile-content-area {
+        margin-left: 0;
+        padding: 24px;
+    }
+}

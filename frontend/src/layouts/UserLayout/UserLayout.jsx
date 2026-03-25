@@ -1,192 +1,131 @@
-import { useState } from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import Navbar from "../../components/common/Navbar";
+import Footer from "../../components/common/Footer";
 import "../../styles/user/UserLayout.css";
-import "../../styles/user/home.css";
-import {
-  ShoppingCartIcon,
-  UserIcon,
-  HeartIcon,
-  ArrowRightIcon,
-  MapPinIcon,
-  PhoneIcon,
-  EnvelopeIcon,
-} from "../../components/common/icons";
-import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
+import "../../styles/user/Home.css";
 
 const UserLayout = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleToggle = () => setMenuOpen(!menuOpen);
-
   return (
-    <div className="layout-container">
-      {/* Header */}
-      <header className="header">
-        <nav className="navbar container">
-          <Link to="/" className="navbar__logo">
-            Solevera
-          </Link>
-
-          {/* Menu */}
-          <ul className={`navbar__menu ${menuOpen ? "open" : ""}`}>
-            <li>
-              <Link to="/" className="active">Home</Link>
-            </li>
-            <li>
-              <Link to="/category">Category</Link>
-            </li>
-            <li>
-              <Link to="/about">About Us</Link>
-            </li>
-            <li>
-              <Link to="/contact">Contact</Link>
-            </li>
-
-            <ul className="icon-set-hide">
-              <li>
-                <Link to="/cart">
-                  <ShoppingCartIcon className="icon" />
-                </Link>
-              </li>
-              <li>
-                <Link to="/profile">
-                  <UserIcon className="icon" />
-                </Link>
-              </li>
-              <li>
-                <Link to="/favorites">
-                  <HeartIcon className="icon" />
-                </Link>
-              </li>
-            </ul>
-          </ul>
-
-          {/* Icons */}
-          <div className="icon-set">
-            <Link to="/cart">
-              <ShoppingCartIcon className="icon" />
-            </Link>
-            <Link to="/profile">
-              <UserIcon className="icon" />
-            </Link>
-            <Link to="/favorites">
-              <HeartIcon className="icon" />
-            </Link>
-          </div>
-
-          {/* Toggle Button */}
-          <button className="navbar__toggle" onClick={handleToggle}>
-            ☰
-          </button>
-        </nav>
-      </header>
-
-      {/* Main Content */}
-      <main className="layout-main">
+    <div className="layout-wrapper">
+      <Navbar />
+      <main className="main-content">
         <Outlet />
       </main>
 
       {/* Footer */}
-      <footer className="footer">
-        {/* Subscribe Section */}
-        <div className="subscribe">
-          <div className="subscribe-text">
-            <h3>Join the Future</h3>
-            <p>Subscribe for exclusive drops and 10% off your first order</p>
-          </div>
-          <div className="subscribe-field">
-            <input
-              type="text"
-              placeholder="Enter Your Email"
-              className="sub-input"
-            />
-            <button className="sub-btn">
-              <ArrowRightIcon className="icon-arrow" />
-            </button>
+      <footer className="footer-area">
+
+        {/* Newsletter Strip */}
+        <div className="footer-newsletter">
+          <div className="footer-container newsletter-row">
+            <div className="newsletter-text">
+              <h3>Join the Future</h3>
+              <p>Subscribe for exclusive drops and 10% off your first order.</p>
+            </div>
+            <div className="newsletter-form">
+              <input type="email" placeholder="Enter your email" />
+              <button aria-label="Subscribe">
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Footer Links */}
         <div className="footer-links">
-          <div className="footer-main">
+          <div className="footer-container footer-grid">
             <div className="contact">
-              <img src="/" alt="logo" />
-              <p>
+              <img src={logo} alt="SoleVora Logo" className="f-logo" />
+              <p className="f-brand-desc">
                 Step into the future with cutting-edge footwear designed for the
                 next generation of athletes and style pioneers.
               </p>
-              <div className="contact-icons">
+              <div className="contact-details">
                 <div className="contact-item">
-                  <MapPinIcon className="icon-size" />
-                  <span>Colombo, Sri Lanka</span>
+                  <span className="material-symbols-outlined">location_on</span>
+                  <span>123 Future Street, Tech City, TC 12345</span>
                 </div>
                 <div className="contact-item">
-                  <PhoneIcon className="icon-size" />
-                  <span>+94 77 123 4567</span>
+                  <span className="material-symbols-outlined">call</span>
+                  <span>+1 (555) 123-4567</span>
                 </div>
                 <div className="contact-item">
-                  <EnvelopeIcon className="icon-size" />
-                  <span>info@rentnow.com</span>
+                  <span className="material-symbols-outlined">mail</span>
+                  <span>hello@solevoro.com</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Sections */}
-            <div className="right-section">
-              <div className="shop-section">
-                <h4>Shop</h4>
-                <Link to="/new-arrivals">New Arrivals</Link>
-                <Link to="/best-sellers">Best Sellers</Link>
-                <Link to="/running">Running</Link>
-                <Link to="/lifestyle">Lifestyle</Link>
-                <Link to="/basketball">Basketball</Link>
-              </div>
-              <div className="support-section">
-                <h4>Support</h4>
-                <Link to="/contact">Contact Us</Link>
-                <Link to="/faqs">FAQs</Link>
-                <Link to="/shopping-info">Shopping Info</Link>
-                <Link to="/returns">Returns</Link>
-                <Link to="/size-guide">Size Guide</Link>
-              </div>
-              <div className="company-section">
-                <h4>Company</h4>
-                <Link to="/about">About Us</Link>
-                <Link to="/careers">Careers</Link>
-                <Link to="/press">Press</Link>
-                <Link to="/sustainability">Sustainability</Link>
-              </div>
+            {/* Shop */}
+            <div className="f-col">
+              <h5>Shop</h5>
+              <Link to="/category">New Arrivals</Link>
+              <Link to="/category">Best Sellers</Link>
+              <Link to="/category">Running</Link>
+              <Link to="/category">Lifestyle</Link>
+              <Link to="/category">Basketball</Link>
+            </div>
+
+            {/* Support */}
+            <div className="f-col">
+              <h5>Support</h5>
+              <Link to="/contact">Contact Us</Link>
+              <Link to="/faq">FAQs</Link>
+              <Link to="/shipping">Shipping Info</Link>
+              <Link to="/returns">Returns</Link>
+              <Link to="/size-guide">Size Guide</Link>
+            </div>
+
+            {/* Company */}
+            <div className="f-col">
+              <h5>Company</h5>
+              <Link to="/about">About Us</Link>
+              <Link to="/careers">Careers</Link>
+              <Link to="/press">Press</Link>
+              <Link to="/sustainability">Sustainability</Link>
             </div>
           </div>
 
-          {/* Privacy Section */}
-          <div className="privacy-section">
-            <div className="privacy">
-              <span className="dot"></span>
-              <Link to="/privacy">Privacy Policy</Link>
-            </div>
-            <div className="privacy">
-              <span className="dot"></span>
-              <Link to="/terms">Terms & Conditions</Link>
+          {/* Legal Row (inside dark main footer) */}
+          <div className="footer-container footer-legal-row">
+            <div className="legal-links">
+              <span className="legal-dot">•</span>
+              <Link to="/privacy">Privacy &amp; Policy</Link>
+              <span className="legal-dot">•</span>
+              <Link to="/terms">Terms &amp; Conditions</Link>
             </div>
           </div>
+        </div>
 
-          {/* Footer Bottom */}
-          <div className="footer-bottom">
-            <span>© 2026 SoleVera. All rights reserved.</span>
-            <div className="socialmedia">
-              <a href="https://facebook.com" target="_blank" rel="noreferrer">
-                <FaFacebookF />
+        {/* Bottom Bar */}
+        <div className="footer-bottom-bar">
+          <div className="footer-container bottom-bar-row">
+            <p className="f-copy">© 2026 SoleVora. All rights reserved.</p>
+            <div className="social-links">
+              {/* Instagram */}
+              <a href="#" aria-label="Instagram">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                  <circle cx="12" cy="12" r="4"/>
+                  <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/>
+                </svg>
               </a>
-              <a href="https://instagram.com" target="_blank" rel="noreferrer">
-                <FaInstagram />
+              {/* Twitter / X */}
+              <a href="#" aria-label="Twitter">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noreferrer">
-                <FaTwitter />
+              {/* Facebook */}
+              <a href="#" aria-label="Facebook">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.514c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+                </svg>
               </a>
             </div>
           </div>
         </div>
+
       </footer>
     </div>
   );
