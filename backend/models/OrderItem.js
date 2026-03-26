@@ -40,6 +40,6 @@ OrderItem.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
 Order.hasMany(OrderItem, { foreignKey: 'orderId', as: 'items' });
 
 OrderItem.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
-Product.hasMany(OrderItem, { foreignKey: 'productId', as: 'items' });
+Product.hasMany(OrderItem, { foreignKey: 'productId', as: 'orderItems' });
 
 export default OrderItem;

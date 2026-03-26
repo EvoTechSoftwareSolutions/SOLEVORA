@@ -211,8 +211,8 @@ const Home = () => {
           {loading ? (
             <div style={{ textAlign: 'center', width: '100%', padding: '40px' }}>Loading products...</div>
           ) : products.length === 0 ? (
-            <div style={{ textAlign: 'center', width: '100%', padding: '40px' }}>No products found in this category.</div>
-          ) : products.map((item) => (
+            <div style={{ colSpan: '4', textAlign: 'center', width: '100%', padding: '40px' }}>No products found in this category.</div>
+          ) : products.slice(0, 3).map((item) => (
             <Card
               key={item.id}
               image={item.image_url}

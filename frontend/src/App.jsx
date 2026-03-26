@@ -13,6 +13,9 @@ import ForgotPassword from "./pages/ForgotPassword";
 import CheckEmail from "./pages/CheckEmail";
 import ResetPassword from "./pages/ResetPassword";
 import Logout from "./pages/Logout";
+import ResetSuccess from "./pages/ResetSuccess";
+import CategoryPage from "./pages/CategoryPage";
+import OrderConfirmation from "./pages/user/OrderConfirmation";
 
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
@@ -40,12 +43,16 @@ function App() {
               {ProfileRoutes}
 
               {/* Authentication Routes */}
+              <Route path="/" element={<Login />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/check-email" element={<CheckEmail />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/reset-password/:token?" element={<ResetPassword />} />
+              <Route path="/reset-success" element={<ResetSuccess />} />
               <Route path="/logout" element={<Logout />} />
+              <Route path="/categorypage" element={<CategoryPage />} />
+              <Route path="/order-confirmation" element={<OrderConfirmation />} />
 
               {/* Default Route: Redirect to Home or a 404 Page */}
             </Routes>

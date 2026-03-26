@@ -45,7 +45,7 @@ const Cart = () => {
                 <span className="material-symbols-outlined" style={{ fontSize: '80px', color: '#ccc', marginBottom: '20px' }}>shopping_cart_off</span>
                 <h2>Your cart is empty</h2>
                 <p style={{ color: '#666', marginBottom: '30px' }}>Looks like you haven't added anything to your cart yet.</p>
-                <Link to="/category" className="checkout-btn" style={{ display: 'inline-block', width: 'auto', padding: '15px 40px' }}>
+                <Link to="/categorypage" className="checkout-btn" style={{ display: 'inline-block', width: 'auto', padding: '15px 40px' }}>
                     Start Shopping
                 </Link>
             </div>
@@ -109,11 +109,11 @@ const Cart = () => {
             ))}
 
             <div className="cart-footer-links">
-                <Link to="/category" className="back-link">
+                <Link to="/categorypage" className="back-link">
                     <span className="material-symbols-outlined">west</span>
                     Back to Shop
                 </Link>
-                <Link to="/category" className="add-more-link">
+                <Link to="/categorypage" className="add-more-link">
                     <span className="material-symbols-outlined">add_circle</span>
                     Add More Items
                 </Link>

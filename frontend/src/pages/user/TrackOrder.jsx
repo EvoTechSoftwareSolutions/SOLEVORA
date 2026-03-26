@@ -122,7 +122,7 @@ const TrackOrder = () => {
                                             <p>Size: {item.size} | Qty: {item.quantity}</p>
                                         </div>
                                         <div className="item-price">
-                                            ${(item.price * item.quantity).toFixed(2)}
+                                            ${((item.price_at_purchase || item.product?.price || 0) * item.quantity).toFixed(2)}
                                         </div>
                                     </div>
                                 ))}
