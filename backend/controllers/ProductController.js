@@ -1,5 +1,7 @@
 import Product from '../models/Product.js';
 import Category from '../models/Category.js';
+import OrderItem from '../models/OrderItem.js';
+import Wishlist from '../models/Wishlist.js';
 
 export const getAllProducts = async (req, res) => {
     try {
@@ -51,16 +53,17 @@ export const createProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
     try {
-        const [updated] = await Product.update(req.body, {
+        const product = await Product.findByPk(req.params.id);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        await Product.update(req.body, {
             where: { id: req.params.id }
         });
-        if (updated) {
-            const updatedProduct = await Product.findByPk(req.params.id, {
-                include: [{ model: Category, as: 'category' }]
-            });
-            return res.status(200).json(updatedProduct);
-        }
-        res.status(404).json({ message: 'Product not found' });
+        const updatedProduct = await Product.findByPk(req.params.id, {
+            include: [{ model: Category, as: 'category' }]
+        });
+        return res.status(200).json(updatedProduct);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -68,9 +71,16 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
     try {
+        const productId = req.params.id;
+        
+        // Remove dependencies to prevent foreign key constraint errors
+        await OrderItem.destroy({ where: { productId } });
+        await Wishlist.destroy({ where: { productId } });
+
         const deleted = await Product.destroy({
-            where: { id: req.params.id }
+            where: { id: productId }
         });
+        
         if (deleted) {
             return res.status(204).send();
         }
