@@ -5,13 +5,15 @@ import '../../styles/user/OrderConfirmation.css';
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { order, items } = location.state || {};
+  const { orderId, order, items, method } = location.state || {};
+  const displayId = orderId || order?.id || 'N/A';
+  const displayEmail = order?.email || 'your email';
 
-  if (!order) {
+  if (!displayId && !order) {
     return (
         <div className="oc-page" style={{ textAlign: 'center', padding: '100px' }}>
-            <h2>No order data found.</h2>
-            <Link to="/home" className="oc-continue-btn">GO HOME</Link>
+            <h2 style={{ marginBottom: '20px' }}>No order data found.</h2>
+            <Link to="/home" className="oc-continue-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>GO HOME</Link>
         </div>
     );
   }
@@ -19,7 +21,36 @@ const OrderConfirmation = () => {
   const orderedItems = items || [];
   const subtotal = orderedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const estimatedTax = subtotal * 0.08;
-  const total = subtotal + estimatedTax;
+  
+  const shippingMethods = [
+    { id: 'standard', name: 'Standard Shipping', minDays: 3, maxDays: 5, price: 0 },
+    { id: 'express', name: 'Express Shipping', minDays: 1, maxDays: 2, price: 15.00 },
+    { id: 'nextday', name: 'Next Day Delivery', minDays: 0, maxDays: 1, price: 25.00 },
+  ];
+
+  // Map the passed method string to the corresponding pricing/timing
+  const selectedMethod = shippingMethods.find(m => m.name === method) || shippingMethods[0];
+  const shippingPrice = selectedMethod.price;
+  const total = subtotal + estimatedTax + shippingPrice;
+
+  // Helper to format date
+  const getDeliveryRange = (min, max) => {
+    const today = new Date();
+    const minDate = new Date(today);
+    minDate.setDate(today.getDate() + min);
+    const maxDate = new Date(today);
+    maxDate.setDate(today.getDate() + max);
+
+    const options = { month: 'short', day: 'numeric' };
+    const minStr = minDate.toLocaleDateString('en-US', options);
+    const maxStr = maxDate.toLocaleDateString('en-US', { day: 'numeric' });
+    const dayName = minDate.toLocaleDateString('en-US', { weekday: 'long' });
+
+    if (min === max) return `${dayName}, ${minDate.toLocaleDateString('en-US', options)}`;
+    return `${dayName}, ${minStr} - ${maxStr}`;
+  };
+
+  const deliveryDateString = getDeliveryRange(selectedMethod.minDays, selectedMethod.maxDays);
 
   return (
     <div className="oc-page">
@@ -27,12 +58,12 @@ const OrderConfirmation = () => {
         
         {/* Success Header */}
         <div className="oc-header">
-           <div className="oc-check-circle">
-             <span className="material-symbols-outlined oc-check-icon">check_circle</span>
+           <div className="oc-check-wrapper">
+             <span className="material-symbols-outlined oc-check-icon">check</span>
            </div>
            <h1 className="oc-title">Thank you for your order!</h1>
            <p className="oc-subtitle">
-             Your order <span className="oc-order-number">#ORD-{order.id}</span> has been placed and is being processed.
+             Your order <span className="oc-order-number">#SV-{displayId}</span> has been placed and is being processed.
            </p>
         </div>
 
@@ -65,7 +96,7 @@ const OrderConfirmation = () => {
                 <p className="oc-section-label">ESTIMATED DELIVERY</p>
                 <div className="oc-delivery-info">
                    <span className="material-symbols-outlined oc-truck-icon">local_shipping</span>
-                   <span className="oc-date">Tuesday, Oct 24 - Oct 26</span>
+                   <span className="oc-date">{deliveryDateString}</span>
                 </div>
              </div>
              
@@ -76,7 +107,9 @@ const OrderConfirmation = () => {
                 </div>
                 <div className="oc-total-row">
                    <span className="oc-total-key">Shipping</span>
-                   <span className="oc-total-val-green">Free</span>
+                   <span className={shippingPrice === 0 ? "oc-total-val-green" : "oc-total-val"}>
+                       {shippingPrice === 0 ? 'Free' : `$${shippingPrice.toFixed(2)}`}
+                   </span>
                 </div>
                 <div className="oc-total-row">
                    <span className="oc-total-key">Estimated Tax</span>
@@ -91,7 +124,7 @@ const OrderConfirmation = () => {
 
           <div className="oc-card-footer">
              <span className="material-symbols-outlined oc-info-icon">info</span>
-             <p className="oc-footer-text">A confirmation email has been sent to <span className="oc-bold">{order.email}</span></p>
+             <p className="oc-footer-text">A confirmation email has been sent to <span className="oc-bold">{displayEmail}</span></p>
           </div>
         </div>
 

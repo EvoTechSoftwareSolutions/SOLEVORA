@@ -27,11 +27,20 @@ const PaymentDetails = () => {
     };
 
     const user = getLoggedInUser();
+    
+    const shippingMethods = [
+        { id: 'standard', name: 'Standard Shipping', price: 0 },
+        { id: 'express', name: 'Express Shipping', price: 15.00 },
+        { id: 'nextday', name: 'Next Day Delivery', price: 25.00 },
+    ];
+
+    const currentShippingObj = shippingMethods.find(m => m.name === checkoutData.shippingMethod) || shippingMethods[0];
+    const currentShipping = currentShippingObj.price;
+
     const grossTotal = cartTotal;
     const promoDiscount = promoApplied ? grossTotal * 0.1 : 0;
-    const shippingCharge = 0;
     const estimatedTax = grossTotal * 0.08;
-    const total = grossTotal - promoDiscount + shippingCharge + estimatedTax;
+    const total = grossTotal - promoDiscount + currentShipping + estimatedTax;
 
     const handleApplyPromo = () => {
         if (promoCode.trim().toLowerCase() === 'save10') setPromoApplied(true);
@@ -39,8 +48,8 @@ const PaymentDetails = () => {
     };
 
     const handlePlaceOrder = async () => {
-        if (paymentMethod !== 'creditcard') {
-            showMessage('Coming Soon', `Payment via ${paymentMethod} is currently under development. Please use Credit Card (PayHere).`);
+        if (paymentMethod !== 'creditcard' && paymentMethod !== 'cod') {
+            showMessage('Coming Soon', `Payment via ${paymentMethod} is currently under development. Please use Credit Card (PayHere) or Cash on Delivery.`);
             return;
         }
 
@@ -48,6 +57,7 @@ const PaymentDetails = () => {
             const orderPayload = {
                 total_amount: total,
                 status: 'pending',
+                payment_method: paymentMethod,
                 shipping_address: `${checkoutData.streetAddress || 'N/A'}, ${checkoutData.city || 'N/A'}, ${checkoutData.postalCode || '00000'}`,
                 contact_number: checkoutData.phone || 'N/A',
                 email: checkoutData.email || user?.email || 'guest@example.com',
@@ -62,6 +72,13 @@ const PaymentDetails = () => {
 
             const response = await axios.post('http://localhost:5000/api/orders', orderPayload);
             const orderData = response.data;
+
+            if (paymentMethod === 'cod') {
+                const currentItems = [...cart];
+                clearCart();
+                navigate('/order-success', { state: { orderId: orderData.id, items: currentItems, method: checkoutData.shippingMethod } });
+                return;
+            }
 
             // Get payment hash from backend
             const hashResponse = await axios.post('http://localhost:5000/api/payment/hash', {
@@ -94,11 +111,18 @@ const PaymentDetails = () => {
             };
 
             // Trigger PayHere popup
-            window.payhere.onCompleted = function onCompleted(orderId) {
+            window.payhere.onCompleted = async function onCompleted(orderId) {
                 console.log("Payment completed. OrderID:" + orderId);
+                try {
+                    // Update status manually in local dev since PayHere can't notify localhost
+                    await axios.put(`http://localhost:5000/api/orders/${orderData.id}/status`, { status: 'paid' });
+                    console.log("Order status updated manually to 'paid'");
+                } catch (e) {
+                    console.error("Manual status update failed", e);
+                }
                 const currentItems = [...cart];
                 clearCart();
-                navigate('/order-confirmation', { state: { orderId: orderId, items: currentItems } });
+                navigate('/order-success', { state: { orderId: orderId, items: currentItems, method: checkoutData.shippingMethod } });
             };
 
             window.payhere.onDismissed = function onDismissed() {
@@ -216,6 +240,15 @@ const PaymentDetails = () => {
                                         SSL Secure Transaction
                                     </div>
                                 </>
+                            ) : paymentMethod === 'cod' ? (
+                                <div className="pd-cod-info">
+                                    <span className="material-symbols-outlined pd-cod-icon" style={{ fontSize: '48px', color: '#ff6d2e', marginBottom: '16px', display: 'block' }}>payments</span>
+                                    <h4 style={{ fontWeight: 800, marginBottom: '8px', fontSize: '18px' }}>Cash on Delivery</h4>
+                                    <p className="text-sm text-gray-600">Pay with cash when your shoes are delivered to your doorstep.</p>
+                                    <div style={{ marginTop: '20px', padding: '12px', background: '#fff5f0', borderRadius: '8px', fontSize: '12px', color: '#ff6d2e', fontWeight: 600 }}>
+                                        No extra charges for CoD
+                                    </div>
+                                </div>
                             ) : (
                                 <p className="text-gray-500 py-10">Details for {paymentMethod.replace('card', ' card')} will be shown here.</p>
                             )}
@@ -231,6 +264,8 @@ const PaymentDetails = () => {
 
                     <div className="pd-summary-card">
                         <h3 className="pd-summary-title">Order Summary</h3>
+
+                        {/* Horizontal scroll item cards */}
                         <div className="pd-items-scroll">
                             {cart.map(item => (
                                 <div key={`${item.id}-${item.size}`} className="pd-item-card">
@@ -238,17 +273,17 @@ const PaymentDetails = () => {
                                         <img src={item.image_url} alt={item.name} className="pd-item-img" />
                                         <span className="pd-qty-badge">{item.quantity}</span>
                                     </div>
-                                    <div className="pd-item-info">
-                                        <p className="pd-item-name">{item.name}</p>
-                                        <p className="pd-item-variant">Size: {item.size}</p>
-                                        <div className="pd-item-footer">
-                                            <span className="pd-item-price">${(item.price * item.quantity).toFixed(2)}</span>
-                                        </div>
+                                    <p className="pd-item-name">{item.name}</p>
+                                    <p className="pd-item-variant">Size: {item.size}</p>
+                                    <div className="pd-item-footer">
+                                        <span className="pd-item-qty-lbl">Qty: {item.quantity}</span>
+                                        <span className="pd-item-price">${(item.price * item.quantity).toFixed(2)}</span>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
+                        {/* Promo Code */}
                         <div className="pd-promo">
                             <input
                                 type="text"
@@ -262,31 +297,44 @@ const PaymentDetails = () => {
                             </button>
                         </div>
 
+                        {/* Price Breakdown */}
                         <div className="pd-totals">
                             <div className="pd-total-row">
-                                <span className="pd-total-key">Subtotal</span>
+                                <span className="pd-total-key">Gross Total</span>
                                 <span className="pd-total-val">${grossTotal.toFixed(2)}</span>
                             </div>
-                            {promoApplied && (
-                                <div className="pd-total-row text-green-600">
-                                    <span className="pd-total-key">Discount (10%)</span>
-                                    <span className="pd-total-val">-${promoDiscount.toFixed(2)}</span>
-                                </div>
-                            )}
                             <div className="pd-total-row">
-                                <span className="pd-total-key">Tax (8%)</span>
+                                <span className="pd-total-key">Promo Discount</span>
+                                <span className="pd-total-val">-${promoDiscount.toFixed(2)}</span>
+                            </div>
+                            <div className="pd-total-row">
+                                <span className="pd-total-key">Shipping</span>
+                                <span className="pd-free">
+                                    {currentShipping === 0 ? 'Free' : `$${currentShipping.toFixed(2)}`}
+                                </span>
+                            </div>
+                            <div className="pd-total-row">
+                                <span className="pd-total-key">Estimated Tax</span>
                                 <span className="pd-total-val">${estimatedTax.toFixed(2)}</span>
                             </div>
+                            {/* Bold Total */}
                             <div className="pd-total-final">
-                                <span className="pd-final-label">Total Amount</span>
+                                <span className="pd-final-label">Total</span>
                                 <span className="pd-final-amount">${total.toFixed(2)}</span>
                             </div>
                         </div>
 
                         <button className="pd-place-order-btn" onClick={handlePlaceOrder}>
-                            <span className="material-symbols-outlined">shopping_bag</span>
-                            {paymentMethod === 'cod' ? 'Place Order' : 'Pay Now'}
+                            <span className="material-symbols-outlined">local_shipping</span>
+                            Place Order
                         </button>
+
+                        {/* Terms */}
+                        <p className="pd-terms">
+                            By placing your order, you agree to Solevora's{' '}
+                            <a href="/terms">Terms of Service</a> and{' '}
+                            <a href="/privacy">Privacy Policy</a>.
+                        </p>
                     </div>
                 </div>
 

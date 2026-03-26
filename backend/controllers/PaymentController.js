@@ -33,37 +33,46 @@ export const generatePaymentHash = async (req, res) => {
 
 export const handlePaymentNotification = async (req, res) => {
     try {
+        console.log('--- PayHere Notification Received ---');
+        console.log('Request Body:', req.body);
+        
         const { merchant_id, order_id, payment_id, payhere_amount, payhere_currency, status_code, md5sig } = req.body;
         
-        const merchant_secret = process.env.PAYHERE_SECRET;
+        const merchant_secret = process.env.PAYHERE_SECRET?.trim();
+        if (!merchant_secret) {
+            console.error('PAYHERE_SECRET is not defined in .env');
+            return res.status(500).send('Internal Server Error');
+        }
+
         const hashedSecret = crypto.createHash('md5').update(merchant_secret).digest('hex').toUpperCase();
         
-        // Verify signature
+        // Verify signature: merchant_id + order_id + payhere_amount + payhere_currency + status_code + strtoupper(md5(merchant_secret))
         const localSigSource = merchant_id + order_id + payhere_amount + payhere_currency + status_code + hashedSecret;
         const localSig = crypto.createHash('md5').update(localSigSource).digest('hex').toUpperCase();
         
+        console.log('Local Signature Source:', localSigSource);
+        console.log('Local Signature:', localSig);
+        console.log('PayHere Signature:', md5sig);
+
         if (localSig === md5sig) {
             if (status_code === '2') {
-                // Payment Success
+                // Success
                 await Order.update({ status: 'paid' }, { where: { id: order_id } });
-                console.log(`Order ${order_id} marked as paid.`);
+                console.log(`Payment successful: Order ${order_id} marked as PAID.`);
             } else if (status_code === '0') {
                 // Pending
-                await Order.update({ status: 'pending' }, { where: { id: order_id } });
-            } else if (status_code === '-1') {
-                // Cancelled
-                await Order.update({ status: 'cancelled' }, { where: { id: order_id } });
-            } else if (status_code === '-2') {
-                // Failed
-                await Order.update({ status: 'pending' }, { where: { id: order_id } }); // Or keep as pending
+                console.log(`Payment pending for Order ${order_id}.`);
+            } else {
+                // Failed or Cancelled
+                console.log(`Payment unsuccessful for Order ${order_id}. Status: ${status_code}`);
             }
             res.status(200).send('OK');
         } else {
-            console.error('Invalid signature from PayHere');
+            console.error('INVALID SIGNATURE: Signature mismatch for Order', order_id);
             res.status(400).send('Invalid signature');
         }
     } catch (error) {
-        console.error('Error handling notification:', error);
+        console.error('Error handling PayHere notification:', error);
         res.status(500).send('Internal Server Error');
     }
 };

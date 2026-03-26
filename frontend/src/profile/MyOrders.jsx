@@ -1,187 +1,168 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
 import axios from 'axios';
 import './MyOrders.css';
 
 const MyOrders = () => {
-    const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('All Orders');
+    const [subTab, setSubTab] = useState('All Orders');
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { checkoutData } = useCart();
-    
-    // Get logged-in user's email
-    const getLoggedInEmail = () => {
+
+    const getLoggedInUser = () => {
         const userStr = localStorage.getItem("user");
-        if (userStr) return JSON.parse(userStr).email;
-        return checkoutData.email || null;
+        if (userStr) return JSON.parse(userStr);
+        return null;
     };
-    
-    const userEmail = getLoggedInEmail()?.trim(); 
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-            if (!userEmail) {
-                setLoading(false);
-                return;
-            }
-            try {
-                // Correcting the endpoint to use query parameter as expected by OrderController.getOrdersByEmail
-                const response = await axios.get(`http://localhost:5000/api/orders/search?email=${userEmail}`);
-                
-                const formattedOrders = response.data.map(ord => ({
-                    id: ord.id,
-                    date: new Date(ord.createdAt).toLocaleDateString(), // Use createdAt since Sequelize uses that by default
-                    total: `$${ord.total_amount}`,
-                    shipTo: ord.shipping_address ? "See details" : "N/A", // Adjust based on real data
-                    status: ord.status.charAt(0).toUpperCase() + ord.status.slice(1),
-                    statusStyle: getStatusStyle(ord.status),
-                    deliveryDate: ord.status === 'delivered' ? 'Delivered' : 'Processing',
-                    productName: ord.items && ord.items[0]?.product?.name ? ord.items[0].product.name : 'Product',
-                    meta: `Items: ${ord.items ? ord.items.length : 0}`,
-                    image: ord.items && ord.items[0]?.product?.image_url ? ord.items[0].product.image_url : "https://placeholder.com",
-                    actions: ['Track Order', 'View Details']
-                }));
+    const user = getLoggedInUser();
 
-                setOrders(formattedOrders);
-            } catch (err) {
-                console.error("Error fetching orders:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchOrders();
-    }, [userEmail]);
-
-    const getStatusStyle = (status) => {
-        switch(status.toLowerCase()) {
-            case 'pending': return { color: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)' };
-            case 'delivered': return { color: '#059669', backgroundColor: 'rgba(16, 185, 129, 0.1)' };
-            case 'shipped': return { color: '#2563eb', backgroundColor: 'rgba(59, 130, 246, 0.1)' };
-            case 'cancelled': return { color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' };
-            default: return { color: '#666', backgroundColor: '#eee' };
+    const fetchOrders = async () => {
+        if (!user?.email) {
+            setLoading(false);
+            return;
+        }
+        try {
+            const encodedEmail = encodeURIComponent(user.email.trim());
+            const response = await axios.get(`http://localhost:5000/api/orders/search?email=${encodedEmail}`);
+            setOrders(response.data);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+            setLoading(false);
         }
     };
 
-    const tabs = ['All Orders', 'In Transit', 'Completed', 'Cancelled', 'Processing'];
+    useEffect(() => {
+        fetchOrders();
+    }, [user?.email]);
+
+    const filteredOrders = orders.filter(order => {
+        if (subTab === 'All Orders') return true;
+        return order.status.toLowerCase() === subTab.toLowerCase();
+    });
 
     return (
-        <div className="mo-container">
-            {/* Header */}
-            <header className="mo-header">
-                <div className="mo-title-section">
-                    <h2>My Orders</h2>
-                    <p>Manage your recent purchases and track your active shipments.</p>
-                </div>
-                
-                <div className="mo-search-box">
-                    <span className="material-symbols-outlined mo-search-icon">search</span>
-                    <input className="mo-search-input" placeholder="Find an order..." type="text" />
-                </div>
-            </header>
+        <div className="mo-dashboard-content">
+            <div className="mo-page-header">
+                <h1 className="mo-main-title">My Orders</h1>
+                <p className="mo-sub-title">Track your recent purchases and manage your order history</p>
+            </div>
 
-            {/* Tabs */}
-            <div className="mo-tabs">
-                {tabs.map(tab => (
+            <div className="mo-metric-cards">
+                <div className="mo-metric-card card-blue">
+                    <div className="mo-card-icon-wrap">
+                        <div className="mo-icon-circle">
+                            <span className="material-symbols-outlined">shopping_bag</span>
+                        </div>
+                    </div>
+                    <div className="mo-card-info">
+                        <span className="mo-card-label">Total Orders</span>
+                        <h2 className="mo-card-value">{orders.length}</h2>
+                    </div>
+                </div>
+                <div className="mo-metric-card card-orange">
+                    <div className="mo-card-icon-wrap">
+                        <div className="mo-icon-circle">
+                            <span className="material-symbols-outlined">pending_actions</span>
+                        </div>
+                    </div>
+                    <div className="mo-card-info">
+                        <span className="mo-card-label">Pending</span>
+                        <h2 className="mo-card-value">{orders.filter(o => o.status === 'pending').length}</h2>
+                    </div>
+                </div>
+                <div className="mo-metric-card card-green">
+                    <div className="mo-card-icon-wrap">
+                        <div className="mo-icon-circle">
+                            <span className="material-symbols-outlined">check_circle</span>
+                        </div>
+                    </div>
+                    <div className="mo-card-info">
+                        <span className="mo-card-label">Completed</span>
+                        <h2 className="mo-card-value">{orders.filter(o => o.status === 'delivered').length}</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mo-tabs-row">
+                {['All Orders', 'Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'].map(tab => (
                     <button
                         key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`mo-tab-btn ${activeTab === tab ? 'active' : ''}`}
+                        className={`mo-tab-link ${subTab === tab ? 'active' : ''}`}
+                        onClick={() => setSubTab(tab)}
                     >
                         {tab}
-                        {activeTab === tab && <div className="mo-tab-indicator"></div>}
                     </button>
                 ))}
             </div>
 
-            {/* Orders List */}
-            <div className="mo-list">
-                {loading ? (
-                    <p style={{ textAlign: 'center', padding: '40px' }}>Loading orders...</p>
-                ) : orders.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '40px' }}>
-                        <p>No orders found for this account. ({userEmail})</p>
-                    </div>
-                ) : (
-                    orders.map(order => (
-                        <div key={order.id} className="mo-card">
-                            {/* Order Header */}
-                            <div className="mo-card-header">
-                                <div className="mo-meta-group">
-                                    <div className="mo-meta-item">
-                                        <p>Order Placed</p>
-                                        <p>{order.date}</p>
+            <div className="mo-table-wrapper">
+                <table className="mo-orders-data-table">
+                    <thead>
+                        <tr>
+                            <th>ORDER ID</th>
+                            <th>ITEMS</th>
+                            <th>TOTAL</th>
+                            <th>STATUS</th>
+                            <th>DATE</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            <tr><td colSpan="6" className="mo-status-cell">Loading orders...</td></tr>
+                        ) : filteredOrders.length === 0 ? (
+                            <tr><td colSpan="6" className="mo-status-cell">{`No orders found for ${user?.email || 'this account'}`}</td></tr>
+                        ) : filteredOrders.map((order) => (
+                            <tr key={order.id}>
+                                <td>
+                                    <div className="mo-id-text">#ORD-{order.id}</div>
+                                </td>
+                                <td>
+                                    <div className="mo-items-preview">
+                                        {order.items && order.items.length > 0 ? (
+                                            <div className="mo-img-stack">
+                                                <img src={order.items[0].product?.image_url} alt="product" className="mo-thumb" />
+                                                {order.items.length > 1 && (
+                                                    <span className="mo-more-count">+{order.items.length - 1}</span>
+                                                )}
+                                            </div>
+                                        ) : 'No items'}
                                     </div>
-                                    <div className="mo-meta-item">
-                                        <p>Total</p>
-                                        <p className="mo-total-val">{order.total}</p>
+                                </td>
+                                <td>
+                                    <div className="mo-price-text">${parseFloat(order.total_amount).toFixed(2)}</div>
+                                </td>
+                                <td>
+                                    <span className={`mo-badge ${order.status.toLowerCase()}`}>
+                                        {order.status.toUpperCase()}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div className="mo-date-text">{new Date(order.createdAt).toLocaleDateString()}</div>
+                                </td>
+                                <td>
+                                    <div className="mo-action-btns">
+                                        <button className="mo-view-btn" title="View Details">
+                                            <span className="material-symbols-outlined">visibility</span>
+                                        </button>
+                                        <button className="mo-track-btn" title="Track Order">
+                                            <span className="material-symbols-outlined">local_shipping</span>
+                                        </button>
                                     </div>
-                                    <div className="mo-meta-item">
-                                        <p>Ship To</p>
-                                        <p className="mo-ship-to-link">{order.shipTo}</p>
-                                    </div>
-                                </div>
-                                <div className="mo-order-number-group">
-                                    <p className="mo-order-id">Order # ORD-{order.id}</p>
-                                    <button className="mo-invoice-btn">View Invoice</button>
-                                </div>
-                            </div>
-
-                            {/* Order Body */}
-                            <div className="mo-card-body">
-                                <div className="mo-item-img-box">
-                                    <img src={order.image} alt={order.productName} />
-                                </div>
-                                <div className="mo-item-main-info">
-                                    <div className="mo-status-row">
-                                        <span className="mo-status-pill" style={order.statusStyle}>
-                                            {order.status}
-                                        </span>
-                                        <span className="mo-delivery-info">{order.deliveryDate}</span>
-                                    </div>
-                                    <h3 className="mo-item-name">{order.productName}</h3>
-                                    <p className="mo-item-meta">{order.meta}</p>
-                                    
-                                    <div className="mo-action-buttons">
-                                        {order.actions.map((action, idx) => (
-                                            <button 
-                                                key={idx} 
-                                                className={idx === 0 ? "mo-btn-primary" : "mo-btn-secondary"}
-                                                onClick={() => {
-                                                    if (action === 'Track Order') {
-                                                        navigate('/track-order');
-                                                    }
-                                                }}
-                                            >
-                                                {action}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))
-                )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
 
-            {/* Pagination */}
-            <div className="mo-pagination">
-                <button className="mo-page-arrow">
-                    <span className="material-symbols-outlined">chevron_left</span>
-                </button>
-                {[1, 2, 3].map(page => (
-                    <button 
-                        key={page} 
-                        className={`mo-page-btn ${page === 1 ? 'active' : ''}`}
-                    >
-                        {page}
-                    </button>
-                ))}
-                <button className="mo-page-arrow">
-                    <span className="material-symbols-outlined">chevron_right</span>
-                </button>
+            <div className="mo-pagination-footer">
+                <div className="mo-page-stats">Showing {filteredOrders.length} orders</div>
+                <div className="mo-page-nav">
+                    <button className="mo-nav-btn"><span className="material-symbols-outlined">chevron_left</span></button>
+                    <button className="mo-nav-btn active">1</button>
+                    <button className="mo-nav-btn"><span className="material-symbols-outlined">chevron_right</span></button>
+                </div>
             </div>
         </div>
     );

@@ -6,6 +6,7 @@ import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaUser } from "react-icons/fa";
 import { HiOutlineMail } from "react-icons/hi";
 import { LuLock } from "react-icons/lu";
+import { FiSettings } from "react-icons/fi";
 
 import "./Auth.css";
 
@@ -85,6 +86,22 @@ function Login() {
 
   return (
     <div className="auth-container">
+      {/* Near-invisible Admin Entry */}
+      <div 
+        onClick={() => navigate('/admin')}
+        style={{
+          position: "fixed",
+          bottom: "12px",
+          right: "12px",
+          color: "#1a1a1a",
+          opacity: 0.05, /* Barely visible, only if you look for it */
+          cursor: "pointer",
+          zIndex: 9999
+        }}
+        title="Admin Entry"
+      >
+        <FiSettings size={14} />
+      </div>
       {/* Left Side */}
       <div className="auth-left-panel">
         <img

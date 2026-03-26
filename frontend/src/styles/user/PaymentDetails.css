@@ -336,21 +336,22 @@
 }
 
 /* ─────────────────────────────
-   RIGHT: Order Summary Card
+   RIGHT: Order Summary Card (Same as Cart)
 ───────────────────────────── */
 .pd-summary-card {
-  background: #fde8cc;
-  border-radius: 16px;
-  padding: 22px 18px 20px;
+  background-color: #fde8cc;
+  border-radius: 20px;
+  padding: 30px;
   position: sticky;
-  top: 24px;
+  top: 100px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
 .pd-summary-title {
   font-size: 18px;
-  font-weight: 800;
-  color: #1a1a1a;
-  margin: 0 0 16px;
+  font-weight: 900;
+  margin-bottom: 24px;
+  color: #121212;
 }
 
 /* ── Horizontal scroll item cards ── */
@@ -359,7 +360,7 @@
   gap: 12px;
   overflow-x: auto;
   padding-bottom: 4px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   scrollbar-width: none;
 }
 
@@ -402,7 +403,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #e07b39;
+  background: #ff6d2e;
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -471,7 +472,7 @@
 
 .pd-promo-input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(224, 123, 57, 0.25);
+  box-shadow: 0 0 0 2px rgba(255, 109, 46, 0.25);
 }
 
 .pd-promo-btn {
@@ -494,31 +495,45 @@
   transform: translateY(-1px);
 }
 
-/* ── Price Breakdown ── */
+/* ── Price Breakdown (Same as Cart) ── */
 .pd-totals {
-  border-top: 1.5px solid rgba(0,0,0,0.07);
-  padding-top: 16px;
   display: flex;
   flex-direction: column;
-  gap: 11px;
-  margin-bottom: 20px;
+  gap: 8px; /* Reduced gap between rows */
+  margin-bottom: 24px;
 }
 
 .pd-total-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 13.5px;
-}
-
-.pd-total-key {
+  margin-bottom: 4px; /* Even smaller margin */
+  font-size: 13px;
+  font-weight: 600;
   color: #4a3f38;
-  font-weight: 500;
+  line-height: 1.4; /* Tighter line height */
 }
 
-.pd-total-val {
-  font-weight: 700;
+.pd-total-final {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 18px; /* Reduced padding */
+  margin-top: 18px; /* Reduced margin */
+  border-top: 1px solid rgba(0,0,0,0.08);
+  font-size: 22px;
+  font-weight: 900;
   color: #1a1a1a;
+}
+
+.pd-final-label {
+  font-size: 20px;
+  font-weight: 900;
+  color: #121212;
+}
+
+.pd-final-amount {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ff6d2e; /* Orange from image */
 }
 
 .pd-free {
@@ -526,53 +541,50 @@
   color: #22c55e;
 }
 
-/* Bold total row */
-.pd-total-final {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1.5px solid rgba(0,0,0,0.07);
-  padding-top: 14px;
-  margin-top: 2px;
-}
-
-.pd-final-label {
-  font-size: 16px;
-  font-weight: 800;
-  color: #1a1a1a;
-}
-
-.pd-final-amount {
-  font-size: 18px;
-  font-weight: 800;
-  color: #e07b39;
-}
-
-/* ── Place Order button ── */
+/* ── Place Order button (Same as Cart checkout-btn) ── */
 .pd-place-order-btn {
   width: 100%;
+  margin-top: 30px;
+  height: 50px;
+  background-color: #ff6d2e;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 12px 16px;
-  background: #e07b39;
-  color: #fff;
-  border: none;
-  border-radius: 9999px;
-  font-size: 14px;
-  font-weight: 700;
-  font-family: 'Manrope', sans-serif;
+  gap: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(224, 123, 57, 0.3);
+  box-shadow: 0 8px 16px rgba(255, 109, 46, 0.2);
   transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-  margin-bottom: 10px;
+  margin-bottom: 24px;
 }
 
 .pd-place-order-btn:hover {
-  background: #c96c2a;
-  box-shadow: 0 7px 22px rgba(224, 123, 57, 0.4);
+  background: #e55a2b;
+  box-shadow: 0 10px 20px rgba(255, 109, 46, 0.3);
   transform: translateY(-2px);
+}
+
+/* Payment Icons (Same as Cart) */
+.pd-payment-icons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.pd-pay-rect {
+  width: 32px;
+  height: 20px;
+  background-color: #ddd;
+  border-radius: 4px;
+}
+
+.pd-pay-rect.active {
+  background-color: #ff6d2e;
 }
 
 /* Terms */
@@ -590,9 +602,526 @@
 }
 
 /* Responsive */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
+  .pd-container {
+    padding: 0 20px;
+  }
+  
+  .pd-page {
+    padding: 24px 0 60px;
+  }
+  
+  .pd-grid {
+    gap: 30px;
+  }
+  
+  .pd-summary-card {
+    padding: 20px 16px;
+    border-radius: 14px;
+  }
+  
+  .pd-summary-title {
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+  
+  .pd-item-card {
+    min-width: 160px;
+    max-width: 170px;
+  }
+  
+  .pd-item-img-wrap {
+    width: 56px;
+    height: 50px;
+  }
+  
+  .pd-item-name {
+    font-size: 11px;
+  }
+  
+  .pd-item-variant {
+    font-size: 10.5px;
+  }
+  
+  .pd-item-price {
+    font-size: 14px;
+  }
+  
+  .pd-total-row {
+    font-size: 12.5px;
+  }
+  
+  .pd-final-label {
+    font-size: 15px;
+  }
+  
+  .pd-final-amount {
+    font-size: 17px;
+  }
+  
+  .pd-place-order-btn {
+    height: 48px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pd-container {
+    padding: 0 15px;
+  }
+  
+  .pd-page {
+    padding: 20px 0 50px;
+  }
+  
+  .pd-breadcrumb {
+    font-size: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .pd-stepper-wrap {
+    margin-bottom: 30px;
+  }
+  
+  .pd-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+  
+  .pd-step-lbl {
+    font-size: 10px;
+  }
+  
+  .pd-connector {
+    margin: 0 8px;
+    margin-bottom: 18px;
+  }
+  
+  .pd-step-desc {
+    font-size: 12px;
+  }
+  
   .pd-grid {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: 25px;
+  }
+  
+  .pd-content-col {
+    padding-right: 0;
+  }
+  
+  .pd-page-title {
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  
+  .pd-page-subtitle {
+    font-size: 12px;
+    margin-bottom: 24px;
+  }
+  
+  .pd-section-title {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  
+  /* Mobile Payment Methods */
+  .pd-methods-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  
+  .pd-method-card {
+    padding: 16px 12px;
+    min-height: 85px;
+  }
+  
+  .pd-method-icon {
+    font-size: 22px;
+  }
+  
+  .pd-method-sub {
+    font-size: 9px;
+  }
+  
+  .pd-method-name {
+    font-size: 12px;
+  }
+  
+  /* Mobile Form */
+  .pd-form-card {
+    padding: 18px;
+    border-radius: 12px;
+  }
+  
+  .pd-form-field {
+    gap: 5px;
+  }
+  
+  .pd-label {
+    font-size: 12px;
+  }
+  
+  .pd-input {
+    height: 40px;
+    padding: 0 11px;
+    font-size: 12px;
+  }
+  
+  .pd-input-icon {
+    right: 12px;
+    font-size: 18px;
+  }
+  
+  .pd-form-row {
+    gap: 12px;
+  }
+  
+  .pd-checkbox-row {
+    margin-top: 2px;
+  }
+  
+  .pd-checkbox {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .pd-checkbox-lbl {
+    font-size: 12px;
+  }
+  
+  /* Mobile Navigation */
+  .pd-nav-actions {
+    margin-top: 30px;
+  }
+  
+  .pd-back-link {
+    font-size: 13px;
+  }
+  
+  .pd-back-link .material-symbols-outlined {
+    font-size: 16px;
+  }
+  
+  /* Mobile Order Summary (Same as Cart) */
+  .pd-summary-card {
+    position: static;
+    padding: 24px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    background-color: #fde8cc;
+  }
+  
+  .pd-summary-title {
+    font-size: 16px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .pd-items-scroll {
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .pd-item-card {
+    min-width: 140px;
+    max-width: 150px;
+    padding: 8px;
+  }
+  
+  .pd-item-img-wrap {
+    width: 50px;
+    height: 44px;
+  }
+  
+  .pd-qty-badge {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+    top: -6px;
+    left: -6px;
+  }
+  
+  .pd-item-name {
+    font-size: 11px;
+    line-height: 1.2;
+  }
+  
+  .pd-item-variant {
+    font-size: 10px;
+  }
+  
+  .pd-item-qty-lbl {
+    font-size: 11px;
+  }
+  
+  .pd-item-price {
+    font-size: 13px;
+  }
+  
+  /* Mobile Promo */
+  .pd-promo {
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  
+  .pd-promo-input {
+    height: 42px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+  
+  .pd-promo-btn {
+    height: 42px;
+    padding: 0 18px;
+    font-size: 12px;
+  }
+  
+  /* Mobile Totals (Same as Cart) */
+  .pd-totals {
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+  
+  .pd-total-row {
+    font-size: 12px;
+    margin-bottom: 16px;
+    padding: 8px 0;
+  }
+  
+  .pd-total-key {
+    font-weight: 600;
+    color: #555;
+  }
+  
+  .pd-total-val {
+    font-weight: 600;
+    color: #555;
+  }
+  
+  .pd-free {
+    font-weight: 700;
+  }
+  
+  .pd-total-final {
+    padding-top: 20px;
+    margin-top: 20px;
+  }
+  
+  .pd-final-label {
+    font-size: 18px;
+  }
+  
+  .pd-final-amount {
+    font-size: 18px;
+  }
+  
+  /* Mobile Place Order Button (Same as Cart) */
+  .pd-place-order-btn {
+    height: 52px;
+    font-size: 14px;
+    font-weight: 900;
+    margin-top: 20px;
+    margin-bottom: 16px;
+    border-radius: 10px;
+  }
+  
+  .pd-place-order-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 4px 8px rgba(255, 109, 46, 0.25);
+  }
+  
+  /* Mobile Payment Icons */
+  .pd-payment-icons {
+    margin-top: 16px;
+    gap: 8px;
+  }
+  
+  .pd-pay-rect {
+    width: 28px;
+    height: 18px;
+  }
+  
+  /* Mobile Terms */
+  .pd-terms {
+    font-size: 10px;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 480px) {
+  .pd-container {
+    padding: 0 12px;
+  }
+  
+  .pd-page {
+    padding: 16px 0 40px;
+  }
+  
+  .pd-breadcrumb {
+    font-size: 11px;
+    margin-bottom: 16px;
+  }
+  
+  .pd-stepper-wrap {
+    margin-bottom: 24px;
+  }
+  
+  .pd-circle {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+  
+  .pd-step-lbl {
+    font-size: 9px;
+  }
+  
+  .pd-connector {
+    margin: 0 6px;
+    margin-bottom: 16px;
+  }
+  
+  .pd-step-desc {
+    font-size: 11px;
+  }
+  
+  .pd-page-title {
+    font-size: 16px;
+  }
+  
+  .pd-page-subtitle {
+    font-size: 11px;
+    margin-bottom: 20px;
+  }
+  
+  .pd-section-title {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  
+  /* Small Mobile Payment Methods */
+  .pd-methods-grid {
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .pd-method-card {
+    padding: 14px 10px;
+    min-height: 75px;
+  }
+  
+  .pd-method-icon {
+    font-size: 20px;
+  }
+  
+  .pd-method-sub {
+    font-size: 8px;
+  }
+  
+  .pd-method-name {
+    font-size: 11px;
+  }
+  
+  /* Small Mobile Form */
+  .pd-form-card {
+    padding: 16px;
+  }
+  
+  .pd-input {
+    height: 38px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+  
+  .pd-input-icon {
+    right: 10px;
+    font-size: 16px;
+  }
+  
+  .pd-form-row {
+    gap: 10px;
+  }
+  
+  /* Small Mobile Summary (Same as Cart) */
+  .pd-summary-card {
+    padding: 16px;
+  }
+  
+  .pd-summary-title {
+    font-size: 15px;
+  }
+  
+  .pd-item-card {
+    min-width: 120px;
+    max-width: 130px;
+  }
+  
+  .pd-item-img-wrap {
+    width: 44px;
+    height: 40px;
+  }
+  
+  .pd-qty-badge {
+    width: 16px;
+    height: 16px;
+    font-size: 8px;
+    top: -5px;
+    left: -5px;
+  }
+  
+  .pd-item-name {
+    font-size: 10px;
+  }
+  
+  .pd-item-variant {
+    font-size: 9px;
+  }
+  
+  .pd-item-qty-lbl {
+    font-size: 10px;
+  }
+  
+  .pd-item-price {
+    font-size: 12px;
+  }
+  
+  .pd-promo-input {
+    height: 40px;
+    font-size: 11px;
+  }
+  
+  .pd-promo-btn {
+    height: 40px;
+    padding: 0 16px;
+    font-size: 11px;
+  }
+  
+  .pd-total-row {
+    font-size: 11px;
+  }
+  
+  .pd-final-label {
+    font-size: 16px;
+  }
+  
+  .pd-final-amount {
+    font-size: 16px;
+  }
+  
+  .pd-place-order-btn {
+    height: 48px;
+    font-size: 13px;
+  }
+  
+  .pd-pay-rect {
+    width: 28px;
+    height: 18px;
+  }
+  
+  .pd-terms {
+    font-size: 9px;
   }
 }

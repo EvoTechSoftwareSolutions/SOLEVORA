@@ -152,12 +152,9 @@ const Home = () => {
             <span className="highlight">Brands</span>
           </h1>{" "}
           <p>
-            asdasdas
             Discover the latest styles and must-have essentials. Fast shipping,
-            easy returns, and secure checkoutshop now and find something you’ll
-            love. Discover the latest styles and must-have essentials.Fast
-            shipping, easy returns, and secure checkout — shop now and find
-            something you’ll love.
+            easy returns, and secure checkout — shop now and find something you’ll
+            love. Explore our curated collection tailored for your comfort and style.
           </p>
           <Link to="/product/1" className="shop-button">
             <ShoppingCartIcon className="icon" />
@@ -212,9 +209,9 @@ const Home = () => {
 
         <div className="hero-cards">
           {loading ? (
-            <div style={{ colSpan: '4', textAlign: 'center', width: '100%', padding: '40px' }}>Loading products...</div>
+            <div style={{ textAlign: 'center', width: '100%', padding: '40px' }}>Loading products...</div>
           ) : products.length === 0 ? (
-            <div style={{ colSpan: '4', textAlign: 'center', width: '100%', padding: '40px' }}>No products found in this category.</div>
+            <div style={{ textAlign: 'center', width: '100%', padding: '40px' }}>No products found in this category.</div>
           ) : products.map((item) => (
             <Card
               key={item.id}
