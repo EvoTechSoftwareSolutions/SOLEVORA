@@ -8,13 +8,14 @@ import {
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 
-import { FaSearch, FaPlus   } from "react-icons/fa";
+import { FaSearch, FaPlus,FaInstagram,FaFacebookF ,FaTiktok ,   } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { HiOutlineAdjustmentsHorizontal } from "react-icons/hi2";
 import { FiAward, FiUsers  } from "react-icons/fi";
-import { LuLeaf } from "react-icons/lu";
-import { CiHeart, CiStar  } from "react-icons/ci";
+import { LuLeaf, LuMapPinHouse  } from "react-icons/lu";
+import { CiHeart,CiMail , CiStar,CiClock1   } from "react-icons/ci";
 import { TbWorld } from "react-icons/tb";
-import { IoBagCheckOutline } from "react-icons/io5";
+import { IoBagCheckOutline, IoCallOutline, IoPaperPlaneOutline   } from "react-icons/io5";
 
 export {
   ShoppingCartIcon,
@@ -27,11 +28,17 @@ export {
   FaPlus ,
   FaSearch,
   LuLeaf,
+  LuMapPinHouse,
   CiHeart,
-  CiStar ,
+  CiStar,
+  CiMail ,
   HiOutlineAdjustmentsHorizontal,
   FiAward,
   FiUsers,
   TbWorld ,
-  IoBagCheckOutline
+  IoBagCheckOutline,
+  IoCallOutline ,
+  CiClock1,
+  IoPaperPlaneOutline ,
+  FaInstagram,FaFacebookF ,FaTiktok ,FaXTwitter
 };
