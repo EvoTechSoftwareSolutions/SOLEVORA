@@ -6,6 +6,7 @@ import CheckEmail from "./pages/CheckEmail";
 import ResetPassword from "./pages/ResetPassword";
 import ResetSuccess from "./pages/ResetSuccess";
 import CategoryPage from "./pages/CategoryPage";
+import ViewDetailsPage from "./pages/ViewDetailsPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/reset-password/:token?" element={<ResetPassword />} />
         <Route path="/reset-success" element={<ResetSuccess />} />
         <Route path="/category" element={<CategoryPage />} />
+        <Route path="/product/:id" element={<ViewDetailsPage />} />
       </Routes>
     </BrowserRouter>
   );
