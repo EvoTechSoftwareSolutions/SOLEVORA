@@ -7,6 +7,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ResetSuccess from "./pages/ResetSuccess";
 import CategoryPage from "./pages/CategoryPage";
 import ViewDetailsPage from "./pages/ViewDetailsPage";
+import ShoppingCartPage from "./pages/ShoppingCartPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/reset-success" element={<ResetSuccess />} />
         <Route path="/category" element={<CategoryPage />} />
         <Route path="/product/:id" element={<ViewDetailsPage />} />
+        <Route path="/cart" element={<ShoppingCartPage />} />
       </Routes>
     </BrowserRouter>
   );
