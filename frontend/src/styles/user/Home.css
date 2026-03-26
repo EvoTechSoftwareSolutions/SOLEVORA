@@ -5,6 +5,7 @@
   font-family: "Poppins", sans-serif;
   overflow-x: hidden;
   background-color: #fff;
+  gap: 60px;
 }
 
 .main-container > section, 
@@ -994,9 +995,9 @@ display: flex;
   width: 100%;
   max-width: 590px;
   min-height: 400px;
-  padding: 40px;
+  padding: 30px;
   border-radius: 24px;
-  gap: 24px;
+  gap: 20px;
   color: #fff;
   text-align: center;
 }
@@ -1031,7 +1032,7 @@ display: flex;
 
 .sale-box span {
   font-weight: 600;
-  font-size: 28px;
+  font-size: 20px;
 }
 
 .sale-box .percent {
