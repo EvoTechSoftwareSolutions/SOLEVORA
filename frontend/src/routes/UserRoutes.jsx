@@ -9,6 +9,7 @@ const UserLayout = lazy(() => import('../layouts/UserLayout/UserLayout'));
 // Pages
 const Home = lazy(() => import('../pages/user/Home'));
 const About = lazy(() => import('../pages/user/AboutUs'));
+const Contact = lazy(() => import('../pages/user/Contact'));
 const ProductDetail = lazy(() => import('../pages/user/ProductDetail'));
 const Category = lazy(() => import('../pages/user/Category'));
 const Cart = lazy(() => import('../pages/user/Cart'));
@@ -27,6 +28,7 @@ const UserRoutes = (
     <Route index element={<Navigate to="/home" replace />} />
     <Route path="home" element={<Home />} />
     <Route path="about" element={<About />} />
+    <Route path="contact" element={<Contact />} />
     <Route path="product/:id" element={<ProductDetail />} />
     <Route path="category" element={<Category />} />
     <Route path="cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
