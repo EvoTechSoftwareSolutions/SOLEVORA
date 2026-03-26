@@ -12,7 +12,7 @@ export const createOrder = async (req, res) => {
                 orderId: order.id,
                 productId: item.productId,
                 quantity: item.quantity,
-                price: item.price,
+                price_at_purchase: item.price,
                 size: item.size
             }));
             await OrderItem.bulkCreate(orderItems);
