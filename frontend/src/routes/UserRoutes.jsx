@@ -29,6 +29,7 @@ const UserRoutes = (
     <Route path="about" element={<About />} />
     <Route path="product/:id" element={<ProductDetail />} />
     <Route path="category" element={<Category />} />
+    <Route path="categorypage" element={<Category />} />
     <Route path="cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
     <Route path="shipping" element={<ProtectedRoute><ShippingInformation /></ProtectedRoute>} />
     <Route path="size-chart" element={<SizeChart />} />

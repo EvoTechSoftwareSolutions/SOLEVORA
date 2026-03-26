@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Scrollbar, A11y, Navigation } from 'swiper/modules';
+import 'swiper/css';
 import '../../styles/user/Cart.css';
 
 const Cart = () => {
@@ -45,7 +48,7 @@ const Cart = () => {
                 <span className="material-symbols-outlined" style={{ fontSize: '80px', color: '#ccc', marginBottom: '20px' }}>shopping_cart_off</span>
                 <h2>Your cart is empty</h2>
                 <p style={{ color: '#666', marginBottom: '30px' }}>Looks like you haven't added anything to your cart yet.</p>
-                <Link to="/categorypage" className="checkout-btn" style={{ display: 'inline-block', width: 'auto', padding: '15px 40px' }}>
+                <Link to="/category" className="checkout-btn" style={{ display: 'inline-block', width: 'auto', padding: '15px 40px' }}>
                     Start Shopping
                 </Link>
             </div>
@@ -92,15 +95,17 @@ const Cart = () => {
                   <p className="item-meta">Color : {item.color || 'Standard'}</p>
                   <p className="item-meta">Size  : {item.size}</p>
                 </div>
-                <div className="item-quantity">
-                  <div className="qty-selector">
-                    <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}>-</button>
-                    <span>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}>+</button>
+                <div className="item-price-qty">
+                  <div className="item-quantity">
+                    <div className="qty-selector">
+                      <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}>-</button>
+                      <span>{item.quantity}</span>
+                      <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}>+</button>
+                    </div>
                   </div>
-                </div>
-                <div className="item-price">
-                  ${(item.price * item.quantity).toFixed(2)}
+                  <div className="item-price">
+                    ${(item.price * item.quantity).toFixed(2)}
+                  </div>
                 </div>
                 <button className="item-remove" onClick={() => removeFromCart(item.id, item.size)}>
                   <span className="material-symbols-outlined">close</span>
@@ -109,11 +114,11 @@ const Cart = () => {
             ))}
 
             <div className="cart-footer-links">
-                <Link to="/categorypage" className="back-link">
+                <Link to="/category" className="back-link">
                     <span className="material-symbols-outlined">west</span>
                     Back to Shop
                 </Link>
-                <Link to="/categorypage" className="add-more-link">
+                <Link to="/category" className="add-more-link">
                     <span className="material-symbols-outlined">add_circle</span>
                     Add More Items
                 </Link>
@@ -159,32 +164,63 @@ const Cart = () => {
                 <p>Discover styles that match your vibe</p>
             </div>
 
-            <div className="rec-grid">
+            <Swiper
+                modules={[Pagination, A11y, Navigation]}
+                spaceBetween={20}
+                slidesPerView={1.2}
+                navigation={{
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                }}
+                breakpoints={{
+                    640: {
+                        slidesPerView: 2.2,
+                        pagination: { clickable: true },
+                    },
+                    1024: {
+                        slidesPerView: 3.2,
+                        pagination: { clickable: true },
+                    },
+                    1200: {
+                        slidesPerView: 4
+                    }
+                }}
+                className="rec-swiper"
+            >
                 {recommendedProducts.map(product => (
-                    <div key={product.id} className="rec-card">
-                        <div className="rec-img">
-                            <img src={product.image} alt={product.name} />
-                            <div className="rec-nav-arrows">
-                                {/* Only visible for carousel feel */}
+                    <SwiperSlide key={product.id}>
+                        <div className="rec-card">
+                            <div className="rec-img">
+                                <img src={product.image} alt={product.name} />
                             </div>
-                        </div>
-                        <div className="rec-info">
-                            <span className="rec-brand">{product.brand}</span>
-                            <h4>{product.name}</h4>
-                            <p className="rec-price">${product.price}</p>
-                            <div className="rec-footer">
-                                <button className="view-btn">
-                                    <span className="material-symbols-outlined">shopping_bag</span>
-                                    View Details
-                                </button>
-                                <div className="rec-actions">
-                                    <span className="material-symbols-outlined">share</span>
-                                    <span className="material-symbols-outlined">favorite</span>
+                            <div className="rec-info">
+                                <span className="rec-brand">{product.brand}</span>
+                                <h4>{product.name}</h4>
+                                <p className="rec-price">${product.price}</p>
+                                <div className="rec-footer">
+                                    <button className="view-btn">
+                                        <span className="material-symbols-outlined">shopping_bag</span>
+                                        View Details
+                                    </button>
+                                    <div className="rec-actions">
+                                        <span className="material-symbols-outlined">share</span>
+                                        <span className="material-symbols-outlined">favorite</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </SwiperSlide>
                 ))}
+            </Swiper>
+            
+            {/* Custom Navigation Arrows */}
+            <div className="swiper-navigation">
+                <button className="swiper-button-prev">
+                    <span className="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button className="swiper-button-next">
+                    <span className="material-symbols-outlined">chevron_right</span>
+                </button>
             </div>
         </section>
       </div>

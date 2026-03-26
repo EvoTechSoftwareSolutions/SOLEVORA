@@ -156,7 +156,7 @@ const OrderConfirmation = () => {
           <button className="oc-track-btn" onClick={() => navigate('/profile/orders')}>
             TRACK ORDER
           </button>
-          <button className="oc-continue-btn" onClick={() => navigate('/categorypage')}>
+          <button className="oc-continue-btn" onClick={() => navigate('/category')}>
             CONTINUE SHOPPING
           </button>
         </div>

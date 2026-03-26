@@ -147,7 +147,7 @@ const Dashboard = () => {
                         ) : recentOrders.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '20px' }}>
                                 <p>No orders found for your account.</p>
-                                <Link to="/categorypage" className="pdb-view-link">Start Shopping</Link>
+                                <Link to="/category" className="pdb-view-link">Start Shopping</Link>
                             </div>
                         ) : recentOrders.map(order => {
                             const firstItem = order.items && order.items[0];

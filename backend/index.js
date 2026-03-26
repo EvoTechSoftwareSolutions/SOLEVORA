@@ -48,9 +48,8 @@ const initDb = async () => {
         await sequelize.authenticate();
         console.log('Connection to MySQL has been established successfully.');
         
-        // Sync models with database (creates tables if they don't exist)
-        // Set alter: true to update existing tables with new columns
-        await sequelize.sync({ alter: true }); 
+        // Sync models with database (creates tables if they don't exist, skips if already exist)
+        await sequelize.sync(); 
         console.log('Database synced successfully.');
     } catch (error) {
         console.error('Unable to connect to the database:', error);

@@ -1,8 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/common/Navbar";
-import Footer from "../components/common/Footer";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import {
@@ -195,7 +193,7 @@ function CategoryPage() {
 
   return (
     <div className="bg-[#f6f6f6] min-h-screen">
-      <Navbar />
+
 
       {/* Hero Section */}
       <section className="relative h-[340px] sm:h-[420px] lg:h-[520px] overflow-hidden">
@@ -470,7 +468,7 @@ function CategoryPage() {
         </div>
       </section>
 
-      <Footer />
+
     </div>
   );
 }

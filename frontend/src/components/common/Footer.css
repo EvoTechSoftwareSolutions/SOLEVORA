@@ -243,14 +243,31 @@
 
   .footer-links-grid {
     width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
   }
 }
 
 @media (max-width: 768px) {
   .footer-links-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  
+  .link-column {
+    flex: 1;
+  }
+  
+  .link-column h4 {
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+  
+  .link-column a {
+    font-size: 12px;
+    margin-bottom: 8px;
   }
 }
 
