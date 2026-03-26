@@ -12,12 +12,9 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import CheckEmail from "./pages/CheckEmail";
 import ResetPassword from "./pages/ResetPassword";
-<<<<<<< HEAD
 import Logout from "./pages/Logout";
-=======
 import ResetSuccess from "./pages/ResetSuccess";
 import CategoryPage from "./pages/CategoryPage";
->>>>>>> 3d67523ee2593fea5c2b4d778666b60e0ac1bd9c
 
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
@@ -45,27 +42,21 @@ function App() {
               {ProfileRoutes}
 
               {/* Authentication Routes */}
+              <Route path="/" element={<Login />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/check-email" element={<CheckEmail />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/reset-password/:token?" element={<ResetPassword />} />
+              <Route path="/reset-success" element={<ResetSuccess />} />
               <Route path="/logout" element={<Logout />} />
+              <Route path="/category" element={<CategoryPage />} />
 
               {/* Default Route: Redirect to Home or a 404 Page */}
             </Routes>
           </Suspense>
         </CartProvider>
       </WishlistProvider>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/check-email" element={<CheckEmail />} />
-        <Route path="/reset-password/:token?" element={<ResetPassword />} />
-        <Route path="/reset-success" element={<ResetSuccess />} />
-        <Route path="/category" element={<CategoryPage />} />
-      </Routes>
     </BrowserRouter>
   );
 }

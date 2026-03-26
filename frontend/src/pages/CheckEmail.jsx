@@ -57,7 +57,6 @@ function CheckEmail() {
                 Resend Email
               </span>
             </p>
-          </div>
         </div>
       </div>
     </div>
