@@ -15,6 +15,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Logout from "./pages/Logout";
 import ResetSuccess from "./pages/ResetSuccess";
 import CategoryPage from "./pages/CategoryPage";
+import OrderConfirmation from "./pages/user/OrderConfirmation";
 
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
@@ -50,7 +51,8 @@ function App() {
               <Route path="/reset-password/:token?" element={<ResetPassword />} />
               <Route path="/reset-success" element={<ResetSuccess />} />
               <Route path="/logout" element={<Logout />} />
-              <Route path="/category" element={<CategoryPage />} />
+              <Route path="/categorypage" element={<CategoryPage />} />
+              <Route path="/order-confirmation" element={<OrderConfirmation />} />
 
               {/* Default Route: Redirect to Home or a 404 Page */}
             </Routes>

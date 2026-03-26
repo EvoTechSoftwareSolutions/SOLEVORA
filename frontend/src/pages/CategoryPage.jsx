@@ -1,8 +1,13 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/Footer";
+import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 import {
   HiOutlineHeart,
+  HiHeart,
   HiOutlineShoppingCart,
   HiOutlineAdjustments,
 } from "react-icons/hi";
@@ -39,6 +44,24 @@ function CategoryPage() {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("All");
   const [sortBy, setSortBy] = useState("featured");
+
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+
+  const handleWishlistToggle = (product) => {
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
+    }
+  };
+
+  const handleAddToCart = (product) => {
+    // Use a default size — user can pick proper size on the detail page
+    const defaultSize = product.sizes?.[0] || "One Size";
+    addToCart({ ...product, image_url: product.image }, defaultSize);
+  };
 
   const categories = [
     {
@@ -99,108 +122,39 @@ function CategoryPage() {
     },
   ];
 
-  const products = [
-    {
-      id: 1,
-      category: "Basketball",
-      name: "Hoop Master 3000",
-      price: 150,
-      image: product1,
-      bg: "bg-[#f4f4f4]",
-      gender: "Men",
-      sizes: ["8", "8.5", "9", "9.5", "10"],
-      featured: true,
-    },
-    {
-      id: 2,
-      category: "Running",
-      name: "Air Max 90",
-      price: 130,
-      image: product2,
-      bg: "bg-[#f4f4f4]",
-      gender: "Men",
-      sizes: ["7", "7.5", "8", "8.5", "9"],
-      featured: false,
-    },
-    {
-      id: 3,
-      category: "Lifestyle",
-      name: "UltraBoost 23",
-      price: 190,
-      image: product3,
-      bg: "bg-[#f4f4f4]",
-      gender: "Women",
-      sizes: ["6", "6.5", "7", "7.5", "8"],
-      featured: true,
-    },
-    {
-      id: 4,
-      category: "Streetwear",
-      name: "Chuck 70",
-      price: 130,
-      image: product4,
-      bg: "bg-[#f4f4f4]",
-      gender: "Kids",
-      sizes: ["6", "6.5", "7", "7.5"],
-      featured: false,
-    },
-    {
-      id: 5,
-      category: "Performance",
-      name: "550 Vintage",
-      price: 190,
-      image: product5,
-      bg: "bg-[#f4f4f4]",
-      gender: "Men",
-      sizes: ["8", "8.5", "9", "10", "11"],
-      featured: false,
-    },
-    {
-      id: 6,
-      category: "Plus Run",
-      name: "RS-X Toys",
-      price: 130,
-      image: product6,
-      bg: "bg-[#f4f4f4]",
-      gender: "Women",
-      sizes: ["6", "7", "7.5", "8", "8.5"],
-      featured: false,
-    },
-    {
-      id: 7,
-      category: "Fresh",
-      name: "Old Skool",
-      price: 150,
-      image: product7,
-      bg: "bg-[#f4f4f4]",
-      gender: "Men",
-      sizes: ["8", "9", "9.5", "10", "11"],
-      featured: false,
-    },
-    {
-      id: 8,
-      category: "New",
-      name: "Pegasus 41",
-      price: 170,
-      image: product8,
-      bg: "bg-[#f4f4f4]",
-      gender: "Women",
-      sizes: ["6.5", "7", "7.5", "8", "8.5"],
-      featured: true,
-      badge: "New",
-    },
-    {
-      id: 9,
-      category: "Classic",
-      name: "Drunk Low",
-      price: 199,
-      image: product9,
-      bg: "bg-[#f4f4f4]",
-      gender: "Men",
-      sizes: ["9", "9.5", "10", "10.5", "11"],
-      featured: false,
-    },
-  ];
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data } = await axios.get("http://localhost:5000/api/products");
+        const bgColors = [
+          "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]", 
+          "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]", 
+          "bg-[#dfdfdf]", "bg-[#efe8e0]", "bg-[#dcd0c2]", "bg-[#ffb0b0]"
+        ];
+
+        const formatted = data.map((p, index) => ({
+          id: p.id,
+          category: p.Category?.name || "Uncategorized",
+          name: p.name,
+          price: parseFloat(p.price) || 0,
+          image: p.image_url || product1,
+          bg: bgColors[index % bgColors.length],
+          gender: "All", 
+          sizes: ["6", "7", "8", "9", "10"],
+          featured: p.isFeatured || false,
+          badge: index === 0 ? "New" : "",
+          colors: ["#333333", "#e5e7eb", "#ff6b3d"]
+        }));
+
+        setProducts(formatted);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const displayedProducts = useMemo(() => {
     let filtered = [...products];
@@ -287,7 +241,7 @@ function CategoryPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-5 mt-10 md:grid-cols-3 xl:grid-cols-4 sm:gap-6">
+        <div className="grid grid-cols-2 gap-4 mt-8 md:grid-cols-4 xl:grid-cols-4 sm:gap-5">
           {categories.map((item) => (
             <div
               key={item.id}
@@ -297,7 +251,7 @@ function CategoryPage() {
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="w-full h-[200px] sm:h-[220px] lg:h-[230px] object-cover group-hover:scale-105 transition duration-500"
+                  className="w-full h-[140px] sm:h-[160px] lg:h-[180px] object-cover group-hover:scale-105 transition duration-500"
                 />
                 <span className="absolute top-3 right-3 bg-white text-[10px] sm:text-xs px-3 py-1 rounded-full text-[#333] shadow-sm">
                   {item.count}
@@ -316,19 +270,19 @@ function CategoryPage() {
       </section>
 
       {/* Product Section */}
-      <section className="bg-[#ead8b7]">
-        <div className="flex flex-col gap-4 px-4 py-5 sm:px-8 lg:px-16 sm:flex-row sm:items-center sm:justify-between">
+      <section className="bg-[#faecd9]">
+        <div className="flex flex-col gap-4 px-4 py-5 sm:px-8 lg:px-16 sm:flex-row sm:items-center sm:justify-between bg-[#fbf2e1]">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#1f1f1f]">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#1f1f1f]">
               All Shoes
             </h2>
-            <p className="text-[#666] text-sm">{displayedProducts.length} products</p>
+            <p className="text-[#888] text-xs">{displayedProducts.length} products</p>
           </div>
 
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="bg-white border border-gray-300 rounded-xl px-4 py-2 text-sm text-[#444] outline-none"
+            className="bg-transparent border border-transparent rounded-lg px-2 py-1 text-xs text-[#555] font-semibold outline-none cursor-pointer"
           >
             <option value="featured">Sort by: Featured</option>
             <option value="low-high">Price: Low to High</option>
@@ -337,16 +291,16 @@ function CategoryPage() {
           </select>
         </div>
 
-        <div className="px-4 sm:px-8 lg:px-16 pb-14 grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
+        <div className="px-4 sm:px-8 lg:px-16 pb-14 mt-6 grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-6">
           {/* Sidebar */}
-          <aside className="lg:sticky lg:top-24 self-start bg-[#edd4a4] rounded-2xl p-5 h-fit shadow-sm">
+          <aside className="lg:sticky lg:top-24 self-start bg-[#fbddba] rounded-[20px] p-6 h-fit shadow-sm">
             <div className="flex items-center gap-2 mb-5 lg:hidden font-semibold text-[#222]">
               <HiOutlineAdjustments />
               <span>Filters</span>
             </div>
 
             <div className="mb-8">
-              <h4 className="text-sm font-semibold text-[#3d3228] mb-3">
+              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">
                 Gender
               </h4>
               <div className="flex flex-wrap gap-2">
@@ -354,10 +308,10 @@ function CategoryPage() {
                   <button
                     key={gender}
                     onClick={() => setSelectedGender(gender)}
-                    className={`px-4 py-2 rounded-full text-xs transition ${
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${
                       selectedGender === gender
-                        ? "bg-[#de8c4a] text-white"
-                        : "bg-white text-[#333] hover:bg-[#f6f6f6]"
+                        ? "bg-[#d57731] text-white"
+                        : "bg-white text-[#555] hover:bg-[#ffeacc]"
                     }`}
                   >
                     {gender}
@@ -368,26 +322,20 @@ function CategoryPage() {
 
             <div className="mb-8">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-semibold text-[#3d3228]">
+                <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider">
                   Shoe Size
                 </h4>
-                <button
-                  onClick={() => setSelectedSize("")}
-                  className="text-xs text-[#de8c4a] hover:underline"
-                >
-                  Clear
-                </button>
               </div>
 
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-1.5">
                 {sizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`rounded-lg py-2 text-xs transition ${
+                    className={`rounded bg-white py-1.5 text-[10px] font-semibold shadow-sm transition ${
                       selectedSize === size
-                        ? "bg-[#de8c4a] text-white"
-                        : "bg-white text-[#333] hover:bg-[#f7f7f7]"
+                        ? "ring-1 ring-[#d57731] text-[#d57731]"
+                        : "text-[#555] hover:ring-1 hover:ring-gray-300"
                     }`}
                   >
                     {size}
@@ -397,74 +345,81 @@ function CategoryPage() {
             </div>
 
             <div>
-              <h4 className="text-sm font-semibold text-[#3d3228] mb-3">
+              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-5">
                 Price Range
               </h4>
-              <div className="space-y-2">
-                {priceRanges.map((range) => (
-                  <button
-                    key={range}
-                    onClick={() => setSelectedPrice(range)}
-                    className={`w-full text-left px-4 py-2 rounded-full text-sm transition ${
-                      selectedPrice === range
-                        ? "bg-[#f1cf9e] border border-[#de8c4a]"
-                        : "text-[#333] hover:text-[#de8c4a]"
-                    }`}
-                  >
-                    {range}
-                  </button>
-                ))}
+              <div className="px-1">
+                <input type="range" className="w-full accent-[#d57731] h-1 bg-white outline-none appearance-none rounded-full" />
+                <div className="flex justify-between text-[9px] text-[#777] font-semibold mt-2">
+                  <span>$0</span>
+                  <span>$50</span>
+                  <span>$100</span>
+                  <span>$150+</span>
+                </div>
               </div>
             </div>
           </aside>
 
           {/* Product Cards */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {displayedProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-[#f4f4f4] rounded-[32px] overflow-hidden shadow-[0_18px_35px_rgba(0,0,0,0.10)] hover:-translate-y-2 hover:shadow-[0_22px_45px_rgba(0,0,0,0.14)] transition duration-300"
+                className="bg-[#f2f2f2] rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-md transition duration-300"
               >
-                <div className="relative">
+                {/* Top Image Box */}
+                <div className={`relative w-full aspect-square ${product.bg} flex items-center justify-center p-6`}>
                   {product.badge && (
-                    <span className="absolute top-4 left-4 bg-[#ff6b3d] text-white text-[10px] px-3 py-1 rounded-full z-10">
+                    <span className="absolute top-4 left-4 bg-[#ff6b3d] text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
                       {product.badge}
                     </span>
                   )}
 
-                  <button className="absolute top-4 right-4 w-14 h-14 rounded-full bg-white text-[#6a6a6a] flex items-center justify-center shadow-md hover:text-[#ff6b3d] transition z-10">
-                    <HiOutlineHeart size={26} />
+                  <button
+                    onClick={() => handleWishlistToggle(product)}
+                    className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${
+                      isInWishlist(product.id) ? "text-red-500" : "text-[#888] hover:text-red-500 hover:bg-white"
+                    }`}
+                  >
+                    {isInWishlist(product.id)
+                      ? <HiHeart size={18} />
+                      : <HiOutlineHeart size={18} />}
                   </button>
 
-                  <div className={`w-full h-[310px] ${product.bg}`}>
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="object-contain w-full h-full drop-shadow-2xl hover:scale-105 transition duration-500"
+                  />
                 </div>
 
-                <div className="px-6 pt-6 pb-7 bg-[#f4f4f4] min-h-[240px] flex flex-col">
-                  <p className="text-[#ff6b3d] text-sm sm:text-[15px] font-semibold uppercase tracking-wide">
+                {/* Info Bottom Row */}
+                <div className="px-5 pt-4 pb-5 flex flex-col">
+                  <p className="text-[#ff5c45] text-[10px] font-bold uppercase tracking-wider mb-1">
                     {product.category}
                   </p>
-
-                  <h3 className="mt-3 text-[28px] leading-tight font-bold text-[#1f1f1f]">
+                  
+                  <h3 className="text-[17px] font-semibold text-[#222] truncate">
                     {product.name}
                   </h3>
-
-                  <p className="mt-5 text-[34px] leading-none font-bold text-[#1f1f1f]">
+                  
+                  <p className="mt-1 text-[20px] font-bold text-[#111]">
                     ${product.price.toFixed(2)}
                   </p>
 
-                  <div className="flex items-center gap-4 pt-8 mt-auto">
-                    <button className="flex-1 h-[64px] border-2 border-[#1f1f1f] rounded-[24px] text-[18px] sm:text-[20px] font-semibold text-[#1f1f1f] hover:bg-[#1f1f1f] hover:text-white transition duration-300">
+                  <div className="flex items-center gap-3 mt-5">
+                    <button
+                      onClick={() => navigate(`/product/${product.id}`)}
+                      className="flex-1 py-2.5 bg-transparent border border-[#999] text-[#222] text-xs font-semibold rounded-lg hover:bg-white transition duration-300"
+                    >
                       View Details
                     </button>
 
-                    <button className="w-[68px] h-[64px] rounded-[20px] bg-[#16181d] text-white flex items-center justify-center hover:bg-[#2b2e35] transition duration-300">
-                      <HiOutlineShoppingCart size={30} />
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      className="shrink-0 w-10 h-10 rounded-lg bg-[#111] text-white flex items-center justify-center hover:bg-[#333] transition duration-300 shadow-md"
+                    >
+                      <HiOutlineShoppingCart size={18} />
                     </button>
                   </div>
                 </div>

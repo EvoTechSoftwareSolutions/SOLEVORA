@@ -39,11 +39,44 @@ const PaymentDetails = () => {
     };
 
     const handlePlaceOrder = async () => {
-        if (paymentMethod !== 'creditcard') {
-            showMessage('Coming Soon', `Payment via ${paymentMethod} is currently under development. Please use Credit Card (PayHere).`);
-            return;
+        if (paymentMethod === 'cod') {
+            await handleCOD();
+        } else if (paymentMethod === 'creditcard') {
+            await handlePayHere();
+        } else {
+            showMessage('Coming Soon', `Payment via ${paymentMethod} is currently under development. Please use Credit Card or Cash on Delivery.`);
         }
+    };
 
+    const handleCOD = async () => {
+        try {
+            const orderPayload = {
+                total_amount: total,
+                status: 'pending',
+                shipping_address: `${checkoutData.streetAddress || 'N/A'}, ${checkoutData.city || 'N/A'}, ${checkoutData.postalCode || '00000'}`,
+                contact_number: checkoutData.phone || 'N/A',
+                email: checkoutData.email || user?.email || 'guest@example.com',
+                userId: user?.id || null,
+                items: cart.map(item => ({
+                    productId: item.id,
+                    quantity: item.quantity,
+                    price: item.price,
+                    size: item.size
+                }))
+            };
+
+            const response = await axios.post('http://localhost:5000/api/orders', orderPayload);
+            const orderData = response.data;
+            const currentItems = [...cart];
+            clearCart();
+            navigate('/order-confirmation', { state: { orderId: orderData.id, items: currentItems, paymentMethod: 'cod' } });
+        } catch (error) {
+            console.error('Error placing COD order:', error);
+            showMessage('Order Failed', 'Could not place your order. Please try again.');
+        }
+    };
+
+    const handlePayHere = async () => {
         try {
             const orderPayload = {
                 total_amount: total,
@@ -63,16 +96,14 @@ const PaymentDetails = () => {
             const response = await axios.post('http://localhost:5000/api/orders', orderPayload);
             const orderData = response.data;
 
-            // Get payment hash from backend
             const hashResponse = await axios.post('http://localhost:5000/api/payment/hash', {
                 order_id: orderData.id,
                 amount: total,
-                currency: 'LKR' 
+                currency: 'LKR'
             });
 
             const { hash, merchant_id } = hashResponse.data;
 
-            // PayHere Payment Object
             const payment = {
                 sandbox: true,
                 merchant_id: merchant_id,
@@ -93,21 +124,18 @@ const PaymentDetails = () => {
                 country: "Sri Lanka",
             };
 
-            // Trigger PayHere popup
             window.payhere.onCompleted = function onCompleted(orderId) {
                 console.log("Payment completed. OrderID:" + orderId);
                 const currentItems = [...cart];
                 clearCart();
-                navigate('/order-confirmation', { state: { orderId: orderId, items: currentItems } });
+                navigate('/order-confirmation', { state: { orderId: orderId, items: currentItems, paymentMethod: 'creditcard' } });
             };
 
             window.payhere.onDismissed = function onDismissed() {
-                console.log("Payment popup dismissed");
                 showMessage('Payment Dismissed', 'You dismissed the payment popup. Your order is saved as pending.');
             };
 
             window.payhere.onError = function onError(error) {
-                console.log("Error:" + error);
                 showMessage('Payment Error', 'There was an error with PayHere: ' + error);
             };
 
@@ -216,6 +244,24 @@ const PaymentDetails = () => {
                                         SSL Secure Transaction
                                     </div>
                                 </>
+                            ) : paymentMethod === 'cod' ? (
+                                <div style={{ padding: '10px 0' }}>
+                                    <span className="material-symbols-outlined" style={{ fontSize: '52px', color: '#f66d3b', display: 'block', marginBottom: '16px' }}>local_shipping</span>
+                                    <h3 style={{ fontWeight: '700', fontSize: '18px', marginBottom: '10px', color: '#111' }}>Pay When You Receive</h3>
+                                    <p className="text-sm text-gray-500" style={{ maxWidth: '320px', margin: '0 auto 16px', lineHeight: '1.7' }}>
+                                        Your order will be delivered to your address. Payment is collected by the delivery agent upon arrival.
+                                    </p>
+                                    <div style={{ background: '#fff7f3', border: '1px solid #ffd5c0', borderRadius: '12px', padding: '14px 18px', textAlign: 'left', maxWidth: '340px', margin: '0 auto' }}>
+                                        <p style={{ fontSize: '13px', color: '#444', marginBottom: '6px' }}><strong>📍 Delivery Address:</strong></p>
+                                        <p style={{ fontSize: '13px', color: '#666' }}>{checkoutData.streetAddress || 'N/A'}, {checkoutData.city || 'N/A'}</p>
+                                        <p style={{ fontSize: '13px', color: '#444', marginTop: '10px', marginBottom: '6px' }}><strong>💰 Amount Due on Delivery:</strong></p>
+                                        <p style={{ fontSize: '20px', fontWeight: '800', color: '#f66d3b' }}>${total.toFixed(2)}</p>
+                                    </div>
+                                    <div className="flex items-center justify-center gap-2 text-green-600 font-semibold text-sm" style={{ marginTop: '16px' }}>
+                                        <span className="material-symbols-outlined">check_circle</span>
+                                        No online payment required
+                                    </div>
+                                </div>
                             ) : (
                                 <p className="text-gray-500 py-10">Details for {paymentMethod.replace('card', ' card')} will be shown here.</p>
                             )}

@@ -21,7 +21,7 @@ const Navbar = () => {
 
         <nav className={`nav-menu ${menuOpen ? 'mobile-active' : ''}`}>
           <Link to="/" className={`nav-link ${location.pathname === '/' || location.pathname === '/home' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>Home</Link>
-          <Link to="/category" className={`nav-link ${location.pathname === '/category' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>Category</Link>
+          <Link to="/categorypage" className={`nav-link ${location.pathname === '/categorypage' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>Category</Link>
           <Link to="/about" className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>About</Link>
           <Link to="/contact" className={`nav-link ${location.pathname === '/contact' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>Contact</Link>
       <div className="nav-actions">

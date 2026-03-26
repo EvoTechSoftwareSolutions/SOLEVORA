@@ -96,21 +96,21 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm transition-all animate-fadeIn">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all scale-100">
                 {/* Modal Header */}
-                <div className="px-8 py-5 flex justify-between items-center border-b border-gray-100">
+                <div className="px-6 py-4 flex justify-between items-center border-b border-gray-100">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-800">{isEdit ? 'Edit Product' : 'Add New Product'}</h2>
-                        <p className="text-sm text-gray-500 mt-1">{isEdit ? 'Update product details in your inventory' : 'Fill in the details to add to your inventory'}</p>
+                        <h2 className="text-xl font-bold text-gray-800">{isEdit ? 'Edit Product' : 'Add New Product'}</h2>
+                        <p className="text-xs text-gray-500 mt-1">{isEdit ? 'Update product details in your inventory' : 'Fill in the details to add to your inventory'}</p>
                     </div>
                     <button 
                         onClick={onClose}
-                        className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+                        className="p-1 rounded-full hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
                     >
-                        <XMarkIcon className="w-6 h-6" />
+                        <XMarkIcon className="w-5 h-5" />
                     </button>
                 </div>
 
                 {/* Modal Body */}
-                <form onSubmit={handleSubmit} className="px-8 py-6">
+                <form onSubmit={handleSubmit} className="px-6 py-4">
                     {error && (
                         <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded flex items-center">
                             <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
@@ -120,10 +120,10 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                         </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 gap-4">
                         {/* Name */}
                         <div className="col-span-2">
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Product Name</label>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Product Name</label>
                             <input 
                                 type="text"
                                 name="name"
@@ -131,20 +131,20 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                                 onChange={handleChange}
                                 required
                                 placeholder="Enter product name (e.g. SoleRunner V1)"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
                             />
                         </div>
 
                         {/* Category */}
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Category</label>
                             <select 
                                 name="categoryId"
                                 value={formData.categoryId}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none appearance-none bg-no-repeat bg-[right_1rem_center]"
-                                style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236b7280\' stroke-width=\'2\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundSize: '1.5em' }}
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none appearance-none bg-no-repeat bg-[right_1rem_center]"
+                                style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236b7280\' stroke-width=\'2\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundSize: '1.2em' }}
                             >
                                 <option value="" disabled>Select Category</option>
                                 {categories.map(cat => (
@@ -155,7 +155,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
 
                         {/* Price */}
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Price ($)</label>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Price ($)</label>
                             <input 
                                 type="number"
                                 step="0.01"
@@ -164,13 +164,13 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                                 onChange={handleChange}
                                 required
                                 placeholder="0.00"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
                             />
                         </div>
 
                         {/* Stock */}
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity</label>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Stock Quantity</label>
                             <input 
                                 type="number"
                                 name="stock_quantity"
@@ -178,50 +178,50 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                                 onChange={handleChange}
                                 required
                                 placeholder="0"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
                             />
                         </div>
 
                         {/* Image URL */}
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Image URL</label>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL</label>
                             <input 
                                 type="text"
                                 name="image_url"
                                 value={formData.image_url}
                                 onChange={handleChange}
                                 placeholder="https://unsplash.com/..."
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
                             />
                         </div>
 
                         {/* Description */}
                         <div className="col-span-2">
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Description</label>
                             <textarea 
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
-                                rows="4"
+                                rows="3"
                                 placeholder="Describe the key features and materials..."
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none resize-none"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none resize-none"
                             ></textarea>
                         </div>
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="mt-10 flex gap-4">
+                    <div className="mt-6 flex gap-3">
                         <button 
                             type="button"
                             onClick={onClose}
-                            className="flex-1 py-3 px-6 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+                            className="flex-1 py-2 px-4 rounded-lg border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 transition-colors"
                         >
                             Cancel
                         </button>
                         <button 
                             type="submit"
                             disabled={loading}
-                            className={`flex-1 py-3 px-6 rounded-xl font-semibold text-white shadow-lg transition-all ${loading ? 'bg-orange-300' : 'bg-[#f66d3b] hover:bg-orange-600 hover:shadow-orange-200'}`}
+                            className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold text-white shadow-md transition-all ${loading ? 'bg-orange-300' : 'bg-[#f66d3b] hover:bg-orange-600'}`}
                         >
                             {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Product' : 'Create Product')}
                         </button>

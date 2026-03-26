@@ -109,7 +109,7 @@
 
 .mo-card {
     background-color: #ffffff;
-    border-radius: 32px;
+    border-radius: 20px;
     overflow: hidden;
     border: 1px solid #f8fafc;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
@@ -122,7 +122,7 @@
 
 /* --- Card Header --- */
 .mo-card-header {
-    padding: 20px 32px;
+    padding: 16px 24px;
     background-color: rgba(248, 250, 252, 0.5);
     display: flex;
     justify-content: space-between;
@@ -132,7 +132,7 @@
 
 .mo-meta-group {
     display: flex;
-    gap: 40px;
+    gap: 24px;
 }
 
 .mo-meta-item p:first-child {
@@ -198,15 +198,15 @@
 
 /* --- Card Body --- */
 .mo-card-body {
-    padding: 32px;
+    padding: 20px 24px;
     display: flex;
-    gap: 32px;
+    gap: 24px;
 }
 
 .mo-item-img-box {
-    width: 144px;
-    height: 144px;
-    border-radius: 24px;
+    width: 100px;
+    height: 100px;
+    border-radius: 16px;
     background-color: #f3f4f6;
     overflow: hidden;
     flex-shrink: 0;
@@ -250,17 +250,17 @@
 }
 
 .mo-item-name {
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 800;
     color: #1e293b;
     margin: 0 0 4px 0;
 }
 
 .mo-item-meta {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: #94a3b8;
-    margin: 0 0 32px 0;
+    margin: 0 0 16px 0;
 }
 
 .mo-action-buttons {
@@ -273,9 +273,9 @@
     background-color: #ff6d2e;
     color: #ffffff;
     border: none;
-    padding: 12px 24px;
-    border-radius: 12px;
-    font-size: 11px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 10px;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -287,9 +287,9 @@
     background-color: #f8fafc;
     color: #475569;
     border: 1px solid #f1f5f9;
-    padding: 12px 24px;
-    border-radius: 12px;
-    font-size: 11px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 10px;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.05em;
