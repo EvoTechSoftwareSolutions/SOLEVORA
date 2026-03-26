@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import '../../styles/user/Category.css';
@@ -9,11 +9,15 @@ const Category = () => {
     const [loading, setLoading] = useState(true);
     const { addToCart } = useCart();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const categoryName = queryParams.get('type') || 'All';
 
     useEffect(() => {
         const fetchProducts = async () => {
+            setLoading(true);
             try {
-                const response = await fetch('http://localhost:5000/api/products');
+                const response = await fetch(`http://localhost:5000/api/products?category=${categoryName}`);
                 const data = await response.json();
                 setProducts(data);
             } catch (error) {
@@ -24,7 +28,7 @@ const Category = () => {
         };
 
         fetchProducts();
-    }, []);
+    }, [categoryName]);
 
     if (loading) {
         return (
@@ -41,8 +45,8 @@ const Category = () => {
         <div className="category-page">
             <div className="category-container">
                 <div className="category-header">
-                    <h1>Exclusive Collection</h1>
-                    <p>Discover our range of premium footwear designed for comfort and performance.</p>
+                    <h1>{categoryName === 'All' ? 'Exclusive Collection' : `${categoryName} Collection`}</h1>
+                    <p>Discover our range of premium {categoryName === 'All' ? 'footwear' : categoryName.toLowerCase()} designed for comfort and performance.</p>
                 </div>
 
                 <div className="product-grid">

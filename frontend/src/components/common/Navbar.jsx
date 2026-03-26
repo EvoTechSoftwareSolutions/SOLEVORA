@@ -4,19 +4,20 @@ import logo from '../../assets/logo.png';
 import './Navbar.css';
 
 const Navbar = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const location = useLocation();
+    const [menuOpen, setMenuOpen] = useState(false);
+    const location = useLocation();
 
-  const handleToggle = () => setMenuOpen(!menuOpen);
+    const handleToggle = () => setMenuOpen(!menuOpen);
 
-  const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
 
-  return (
-    <header className="header-main">
-      <nav className="nav-container container">
-        <Link to="/" className="nav-logo-link">
-          <img src={logo} alt="SoleVoro Logo" className="nav-logo-img" />
-        </Link>
+    return (
+        <header className="header-main">
+            <nav className="nav-container container">
+                <Link to="/" className="nav-logo-link">
+                    <img src={logo} alt="SoleVora Logo" className="nav-logo-img" />
+                </Link>
 
         <nav className={`nav-menu ${menuOpen ? 'mobile-active' : ''}`}>
           <Link to="/" className={`nav-link ${location.pathname === '/' || location.pathname === '/home' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>Home</Link>

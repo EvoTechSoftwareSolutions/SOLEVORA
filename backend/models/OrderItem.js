@@ -36,10 +36,10 @@ const OrderItem = sequelize.define('OrderItem', {
     tableName: 'order_items'
 });
 
-OrderItem.belongsTo(Order, { foreignKey: 'orderId' });
-Order.hasMany(OrderItem, { foreignKey: 'orderId' });
+OrderItem.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
+Order.hasMany(OrderItem, { foreignKey: 'orderId', as: 'items' });
 
-OrderItem.belongsTo(Product, { foreignKey: 'productId' });
-Product.hasMany(OrderItem, { foreignKey: 'productId' });
+OrderItem.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+Product.hasMany(OrderItem, { foreignKey: 'productId', as: 'items' });
 
 export default OrderItem;

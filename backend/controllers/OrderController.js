@@ -5,14 +5,22 @@ import Product from '../models/Product.js';
 export const createOrder = async (req, res) => {
     try {
         const { total_amount, shipping_address, contact_number, email, userId, items } = req.body;
-        const order = await Order.create({ total_amount, status: 'pending', shipping_address, contact_number, email, userId });
+        const normalizedEmail = email ? email.trim().toLowerCase() : null;
+        const order = await Order.create({ 
+            total_amount, 
+            status: 'pending', 
+            shipping_address, 
+            contact_number, 
+            email: normalizedEmail, 
+            userId 
+        });
         
         if (items && items.length > 0) {
             const orderItems = items.map(item => ({
                 orderId: order.id,
                 productId: item.productId,
                 quantity: item.quantity,
-                price: item.price,
+                price_at_purchase: item.price,
                 size: item.size
             }));
             await OrderItem.bulkCreate(orderItems);
@@ -46,15 +54,32 @@ export const getOrderById = async (req, res) => {
 
 export const getOrdersByEmail = async (req, res) => {
     try {
-        const { email } = req.query;
+        let { email } = req.query;
         if (!email) return res.status(400).json({ message: 'Email is required' });
         
+        email = email.trim().toLowerCase();
+
         const orders = await Order.findAll({
-            where: { email },
+            where: Order.sequelize.where(
+                Order.sequelize.fn('TRIM', Order.sequelize.col('email')),
+                email
+            ),
             include: [{ model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }],
             order: [['createdAt', 'DESC']]
         });
         res.status(200).json(orders);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const updateOrderStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        
+        await Order.update({ status }, { where: { id } });
+        res.status(200).json({ message: 'Order status updated successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

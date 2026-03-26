@@ -1,22 +1,21 @@
-/* =============================================
-   Footer Component Styles
-   ============================================= */
-
+/* Footer Premium Styles */
 .footer-area {
   margin-top: auto;
   font-family: 'Inter', sans-serif;
+  background-color: #111111;
+  color: #ffffff;
 }
 
 .footer-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 60px;
+  padding: 0 40px;
 }
 
 /* --- Newsletter Strip --- */
 .footer-newsletter {
   background-color: #1a1a1a;
-  padding: 60px 0;
+  padding: 40px 0;
   border-bottom: 1px solid #2a2a2a;
 }
 
@@ -31,7 +30,7 @@
   color: #ffffff;
   font-size: 28px;
   font-weight: 800;
-  margin-bottom: 8px;
+  margin: 0 0 8px;
   letter-spacing: -0.02em;
 }
 
@@ -50,12 +49,6 @@
   width: 100%;             
   max-width: 440px;        
   padding: 4px;
-  transition: all 0.3s ease;
-}
-
-.newsletter-form:focus-within {
-  background-color: #ffffff;
-  box-shadow: 0 0 0 4px rgba(255, 109, 46, 0.15);
 }
 
 .newsletter-form input {
@@ -86,62 +79,57 @@
 
 .newsletter-submit:hover {
   background-color: #e85c1e;
-  transform: scale(1.05);
-}
-
-.newsletter-submit .material-symbols-outlined {
-  font-size: 20px;
 }
 
 /* --- Main Footer Section --- */
 .footer-main-section {
-  background-color: #111111;
-  padding-top: 80px;
-  padding-bottom: 40px;
+  padding: 60px 0 30px;
 }
 
 .main-footer-row {
   display: flex;
   justify-content: space-between;
-  gap: 80px;
-  margin-bottom: 60px;
+  gap: 60px;
+  margin-bottom: 40px;
 }
 
 .footer-brand-col {
   flex: 1;
-  max-width: 320px;
+  max-width: 300px;
 }
 
 .footer-logo img {
-  height: 90px;
+  height: 75px;
   width: auto;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  display: block;
+  filter: brightness(0) invert(1);
 }
 
 .brand-description {
   color: #94a3b8;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.6;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .footer-contact-info {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .contact-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   color: #94a3b8;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .icon-orange {
   color: #ff6d2e !important;
-  font-size: 20px !important;
+  font-size: 18px !important;
 }
 
 /* --- Links Columns --- */
@@ -153,29 +141,28 @@
 
 .link-column h4 {
   color: #ffffff;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .link-column a {
   display: block;
   color: #94a3b8;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 13px;
   margin-bottom: 12px;
-  transition: all 0.2s ease;
+  transition: color 0.2s;
 }
 
 .link-column a:hover {
   color: #ff6d2e;
-  transform: translateX(4px);
 }
 
 /* --- Legal Bar --- */
 .legal-bar {
-  border-top: 1px solid #1e293b;
-  padding-top: 30px;
+  border-top: 1px solid #2a2a2a;
+  padding-top: 24px;
   display: flex;
   justify-content: flex-end;
 }
@@ -183,23 +170,18 @@
 .legal-links {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
 }
 
 .legal-links a {
   color: #64748b;
   text-decoration: none;
-  font-size: 13px;
-  transition: color 0.2s;
+  font-size: 12px;
 }
 
-.legal-links a:hover {
-  color: #ff6d2e;
-}
-
-.legal-links .dot {
-  width: 5px;
-  height: 5px;
+.dot {
+  width: 4px;
+  height: 4px;
   background-color: #334155;
   border-radius: 50%;
 }
@@ -207,7 +189,7 @@
 /* --- Bottom Bar --- */
 .footer-bottom-bar {
   background-color: #0b0b0b;
-  padding: 24px 0;
+  padding: 16px 0;
   border-top: 1px solid #1a1a1a;
 }
 
@@ -218,24 +200,22 @@
 }
 
 .copyright {
-  color: #64748b;
-  font-size: 13px;
+  color: #475569;
+  font-size: 12px;
   margin: 0;
 }
 
 .social-links {
   display: flex;
-  gap: 20px;
+  gap: 16px;
 }
 
 .social-links a {
   color: #64748b;
-  transition: all 0.2s ease;
 }
 
 .social-links a:hover {
   color: #ff6d2e;
-  transform: translateY(-3px);
 }
 
 /* --- Responsive --- */
@@ -261,34 +241,16 @@
     gap: 60px;
   }
 
-  .footer-brand-col {
-    max-width: 100%;
-  }
-
   .footer-links-grid {
     width: 100%;
   }
 }
 
 @media (max-width: 768px) {
-  .footer-container {
-    padding: 0 24px;
-  }
-
   .footer-links-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 40px;
-  }
-
-  .legal-bar {
-    justify-content: center;
-  }
-
-  .bottom-row {
-    flex-direction: column;
-    gap: 20px;
-    text-align: center;
   }
 }
 
