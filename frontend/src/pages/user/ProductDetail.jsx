@@ -65,18 +65,26 @@ function ProductDetail() {
                             <img src={mainImage || product.image_url} alt={product.name} />
                         </div>
                         <div className="thumb-strip">
-                            <div className={`thumb-box ${mainImage === product.image_url ? 'active' : ''}`} onClick={() => setMainImage(product.image_url)}>
-                                <img src={product.image_url} alt="Main view" />
-                            </div>
-                            <div className="thumb-box" onClick={() => setMainImage("https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a")}>
-                                <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a" alt="Side view" />
-                            </div>
-                            <div className="thumb-box" onClick={() => setMainImage("https://images.unsplash.com/photo-1600185365483-26d7a4cc7519")}>
-                                <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519" alt="Alternate view" />
-                            </div>
-                            <div className="thumb-box" onClick={() => setMainImage("https://images.unsplash.com/photo-1512374382149-4332c6c02d51")}>
-                                <img src="https://images.unsplash.com/photo-1512374382149-4332c6c02d51" alt="Bottom view" />
-                            </div>
+                            {product.image_url && (
+                                <div className={`thumb-box ${mainImage === product.image_url ? 'active' : ''}`} onClick={() => setMainImage(product.image_url)}>
+                                    <img src={product.image_url} alt="Main view" />
+                                </div>
+                            )}
+                            {product.image_url_2 && (
+                                <div className={`thumb-box ${mainImage === product.image_url_2 ? 'active' : ''}`} onClick={() => setMainImage(product.image_url_2)}>
+                                    <img src={product.image_url_2} alt="Side view" />
+                                </div>
+                            )}
+                            {product.image_url_3 && (
+                                <div className={`thumb-box ${mainImage === product.image_url_3 ? 'active' : ''}`} onClick={() => setMainImage(product.image_url_3)}>
+                                    <img src={product.image_url_3} alt="Alternate view" />
+                                </div>
+                            )}
+                            {product.image_url_4 && (
+                                <div className={`thumb-box ${mainImage === product.image_url_4 ? 'active' : ''}`} onClick={() => setMainImage(product.image_url_4)}>
+                                    <img src={product.image_url_4} alt="Bottom view" />
+                                </div>
+                            )}
                         </div>
                     </div>
 

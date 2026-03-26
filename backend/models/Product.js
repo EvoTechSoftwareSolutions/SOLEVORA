@@ -28,6 +28,18 @@ const Product = sequelize.define('Product', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    image_url_2: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    image_url_3: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    image_url_4: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     categoryId: {
         type: DataTypes.BIGINT,
         references: {

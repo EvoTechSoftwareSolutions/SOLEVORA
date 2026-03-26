@@ -8,7 +8,7 @@ const UserLayout = lazy(() => import('../layouts/UserLayout/UserLayout'));
 // Pages
 const Home = lazy(() => import('../pages/user/Home'));
 const ProductDetail = lazy(() => import('../pages/user/ProductDetail'));
-const Category = lazy(() => import('../pages/user/Category'));
+const Category = lazy(() => import('../pages/CategoryPage'));
 const Cart = lazy(() => import('../pages/user/Cart'));
 const ShippingInformation = lazy(() => import('../pages/user/ShippingInformation'));
 const SizeChart = lazy(() => import('../pages/user/SizeChart'));

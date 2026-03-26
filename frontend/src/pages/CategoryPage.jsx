@@ -133,13 +133,13 @@ function CategoryPage() {
           "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]", 
           "bg-[#dfdfdf]", "bg-[#efe8e0]", "bg-[#dcd0c2]", "bg-[#ffb0b0]"
         ];
-
+        const fallbackImages = [product1, product2, product3, product4, product5, product6, product7, product8, product9];
         const formatted = data.map((p, index) => ({
           id: p.id,
-          category: p.Category?.name || "Uncategorized",
+          category: p.category?.name || "Uncategorized",
           name: p.name,
           price: parseFloat(p.price) || 0,
-          image: p.image_url || product1,
+          image: p.image_url || fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
           gender: "All", 
           sizes: ["6", "7", "8", "9", "10"],

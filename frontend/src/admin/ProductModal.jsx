@@ -10,7 +10,10 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         price: '',
         stock_quantity: '',
         categoryId: '',
-        image_url: ''
+        image_url: '',
+        image_url_2: '',
+        image_url_3: '',
+        image_url_4: ''
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -27,7 +30,10 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                     price: product.price || '',
                     stock_quantity: product.stock_quantity || '',
                     categoryId: product.categoryId || '',
-                    image_url: product.image_url || ''
+                    image_url: product.image_url || '',
+                    image_url_2: product.image_url_2 || '',
+                    image_url_3: product.image_url_3 || '',
+                    image_url_4: product.image_url_4 || ''
                 });
             } else {
                 setFormData({
@@ -36,7 +42,10 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                     price: '',
                     stock_quantity: '',
                     categoryId: '',
-                    image_url: ''
+                    image_url: '',
+                    image_url_2: '',
+                    image_url_3: '',
+                    image_url_4: ''
                 });
             }
         }
@@ -184,7 +193,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
 
                         {/* Image URL */}
                         <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL</label>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Main Image URL</label>
                             <input 
                                 type="text"
                                 name="image_url"
@@ -193,6 +202,20 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                                 placeholder="https://unsplash.com/..."
                                 className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
                             />
+                        </div>
+
+                        {/* Additional Image URLs */}
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL 2</label>
+                            <input type="text" name="image_url_2" value={formData.image_url_2} onChange={handleChange} placeholder="Optional secondary image URL" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL 3</label>
+                            <input type="text" name="image_url_3" value={formData.image_url_3} onChange={handleChange} placeholder="Optional third image URL" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL 4</label>
+                            <input type="text" name="image_url_4" value={formData.image_url_4} onChange={handleChange} placeholder="Optional fourth image URL" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
                         </div>
 
                         {/* Description */}
