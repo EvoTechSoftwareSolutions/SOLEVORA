@@ -1,9 +1,42 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import forgotImage from "../assets/shoe.png";
+import { HiOutlineMail } from "react-icons/hi";
 import "./Auth.css";
 
 function ForgotPassword() {
   const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    
+    if (!email) {
+      setMessage("Please enter your email address");
+      return;
+    }
+
+    try {
+      const res = await axios.post("http://localhost:5000/forgot-password", {
+        email,
+      });
+
+      setMessage(res.data.message);
+
+      setTimeout(() => {
+        navigate("/check-email");
+      }, 1000);
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        setMessage(error.response.data.message);
+      } else {
+        setMessage("Something went wrong");
+      }
+    }
+  };
 
   return (
     <div className="auth-container">
@@ -38,25 +71,34 @@ function ForgotPassword() {
             send you a link to reset it.
           </p>
 
-          <form style={{marginTop: "2rem"}}>
+          <form onSubmit={handleForgotPassword}>
             <div className="auth-form-group">
               <label className="auth-label">Email Address</label>
               <div className="auth-input-wrapper">
+                <HiOutlineMail className="auth-icon" />
                 <input
                   type="email"
                   placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="auth-input"
+                  required
                 />
               </div>
             </div>
 
             <button
-              type="button"
-              onClick={() => navigate("/check-email")}
+              type="submit"
               className="auth-submit-btn"
             >
               Send Reset Link →
             </button>
+
+            {message && (
+              <p className={message.toLowerCase().includes("wrong") || message.toLowerCase().includes("error") ? "auth-error" : "text-sm text-center text-blue-600 mt-4"}>
+                {message}
+              </p>
+            )}
           </form>
 
           <Link to="/" className="auth-link-back">
@@ -74,4 +116,4 @@ function ForgotPassword() {
   );
 }
 
-export default ForgotPassword;
+export default ForgotPassword;

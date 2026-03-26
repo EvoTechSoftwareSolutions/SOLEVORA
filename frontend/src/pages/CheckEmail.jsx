@@ -27,12 +27,12 @@ function CheckEmail() {
         </div>
       </div>
 
-      {/* Right Side */}
-      <div className="auth-right-panel">
-        <div className="auth-form-wrapper">
-          <div className="auth-check-icon">
-            <HiOutlineMailOpen />
-          </div>
+        {/* Right Side */}
+        <div className="w-full md:w-[62%] bg-[#f5f5f5] flex items-center justify-center px-6 md:px-20 py-14">
+          <div className="w-full max-w-md">
+            <div className="w-20 h-20 rounded-full bg-[#fdf0e9] flex items-center justify-center">
+              <HiOutlineMailOpen className="text-4xl text-orange-500" />
+            </div>
 
           <h2 className="auth-title">
             Check your email
@@ -44,12 +44,14 @@ function CheckEmail() {
             password.
           </p>
 
-          <Link to="/reset-password" className="auth-submit-btn" style={{textDecoration: "none"}}>
-            Create New Password →
-          </Link>
-          
-          <div style={{marginTop: "2rem", textAlign: "center"}}>
-            <p style={{color: "#64748b", fontSize: "1rem"}}>
+            <Link
+              to="/"
+              className="flex items-center justify-center w-full h-16 text-xl font-semibold text-white transition bg-orange-500 mt-14 rounded-2xl hover:bg-orange-600"
+            >
+              Back to Login →
+            </Link>
+
+            <p className="mt-8 text-base text-[#6a5d57]">
               Didn&apos;t receive the email?{" "}
               <span style={{fontWeight: "600", color: "#f97316", cursor: "pointer"}}>
                 Resend Email
