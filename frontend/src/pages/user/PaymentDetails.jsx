@@ -7,7 +7,7 @@ import '../../styles/user/PaymentDetails.css';
 
 const PaymentDetails = () => {
     const navigate = useNavigate();
-    const { cart, cartTotal, checkoutData, clearCart } = useCart();
+    const { selectedCart: cart, selectedCartTotal: cartTotal, checkoutData, clearCart, removeFromCart } = useCart();
 
     const [paymentMethod, setPaymentMethod] = useState('creditcard');
     const [promoCode, setPromoCode] = useState('');
@@ -30,8 +30,7 @@ const PaymentDetails = () => {
     const grossTotal = cartTotal;
     const promoDiscount = promoApplied ? grossTotal * 0.1 : 0;
     const shippingCharge = 0;
-    const estimatedTax = grossTotal * 0.08;
-    const total = grossTotal - promoDiscount + shippingCharge + estimatedTax;
+    const total = grossTotal - promoDiscount + shippingCharge;
 
     const handleApplyPromo = () => {
         if (promoCode.trim().toLowerCase() === 'save10') setPromoApplied(true);
@@ -68,7 +67,8 @@ const PaymentDetails = () => {
             const response = await axios.post('http://localhost:5000/api/orders', orderPayload);
             const orderData = response.data;
             const currentItems = [...cart];
-            clearCart();
+            // Clear only the checked out items
+            currentItems.forEach(item => removeFromCart(item.id, item.size));
             navigate('/order-confirmation', { state: { orderId: orderData.id, items: currentItems, paymentMethod: 'cod' } });
         } catch (error) {
             console.error('Error placing COD order:', error);
@@ -127,7 +127,8 @@ const PaymentDetails = () => {
             window.payhere.onCompleted = function onCompleted(orderId) {
                 console.log("Payment completed. OrderID:" + orderId);
                 const currentItems = [...cart];
-                clearCart();
+                // Clear only the checked out items
+                currentItems.forEach(item => removeFromCart(item.id, item.size));
                 navigate('/order-confirmation', { state: { orderId: orderId, items: currentItems, paymentMethod: 'creditcard' } });
             };
 
@@ -319,10 +320,6 @@ const PaymentDetails = () => {
                                     <span className="pd-total-val">-${promoDiscount.toFixed(2)}</span>
                                 </div>
                             )}
-                            <div className="pd-total-row">
-                                <span className="pd-total-key">Tax (8%)</span>
-                                <span className="pd-total-val">${estimatedTax.toFixed(2)}</span>
-                            </div>
                             <div className="pd-total-final">
                                 <span className="pd-final-label">Total Amount</span>
                                 <span className="pd-final-amount">${total.toFixed(2)}</span>

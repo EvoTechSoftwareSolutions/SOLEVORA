@@ -1,16 +1,24 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import { useAdminAuth } from '../context/AdminAuthContext';
 import './AdminLayout.css';
 
 // This acts as the master "shell" for the whole admin area
 const AdminLayout = () => {
+    const { adminUser, roleName } = useAdminAuth();
+
+    // Generate initials for avatar fallback
+    const initials = adminUser?.name
+        ? adminUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+        : 'AD';
+
     return (
         <div className="admin-layout-container">
             {/* The sidebar is rendered here and NEVER unmounts during navigation */}
             <Sidebar />
 
             <div className="admin-main-wrapper">
-                {/* Extracted Shared Header (Proper Navigation) */}
+                {/* Extracted Shared Header */}
                 <header className="admin-top-header">
                     <div className="admin-header-left">
                         <div className="admin-header-search">
@@ -25,11 +33,13 @@ const AdminLayout = () => {
                         </button>
                         <div className="admin-user-info">
                             <div className="admin-user-text">
-                                <div className="admin-user-name">Marcus Veridi</div>
-                                <div className="admin-user-role">Store Admin</div>
+                                <div className="admin-user-name">{adminUser?.name || 'Admin'}</div>
+                                <div className={`admin-user-role ${adminUser?.role === 'admin' ? 'role-admin' : 'role-manager'}`}>
+                                    {roleName || 'Staff'}
+                                </div>
                             </div>
                             <div className="admin-user-avatar">
-                                <img src="https://randomuser.me/api/portraits/men/85.jpg" alt="User Avatar" />
+                                <div className="admin-avatar-initials">{initials}</div>
                             </div>
                         </div>
                     </div>

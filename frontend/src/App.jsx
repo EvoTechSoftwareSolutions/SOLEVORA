@@ -18,6 +18,7 @@ import OrderConfirmation from "./pages/user/OrderConfirmation";
 
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
+import { AdminAuthProvider } from './context/AdminAuthContext';
 import './App.css';
 
 /**
@@ -28,35 +29,37 @@ import './App.css';
 function App() {
   return (
     <BrowserRouter>
-      <WishlistProvider>
-        <CartProvider>
-          <Suspense fallback={<div className="global-loader">Loading...</div>}>
-            <Routes>
-              {/* User Facing Module (Shopper Pages) */}
-              {UserRoutes}
+      <AdminAuthProvider>
+        <WishlistProvider>
+          <CartProvider>
+            <Suspense fallback={<div className="global-loader">Loading...</div>}>
+              <Routes>
+                {/* User Facing Module (Shopper Pages) */}
+                {UserRoutes}
 
-              {/* Admin Dashboard Module (Back-office Management) */}
-              {AdminRoutes}
+                {/* Admin Dashboard Module (Back-office Management) */}
+                {AdminRoutes}
 
-              {/* User Profile Module (Authenticated Customer Dashboard) */}
-              {ProfileRoutes}
+                {/* User Profile Module (Authenticated Customer Dashboard) */}
+                {ProfileRoutes}
 
-              {/* Authentication Routes */}
-              <Route path="/" element={<Login />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/check-email" element={<CheckEmail />} />
-              <Route path="/reset-password/:token?" element={<ResetPassword />} />
-              <Route path="/reset-success" element={<ResetSuccess />} />
-              <Route path="/logout" element={<Logout />} />
-              <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                {/* Authentication Routes */}
+                <Route path="/" element={<Login />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/check-email" element={<CheckEmail />} />
+                <Route path="/reset-password/:token?" element={<ResetPassword />} />
+                <Route path="/reset-success" element={<ResetSuccess />} />
+                <Route path="/logout" element={<Logout />} />
+                <Route path="/order-confirmation" element={<OrderConfirmation />} />
 
-              {/* Default Route: Redirect to Home or a 404 Page */}
-            </Routes>
-          </Suspense>
-        </CartProvider>
-      </WishlistProvider>
+                {/* Default Route: Redirect to Home or a 404 Page */}
+              </Routes>
+            </Suspense>
+          </CartProvider>
+        </WishlistProvider>
+      </AdminAuthProvider>
     </BrowserRouter>
   );
 }

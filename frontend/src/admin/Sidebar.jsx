@@ -1,10 +1,13 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAdminAuth } from '../context/AdminAuthContext';
 import logo from '../assets/logo.png';
 import './Sidebar.css';
 
 const Sidebar = () => {
     const location = useLocation();
+    const navigate = useNavigate();
+    const { isAdmin, logout } = useAdminAuth();
     const currentPath = location.pathname;
 
     const isTabActive = (pathName) => {
@@ -13,10 +16,15 @@ const Sidebar = () => {
         return '';
     };
 
+    const handleLogout = () => {
+        logout();
+        navigate('/admin-login', { replace: true });
+    };
+
     return (
         <div className="app-sidebar">
             <div className="app-sidebar-logo">
-                <img src={logo} alt="SoleVoro Logo" style={{ width: '100%', maxWidth: '130px', height: 'auto', display: 'block', margin: '0 auto', marginTop: '-15px' }} />
+                <img src={logo} alt="SoleVora Logo" style={{ width: '100%', maxWidth: '130px', height: 'auto', display: 'block', margin: '0 auto', marginTop: '-15px' }} />
             </div>
 
             <div className="app-nav-items">
@@ -79,17 +87,30 @@ const Sidebar = () => {
                 </Link>
             </div>
 
+            {/* SYSTEM section — Settings only for admin */}
             <div className="app-system-label">SYSTEM</div>
             <div className="app-nav-items app-system-items">
-                <Link to="/admin/settings" style={{ textDecoration: 'none' }}>
-                    <div className={`app-nav-item ${isTabActive('/admin/settings')}`}>
-                        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                        Settings
-                    </div>
-                </Link>
+                {isAdmin && (
+                    <Link to="/admin/settings" style={{ textDecoration: 'none' }}>
+                        <div className={`app-nav-item ${isTabActive('/admin/settings')}`}>
+                            <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                            Settings
+                        </div>
+                    </Link>
+                )}
+
+                {/* Logout */}
+                <div className="app-nav-item app-nav-logout" onClick={handleLogout}>
+                    <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Logout
+                </div>
             </div>
         </div>
     );

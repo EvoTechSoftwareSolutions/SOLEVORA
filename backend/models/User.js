@@ -20,6 +20,11 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    role: {
+        type: DataTypes.ENUM('admin', 'store_manager', 'customer'),
+        defaultValue: 'customer',
+        allowNull: false
+    },
     phone: {
         type: DataTypes.STRING,
         allowNull: true
@@ -39,6 +44,10 @@ const User = sequelize.define('User', {
     usageReports: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+    },
+    lastLogin: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 }, {
     timestamps: true

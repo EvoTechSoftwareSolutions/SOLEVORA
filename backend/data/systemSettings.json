@@ -1,0 +1,14 @@
+{
+  "storeName": "SoleVora",
+  "storeEmail": "admin@solevora.com",
+  "storePhone": "01111233456",
+  "storeCurrency": "LKR",
+  "maxOrdersPerDay": 500,
+  "lowStockThreshold": 20,
+  "maintenanceMode": false,
+  "allowGuestCheckout": true,
+  "taxRate": 0,
+  "shippingFee": 350,
+  "freeShippingThreshold": 5000,
+  "updatedAt": "2026-03-27T03:47:25.181Z"
+}

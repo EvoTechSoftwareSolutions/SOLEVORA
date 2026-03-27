@@ -2,9 +2,10 @@
 
 .admin-layout-container {
     display: flex; 
-    min-height: 100vh; 
+    height: 100vh; 
     width: 100%;
     background-color: #f7f9fb;
+    overflow: hidden;
 }
 
 .admin-main-wrapper {
@@ -18,6 +19,7 @@
 /* Shared Top Header (Extracted from pages) */
 .admin-top-header {
     height: 70px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -109,8 +111,17 @@
 
 .admin-user-role {
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     color: #888;
+    letter-spacing: 0.3px;
+}
+
+.admin-user-role.role-admin {
+    color: #7c3aed;
+}
+
+.admin-user-role.role-manager {
+    color: #059669;
 }
 
 .admin-user-avatar {
@@ -126,6 +137,20 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.admin-avatar-initials {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f66d3b, #f97316);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.5px;
 }
 
 /* Page Content Wrap */

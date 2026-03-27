@@ -88,7 +88,7 @@ function Login() {
     <div className="auth-container">
       {/* Near-invisible Admin Entry */}
       <div 
-        onClick={() => navigate('/admin')}
+        onClick={() => navigate('/admin-login')}
         style={{
           position: "fixed",
           bottom: "12px",

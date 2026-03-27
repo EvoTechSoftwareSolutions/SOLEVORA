@@ -26,11 +26,11 @@ export const CartProvider = ({ children }) => {
             if (existingItem) {
                 return prevCart.map(item => 
                     (item.id === product.id && item.size === size)
-                    ? { ...item, quantity: item.quantity + 1 }
+                    ? { ...item, quantity: item.quantity + 1, selected: true }
                     : item
                 );
             }
-            return [...prevCart, { ...product, size, quantity: 1 }];
+            return [...prevCart, { ...product, size, quantity: 1, selected: true }];
         });
         showToast(`${product.name} (Size: ${size}) added to your cart!`);
     };
@@ -49,6 +49,20 @@ export const CartProvider = ({ children }) => {
                 : item
             )
         );
+    };
+
+    const toggleItemSelection = (productId, size) => {
+        setCart(prevCart => 
+            prevCart.map(item => 
+                (item.id === productId && item.size === size)
+                ? { ...item, selected: item.selected === false ? true : false }
+                : item
+            )
+        );
+    };
+
+    const toggleAllSelection = (isSelected) => {
+        setCart(prevCart => prevCart.map(item => ({ ...item, selected: isSelected })));
     };
 
     const [checkoutData, setCheckoutData] = useState({
@@ -82,10 +96,14 @@ export const CartProvider = ({ children }) => {
     const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
     const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
+    const selectedCart = cart.filter(item => item.selected !== false);
+    const selectedCartTotal = selectedCart.reduce((total, item) => total + item.price * item.quantity, 0);
+
     return (
         <CartContext.Provider value={{ 
             cart, addToCart, removeFromCart, updateQuantity, clearCart, 
-            cartTotal, cartCount, checkoutData, updateCheckoutData, showToast
+            toggleItemSelection, toggleAllSelection,
+            cartTotal, cartCount, selectedCart, selectedCartTotal, checkoutData, updateCheckoutData, showToast
         }}>
             {children}
             {toast && (

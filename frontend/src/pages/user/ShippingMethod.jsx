@@ -6,7 +6,7 @@ import '../../styles/user/ShippingMethod.css';
 
 const ShippingMethod = () => {
   const navigate = useNavigate();
-  const { cart, cartTotal, updateCheckoutData } = useCart();
+  const { selectedCart: cart, selectedCartTotal: cartTotal, updateCheckoutData } = useCart();
   const [selectedMethod, setSelectedMethod] = useState('standard');
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
@@ -28,8 +28,7 @@ const ShippingMethod = () => {
   const promoDiscount = promoApplied ? grossTotal * 0.1 : 0;
   const currentShippingObj = shippingMethods.find(m => m.id === selectedMethod);
   const currentShipping = currentShippingObj?.price || 0;
-  const estimatedTax = grossTotal * 0.08;
-  const total = grossTotal - promoDiscount + currentShipping + estimatedTax;
+  const total = grossTotal - promoDiscount + currentShipping;
 
   const handleApplyPromo = () => {
     if (promoCode.trim().toLowerCase() === 'save10') setPromoApplied(true);
@@ -194,10 +193,6 @@ const ShippingMethod = () => {
                 <span className="sm-free">
                   {currentShipping === 0 ? 'Free' : `$${currentShipping.toFixed(2)}`}
                 </span>
-              </div>
-              <div className="sm-total-row">
-                <span className="sm-total-key">Estimated Tax</span>
-                <span className="sm-total-val">${estimatedTax.toFixed(2)}</span>
               </div>
               {/* Bold Total */}
               <div className="sm-total-final">

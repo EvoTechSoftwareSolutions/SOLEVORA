@@ -7,10 +7,7 @@ import 'swiper/css';
 import '../../styles/user/Cart.css';
 
 const Cart = () => {
-  const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
-  
-  // Selected item ids for checkout selection. Default: select all.
-  const [selectedItemIds, setSelectedItemIds] = useState(() => new Set(cart.map((i) => `${i.id}-${i.size}`)));
+  const { cart, removeFromCart, updateQuantity, toggleItemSelection, toggleAllSelection } = useCart();
 
   const recommendedProducts = [
     { id: 101, name: 'Air Max 90', brand: 'Nike', price: 130, image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop' },
@@ -18,27 +15,20 @@ const Cart = () => {
     { id: 103, name: '550 Vintage', brand: 'New Balance', price: 180, image: 'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&h=400&fit=crop' }
   ];
 
-  const selectedItems = cart.filter((item) => selectedItemIds.has(`${item.id}-${item.size}`));
+  const selectedItems = cart.filter((item) => item.selected !== false);
   const selectedSubtotal = selectedItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const shipping = selectedItems.length ? 15.0 : 0.0;
-  const tax = selectedSubtotal * 0.08;
-  const total = selectedSubtotal + shipping + tax;
+  const total = selectedSubtotal + shipping;
 
-  const allSelected = cart.length > 0 && selectedItemIds.size === cart.length;
+  const allSelected = cart.length > 0 && selectedItems.length === cart.length;
 
   const handleToggleAll = (e) => {
-    const shouldSelectAll = e.target.checked;
-    setSelectedItemIds(new Set(shouldSelectAll ? cart.map((i) => `${i.id}-${i.size}`) : []));
+    toggleAllSelection(e.target.checked);
   };
 
-  const handleToggleItem = (key) => {
-    setSelectedItemIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
+  const handleToggleItem = (item) => {
+    toggleItemSelection(item.id, item.size);
   };
 
   if (cart.length === 0) {
@@ -83,8 +73,8 @@ const Cart = () => {
                 <div className="item-check">
                     <input
                       type="checkbox"
-                      checked={selectedItemIds.has(`${item.id}-${item.size}`)}
-                      onChange={() => handleToggleItem(`${item.id}-${item.size}`)}
+                      checked={item.selected !== false}
+                      onChange={() => handleToggleItem(item)}
                     />
                 </div>
                 <div className="item-image">
@@ -135,10 +125,6 @@ const Cart = () => {
             <div className="summary-row">
               <span className="label">Estimated Shipping</span>
               <span className="value">${shipping.toFixed(2)}</span>
-            </div>
-            <div className="summary-row">
-              <span className="label">Tax (8%)</span>
-              <span className="value">${tax.toFixed(2)}</span>
             </div>
             <div className="summary-total">
               <span className="label">Total</span>

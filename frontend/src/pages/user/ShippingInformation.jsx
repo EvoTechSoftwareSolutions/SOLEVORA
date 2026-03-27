@@ -6,7 +6,7 @@ import '../../styles/user/ShippingInformation.css';
 
 const ShippingInformation = () => {
   const navigate = useNavigate();
-  const { cart, cartTotal, checkoutData, updateCheckoutData } = useCart();
+  const { selectedCart: cart, selectedCartTotal: cartTotal, checkoutData, updateCheckoutData } = useCart();
   
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
@@ -38,8 +38,7 @@ const ShippingInformation = () => {
 
   const grossTotal = cartTotal;
   const promoDiscount = promoApplied ? grossTotal * 0.1 : 0; // 10% discount for example
-  const estimatedTax = grossTotal * 0.08;
-  const total = grossTotal - promoDiscount + estimatedTax;
+  const total = grossTotal - promoDiscount;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -283,10 +282,6 @@ const ShippingInformation = () => {
               <div className="si-total-row">
                 <span className="si-total-key">Shipping</span>
                 <span className="si-free">Free</span>
-              </div>
-              <div className="si-total-row">
-                <span className="si-total-key">Estimated Tax</span>
-                <span className="si-total-val">${estimatedTax.toFixed(2)}</span>
               </div>
               {/* Bold Total */}
               <div className="si-total-final">

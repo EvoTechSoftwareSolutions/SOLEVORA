@@ -50,12 +50,17 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
+        // Update last login timestamp
+        user.lastLogin = new Date();
+        await user.save();
+
         res.json({
             message: "Login successful",
             user: {
                 id: user.id,
                 name: user.name,
                 email: user.email,
+                role: user.role,
                 phone: user.phone || '',
                 location: user.location || '',
                 newsletter: user.newsletter,
@@ -68,6 +73,44 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ message: "Login failed" });
     }
 });
+
+// Admin / Store Manager Login Route
+// Only users with role 'admin' or 'store_manager' can access the dashboard
+router.post('/admin-login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ where: { email, password } });
+        if (!user) {
+            return res.status(401).json({ message: "Invalid email or password" });
+        }
+
+        if (!['admin', 'store_manager'].includes(user.role)) {
+            return res.status(403).json({ message: "Access denied. You do not have permission to access the admin panel." });
+        }
+
+        // Track last login
+        user.lastLogin = new Date();
+        await user.save();
+
+        res.json({
+            message: "Admin login successful",
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                phone: user.phone || '',
+                location: user.location || '',
+                lastLogin: user.lastLogin
+            }
+        });
+    } catch (error) {
+        console.error("Admin login error:", error);
+        res.status(500).json({ message: "Admin login failed" });
+    }
+});
+
 
 // Get User Profile
 router.get('/user/:id', async (req, res) => {
