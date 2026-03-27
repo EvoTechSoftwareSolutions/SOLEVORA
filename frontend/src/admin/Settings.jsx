@@ -216,10 +216,6 @@ const Settings = () => {
                                     </select>
                                 </div>
                                 <div className="st-field">
-                                    <label>Tax Rate (%)</label>
-                                    <input type="number" min="0" max="100" step="0.1" value={settings.taxRate ?? 0} onChange={e => setSettings(p => ({ ...p, taxRate: parseFloat(e.target.value) }))} />
-                                </div>
-                                <div className="st-field">
                                     <label>Low Stock Alert Threshold</label>
                                     <input type="number" min="1" value={settings.lowStockThreshold ?? 20} onChange={e => setSettings(p => ({ ...p, lowStockThreshold: parseInt(e.target.value) }))} />
                                 </div>

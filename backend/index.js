@@ -11,6 +11,7 @@ import OrderItem from './models/OrderItem.js';
 import User from './models/User.js';
 import Address from './models/Address.js';
 import Wishlist from './models/Wishlist.js';
+import Review from './models/Review.js';
 
 // Import Routes
 import productRoutes from './routes/productRoutes.js';
@@ -21,6 +22,7 @@ import addressRoutes from './routes/addressRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 
 dotenv.config();
 
@@ -39,6 +41,7 @@ app.use('/api/addresses', addressRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/reviews', reviewRoutes);
 // The frontend calls these endpoints at the root (e.g. /register, not /api/register)
 app.use('/', authRoutes);
 
