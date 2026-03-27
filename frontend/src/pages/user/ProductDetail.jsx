@@ -13,6 +13,19 @@ function ProductDetail() {
     const [selectedSize, setSelectedSize] = useState('9.0');
     const [activeTab, setActiveTab] = useState('description');
     const [mainImage, setMainImage] = useState('');
+    
+    // Reviews state
+    const [reviews, setReviews] = useState([]);
+    const [submittingReview, setSubmittingReview] = useState(false);
+    const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
+    const [reviewMsg, setReviewMsg] = useState({ text: '', type: '' });
+
+    const user = (() => {
+        try {
+            const u = localStorage.getItem('user');
+            return u ? JSON.parse(u) : null;
+        } catch { return null; }
+    })();
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -22,6 +35,8 @@ function ProductDetail() {
                 if (response.ok) {
                     setProduct(data);
                     setMainImage(data.image_url);
+                    // Fetch reviews too
+                    fetchReviews(id);
                 } else {
                     console.error('Product not found');
                 }
@@ -34,6 +49,52 @@ function ProductDetail() {
 
         fetchProduct();
     }, [id]);
+
+    const fetchReviews = async (productId) => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/reviews/${productId}`);
+            const data = await res.json();
+            if (res.ok) setReviews(data);
+        } catch (err) { console.error('Error loading reviews:', err); }
+    };
+
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+        if (!user) {
+            setReviewMsg({ text: 'Please sign in to leave a review.', type: 'error' });
+            return;
+        }
+        if (!newReview.comment.trim()) {
+            setReviewMsg({ text: 'Please write a comment first.', type: 'error' });
+            return;
+        }
+
+        setSubmittingReview(true);
+        try {
+            const res = await fetch('http://localhost:5000/api/reviews', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...newReview,
+                    userId: user.id,
+                    productId: id
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setReviews([data.review, ...reviews]);
+                setNewReview({ rating: 5, comment: '' });
+                setReviewMsg({ text: 'Thank you! Your review has been posted.', type: 'success' });
+            } else {
+                setReviewMsg({ text: data.message || 'Error submitting review.', type: 'error' });
+            }
+        } catch (err) {
+            setReviewMsg({ text: 'Could not reach the server.', type: 'error' });
+        } finally {
+            setSubmittingReview(false);
+            setTimeout(() => setReviewMsg({ text: '', type: '' }), 4000);
+        }
+    };
 
     if (loading) {
         return <div style={{ padding: '100px', textAlign: 'center' }}>Loading...</div>;
@@ -94,13 +155,11 @@ function ProductDetail() {
                             <h1>{product.name}</h1>
                             <div className="rating-row">
                                 <div className="stars">
-                                    <span className="material-symbols-outlined fill">star</span>
-                                    <span className="material-symbols-outlined fill">star</span>
-                                    <span className="material-symbols-outlined fill">star</span>
-                                    <span className="material-symbols-outlined fill">star</span>
-                                    <span className="material-symbols-outlined">star</span>
+                                    {[1, 2, 3, 4, 5].map(star => (
+                                        <span key={star} className={`material-symbols-outlined ${reviews.length > 0 && star <= Math.round(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length) ? 'fill' : ''}`}>star</span>
+                                    ))}
                                 </div>
-                                <span className="review-count">(128 reviews)</span>
+                                <span className="review-count">({reviews.length} reviews)</span>
                             </div>
                         </div>
 
@@ -170,7 +229,7 @@ function ProductDetail() {
                     <div className="tabs-nav">
                         <button className={activeTab === 'description' ? 'active' : ''} onClick={() => setActiveTab('description')}>Description</button>
                         <button className={activeTab === 'specifications' ? 'active' : ''} onClick={() => setActiveTab('specifications')}>Specifications</button>
-                        <button className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}>Reviews (128)</button>
+                        <button className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}>Reviews ({reviews.length})</button>
                     </div>
 
                     <div className="tab-pane-outer">
@@ -218,22 +277,77 @@ function ProductDetail() {
                             )}
 
                             {activeTab === 'reviews' && (
-                                <div className="reviews-list">
-                                    <div className="review-card">
-                                        <div className="r-header">
-                                            <div className="stars">
-                                                <span className="material-symbols-outlined fill">star</span>
-                                                <span className="material-symbols-outlined fill">star</span>
-                                                <span className="material-symbols-outlined fill">star</span>
-                                                <span className="material-symbols-outlined fill">star</span>
-                                                <span className="material-symbols-outlined fill">star</span>
+                                <div className="reviews-tab-content">
+                                    <div className="reviews-list">
+                                        {reviews.length > 0 ? (
+                                            reviews.map(review => (
+                                                <div key={review.id} className="review-card">
+                                                    <div className="r-header">
+                                                        <div className="stars">
+                                                            {[1,2,3,4,5].map(s => (
+                                                                <span key={s} className={`material-symbols-outlined ${s <= review.rating ? 'fill' : ''}`}>star</span>
+                                                            ))}
+                                                        </div>
+                                                        <span className="r-user">{review.user?.name || 'Anonymous User'}</span>
+                                                        <span className="r-date">{new Date(review.createdAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                    <p>"{review.comment}"</p>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div style={{ padding: '40px 0', color: '#888' }}>
+                                                No reviews yet. Be the first to review this product!
                                             </div>
-                                            <span className="r-user">Alex G.</span>
-                                            <span className="r-date">Oct 12, 2023</span>
-                                        </div>
-                                        <p>"Absolutely amazing. Best running shoes I've ever owned. Worth every penny!"</p>
+                                        )}
                                     </div>
-                                    <button className="load-more-btn">Load More Reviews</button>
+
+                                    {/* Add Review Form */}
+                                    <div className="add-review-section">
+                                        <h3>Submit Your Review</h3>
+                                        {!user ? (
+                                            <div className="review-login-prompt">
+                                                <p>Log in to share your experience with this product.</p>
+                                                <Link to="/login" className="login-link-btn">Sign In to Review</Link>
+                                            </div>
+                                        ) : (
+                                            <form onSubmit={handleReviewSubmit} className="review-form">
+                                                {reviewMsg.text && (
+                                                    <div className={`review-msg ${reviewMsg.type}`}>{reviewMsg.text}</div>
+                                                )}
+                                                
+                                                <div className="rating-input">
+                                                    <label>Your Rating</label>
+                                                    <div className="star-input-group">
+                                                        {[1,2,3,4,5].map(val => (
+                                                            <button 
+                                                                key={val}
+                                                                type="button"
+                                                                className={`star-btn ${newReview.rating >= val ? 'active' : ''}`}
+                                                                onClick={() => setNewReview(p => ({ ...p, rating: val }))}
+                                                            >
+                                                                <span className="material-symbols-outlined">star</span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <div className="comment-input">
+                                                    <label>Your Review</label>
+                                                    <textarea 
+                                                        rows="4"
+                                                        placeholder="What did you like or dislike?"
+                                                        value={newReview.comment}
+                                                        onChange={e => setNewReview(p => ({ ...p, comment: e.target.value }))}
+                                                        disabled={submittingReview}
+                                                    ></textarea>
+                                                </div>
+
+                                                <button type="submit" className="submit-review-btn" disabled={submittingReview}>
+                                                    {submittingReview ? 'Posting...' : 'Post Review'}
+                                                </button>
+                                            </form>
+                                        )}
+                                    </div>
                                 </div>
                             )}
                         </div>

@@ -31,8 +31,7 @@ const OrderConfirmation = () => {
 
   const orderedItems = items || [];
   const subtotal = orderedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const estimatedTax = subtotal * 0.08;
-  const total = subtotal + estimatedTax;
+  const total = subtotal;
 
   const isCOD = paymentMethod === 'cod';
 
@@ -119,10 +118,6 @@ const OrderConfirmation = () => {
               <div className="oc-total-row">
                 <span className="oc-total-key">Shipping</span>
                 <span className="oc-total-val-green">Free</span>
-              </div>
-              <div className="oc-total-row">
-                <span className="oc-total-key">Estimated Tax (8%)</span>
-                <span className="oc-total-val">${estimatedTax.toFixed(2)}</span>
               </div>
               <div className="oc-grand-total">
                 <span className="oc-grand-label">{isCOD ? 'Amount Due on Delivery' : 'Total'}</span>
