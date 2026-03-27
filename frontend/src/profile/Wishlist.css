@@ -1,6 +1,6 @@
 /* Wishlist Styles */
 .wl-container {
-    padding: 40px;
+    padding:  0 2.5rem;
     background-color: #f8fafc;
     min-height: 100%;
 }
@@ -15,7 +15,7 @@
 }
 
 .wl-title-section h2 {
-    font-size: 36px;
+    font-size: 2rem;
     font-weight: 800;
     color: #0f172a;
     margin: 0 0 8px 0;
@@ -25,6 +25,7 @@
 .wl-title-section p {
     color: #64748b;
     font-weight: 500;
+    font-size: 14px;
     margin: 0;
 }
 
@@ -36,7 +37,7 @@
 
 .wl-search-box {
     position: relative;
-    width: 320px;
+    width: 260px;
 }
 
 .wl-search-icon {
@@ -81,7 +82,7 @@
     border: none;
     border-radius: 16px;
     font-size: 14px;
-    font-weight: 900;
+    font-weight: 600;
     cursor: pointer;
     box-shadow: 0 10px 15px -3px rgba(255, 109, 46, 0.3);
 }
@@ -94,12 +95,13 @@
 }
 
 .wl-card {
-    background-color: #ffffff;
-    border-radius: 40px;
-    padding: 16px;
+    background-color: #1a1a1a;
+    border-radius: 16px;
+    padding: 10px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     transition: all 0.3s;
     position: relative;
+    max-width: 260px;
 }
 
 .wl-card:hover {
@@ -117,23 +119,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #ffffff;
+    background-color: red;
     border-radius: 9999px;
-    border: 1px solid #f8fafc;
-    color: #cbd5e1;
+    color: #000;
     cursor: pointer;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     transition: all 0.2s;
 }
 
 .wl-remove-btn:hover {
-    color: #ef4444;
+    color: #fff;
 }
 
 /* --- Card Image --- */
 .wl-img-box {
     aspect-ratio: 4/3;
-    border-radius: 32px;
+    border-radius: 15px 15px 0 0;
     overflow: hidden;
     background-color: #f3f4f6;
     position: relative;
@@ -147,9 +148,7 @@
     transition: transform 0.7s;
 }
 
-.wl-card:hover .wl-img-box img {
-    transform: scale(1.1);
-}
+
 
 .wl-sold-out-overlay {
     position: absolute;
@@ -166,7 +165,7 @@
     padding: 10px 20px;
     border-radius: 12px;
     font-size: 11px;
-    font-weight: 900;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.2em;
 }
@@ -179,7 +178,7 @@
     background-color: rgba(255,255,255,0.9);
     border-radius: 9999px;
     font-size: 9px;
-    font-weight: 900;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     display: flex;
@@ -207,22 +206,22 @@
 
 .wl-info-header h3 {
     font-size: 20px;
-    font-weight: 800;
-    color: #1e293b;
+    font-weight: 700;
+    color: #fff;
     margin: 0;
     line-height: 1.2;
 }
 
 .wl-price {
     font-size: 18px;
-    font-weight: 900;
+    font-weight: 700;
     color: #ff6d2e;
     margin: 0;
 }
 
 .wl-color-text {
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 600;
     color: #94a3b8;
     margin: 0 0 24px 0;
 }
@@ -239,9 +238,9 @@
     color: #ffffff;
     border: none;
     border-radius: 16px;
-    font-size: 11px;
-    font-weight: 900;
-    text-transform: uppercase;
+    font-size: 14px;
+    font-weight:600;
+    text-transform:capitalize;
     letter-spacing: 0.1em;
     cursor: pointer;
     box-shadow: 0 10px 15px -3px rgba(255, 109, 46, 0.2);
@@ -305,4 +304,206 @@
     color: #94a3b8;
     font-style: italic;
     margin: 0;
+}
+/* =========================================
+   📱 RESPONSIVE BREAKPOINTS
+========================================= */
+
+/* -------- Large Tablet (≤1024px) -------- */
+@media (max-width: 1024px) {
+    .wl-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .wl-header-actions {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .wl-search-box {
+        width: 100%;
+    }
+}
+
+/* -------- Tablet (≤768px) -------- */
+@media (max-width: 768px) {
+
+    .wl-container {
+        padding: 0 1.5rem;
+    }
+
+    .wl-title-section h2 {
+        font-size: 1.6rem;
+    }
+
+    .wl-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+    }
+
+    .wl-share-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+}
+
+/* -------- Mobile (≤480px) -------- */
+@media (max-width: 480px) {
+
+    .wl-container {
+        padding: 0 1rem;
+    }
+
+    .wl-title-section h2 {
+        font-size: 1.4rem;
+    }
+
+    .wl-title-section p {
+        font-size: 12px;
+    }
+
+    .wl-header-actions {
+        gap: 10px;
+    }
+
+    .wl-search-input {
+        padding: 10px 14px 10px 40px;
+        font-size: 13px;
+    }
+
+    .wl-notify-btn {
+        width: 42px;
+        height: 42px;
+    }
+
+    .wl-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .wl-card {
+        border-radius: 28px;
+    }
+
+    .wl-img-box {
+        border-radius: 20px 20px 0 0;
+    }
+
+    .wl-info-header h3 {
+        font-size: 16px;
+    }
+
+    .wl-price {
+        font-size: 15px;
+    }
+}
+
+/* -------- Small Mobile (≤350px) -------- */
+@media (max-width: 350px) {
+
+    .wl-title-section h2 {
+        font-size: 1.2rem;
+    }
+
+    .wl-search-box {
+        width: 100%;
+    }
+
+    .wl-share-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .wl-header-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .wl-add-cart-btn,
+    .wl-notify-me-btn {
+        font-size: 11px;
+        padding: 10px;
+    }
+
+    .wl-remove-btn {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* -------- Ultra Small (≤260px) 🔥 -------- */
+@media (max-width: 260px) {
+
+    .wl-container {
+        padding: 0 0.5rem;
+    }
+
+    .wl-title-section h2 {
+        font-size: 1rem;
+    }
+
+    .wl-title-section p {
+        font-size: 10px;
+    }
+
+    .wl-search-input {
+        padding: 8px 10px 8px 32px;
+        font-size: 11px;
+    }
+
+    .wl-search-icon {
+        left: 8px;
+        font-size: 16px;
+    }
+
+    .wl-card {
+        padding: 6px;
+        border-radius: 20px;
+    }
+
+    .wl-img-box {
+        margin-bottom: 12px;
+    }
+
+    .wl-info-header h3 {
+        font-size: 13px;
+    }
+
+    .wl-price {
+        font-size: 12px;
+    }
+
+    .wl-color-text {
+        font-size: 10px;
+        margin-bottom: 12px;
+    }
+
+    .wl-add-cart-btn,
+    .wl-notify-me-btn {
+        font-size: 9px;
+        padding: 8px;
+        gap: 6px;
+    }
+
+    .wl-add-cart-btn .material-symbols-outlined,
+    .wl-notify-me-btn .material-symbols-outlined {
+        font-size: 14px;
+    }
+
+    .wl-footer {
+        gap: 12px;
+    }
+
+    .wl-load-more-btn {
+        padding: 8px 16px;
+        font-size: 10px;
+    }
+
+    .wl-footer-text {
+        font-size: 10px;
+        text-align: center;
+    }
 }
