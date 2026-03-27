@@ -1,4 +1,7 @@
 import React from 'react';
+import { useState } from 'react';
+
+import { MdGridView,MdLogout , MdOutlineShoppingBag , MdFavoriteBorder , MdOutlineSettings , MdOutlineLocationOn, MdPerson  } from "react-icons/md";
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
@@ -6,7 +9,7 @@ import './ProfileLayout.css';
 
 const ProfileLayout = () => {
     const location = useLocation();
-
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     return (
         <div className="profile-layout-wrapper">
             <Navbar />
@@ -38,37 +41,38 @@ const ProfileLayout = () => {
                         </div>
 
                         {/* Sidebar Links */}
-                        <nav className="sidebar-nav">
-                            <Link to="/profile/dashboard" className={`sidebar-link ${location.pathname === '/profile/dashboard' ? 'active' : ''}`}>
-                                <span className="material-symbols-outlined">grid_view</span>
-                                <span>Dashboard</span>
-                            </Link>
+                    <nav className="sidebar-nav">
+    <Link to="/profile/dashboard" className={`sidebar-link ${location.pathname === '/profile/dashboard' ? 'active' : ''}`}>
+        <MdGridView className="sidebar-icon" />
+        <span className='sidebar-text'>Dashboard</span>
+    </Link>
 
-                            <Link to="/profile/orders" className={`sidebar-link ${location.pathname === '/profile/orders' ? 'active' : ''}`}>
-                                <span className="material-symbols-outlined">shopping_bag</span>
-                                <span>My Orders</span>
-                            </Link>
+    <Link to="/profile/orders" className={`sidebar-link ${location.pathname === '/profile/orders' ? 'active' : ''}`}>
+        <MdOutlineShoppingBag  className="sidebar-icon" />
+        <span className='sidebar-text'>My Orders</span>
+    </Link>
+  <Link to="/profile/wishlist" className={`sidebar-link ${location.pathname === '/profile/wishlist' ? 'active' : ''}`}>
+        <MdFavoriteBorder  className="sidebar-icon" />
+<span className='sidebar-text'>Wishlist</span>   
+ </Link>
 
-                            <Link to="/profile/wishlist" className={`sidebar-link ${location.pathname === '/profile/wishlist' ? 'active' : ''}`}>
-                                <span className="material-symbols-outlined">favorite</span>
-                                <span>Wishlist</span>
-                            </Link>
+      
+    <Link to="/profile/account" className={`sidebar-link ${location.pathname === '/profile/account' ? 'active' : ''}`}>
+        <MdOutlineSettings  className="sidebar-icon" />
+        <span className='sidebar-text'>Account Settings</span>
+    </Link>
 
-                            <Link to="/profile/account" className={`sidebar-link ${location.pathname === '/profile/account' ? 'active' : ''}`}>
-                                <span className="material-symbols-outlined">settings_applications</span>
-                                <span>Account Settings</span>
-                            </Link>
+    <Link to="/profile/addresses" className={`sidebar-link ${location.pathname === '/profile/addresses' ? 'active' : ''}`}>
+        <MdOutlineLocationOn  className="sidebar-icon" />
+        <span className='sidebar-text'>Addresses</span>
+    </Link>
+   
+</nav>
 
-                            <Link to="/profile/addresses" className={`sidebar-link ${location.pathname === '/profile/addresses' ? 'active' : ''}`}>
-                                <span className="material-symbols-outlined">location_on</span>
-                                <span>Addresses</span>
-                            </Link>
-                        </nav>
-
-                        <div className="sidebar-bottom-section">
+                        <div className="sidebar-bottom-section bottom">
                             <Link to="/logout" className="logout-link">
-                                <span className="material-symbols-outlined">logout</span>
-                                <span>Logout</span>
+                                 <MdLogout   className="sidebar-icon" />
+                                <span className='sidebar-text'>Logout</span>
                             </Link>
                         </div>
                     </div>
@@ -93,7 +97,7 @@ const ProfileLayout = () => {
                 </main>
             </div>
 
-            <Footer />
+           
         </div>
     );
 };
