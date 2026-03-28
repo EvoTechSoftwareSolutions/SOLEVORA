@@ -4,7 +4,7 @@
    ============================================= */
 
 .addr-container {
-    padding: 2.5rem;
+    padding:  0 2.5rem;
     background-color: #f8f6f5;
     min-height: 100%;
     font-family: 'Inter', sans-serif;
@@ -17,12 +17,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     gap: 1.5rem;
 }
 
 .addr-title-box h2 {
-    font-size: 2.25rem;
+    font-size: 2rem;
     font-weight: 800;
     color: #0f172a;
     margin: 0 0 0.5rem 0;
@@ -33,7 +33,7 @@
     color: #94a3b8;
     font-weight: 500;
     margin: 0;
-    font-size: 0.9375rem;
+    font-size: 13px;
 }
 
 .addr-add-btn {
@@ -423,5 +423,154 @@
 @media (min-width: 1024px) {
     .addr-grid {
         grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+
+@media (max-width: 260px) {
+
+    .addr-container {
+        padding: 0 0.5rem;
+    }
+
+    /* Header */
+    .addr-title-box h2 {
+        font-size: 1.1rem;
+        line-height: 1.2;
+    }
+
+    .addr-title-box p {
+        font-size: 0.65rem;
+    }
+
+    .addr-add-btn {
+        width: 100%;
+        justify-content: center;
+        font-size: 0.7rem;
+        padding: 0.5rem;
+    }
+
+    .addr-add-btn span {
+        font-size: 1rem;
+    }
+
+    /* Card */
+    .addr-card {
+        border-radius: 0.8rem;
+    }
+
+    .addr-card-inner {
+        padding: 0.8rem;
+    }
+
+    .addr-card-heading {
+        font-size: 0.85rem;
+    }
+
+    .addr-card-heading-icon {
+        font-size: 1rem;
+    }
+
+    .addr-line {
+        font-size: 0.7rem;
+    }
+
+    .addr-phone {
+        font-size: 0.7rem;
+    }
+
+    .addr-phone span {
+        font-size: 0.9rem;
+    }
+
+    /* Default badge */
+    .addr-default-badge {
+        font-size: 0.5rem;
+        padding: 2px 6px;
+        top: 0.5rem;
+        right: 0.5rem;
+    }
+
+    .addr-default-badge span {
+        font-size: 0.7rem;
+    }
+
+    /* Footer */
+    .addr-card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.6rem 0.8rem;
+    }
+
+    .addr-primary-shipping,
+    .addr-set-default-link {
+        font-size: 0.6rem;
+    }
+
+    .addr-footer-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .addr-action-btn {
+        width: 1.6rem;
+        height: 1.6rem;
+    }
+
+    /* Add placeholder */
+    .addr-add-icon-wrap {
+        width: 2.2rem;
+        height: 2.2rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .addr-add-icon-wrap span {
+        font-size: 1.2rem;
+    }
+
+    .addr-add-placeholder h3 {
+        font-size: 0.8rem;
+    }
+
+    .addr-add-placeholder p {
+        font-size: 0.65rem;
+    }
+
+    /* Help Section */
+    .addr-help-section {
+        padding: 0.8rem;
+        gap: 0.6rem;
+    }
+
+    .addr-help-icon {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .addr-help-icon span {
+        font-size: 1rem;
+    }
+
+    .addr-help-section h4 {
+        font-size: 0.8rem;
+    }
+
+    .addr-help-section p {
+        font-size: 0.7rem;
+    }
+
+    .addr-help-btn {
+        width: 100%;
+        font-size: 0.7rem;
+        padding: 0.5rem;
+        text-align: center;
+    }
+
+    /* Footer */
+    .addr-footer p {
+        font-size: 0.65rem;
+        line-height: 1.3;
     }
 }
