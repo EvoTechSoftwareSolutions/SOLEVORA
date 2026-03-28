@@ -373,6 +373,7 @@
   color: #1a1a1a;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   transition: box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .si-promo-input::placeholder { color: #b0a49a; }
@@ -395,6 +396,7 @@
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.2s, transform 0.15s;
+  box-sizing: border-box;
 }
 
 .si-promo-btn:hover {
@@ -404,12 +406,12 @@
 
 /* ── Price Breakdown ── */
 .si-totals {
-  border-top: 1.5px solid rgba(0,0,0,0.07);
-  padding-top: 16px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding-top: 8px;
   display: flex;
   flex-direction: column;
-  gap: 11px;
-  margin-bottom: 20px;
+  gap: 4px;
+  margin-bottom: 14px;
 }
 
 .si-total-row {
@@ -513,18 +515,29 @@
     gap: 20px;
   }
   .si-promo {
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
   }
+  .si-promo-input,
   .si-promo-btn {
-    width: 100%;
+    height: 46px;
   }
 }
 
 @media (max-width: 768px) {
+  .si-container {
+    padding: 0 12px;
+  }
   .si-grid {
     grid-template-columns: 1fr 240px;
     gap: 16px;
+  }
+  .si-promo {
+    flex-direction: column;
+  }
+  .si-promo-input,
+  .si-promo-btn {
+    width: 100%;
   }
   .si-summary-card {
     padding: 16px;
@@ -532,7 +545,12 @@
 }
 
 @media (max-width: 480px) {
-  .si-page { padding-top: 20px; }
+  .si-page { padding: 0; }
+  .si-container { padding: 0 10px; }
+  .si-grid {
+    grid-template-columns: 1fr 200px;
+    gap: 12px;
+  }
   .si-summary-title { font-size: 16px; }
   .si-item-card {
     min-width: 130px;
@@ -610,14 +628,15 @@
   .si-promo-input,
   .si-promo-btn {
     width: 100% !important;
-    height: 40px;
-    font-size: 11px;
-    padding: 0 8px;
+    height: 44px;
+    font-size: 13px;
+    padding: 0 12px;
     box-sizing: border-box;
+    border-radius: 8px;
   }
   
   .si-promo-btn {
-    padding: 0 8px;
+    padding: 0 12px;
   }
   
   .si-total-row {
@@ -716,8 +735,9 @@
   
   .si-promo-input,
   .si-promo-btn {
-    height: 38px;
-    font-size: 10px;
+    height: 42px;
+    font-size: 11px;
+    border-radius: 6px;
   }
   
   .si-promo-btn {
@@ -829,8 +849,10 @@
   
   .si-promo-input,
   .si-promo-btn {
-    height: 40px;
-    font-size: 11px;
+    height: 44px;
+    font-size: 13px;
+    box-sizing: border-box;
+    border-radius: 8px;
   }
   
   .si-promo-btn {
@@ -942,8 +964,10 @@
   
   .si-promo-input,
   .si-promo-btn {
-    height: 36px;
-    font-size: 10px;
+    height: 42px;
+    font-size: 12px;
+    box-sizing: border-box;
+    border-radius: 6px;
   }
   
   .si-promo-btn {

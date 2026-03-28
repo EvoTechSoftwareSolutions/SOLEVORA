@@ -466,6 +466,7 @@
   color: #1a1a1a;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   transition: box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .pd-promo-input::placeholder { color: #b0a49a; }
@@ -488,6 +489,7 @@
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.2s, transform 0.15s;
+  box-sizing: border-box;
 }
 
 .pd-promo-btn:hover {
@@ -497,20 +499,19 @@
 
 /* ── Price Breakdown (Same as Cart) ── */
 .pd-totals {
-  display: flex;
-  flex-direction: column;
-  gap: 8px; /* Reduced gap between rows */
-  margin-bottom: 24px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  padding-top: 12px;
+  margin-bottom: 18px;
 }
 
 .pd-total-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 4px; /* Even smaller margin */
+  margin-bottom: 2px;
   font-size: 13px;
   font-weight: 600;
   color: #4a3f38;
-  line-height: 1.4; /* Tighter line height */
+  line-height: 1.2;
 }
 
 .pd-total-final {
@@ -604,30 +605,31 @@
 /* Responsive */
 @media (max-width: 1024px) {
   .pd-container {
-    padding: 0 20px;
+    padding: 0;
+    max-width: 100%;
   }
   
   .pd-page {
-    padding: 24px 0 60px;
+    padding: 0;
   }
   
   .pd-grid {
-    gap: 30px;
+    gap: 20px;
   }
   
   .pd-summary-card {
-    padding: 20px 16px;
-    border-radius: 14px;
+    padding: 18px 14px;
+    border-radius: 12px;
   }
   
   .pd-summary-title {
-    font-size: 16px;
-    margin-bottom: 14px;
+    font-size: 15px;
+    margin-bottom: 12px;
   }
   
   .pd-item-card {
-    min-width: 160px;
-    max-width: 170px;
+    min-width: 150px;
+    max-width: 160px;
   }
   
   .pd-item-img-wrap {
@@ -636,7 +638,7 @@
   }
   
   .pd-item-name {
-    font-size: 11px;
+    font-size: 10.5px;
   }
   
   .pd-item-variant {
@@ -644,19 +646,20 @@
   }
   
   .pd-item-price {
-    font-size: 14px;
+    font-size: 13px;
   }
   
   .pd-total-row {
-    font-size: 12.5px;
+    font-size: 9px;
+    margin-bottom: 2px;
   }
   
   .pd-final-label {
-    font-size: 15px;
+    font-size: 14px;
   }
   
   .pd-final-amount {
-    font-size: 17px;
+    font-size: 16px;
   }
   
   .pd-place-order-btn {
@@ -667,44 +670,44 @@
 
 @media (max-width: 768px) {
   .pd-container {
-    padding: 0 15px;
+    padding: 0 12px;
   }
   
   .pd-page {
-    padding: 20px 0 50px;
+    padding: 0;
   }
   
   .pd-breadcrumb {
-    font-size: 12px;
-    margin-bottom: 20px;
+    font-size: 11px;
+    margin-bottom: 15px;
   }
   
   .pd-stepper-wrap {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
   }
   
   .pd-circle {
-    width: 32px;
-    height: 32px;
-    font-size: 13px;
-  }
-  
-  .pd-step-lbl {
-    font-size: 10px;
-  }
-  
-  .pd-connector {
-    margin: 0 8px;
-    margin-bottom: 18px;
-  }
-  
-  .pd-step-desc {
+    width: 28px;
+    height: 28px;
     font-size: 12px;
   }
   
+  .pd-step-lbl {
+    font-size: 9px;
+  }
+  
+  .pd-connector {
+    margin: 0 6px;
+    margin-bottom: 16px;
+  }
+  
+  .pd-step-desc {
+    font-size: 11px;
+  }
+  
   .pd-grid {
-    grid-template-columns: 1fr;
-    gap: 25px;
+    grid-template-columns: 1fr 240px;
+    gap: 15px;
   }
   
   .pd-content-col {
@@ -712,18 +715,18 @@
   }
   
   .pd-page-title {
-    font-size: 18px;
-    margin-bottom: 6px;
+    font-size: 16px;
+    margin-bottom: 4px;
   }
   
   .pd-page-subtitle {
-    font-size: 12px;
-    margin-bottom: 24px;
+    font-size: 11px;
+    margin-bottom: 20px;
   }
   
   .pd-section-title {
-    font-size: 13px;
-    margin-bottom: 12px;
+    font-size: 12px;
+    margin-bottom: 10px;
   }
   
   /* Mobile Payment Methods */
@@ -734,20 +737,20 @@
   }
   
   .pd-method-card {
-    padding: 16px 12px;
-    min-height: 85px;
+    padding: 12px 10px;
+    min-height: 75px;
   }
   
   .pd-method-icon {
-    font-size: 22px;
+    font-size: 20px;
   }
   
   .pd-method-sub {
-    font-size: 9px;
+    font-size: 8px;
   }
   
   .pd-method-name {
-    font-size: 12px;
+    font-size: 11px;
   }
   
   /* Mobile Form */
@@ -807,9 +810,10 @@
   
   /* Mobile Order Summary (Same as Cart) */
   .pd-summary-card {
-    position: static;
-    padding: 24px;
-    border-radius: 16px;
+    position: sticky;
+    top: 20px;
+    padding: 12px 10px;
+    border-radius: 12px;
     margin-bottom: 20px;
     background-color: #fde8cc;
   }
@@ -845,38 +849,48 @@
   }
   
   .pd-item-name {
-    font-size: 11px;
-    line-height: 1.2;
+    font-size: 10px;
+    line-height: 1.1;
   }
   
   .pd-item-variant {
-    font-size: 10px;
+    font-size: 9px;
   }
   
   .pd-item-qty-lbl {
-    font-size: 11px;
+    font-size: 10px;
   }
   
   .pd-item-price {
-    font-size: 13px;
+    font-size: 12px;
   }
   
   /* Mobile Promo */
   .pd-promo {
-    gap: 6px;
+    flex-direction: column;
+    gap: 8px;
     margin-bottom: 18px;
   }
   
+  .pd-promo-input,
+  .pd-promo-btn {
+    width: 100%;
+  }
+  
   .pd-promo-input {
-    height: 42px;
+    height: 40px;
     padding: 0 12px;
-    font-size: 12px;
+    font-size: 11px;
+    box-sizing: border-box;
+    border-radius: 6px;
   }
   
   .pd-promo-btn {
-    height: 42px;
-    padding: 0 18px;
-    font-size: 12px;
+    height: 40px;
+    padding: 0 16px;
+    font-size: 11px;
+    box-sizing: border-box;
+    border-radius: 6px;
   }
   
   /* Mobile Totals (Same as Cart) */
@@ -886,9 +900,9 @@
   }
   
   .pd-total-row {
-    font-size: 12px;
-    margin-bottom: 16px;
-    padding: 8px 0;
+    font-size: 10.5px;
+    margin-bottom: 4px;
+    padding: 1px 0;
   }
   
   .pd-total-key {
@@ -911,11 +925,11 @@
   }
   
   .pd-final-label {
-    font-size: 18px;
+    font-size: 15px;
   }
   
   .pd-final-amount {
-    font-size: 18px;
+    font-size: 16px;
   }
   
   /* Mobile Place Order Button (Same as Cart) */
@@ -953,175 +967,142 @@
 
 @media (max-width: 480px) {
   .pd-container {
-    padding: 0 12px;
+    padding: 0 10px;
   }
   
   .pd-page {
-    padding: 16px 0 40px;
+    padding: 0;
   }
   
   .pd-breadcrumb {
-    font-size: 11px;
-    margin-bottom: 16px;
+    font-size: 10px;
+    margin-bottom: 14px;
   }
   
   .pd-stepper-wrap {
-    margin-bottom: 24px;
-  }
-  
-  .pd-circle {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
-  }
-  
-  .pd-step-lbl {
-    font-size: 9px;
-  }
-  
-  .pd-connector {
-    margin: 0 6px;
-    margin-bottom: 16px;
-  }
-  
-  .pd-step-desc {
-    font-size: 11px;
-  }
-  
-  .pd-page-title {
-    font-size: 16px;
-  }
-  
-  .pd-page-subtitle {
-    font-size: 11px;
     margin-bottom: 20px;
   }
   
+  .pd-circle {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+  
+  .pd-step-lbl {
+    font-size: 8px;
+  }
+  
+  .pd-connector {
+    margin: 0 4px;
+    margin-bottom: 14px;
+  }
+  
+  .pd-step-desc {
+    font-size: 10px;
+  }
+  
+  .pd-page-title {
+    font-size: 14px;
+  }
+  
+  .pd-page-subtitle {
+    font-size: 10px;
+    margin-bottom: 16px;
+  }
+  
   .pd-section-title {
-    font-size: 12px;
-    margin-bottom: 10px;
+    font-size: 11px;
+    margin-bottom: 8px;
   }
   
   /* Small Mobile Payment Methods */
   .pd-methods-grid {
-    gap: 8px;
-    margin-bottom: 20px;
+    gap: 6px;
+    margin-bottom: 16px;
   }
   
   .pd-method-card {
-    padding: 14px 10px;
-    min-height: 75px;
+    padding: 10px 8px;
+    min-height: 65px;
   }
   
   .pd-method-icon {
-    font-size: 20px;
-  }
-  
-  .pd-method-sub {
-    font-size: 8px;
+    font-size: 18px;
   }
   
   .pd-method-name {
-    font-size: 11px;
+    font-size: 9px;
   }
   
   /* Small Mobile Form */
   .pd-form-card {
-    padding: 16px;
+    padding: 14px;
   }
   
   .pd-input {
-    height: 38px;
-    padding: 0 10px;
-    font-size: 11px;
+    height: 36px;
+    padding: 0 8px;
+    font-size: 10px;
   }
   
-  .pd-input-icon {
-    right: 10px;
-    font-size: 16px;
+  .pd-grid {
+    grid-template-columns: 1fr 140px;
+    gap: 8px;
   }
-  
-  .pd-form-row {
-    gap: 10px;
-  }
-  
-  /* Small Mobile Summary (Same as Cart) */
+
+  /* Small Mobile Summary */
   .pd-summary-card {
-    padding: 16px;
+    padding: 8px 5px;
+    position: sticky;
+    top: 10px;
   }
   
   .pd-summary-title {
-    font-size: 15px;
+    font-size: 13px;
+    margin-bottom: 12px;
   }
   
   .pd-item-card {
-    min-width: 120px;
-    max-width: 130px;
-  }
-  
-  .pd-item-img-wrap {
-    width: 44px;
-    height: 40px;
-  }
-  
-  .pd-qty-badge {
-    width: 16px;
-    height: 16px;
-    font-size: 8px;
-    top: -5px;
-    left: -5px;
+    min-width: 100px;
+    max-width: 120px;
   }
   
   .pd-item-name {
-    font-size: 10px;
-  }
-  
-  .pd-item-variant {
     font-size: 9px;
-  }
-  
-  .pd-item-qty-lbl {
-    font-size: 10px;
   }
   
   .pd-item-price {
-    font-size: 12px;
+    font-size: 10px;
   }
   
   .pd-promo-input {
-    height: 40px;
-    font-size: 11px;
+    height: 38px;
+    font-size: 10px;
+    border-radius: 4px;
   }
   
   .pd-promo-btn {
-    height: 40px;
-    padding: 0 16px;
-    font-size: 11px;
+    height: 38px;
+    font-size: 10px;
+    border-radius: 4px;
   }
   
   .pd-total-row {
-    font-size: 11px;
+    font-size: 9px;
+    margin-bottom: 8px;
   }
   
   .pd-final-label {
-    font-size: 16px;
+    font-size: 12px;
   }
   
   .pd-final-amount {
-    font-size: 16px;
-  }
-  
-  .pd-place-order-btn {
-    height: 48px;
     font-size: 13px;
   }
   
-  .pd-pay-rect {
-    width: 28px;
-    height: 18px;
-  }
-  
-  .pd-terms {
-    font-size: 9px;
+  .pd-place-order-btn {
+    height: 44px;
+    font-size: 11px;
   }
 }

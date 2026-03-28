@@ -27,9 +27,22 @@ const PaymentDetails = () => {
     };
 
     const user = getLoggedInUser();
+    
+    // Constants from ShippingMethod.jsx
+    const shippingMethods = [
+        { id: 'standard', name: 'Standard Shipping', price: 0 },
+        { id: 'express', name: 'Express Shipping', price: 15.00 },
+        { id: 'nextday', name: 'Next Day Delivery', price: 25.00 },
+    ];
+
     const grossTotal = cartTotal;
     const promoDiscount = promoApplied ? grossTotal * 0.1 : 0;
-    const shippingCharge = 0;
+    
+    // Get shipping charge based on selected method
+    const selectedShippingMethod = checkoutData.shippingMethod || 'Standard Shipping';
+    const shippingMethodObj = shippingMethods.find(m => m.name === selectedShippingMethod) || shippingMethods[0];
+    const shippingCharge = shippingMethodObj.price;
+
     const total = grossTotal - promoDiscount + shippingCharge;
 
     const handleApplyPromo = () => {
@@ -278,6 +291,8 @@ const PaymentDetails = () => {
 
                     <div className="pd-summary-card">
                         <h3 className="pd-summary-title">Order Summary</h3>
+                        
+                        {/* Horizontal scroll item cards */}
                         <div className="pd-items-scroll">
                             {cart.map(item => (
                                 <div key={`${item.id}-${item.size}`} className="pd-item-card">
@@ -285,17 +300,17 @@ const PaymentDetails = () => {
                                         <img src={item.image_url} alt={item.name} className="pd-item-img" />
                                         <span className="pd-qty-badge">{item.quantity}</span>
                                     </div>
-                                    <div className="pd-item-info">
-                                        <p className="pd-item-name">{item.name}</p>
-                                        <p className="pd-item-variant">Size: {item.size}</p>
-                                        <div className="pd-item-footer">
-                                            <span className="pd-item-price">${(item.price * item.quantity).toFixed(2)}</span>
-                                        </div>
+                                    <p className="pd-item-name">{item.name}</p>
+                                    <p className="pd-item-variant">Size: {item.size}</p>
+                                    <div className="pd-item-footer">
+                                        <span className="pd-item-qty-lbl">Qty: {item.quantity}</span>
+                                        <span className="pd-item-price">${(item.price * item.quantity).toFixed(2)}</span>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
+                        {/* Promo Code */}
                         <div className="pd-promo">
                             <input
                                 type="text"
@@ -309,27 +324,41 @@ const PaymentDetails = () => {
                             </button>
                         </div>
 
+                        {/* Price Breakdown */}
                         <div className="pd-totals">
                             <div className="pd-total-row">
-                                <span className="pd-total-key">Subtotal</span>
+                                <span className="pd-total-key">Gross Total</span>
                                 <span className="pd-total-val">${grossTotal.toFixed(2)}</span>
                             </div>
-                            {promoApplied && (
-                                <div className="pd-total-row text-green-600">
-                                    <span className="pd-total-key">Discount (10%)</span>
-                                    <span className="pd-total-val">-${promoDiscount.toFixed(2)}</span>
-                                </div>
-                            )}
+                            <div className="pd-total-row">
+                                <span className="pd-total-key">Promo Discount</span>
+                                <span className="pd-total-val">-${promoDiscount.toFixed(2)}</span>
+                            </div>
+                            <div className="pd-total-row">
+                                <span className="pd-total-key">Shipping</span>
+                                <span className="pd-free">
+                                    {shippingCharge === 0 ? 'Free' : `$${shippingCharge.toFixed(2)}`}
+                                </span>
+                            </div>
+                            {/* Bold Total */}
                             <div className="pd-total-final">
-                                <span className="pd-final-label">Total Amount</span>
+                                <span className="pd-final-label">Total</span>
                                 <span className="pd-final-amount">${total.toFixed(2)}</span>
                             </div>
                         </div>
 
+                        {/* Place Order */}
                         <button className="pd-place-order-btn" onClick={handlePlaceOrder}>
                             <span className="material-symbols-outlined">shopping_bag</span>
                             {paymentMethod === 'cod' ? 'Place Order' : 'Pay Now'}
                         </button>
+
+                        {/* Terms */}
+                        <p className="pd-terms">
+                            By placing your order, you agree to Solevora's{' '}
+                            <Link to="/terms">Terms of Service</Link> and{' '}
+                            <Link to="/privacy">Privacy Policy</Link>.
+                        </p>
                     </div>
                 </div>
 

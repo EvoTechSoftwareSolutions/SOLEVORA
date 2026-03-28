@@ -626,3 +626,34 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .product-detail-page {
+        padding-bottom: 0;
+    }
+    .product-detail-page .container {
+        padding: 0;
+    }
+    .tab-pane-outer {
+        padding: 40px 0;
+    }
+    .tab-pane {
+        padding: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-detail-page {
+        padding-bottom: 0;
+    }
+    .product-detail-page .container {
+        padding: 0;
+    }
+    .tab-pane-outer {
+        padding: 20px 0;
+    }
+    .tab-pane {
+        padding: 0;
+    }
+}

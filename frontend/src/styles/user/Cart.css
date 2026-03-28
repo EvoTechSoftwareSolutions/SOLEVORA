@@ -565,7 +565,7 @@
 /* Mobile Styles (320px - 768px) */
 @media (max-width: 768px) {
     .cart-page .container {
-        padding: 0 16px;
+        padding: 0;
     }
     
     .cart-header {
@@ -813,6 +813,6 @@
 /* Small Mobile Styles (320px - 480px) */
 @media (max-width: 480px) {
     .cart-page .container {
-        padding: 0 8px;
+        padding: 0;
     }
 }

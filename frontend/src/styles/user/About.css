@@ -689,7 +689,7 @@ background-color: rgba(249, 115, 22, 0.2);
 }
 @media (max-width: 480px) {
   .about-banner {
-    padding: 20px;
+    padding: 0;
     background-size: 500px;
   }
 
@@ -702,24 +702,15 @@ background-color: rgba(249, 115, 22, 0.2);
   }
 
     .mission-vision {
-    padding: 20px;
+    padding: 0;
   }
 
   .mission-vision h3 {
-    font-size: 24px;
-  }
-
-  .mission-vision p {
-    font-size: 14px;
-  }
-
-  .mission-vision img {
-    width: 35px;
-    height: 35px;
+    font-size: 18px;
   }
   
   .why-we{
-      padding: 30px;
+      padding: 0;
 
   }
 
@@ -728,25 +719,15 @@ background-color: rgba(249, 115, 22, 0.2);
   }
 
   .feature-card h5 {
-    font-size: 15px;
+    font-size: 14px;
   }
-
-  .feature-card p {
-    font-size: 11px;
-  }
-
-  .feature-icon {
-    width: 35px;
-    height: 35px;
-  }
-
   .about-icon {
     width: 22px;
     height: 22px;
   }
 
   .customer-rating {
-  padding: 40px 00px;
+  padding: 40px 0px;
 }  
 
     .rating-card {

@@ -1229,7 +1229,7 @@ display: flex;
 
 @media (max-width: 480px) {
   .banner {
-    padding: 40px 15px;
+    padding: 40px 0;
   }
   .banner-text h1 {
     font-size: 32px;

@@ -4,6 +4,19 @@
     min-height: calc(100vh - 100px);
 }
 
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .track-order-page {
+        padding: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .track-order-page {
+        padding: 0;
+    }
+}
+
 .track-container {
     max-width: 800px;
     margin: 0 auto;
