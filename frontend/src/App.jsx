@@ -8,6 +8,7 @@ import ResetSuccess from "./pages/ResetSuccess";
 import CategoryPage from "./pages/CategoryPage";
 import ViewDetailsPage from "./pages/ViewDetailsPage";
 import ShoppingCartPage from "./pages/ShoppingCartPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/category" element={<CategoryPage />} />
         <Route path="/product/:id" element={<ViewDetailsPage />} />
         <Route path="/cart" element={<ShoppingCartPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
       </Routes>
     </BrowserRouter>
   );
