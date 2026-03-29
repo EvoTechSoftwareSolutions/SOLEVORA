@@ -1,0 +1,392 @@
+:root {
+  --bg: #efefef;
+  --ink: #171717;
+  --muted: #4e4e4e;
+  --panel: #f6eadb;
+  --stroke: #e09b6c;
+  --footer: #0b0b0b;
+  --footer-line: #1f1f1f;
+  --hero-red-1: #6a070b;
+  --hero-red-2: #3b0306;
+  --hero-gold-1: #6e430f;
+  --hero-gold-2: #32210d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Montserrat, sans-serif;
+  line-height: 1.65;
+}
+
+main {
+  width: 100%;
+}
+
+.section-wrap {
+  width: min(1120px, calc(100% - 80px));
+  margin: 0 auto;
+}
+
+.hero {
+  position: relative;
+  min-height: 460px;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.02);
+}
+
+.hero-privacy::before {
+  background-image:
+    linear-gradient(140deg, rgba(74, 2, 4, 0.3), rgba(10, 1, 1, 0.76)),
+    url('https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1800&q=80');
+}
+
+.hero-terms::before {
+  background-image:
+    linear-gradient(150deg, rgba(41, 16, 3, 0.3), rgba(17, 8, 1, 0.72)),
+    url('https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=1800&q=80');
+  background-position: center 46%;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 10%, rgba(255, 85, 0, 0.2), transparent 40%);
+  z-index: 1;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  width: min(1120px, calc(100% - 80px));
+  margin: 0 auto;
+  padding-top: 30px;
+}
+
+.hero-inner h1 {
+  margin: 92px 0 0;
+  max-width: 330px;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: Forum, serif;
+  font-size: clamp(44px, 7vw, 62px);
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  line-height: 0.96;
+}
+
+.hero-inner-centered h1 {
+  margin-top: 200px;
+  margin-left: 0;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  background: #eb7b2e;
+  color: #111;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.intro {
+  padding: 44px 0 36px;
+}
+
+.intro p {
+  margin: 0;
+  max-width: 980px;
+  color: #2f2f2f;
+  font-size: 13px;
+  letter-spacing: 0.1px;
+}
+
+.cards {
+  padding-bottom: 52px;
+}
+
+.policy-card {
+  display: grid;
+  grid-template-columns: 44px 260px 1fr;
+  gap: 24px;
+  padding: 22px 24px;
+  border: 1px solid var(--stroke);
+  background: var(--panel);
+  box-shadow: 0 7px 10px rgba(210, 155, 109, 0.18);
+}
+
+.policy-card + .policy-card {
+  margin-top: 26px;
+}
+
+.card-icon {
+  color: #d18558;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+}
+
+.card-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.card-title-wrap {
+  border-left: 1px solid #da9f74;
+  padding-left: 16px;
+}
+
+.card-no {
+  display: block;
+  margin-bottom: 14px;
+  color: #cf8457;
+  font-size: 11px;
+  letter-spacing: 1.3px;
+}
+
+.card-title-wrap h2 {
+  margin: 0;
+  color: #292929;
+  font-family: Forum, serif;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.card-copy p {
+  margin: 0;
+  color: #424242;
+  font-size: 12px;
+  letter-spacing: 0.15px;
+}
+
+.card-copy p + p {
+  margin-top: 12px;
+}
+
+.terms-card .card-title-wrap {
+  border-left-color: transparent;
+}
+
+.site-footer {
+  background: var(--footer);
+  color: #ddd;
+  padding-top: 18px;
+}
+
+.newsletter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 26px;
+  padding-top: 4px;
+  padding-bottom: 20px;
+}
+
+.newsletter-text h3 {
+  margin: 0;
+  color: #f5f5f5;
+  font-size: 23px;
+  font-weight: 600;
+}
+
+.newsletter-text p {
+  margin: 6px 0 0;
+  color: #9a9a9a;
+  font-size: 12px;
+}
+
+.newsletter-form {
+  display: flex;
+  align-items: center;
+  width: min(520px, 100%);
+  border-radius: 999px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.newsletter-form input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  padding: 14px 18px;
+  font: inherit;
+  font-size: 13px;
+}
+
+.newsletter-form button {
+  border: 0;
+  background: #f1842a;
+  color: #fff;
+  width: 64px;
+  height: 46px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.footer-main {
+  border-top: 1px solid var(--footer-line);
+  display: grid;
+  grid-template-columns: 1.7fr 1fr 1fr 1fr;
+  gap: 36px;
+  padding-top: 28px;
+  padding-bottom: 30px;
+}
+
+.footer-brand .brand-name {
+  color: #fff;
+  font-family: Forum, serif;
+  font-size: 34px;
+  margin: 0 0 12px;
+}
+
+.footer-brand p {
+  margin: 0 0 9px;
+  color: #bdbdbd;
+  font-size: 12px;
+  max-width: 360px;
+}
+
+.footer-col h4 {
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.footer-col a {
+  display: block;
+  color: #a9a9a9;
+  text-decoration: none;
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+
+.footer-col a:hover,
+.footer-links a:hover {
+  color: #fff;
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--footer-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.footer-bottom p,
+.footer-links a {
+  margin: 0;
+  color: #8f8f8f;
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.footer-links {
+  display: flex;
+  gap: 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+@media (max-width: 1024px) {
+  .section-wrap,
+  .hero-inner {
+    width: min(1120px, calc(100% - 44px));
+  }
+
+  .policy-card {
+    grid-template-columns: 30px 200px 1fr;
+    gap: 18px;
+  }
+
+  .card-title-wrap h2 {
+    font-size: 26px;
+  }
+
+  .footer-main {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero {
+    min-height: 330px;
+  }
+
+  .hero-inner h1,
+  .hero-inner-centered h1 {
+    margin-top: 100px;
+    font-size: clamp(38px, 11vw, 52px);
+  }
+
+  .intro {
+    padding: 34px 0;
+  }
+
+  .policy-card {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 18px;
+  }
+
+  .card-title-wrap {
+    border-left: 0;
+    border-top: 1px solid #da9f74;
+    padding-left: 0;
+    padding-top: 12px;
+  }
+
+  .cards {
+    padding-bottom: 36px;
+  }
+
+  .newsletter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .footer-main {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
