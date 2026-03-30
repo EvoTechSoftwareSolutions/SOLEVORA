@@ -521,6 +521,7 @@
   .si-promo-input,
   .si-promo-btn {
     height: 46px;
+    font-size: 12px;
   }
 }
 
@@ -529,15 +530,28 @@
     padding: 0 12px;
   }
   .si-grid {
-    grid-template-columns: 1fr 240px;
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
     gap: 16px;
+    align-items: start;
   }
   .si-promo {
-    flex-direction: column;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 8px;
+    margin-bottom: 14px;
   }
-  .si-promo-input,
+  .si-promo-input {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    border-radius: 9999px;
+    font-size: 11.5px;
+  }
   .si-promo-btn {
-    width: 100%;
+    flex-shrink: 0;
+    width: auto;
+    min-width: 76px;
+    font-size: 11.5px;
   }
   .si-summary-card {
     padding: 16px;
@@ -548,8 +562,9 @@
   .si-page { padding: 0; }
   .si-container { padding: 0 10px; }
   .si-grid {
-    grid-template-columns: 1fr 200px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 200px);
     gap: 12px;
+    align-items: start;
   }
   .si-summary-title { font-size: 16px; }
   .si-item-card {
@@ -567,12 +582,18 @@
   .si-label { font-size: 11px; }
   .si-placeholder { font-size: 11px; }
   .si-place-order-btn { padding: 12px; font-size: 13px; }
+  .si-promo-input,
+  .si-promo-btn {
+    font-size: 11px;
+    height: 42px;
+  }
 }
 
 @media (max-width: 414px) {
   .si-grid {
-    grid-template-columns: 1fr 180px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 180px);
     gap: 12px;
+    align-items: start;
   }
   
   .si-form-card {
@@ -621,22 +642,28 @@
   }
   
   .si-promo {
-    flex-direction: column;
+    flex-direction: row;
     gap: 6px;
   }
-
-  .si-promo-input,
-  .si-promo-btn {
-    width: 100% !important;
-    height: 44px;
-    font-size: 13px;
+  .si-promo-input {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    height: 40px;
+    font-size: 10.5px;
     padding: 0 12px;
     box-sizing: border-box;
-    border-radius: 8px;
+    border-radius: 9999px;
   }
-  
   .si-promo-btn {
-    padding: 0 12px;
+    flex-shrink: 0;
+    width: auto;
+    min-width: 68px;
+    height: 40px;
+    font-size: 10.5px;
+    padding: 0 10px;
+    box-sizing: border-box;
+    border-radius: 10px;
   }
   
   .si-total-row {
@@ -679,8 +706,9 @@
 
 @media (max-width: 375px) {
   .si-grid {
-    grid-template-columns: 1fr 160px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 160px);
     gap: 10px;
+    align-items: start;
   }
   
   .si-form-card {
@@ -733,15 +761,26 @@
     margin-top: 1px;
   }
   
-  .si-promo-input,
-  .si-promo-btn {
-    height: 42px;
-    font-size: 11px;
-    border-radius: 6px;
+  .si-promo {
+    gap: 6px;
   }
-  
+  .si-promo-input {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    height: 38px;
+    font-size: 10px;
+    padding: 0 10px;
+    border-radius: 9999px;
+  }
   .si-promo-btn {
-    padding: 0 6px;
+    flex-shrink: 0;
+    width: auto;
+    min-width: 64px;
+    height: 38px;
+    font-size: 10px;
+    padding: 0 8px;
+    border-radius: 10px;
   }
   
   .si-total-row {
@@ -793,8 +832,9 @@
 
 @media (max-width: 425px) {
   .si-grid {
-    grid-template-columns: 1fr 170px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 170px);
     gap: 11px;
+    align-items: start;
   }
   
   .si-form-card {
@@ -847,16 +887,25 @@
     margin-top: 1.5px;
   }
   
-  .si-promo-input,
-  .si-promo-btn {
-    height: 44px;
-    font-size: 13px;
+  .si-promo-input {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    height: 38px;
+    font-size: 10px;
+    padding: 0 10px;
     box-sizing: border-box;
-    border-radius: 8px;
+    border-radius: 9999px;
   }
-  
   .si-promo-btn {
-    padding: 0 7px;
+    flex-shrink: 0;
+    width: auto;
+    min-width: 62px;
+    height: 38px;
+    font-size: 10px;
+    padding: 0 8px;
+    box-sizing: border-box;
+    border-radius: 10px;
   }
   
   .si-total-row {
@@ -908,8 +957,9 @@
 
 @media (max-width: 325px) {
   .si-grid {
-    grid-template-columns: 1fr 140px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 140px);
     gap: 8px;
+    align-items: start;
   }
   
   .si-form-card {
@@ -962,16 +1012,25 @@
     margin-top: 0.5px;
   }
   
-  .si-promo-input,
-  .si-promo-btn {
-    height: 42px;
-    font-size: 12px;
+  .si-promo-input {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    height: 36px;
+    font-size: 9.5px;
+    padding: 0 8px;
     box-sizing: border-box;
-    border-radius: 6px;
+    border-radius: 9999px;
   }
-  
   .si-promo-btn {
-    padding: 0 5px;
+    flex-shrink: 0;
+    width: auto;
+    min-width: 58px;
+    height: 36px;
+    font-size: 9.5px;
+    padding: 0 6px;
+    box-sizing: border-box;
+    border-radius: 8px;
   }
   
   .si-total-row {

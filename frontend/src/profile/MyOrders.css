@@ -211,9 +211,22 @@
     cursor: pointer;
 }
 
+.mo-nav-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
 .mo-nav-btn.active {
     background: #f97316;
     color: #fff;
+}
+
+.mo-page-indicator {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    color: #475569;
+    font-weight: 600;
+    align-self: center;
 }
 
 
@@ -228,7 +241,8 @@
 /* -------- Mobile -------- */
 @media (max-width: 768px) {
     .mo-dashboard-content {
-        padding: 1rem;
+        padding: 1rem 0;
+        box-sizing: border-box;
     }
 
     .mo-metric-cards {
@@ -245,6 +259,17 @@
 
     .mo-orders-data-table {
         min-width: 600px;
+    }
+
+    .mo-pagination-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .mo-page-nav {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }
 

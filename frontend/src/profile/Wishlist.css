@@ -332,7 +332,8 @@
 @media (max-width: 768px) {
 
     .wl-container {
-        padding: 0 1.5rem;
+        padding: 0;
+        box-sizing: border-box;
     }
 
     .wl-title-section h2 {
@@ -340,8 +341,13 @@
     }
 
     .wl-grid {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
         gap: 20px;
+    }
+
+    .wl-card {
+        max-width: none;
+        width: 100%;
     }
 
     .wl-share-btn {
@@ -354,7 +360,7 @@
 @media (max-width: 480px) {
 
     .wl-container {
-        padding: 0 1rem;
+        padding: 0;
     }
 
     .wl-title-section h2 {

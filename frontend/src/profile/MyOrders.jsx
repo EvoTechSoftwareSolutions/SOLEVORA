@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import './MyOrders.css';
+
+const PAGE_SIZE = 10;
 
 const MyOrders = () => {
     const [subTab, setSubTab] = useState('All Orders');
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [page, setPage] = useState(1);
 
     const getLoggedInUser = () => {
         const userStr = localStorage.getItem("user");
@@ -35,10 +38,29 @@ const MyOrders = () => {
         fetchOrders();
     }, [user?.email]);
 
-    const filteredOrders = orders.filter(order => {
+    const filteredOrders = useMemo(() => orders.filter(order => {
         if (subTab === 'All Orders') return true;
         return order.status.toLowerCase() === subTab.toLowerCase();
-    });
+    }), [orders, subTab]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [subTab]);
+
+    const totalFiltered = filteredOrders.length;
+    const totalPages = totalFiltered === 0 ? 0 : Math.ceil(totalFiltered / PAGE_SIZE);
+
+    useEffect(() => {
+        if (totalPages > 0 && page > totalPages) setPage(totalPages);
+    }, [totalPages, page]);
+
+    const paginatedOrders = useMemo(() => {
+        const start = (page - 1) * PAGE_SIZE;
+        return filteredOrders.slice(start, start + PAGE_SIZE);
+    }, [filteredOrders, page]);
+
+    const rangeStart = totalFiltered === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+    const rangeEnd = totalFiltered === 0 ? 0 : Math.min(page * PAGE_SIZE, totalFiltered);
 
     return (
         <div className="mo-dashboard-content">
@@ -112,7 +134,7 @@ const MyOrders = () => {
                             <tr><td colSpan="6" className="mo-status-cell">Loading orders...</td></tr>
                         ) : filteredOrders.length === 0 ? (
                             <tr><td colSpan="6" className="mo-status-cell">{`No orders found for ${user?.email || 'this account'}`}</td></tr>
-                        ) : filteredOrders.map((order) => (
+                        ) : paginatedOrders.map((order) => (
                             <tr key={order.id}>
                                 <td>
                                     <div className="mo-id-text">#ORD-{order.id}</div>
@@ -157,12 +179,36 @@ const MyOrders = () => {
             </div>
 
             <div className="mo-pagination-footer">
-                <div className="mo-page-stats">Showing {filteredOrders.length} orders</div>
-                <div className="mo-page-nav">
-                    <button className="mo-nav-btn"><span className="material-symbols-outlined">chevron_left</span></button>
-                    <button className="mo-nav-btn active">1</button>
-                    <button className="mo-nav-btn"><span className="material-symbols-outlined">chevron_right</span></button>
+                <div className="mo-page-stats">
+                    {totalFiltered === 0
+                        ? 'No orders to show'
+                        : `Showing ${rangeStart}–${rangeEnd} of ${totalFiltered} orders`}
                 </div>
+                {totalPages > 1 && (
+                    <div className="mo-page-nav" role="navigation" aria-label="Order list pages">
+                        <button
+                            type="button"
+                            className="mo-nav-btn"
+                            disabled={page <= 1}
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            aria-label="Previous page"
+                        >
+                            <span className="material-symbols-outlined">chevron_left</span>
+                        </button>
+                        <span className="mo-page-indicator" aria-current="page">
+                            Page {page} of {totalPages}
+                        </span>
+                        <button
+                            type="button"
+                            className="mo-nav-btn"
+                            disabled={page >= totalPages}
+                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                            aria-label="Next page"
+                        >
+                            <span className="material-symbols-outlined">chevron_right</span>
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

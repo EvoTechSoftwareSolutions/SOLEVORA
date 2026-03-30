@@ -66,8 +66,9 @@ const Cart = () => {
         </div>
 
         <div className="cart-main-layout">
-          {/* Cart Items List */}
+          {/* Cart Items List — only item cards scroll; summary stays fixed */}
           <div className="cart-items-list">
+            <div className="cart-items-scroll">
             {cart.map((item) => (
               <div key={`${item.id}-${item.size}`} className="cart-item-card">
                 <div className="item-check">
@@ -102,6 +103,7 @@ const Cart = () => {
                 </button>
               </div>
             ))}
+            </div>
 
             <div className="cart-footer-links">
                 <Link to="/category" className="back-link">

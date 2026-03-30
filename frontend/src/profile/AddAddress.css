@@ -150,11 +150,51 @@
 }
 
 @media (max-width: 768px) {
+    .aa-container {
+        max-width: 100%;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .aa-form {
+        padding: 24px 16px;
+    }
+
     .aa-form-grid {
         grid-template-columns: 1fr;
+        gap: 18px;
     }
+
     .aa-input-group.full-width {
         grid-column: span 1;
+    }
+
+    .aa-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .aa-cancel-btn,
+    .aa-submit-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .aa-header h2 {
+        font-size: 22px;
+    }
+
+    .aa-form {
+        padding: 20px 14px;
+    }
+
+    .aa-input-group input,
+    .aa-input-group select {
+        height: 48px;
+        font-size: 16px;
     }
 }
 

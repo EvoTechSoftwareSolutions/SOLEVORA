@@ -391,6 +391,10 @@
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1024px) {
+    .pdb-container {
+        padding: 0;
+    }
+
     .pdb-stats-grid {
         grid-template-columns: 1fr 1fr;
     }
@@ -398,11 +402,16 @@
     .pdb-overview-cards {
         grid-template-columns: 1fr 1fr;
     }
+
+    .pdb-header {
+        padding: 16px 0;
+    }
 }
 
 @media (max-width: 768px) {
     .pdb-container {
-        padding: 1.5rem;
+        padding: 0;
+        box-sizing: border-box;
     }
 
     .pdb-header {

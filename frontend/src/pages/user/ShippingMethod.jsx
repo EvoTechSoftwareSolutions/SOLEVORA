@@ -133,12 +133,6 @@ const ShippingMethod = () => {
                 <span className="material-symbols-outlined">arrow_back</span>
                 Back to Shipping Information
               </Link>
-              <button 
-                className="sm-continue-btn"
-                onClick={handleContinueToPayment}
-              >
-                Continue to Payment
-              </button>
             </div>
           </div>
 
