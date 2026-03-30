@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useWishlist } from '../context/WishlistContext';
-import { useCart } from '../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
+import { useCart } from '../../context/CartContext';
 import './Wishlist.css';
 
 const Wishlist = () => {

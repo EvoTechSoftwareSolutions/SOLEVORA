@@ -7,6 +7,9 @@ export const generatePaymentHash = async (req, res) => {
         
         const merchant_id = process.env.PAYHERE_MERCHANT_ID?.trim();
         const merchant_secret = process.env.PAYHERE_SECRET?.trim();
+        if (!merchant_id || !merchant_secret) {
+            return res.status(500).json({ message: 'Missing PAYHERE_MERCHANT_ID or PAYHERE_SECRET in environment' });
+        }
         
         console.log('--- PayHere Hash Generation Debug ---');
         console.log('Merchant ID:', merchant_id);
@@ -54,7 +57,7 @@ export const handlePaymentNotification = async (req, res) => {
         console.log('Local Signature:', localSig);
         console.log('PayHere Signature:', md5sig);
 
-        if (localSig === md5sig) {
+        if (localSig === String(md5sig || '').toUpperCase()) {
             if (status_code === '2') {
                 // Success
                 await Order.update({ status: 'paid' }, { where: { id: order_id } });

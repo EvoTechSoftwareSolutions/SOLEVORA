@@ -8,7 +8,12 @@ const AccountSettings = () => {
         email: '',
         phone: '',
         location: '',
+        streetAddress: '',
+        city: '',
+        postalCode: '',
+        country: '',
     });
+
 
     const [passwordData, setPasswordData] = useState({
         currentPassword: '',
@@ -45,13 +50,18 @@ const AccountSettings = () => {
                     fullName: res.data.name || '',
                     email: res.data.email || '',
                     phone: res.data.phone || '',
-                    location: res.data.location || ''
+                    location: res.data.location || '',
+                    streetAddress: res.data.streetAddress || '',
+                    city: res.data.city || '',
+                    postalCode: res.data.postalCode || '',
+                    country: res.data.country || '',
                 });
                 setPreferences({
                     newsletter: res.data.newsletter,
                     pushNotifications: res.data.pushNotifications,
                     usageReports: res.data.usageReports
                 });
+
             } catch (err) {
                 console.error("Failed to fetch profile");
             }
@@ -77,14 +87,37 @@ const AccountSettings = () => {
         try {
             let res;
             if (type === 'profile' || type === 'preferences') {
-                res = await axios.put(`http://localhost:5000/user/${userId}`, {
+                const payload = {
                     name: profileData.fullName,
                     email: profileData.email,
                     phone: profileData.phone,
                     location: profileData.location,
+                    streetAddress: profileData.streetAddress,
+                    city: profileData.city,
+                    postalCode: profileData.postalCode,
+                    country: profileData.country,
                     ...preferences
-                });
+                };
+
+
+                // Automatically include password change if new password is provided
+                if (passwordData.newPassword) {
+                    if (passwordData.newPassword !== passwordData.confirmPassword) {
+                        setMessage("New passwords do not match");
+                        return;
+                    }
+                    if (!passwordData.currentPassword) {
+                        setMessage("Current password is required to set a new one");
+                        return;
+                    }
+                    payload.currentPassword = passwordData.currentPassword;
+                    payload.newPassword = passwordData.newPassword;
+                }
+
+                res = await axios.put(`http://localhost:5000/user/${userId}`, payload);
                 localStorage.setItem("user", JSON.stringify(res.data.user));
+                // Clear password fields on success
+                setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
             } else if (type === 'password') {
                 if (passwordData.newPassword !== passwordData.confirmPassword) {
                     setMessage("Passwords do not match");
@@ -103,6 +136,7 @@ const AccountSettings = () => {
             setMessage(err.response?.data?.message || "Operation failed");
         }
     };
+
 
     const deleteAccount = async () => {
         if (!window.confirm("Are you sure you want to delete your account? This is permanent!")) return;
@@ -163,16 +197,73 @@ const AccountSettings = () => {
                         />
                     </div>
                     <div className="as-form-group">
-                        <label htmlFor="as-location">Location</label>
+                        <label htmlFor="as-location">Location Label</label>
                         <input
                             type="text"
                             id="as-location"
                             name="location"
+                            placeholder="Home, Office, etc."
                             value={profileData.location}
                             onChange={handleProfileChange}
                         />
                     </div>
                 </div>
+
+                <div className="as-card-divider"></div>
+
+                <div className="as-card-heading">
+                    <span className="material-symbols-outlined">local_shipping</span>
+                    <h4>Default Shipping Address</h4>
+                </div>
+
+                <div className="as-form-grid">
+                    <div className="as-form-group as-full-width">
+
+                        <label htmlFor="as-streetAddress">Street Address</label>
+                        <input
+                            type="text"
+                            id="as-streetAddress"
+                            name="streetAddress"
+                            placeholder="123 Luxury Lane"
+                            value={profileData.streetAddress}
+                            onChange={handleProfileChange}
+                        />
+                    </div>
+                    <div className="as-form-group">
+                        <label htmlFor="as-city">City</label>
+                        <input
+                            type="text"
+                            id="as-city"
+                            name="city"
+                            placeholder="New York"
+                            value={profileData.city}
+                            onChange={handleProfileChange}
+                        />
+                    </div>
+                    <div className="as-form-group">
+                        <label htmlFor="as-postalCode">Postal Code</label>
+                        <input
+                            type="text"
+                            id="as-postalCode"
+                            name="postalCode"
+                            placeholder="10001"
+                            value={profileData.postalCode}
+                            onChange={handleProfileChange}
+                        />
+                    </div>
+                    <div className="as-form-group as-full-width">
+                        <label htmlFor="as-country">Country</label>
+                        <input
+                            type="text"
+                            id="as-country"
+                            name="country"
+                            placeholder="United States"
+                            value={profileData.country}
+                            onChange={handleProfileChange}
+                        />
+                    </div>
+                </div>
+
                 <div className="as-card-actions">
                     <button className="as-btn-primary" onClick={() => saveChanges('profile')}>Save Changes</button>
                 </div>

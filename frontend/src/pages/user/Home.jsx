@@ -7,7 +7,6 @@ import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/autoplay";
 import Card from "../../components/ui/Card";
-import cardData from "../../data/cardData";
 import {
   ShoppingCartIcon,
   FaSearch,
@@ -112,7 +111,6 @@ const Home = () => {
 
   useEffect(() => {
     fetchDbCategories();
-    fetchProducts();
   }, []);
 
   useEffect(() => {
@@ -131,7 +129,11 @@ const Home = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const resp = await axios.get(`http://localhost:5000/api/products?category=${activeCategory}`);
+      const category = activeCategory === "All" ? "" : encodeURIComponent(activeCategory);
+      const endpoint = category
+        ? `http://localhost:5000/api/products?category=${category}`
+        : "http://localhost:5000/api/products";
+      const resp = await axios.get(endpoint);
       setProducts(resp.data);
     } catch (err) {
       console.error('Error fetching products:', err);
@@ -424,52 +426,52 @@ const Home = () => {
           </p>
         </div>
         <div className="faqs">
-          <div className="questions" onClick={() => toggleFAQ(1)}>
+          <div className="questions" onClick={() => toggleFAQ(2)}>
             <h4>How long does delivery take?</h4>
-            <FaPlus className={`dropdown ${openIndex === 1 ? "active" : ""}`} />
+            <FaPlus className={`dropdown ${openIndex === 2 ? "active" : ""}`} />
           </div>
-          <p className={`answer ${openIndex === 1 ? "show" : ""}`}>
+          <p className={`answer ${openIndex === 2 ? "show" : ""}`}>
             Delivery usually takes 3–7 business days depending on your location.
           </p>
         </div>
 
         <div className="faqs">
-          <div className="questions" onClick={() => toggleFAQ(2)}>
+          <div className="questions" onClick={() => toggleFAQ(3)}>
             <h4>Can I return or exchange products?</h4>
-            <FaPlus className={`dropdown ${openIndex === 2 ? "active" : ""}`} />
+            <FaPlus className={`dropdown ${openIndex === 3 ? "active" : ""}`} />
           </div>
-          <p className={`answer ${openIndex === 2 ? "show" : ""}`}>
+          <p className={`answer ${openIndex === 3 ? "show" : ""}`}>
             Yes, we offer easy returns and exchanges within 7 days of delivery.
           </p>
         </div>
 
         <div className="faqs">
-          <div className="questions" onClick={() => toggleFAQ(3)}>
+          <div className="questions" onClick={() => toggleFAQ(4)}>
             <h4>Are your products original?</h4>
-            <FaPlus className={`dropdown ${openIndex === 3 ? "active" : ""}`} />
+            <FaPlus className={`dropdown ${openIndex === 4 ? "active" : ""}`} />
           </div>
-          <p className={`answer ${openIndex === 3 ? "show" : ""}`}>
+          <p className={`answer ${openIndex === 4 ? "show" : ""}`}>
             All our products are 100% authentic and sourced from trusted
             suppliers.
           </p>
         </div>
 
         <div className="faqs">
-          <div className="questions" onClick={() => toggleFAQ(4)}>
+          <div className="questions" onClick={() => toggleFAQ(5)}>
             <h4>Do you offer discounts or promotions?</h4>
-            <FaPlus className={`dropdown ${openIndex === 4 ? "active" : ""}`} />
+            <FaPlus className={`dropdown ${openIndex === 5 ? "active" : ""}`} />
           </div>
-          <p className={`answer ${openIndex === 4 ? "show" : ""}`}>
+          <p className={`answer ${openIndex === 5 ? "show" : ""}`}>
             Yes, we regularly offer discounts and seasonal promotions.
           </p>
         </div>
 
         <div className="faqs">
-          <div className="questions" onClick={() => toggleFAQ(5)}>
+          <div className="questions" onClick={() => toggleFAQ(6)}>
             <h4>How can I contact customer support?</h4>
-            <FaPlus className={`dropdown ${openIndex === 5 ? "active" : ""}`} />
+            <FaPlus className={`dropdown ${openIndex === 6 ? "active" : ""}`} />
           </div>
-          <p className={`answer ${openIndex === 5 ? "show" : ""}`}>
+          <p className={`answer ${openIndex === 6 ? "show" : ""}`}>
             You can contact us via email or phone, and our support team will
             assist you promptly.
           </p>

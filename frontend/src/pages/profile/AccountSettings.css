@@ -535,9 +535,31 @@
     }
 }
 
+/* ---------- Card Divider & Sub-headings ---------- */
+.as-card-divider {
+    height: 1px;
+    background-color: #f1eeec;
+    margin: 2rem 0;
+}
+
+.as-card-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 1.5rem;
+}
+
+.as-card-heading h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
 /* =========================================
    📱 ULTRA SMALL DEVICES (≤260px FINAL FIX)
 ========================================= */
+
 
 @media (max-width: 290px) {
 

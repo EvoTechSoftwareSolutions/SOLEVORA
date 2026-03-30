@@ -2,16 +2,16 @@ import React, { lazy } from 'react';
 import { Route, Navigate } from 'react-router-dom';
 
 // Layout
-const ProfileLayout = lazy(() => import('../profile/ProfileLayout'));
+const ProfileLayout = lazy(() => import('../pages/profile/ProfileLayout'));
 
 // Pages
-const ProfileDashboard = lazy(() => import('../profile/Dashboard'));
-const MyOrders = lazy(() => import('../profile/MyOrders'));
-const Wishlist = lazy(() => import('../profile/Wishlist'));
-const AccountSettings = lazy(() => import('../profile/AccountSettings'));
-const Addresses = lazy(() => import('../profile/Addresses'));
-const AddAddress = lazy(() => import('../profile/AddAddress'));
-const EditAddress = lazy(() => import('../profile/EditAddress'));
+const ProfileDashboard = lazy(() => import('../pages/profile/Dashboard'));
+const MyOrders = lazy(() => import('../pages/profile/MyOrders'));
+const Wishlist = lazy(() => import('../pages/profile/Wishlist'));
+const AccountSettings = lazy(() => import('../pages/profile/AccountSettings'));
+const Addresses = lazy(() => import('../pages/profile/Addresses'));
+const AddAddress = lazy(() => import('../pages/profile/AddAddress'));
+const EditAddress = lazy(() => import('../pages/profile/EditAddress'));
 
 //ProfileRoutes
 

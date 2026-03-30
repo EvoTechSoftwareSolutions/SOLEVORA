@@ -2,8 +2,8 @@ import React, { useEffect, useState, useMemo } from 'react';
 
 import { MdGridView, MdLogout, MdOutlineShoppingBag, MdFavoriteBorder, MdOutlineSettings, MdOutlineLocationOn } from "react-icons/md";
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import Navbar from '../components/common/Navbar';
-import Footer from '../components/common/Footer';
+import Navbar from '../../components/common/Navbar';
+import Footer from '../../components/common/Footer';
 import './ProfileLayout.css';
 
 const ProfileLayout = () => {

@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
+import bcrypt from 'bcrypt';
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: "Email already exists" });
         }
 
+        // The User model beforeSave hook will handle password hashing
         await User.create({ name, email, password });
         res.json({ message: "User registered successfully" });
     } catch (error) {
@@ -45,8 +47,13 @@ router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ where: { email, password } });
+        const user = await User.findOne({ where: { email } });
         if (!user) {
+            return res.status(401).json({ message: "Invalid email or password" });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
@@ -63,7 +70,12 @@ router.post('/login', async (req, res) => {
                 role: user.role,
                 phone: user.phone || '',
                 location: user.location || '',
+                streetAddress: user.streetAddress || '',
+                city: user.city || '',
+                postalCode: user.postalCode || '',
+                country: user.country || '',
                 newsletter: user.newsletter,
+
                 pushNotifications: user.pushNotifications,
                 usageReports: user.usageReports
             }
@@ -80,8 +92,13 @@ router.post('/admin-login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ where: { email, password } });
+        const user = await User.findOne({ where: { email } });
         if (!user) {
+            return res.status(401).json({ message: "Invalid email or password" });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
@@ -102,7 +119,12 @@ router.post('/admin-login', async (req, res) => {
                 role: user.role,
                 phone: user.phone || '',
                 location: user.location || '',
+                streetAddress: user.streetAddress || '',
+                city: user.city || '',
+                postalCode: user.postalCode || '',
+                country: user.country || '',
                 lastLogin: user.lastLogin
+
             }
         });
     } catch (error) {
@@ -125,7 +147,12 @@ router.get('/user/:id', async (req, res) => {
             email: user.email,
             phone: user.phone || '',
             location: user.location || '',
+            streetAddress: user.streetAddress || '',
+            city: user.city || '',
+            postalCode: user.postalCode || '',
+            country: user.country || '',
             newsletter: user.newsletter,
+
             pushNotifications: user.pushNotifications,
             usageReports: user.usageReports
         });
@@ -138,7 +165,12 @@ router.get('/user/:id', async (req, res) => {
 // Update User Profile
 router.put('/user/:id', async (req, res) => {
     try {
-        const { name, email, phone, location, newsletter, pushNotifications, usageReports } = req.body;
+        const { 
+            name, email, phone, location, 
+            streetAddress, city, postalCode, country,
+            newsletter, pushNotifications, usageReports, 
+            currentPassword, newPassword 
+        } = req.body;
         
         const user = await User.findByPk(req.params.id);
         if (!user) {
@@ -152,10 +184,27 @@ router.put('/user/:id', async (req, res) => {
             }
         }
 
+        // Handle optional password update
+        if (newPassword) {
+            if (!currentPassword) {
+                return res.status(400).json({ message: "Current password is required to set a new one" });
+            }
+            const isMatch = await bcrypt.compare(currentPassword, user.password);
+            if (!isMatch) {
+                return res.status(401).json({ message: "Incorrect current password" });
+            }
+            user.password = newPassword;
+        }
+
         user.name = name;
         user.email = email;
         user.phone = phone;
         user.location = location;
+        user.streetAddress = streetAddress;
+        user.city = city;
+        user.postalCode = postalCode;
+        user.country = country;
+
         if (newsletter !== undefined) user.newsletter = newsletter;
         if (pushNotifications !== undefined) user.pushNotifications = pushNotifications;
         if (usageReports !== undefined) user.usageReports = usageReports;
@@ -170,6 +219,10 @@ router.put('/user/:id', async (req, res) => {
                 email: user.email,
                 phone: user.phone || '',
                 location: user.location || '',
+                streetAddress: user.streetAddress || '',
+                city: user.city || '',
+                postalCode: user.postalCode || '',
+                country: user.country || '',
                 newsletter: user.newsletter,
                 pushNotifications: user.pushNotifications,
                 usageReports: user.usageReports
@@ -181,13 +234,20 @@ router.put('/user/:id', async (req, res) => {
     }
 });
 
+
+
 // Update Password
 router.put('/user/:id/password', async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
         const user = await User.findByPk(req.params.id);
         
-        if (!user || user.password !== currentPassword) {
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
             return res.status(401).json({ message: "Incorrect current password" });
         }
 
@@ -199,6 +259,7 @@ router.put('/user/:id/password', async (req, res) => {
         res.status(500).json({ message: "Password update failed" });
     }
 });
+
 
 // Delete Account
 router.delete('/user/:id', async (req, res) => {
