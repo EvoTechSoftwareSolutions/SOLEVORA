@@ -82,7 +82,22 @@
 .material-symbols-outlined {
     font-size: 26px;
 }
+.icon-btn {
+    position: relative;
+    display: inline-block;
+}
 
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 2px 6px;
+}
 .profile-btn-active {
     background: #f8fafc;
     padding: 6px 12px;

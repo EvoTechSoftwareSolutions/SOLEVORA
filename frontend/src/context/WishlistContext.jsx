@@ -113,10 +113,12 @@ export const WishlistProvider = ({ children }) => {
         setWishlist([]);
         localStorage.removeItem('solevora_wishlist');
     };
+    
+        const wishlistCount = wishlist.length;
 
     return (
         <WishlistContext.Provider value={{ 
-            wishlist, addToWishlist, removeFromWishlist, isInWishlist, clearWishlist 
+            wishlist,wishlistCount, addToWishlist, removeFromWishlist, isInWishlist, clearWishlist 
         }}>
             {children}
             {toast && (
