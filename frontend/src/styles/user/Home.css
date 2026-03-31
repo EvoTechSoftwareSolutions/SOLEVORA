@@ -163,6 +163,7 @@
 .hero {
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 100%;
   padding: 60px 20px;
   background-color: #fff;
@@ -172,6 +173,9 @@
   display: flex;
   justify-content: center;
   gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  align-items: center;
   margin-top: 30px;
   width: 100%;
   max-width: 1200px;
@@ -336,10 +340,11 @@
 }
 .circle-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  column-gap: 40px;
-  row-gap: 40px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 40px 60px; 
   justify-content: center;
+  justify-items: center;   
+  align-items: center;
   width: 100%;
   max-width: 1200px;
   margin: 40px auto;
@@ -402,13 +407,14 @@
 
 .brands {
   width: 100%;
-  padding: 80px 20px;
+  padding: 30px 80px;
   text-align: center;
   background-color: #fff;
 }
 .brands h1 {
-  font-size: 48px;
-  font-weight: 800;
+  font-size: 44px;
+  font-weight: 700;
+  margin-bottom: 10px;
 }
 
 .swiper {
@@ -447,7 +453,7 @@
   flex-direction: column;
   gap: 20px;
   flex: 1;
-  min-width: 300px;
+  min-width: 230px;
   text-align: left;
 }
 
@@ -480,8 +486,8 @@
   border: #000 solid 1px;
 }
 .card-box {
-  display: grid;
-  grid-template-columns: repeat(2, 2fr);
+  display: flex;
+  flex-wrap: wrap;
   column-gap: 10px;
   row-gap: 10px;
   justify-content: center;
@@ -1089,12 +1095,19 @@ display: flex;
   .intro h1 {
     font-size: 36px;
   }
-  .circle-grid {
-    /* Let auto-fit handle columns — matches laptop layout */
-    gap: 24px;
-    padding: 0 20px;
-  }
 
+
+  .circle-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 60px; 
+  justify-content: center;
+  justify-items: center;   
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 40px auto;
+}
   .why-us {
     flex-direction: column;
     padding: 60px 20px;
@@ -1104,11 +1117,7 @@ display: flex;
     text-align: center;
     align-items: center;
   }
-  .card-box {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    width: 100%;
-  }
+
   .banner-2 h1 {
     font-size: 48px;
   }
@@ -1186,12 +1195,7 @@ display: flex;
     text-align: left;
     gap: 20px;
   }
-  .circle-grid {
-    /* 5 columns on tablet — same as desktop */
-    grid-template-columns: repeat(5, 1fr);
-    gap: 20px;
-  }
-
+  
   .yellow-banner, .blue-banner {
     flex-direction: column;
     padding: 60px 20px;
@@ -1288,27 +1292,39 @@ display: flex;
   .main-container {
     gap: 32px;
   }
-  .circle-grid {
-    grid-template-columns: repeat(2, 1fr);
-    justify-items: center;
+  .brands {
+  padding: 30px 30px;
+  text-align: center;
+  background-color: #fff;
+}
+  .why-us {
+    flex-direction: column;
+    padding: 60px 20px;
+    gap: 40px;
   }
-
+  .why-us-intro h1{
+    font-size: 28px;
+  }
+  .why-us-intro p {
+  font-size: 12px;
+  color: #1a1a1a;
+  line-height: 1.6;
+}
   .category-circle {
     width: 140px;
     height: 140px;
   }
   .why-us-card {
-    max-width: 100%;
+    max-width: 80%;
   }
-  .card-box {
-    grid-template-columns: 1fr;
-  }
+
   .banner-2 {
     height: 400px;
   }
   .banner-2 h1 {
     font-size: 32px;
     line-height: 1.2;
+    font-weight: 700;
     text-align: center;
   }
   .banner-2 p {
