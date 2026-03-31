@@ -23,13 +23,19 @@ import wishlistRoutes from './routes/wishlistRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
+import newsLetter from './routes/newsLetter.js';
+import contactRoute from './routes/contactRoute.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -42,8 +48,13 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use("/api/newsletter", newsLetter);
+app.use("/api/contact", contactRoute);
+
+
 // The frontend calls these endpoints at the root (e.g. /register, not /api/register)
 app.use('/', authRoutes);
+
 
 // Test the database connection and sync models
 const initDb = async () => {
