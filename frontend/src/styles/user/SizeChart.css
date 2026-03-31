@@ -1,0 +1,240 @@
+/* =========================================
+   Size Chart Page
+   ========================================= */
+
+.sc-page {
+  background-color: #f2f0eb;
+  min-height: 100vh;
+  padding-bottom: 80px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ---- Hero ---- */
+.sc-hero {
+  text-align: center;
+  padding: 72px 20px 48px;
+}
+
+.sc-hero h1 {
+  font-size: 42px;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
+  margin-bottom: 16px;
+}
+
+.sc-hero-accent {
+  color: #e8601e;
+  font-style: italic;
+}
+
+.sc-hero-sub {
+  font-size: 15px;
+  color: #6b7280;
+  line-height: 1.65;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ---- Wrapper ---- */
+.sc-wrapper {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ---- Matrix Card ---- */
+.sc-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 32px 32px 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.sc-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.sc-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* ---- Tabs ---- */
+.sc-tabs {
+  display: flex;
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.sc-tab {
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sc-tab--active {
+  background: #ffffff;
+  color: #1a1a1a;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ---- Table ---- */
+.sc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sc-table thead tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sc-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
+  color: #9ca3af;
+  padding: 0 0 12px;
+}
+
+.sc-table th:last-child {
+  text-align: right;
+}
+
+.sc-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.15s;
+}
+
+.sc-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.sc-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.sc-table td {
+  padding: 16px 0;
+  font-size: 15px;
+  color: #4b5563;
+}
+
+.sc-td--bold {
+  font-weight: 700;
+  color: #1a1a1a !important;
+}
+
+.sc-td--right {
+  text-align: right;
+  color: #374151 !important;
+}
+
+/* ---- Disclaimer ---- */
+.sc-disclaimer {
+  margin-top: 20px;
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  color: #9ca3af;
+  text-align: center;
+}
+
+/* ---- CTA Card ---- */
+.sc-cta {
+  background: #1c1008;
+  border-radius: 16px;
+  padding: 48px 40px;
+  text-align: center;
+  color: #ffffff;
+}
+
+.sc-cta h2 {
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.sc-cta p {
+  font-size: 14px;
+  color: #b4a99a;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0 auto 32px;
+}
+
+.sc-cta-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ---- CTA Buttons ---- */
+.sc-btn {
+  display: inline-block;
+  padding: 14px 24px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.sc-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.sc-btn--primary {
+  background: #e8601e;
+  color: #ffffff;
+}
+
+.sc-btn--outline {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+  .sc-hero h1 {
+    font-size: 30px;
+  }
+
+  .sc-card {
+    padding: 24px 20px 16px;
+  }
+
+  .sc-cta {
+    padding: 36px 24px;
+  }
+
+  .sc-cta-btns {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sc-btn {
+    text-align: center;
+  }
+}

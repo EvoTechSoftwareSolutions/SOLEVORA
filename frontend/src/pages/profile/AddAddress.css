@@ -1,0 +1,279 @@
+.aa-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.aa-header {
+    margin-bottom: 20px;
+}
+
+.aa-back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    transition: color 0.2s;
+}
+
+.aa-back-link:hover {
+    color: #ff6d2e;
+}
+
+.aa-header h2 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: #0f172a;
+}
+
+.aa-header p {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.aa-form {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+}
+
+.aa-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.aa-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.aa-input-group.full-width {
+    grid-column: span 2;
+}
+
+.aa-input-group label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.aa-input-group input, 
+.aa-input-group select {
+    height: 52px;
+    padding: 0 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+.aa-input-group input:focus,
+.aa-input-group select:focus {
+    border-color: #ff6d2e;
+    box-shadow: 0 0 0 3px rgba(255, 109, 46, 0.1);
+}
+
+.aa-checkbox-group {
+    padding: 10px 0;
+}
+
+.aa-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+}
+
+.aa-checkbox-label input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.aa-actions {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+}
+
+.aa-cancel-btn {
+    padding: 12px 24px;
+    background: #555;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.aa-cancel-btn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.aa-submit-btn {
+    padding: 12px 32px;
+    background: #ff6d2e;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.aa-submit-btn:hover {
+    background: #e85a1e;
+    box-shadow: 0 8px 16px rgba(255, 109, 46, 0.2);
+}
+
+.aa-submit-btn:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+@media (max-width: 768px) {
+    .aa-container {
+        max-width: 100%;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .aa-form {
+        padding: 24px 16px;
+    }
+
+    .aa-form-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .aa-input-group.full-width {
+        grid-column: span 1;
+    }
+
+    .aa-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .aa-cancel-btn,
+    .aa-submit-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .aa-header h2 {
+        font-size: 22px;
+    }
+
+    .aa-form {
+        padding: 20px 14px;
+    }
+
+    .aa-input-group input,
+    .aa-input-group select {
+        height: 48px;
+        font-size: 16px;
+    }
+}
+
+
+@media (max-width: 280px) {
+
+    .aa-container {
+        padding: 0 10px;
+    }
+
+    /* Header */
+    .aa-header {
+        margin-bottom: 20px;
+    }
+
+    .aa-header h2 {
+        font-size: 18px;
+        line-height: 1.2;
+    }
+
+    .aa-header p {
+        font-size: 11px;
+    }
+
+    .aa-back-link {
+        font-size: 11px;
+        gap: 4px;
+    }
+
+    /* Form */
+    .aa-form {
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .aa-form-grid {
+        gap: 12px;
+    }
+
+    /* Inputs */
+    .aa-input-group label {
+        font-size: 10px;
+    }
+
+    .aa-input-group input,
+    .aa-input-group select {
+        height: 36px;
+        font-size: 11px;
+        padding: 0 8px;
+    }
+
+    /* Checkbox */
+    .aa-checkbox-label {
+        font-size: 11px;
+        gap: 6px;
+    }
+
+    .aa-checkbox-label input {
+        width: 14px;
+        height: 14px;
+    }
+
+    /* Actions */
+    .aa-actions {
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 20px;
+        padding-top: 15px;
+    }
+
+    .aa-cancel-btn,
+    .aa-submit-btn {
+        width: 100%;
+        font-size: 11px;
+        padding: 8px;
+    }
+
+    /* Buttons hover reduce (avoid overflow jitter) */
+    .aa-submit-btn:hover {
+        box-shadow: none;
+    }
+}

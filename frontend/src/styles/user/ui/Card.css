@@ -1,0 +1,164 @@
+.card {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #F0E8E0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 16px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover */
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Image */
+.card-image {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.card-image img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+/* Content */
+.card-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #ddd, transparent);
+  margin: 8px 0;
+}
+
+/* Title */
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title h3 {
+  font-size: 18px;
+  color: #1A1A1A;
+  font-weight: 600;
+}
+.review-star{
+  display: flex;
+}
+.star-icon {
+  color: gold;
+  font-size: 15px;
+}
+
+.card-description {
+  font-size: 14px;
+  color: #6B6B6B;
+  line-height: 1.4;
+}
+
+.card-price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.card-price p {
+  color: #F97316;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.card-button {
+  text-decoration: none;
+  color: #1A1A1A;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #F0E8E0;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.card-button:hover {
+  background: #1A1A1A;
+  color: #fff;
+}
+
+@media (max-width: 1024px) {
+  .card {
+    max-width: 260px;
+  }
+
+  .card-image img {
+    max-height: 200px;
+  }
+
+  .card-title h3 {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    max-width: 100%;
+    max-width: 300px;
+    padding: 14px;
+  }
+
+  .card-image img {
+    max-height: 180px;
+  }
+
+  .card-title h3 {
+    font-size: 15px;
+  }
+
+  .card-description {
+    font-size: 13px;
+  }
+
+  .card-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .card {
+    padding: 12px;
+  }
+
+  .card-image img {
+    max-height: 160px;
+  }
+
+  .card-title h3 {
+    font-size: 14px;
+  }
+
+  .star-icon {
+    font-size: 13px;
+  }
+}

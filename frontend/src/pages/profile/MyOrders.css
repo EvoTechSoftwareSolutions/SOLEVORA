@@ -1,0 +1,314 @@
+
+.mo-dashboard-content {
+    padding:  0 2.5rem;
+    background: #f8f9fb;
+    min-height: 100vh;
+    font-family: 'Manrope', sans-serif;
+}
+
+/* ---------- Header ---------- */
+.mo-page-header {
+    margin-bottom: 1.5rem;
+}
+
+.mo-main-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.mo-sub-title {
+    font-size: 0.95rem;
+    color: #64748b;
+}
+
+/* ---------- Metric Cards ---------- */
+.mo-metric-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.mo-metric-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.mo-icon-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.card-blue .mo-icon-circle { background: #3b82f6; }
+.card-orange .mo-icon-circle { background: #f97316; }
+.card-green .mo-icon-circle { background: #22c55e; }
+
+.mo-card-info {
+    margin-left: 0.8rem;
+}
+
+.mo-card-label {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.mo-card-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+/* ---------- Tabs ---------- */
+.mo-tabs-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.mo-tab-link {
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    border: none;
+    background: #e2e8f0;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
+
+.mo-tab-link.active {
+    background: #f97316;
+    color: #fff;
+}
+
+/* ---------- Table ---------- */
+.mo-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+.mo-orders-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+.mo-orders-data-table th,
+.mo-orders-data-table td {
+    padding: 0.9rem;
+    text-align: left;
+    font-size: 0.85rem;
+}
+
+.mo-orders-data-table th {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.mo-orders-data-table tbody tr {
+    border-bottom: 1px solid #eee;
+}
+
+/* ---------- Items Preview ---------- */
+.mo-img-stack {
+    display: flex;
+    align-items: center;
+}
+
+.mo-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.mo-more-count {
+    margin-left: 5px;
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* ---------- Text ---------- */
+.mo-id-text {
+    font-weight: 600;
+}
+
+.mo-price-text {
+    font-weight: 600;
+    color: #111827;
+}
+
+.mo-date-text {
+    color: #64748b;
+}
+
+/* ---------- Status Badge ---------- */
+.mo-badge {
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.mo-badge.pending { background: #fef3c7; color: #92400e; }
+.mo-badge.paid { background: #dbeafe; color: #1e40af; }
+.mo-badge.shipped { background: #e0f2fe; color: #0369a1; }
+.mo-badge.delivered { background: #dcfce7; color: #166534; }
+.mo-badge.cancelled { background: #fee2e2; color: #991b1b; }
+
+/* ---------- Buttons ---------- */
+.mo-action-btns {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.mo-view-btn,
+.mo-track-btn {
+    border: none;
+    background: #f1f5f9;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.mo-view-btn:hover,
+.mo-track-btn:hover {
+    background: #f97316;
+    color: #fff;
+}
+
+/* ---------- Pagination ---------- */
+.mo-pagination-footer {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mo-page-nav {
+    display: flex;
+    gap: 0.3rem;
+}
+
+.mo-nav-btn {
+    border: none;
+    padding: 5px 10px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.mo-nav-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.mo-nav-btn.active {
+    background: #f97316;
+    color: #fff;
+}
+
+.mo-page-indicator {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    color: #475569;
+    font-weight: 600;
+    align-self: center;
+}
+
+
+
+/* -------- Tablet -------- */
+@media (max-width: 1024px) {
+    .mo-metric-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* -------- Mobile -------- */
+@media (max-width: 768px) {
+    .mo-dashboard-content {
+        padding: 1rem 0;
+        box-sizing: border-box;
+    }
+
+    .mo-metric-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .mo-main-title {
+        font-size: 1.4rem;
+    }
+
+    .mo-sub-title {
+        font-size: 0.8rem;
+    }
+
+    .mo-orders-data-table {
+        min-width: 600px;
+    }
+
+    .mo-pagination-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .mo-page-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* -------- Small Mobile -------- */
+@media (max-width: 480px) {
+
+    .mo-tab-link {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+    }
+
+    .mo-orders-data-table th,
+    .mo-orders-data-table td {
+        padding: 0.6rem;
+        font-size: 0.75rem;
+    }
+
+    .mo-thumb {
+        width: 30px;
+        height: 30px;
+    }
+
+    .mo-page-stats {
+        font-size: 0.75rem;
+    }
+}
+
+/* -------- Ultra Small -------- */
+@media (max-width: 350px) {
+    .mo-main-title {
+        font-size: 1.2rem;
+    }
+
+    .mo-card-value {
+        font-size: 1rem;
+    }
+
+    .mo-icon-circle {
+        width: 35px;
+        height: 35px;
+    }
+}
