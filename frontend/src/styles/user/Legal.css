@@ -1,0 +1,132 @@
+/* Legal.css - Refined for Legal Pages styling */
+
+.legal-page-container {
+  font-family: 'Inter', 'Manrope', sans-serif;
+  background-color: #f7f7f7;
+}
+
+.legal-hero {
+  position: relative;
+  height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #fff;
+}
+
+.legal-hero.privacy {
+  background: linear-gradient(180deg, #7a1515 0%, #300a0a 100%);
+}
+
+.legal-hero.terms {
+  background: linear-gradient(180deg, #8b5a3e 0%, #3a261a 100%);
+}
+
+.hero-title {
+  font-size: 5rem;
+  font-weight: 300;
+  line-height: 0.9;
+  text-align: center;
+  z-index: 10;
+  text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.hero-title b {
+  font-weight: 800;
+}
+
+.hero-shoe {
+  position: absolute;
+  top: 50%;
+  left: 55%;
+  transform: translate(-45%, -55%);
+  width: 70%;
+  max-width: 900px;
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 5;
+  filter: drop-shadow(0 30px 60px rgba(0,0,0,1));
+}
+
+.hero-shoe img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Card Styling */
+.legal-card {
+  background-color: #fcf6eb;
+  border: 1px solid #ef8a3a;
+  border-radius: 4px;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.legal-card:hover {
+  box-shadow: 0 15px 40px -10px rgba(239, 138, 58, 0.15);
+  transform: translateY(-2px);
+}
+
+.card-sidebar {
+  padding: 32px 24px;
+  border-right: 1px solid #efc29a;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 240px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.card-number {
+  font-size: 6rem;
+  font-weight: 900;
+  color: #ef8a3a;
+  opacity: 0.12;
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  line-height: 1;
+}
+
+.card-tag-wrapper {
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid #efc29a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255,255,255,0.4);
+  color: #ef8a3a;
+}
+
+.card-tag-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2b2b2b;
+}
+
+.card-main-content {
+  padding: 32px 40px;
+  color: #555;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .hero-title { font-size: 3rem; }
+  .legal-card { flex-direction: column; }
+  .card-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #efc29a; padding: 24px; }
+  .card-main-content { padding: 24px; }
+}
