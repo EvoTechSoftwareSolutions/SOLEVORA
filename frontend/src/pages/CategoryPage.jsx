@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/Footer";
 import {
@@ -459,9 +460,12 @@ function CategoryPage() {
                   </p>
 
                   <div className="flex items-center gap-4 pt-8 mt-auto">
-                    <button className="flex-1 h-[64px] border-2 border-[#1f1f1f] rounded-[24px] text-[18px] sm:text-[20px] font-semibold text-[#1f1f1f] hover:bg-[#1f1f1f] hover:text-white transition duration-300">
-                      View Details
-                    </button>
+                    <Link
+                          to={`/product/${product.id}`}
+                          className="flex-1 h-[64px] border-2 border-[#1f1f1f] rounded-[24px] text-[18px] sm:text-[20px] font-semibold text-[#1f1f1f] hover:bg-[#1f1f1f] hover:text-white transition duration-300 flex items-center justify-center"
+                         >
+                         View Details
+                    </Link>
 
                     <button className="w-[68px] h-[64px] rounded-[20px] bg-[#16181d] text-white flex items-center justify-center hover:bg-[#2b2e35] transition duration-300">
                       <HiOutlineShoppingCart size={30} />
