@@ -127,8 +127,8 @@ function PrivacyPolicyPage() {
       <section className="legal-hero privacy">
         {/* Back Button Overlay */}
         <div className="absolute top-8 left-8 sm:left-12 lg:left-16 z-20">
-          <Link to="/home" className="flex items-center gap-2 px-5 py-2.5 rounded shadow-lg bg-[#ef8a3a] text-white text-sm font-semibold hover:bg-[#db7c31] transition-all">
-            <HiOutlineArrowLeft /> BACK
+          <Link to="/home" className="flex items-center gap-2 px-5 py-2.5 rounded shadow-lg bg-[#ef8a3a] text-white text-sm font-bold hover:bg-[#db7c31] transition-all tracking-wider">
+            SOLE VORA
           </Link>
         </div>
 
