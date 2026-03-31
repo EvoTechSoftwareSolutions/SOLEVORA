@@ -2,7 +2,6 @@ import React, { lazy } from 'react';
 import { Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from '../components/ProtectedRoute';
 
-
 // Layout
 const UserLayout = lazy(() => import('../layouts/UserLayout/UserLayout'));
 
@@ -21,25 +20,28 @@ const VerificationCode = lazy(() => import('../pages/user/VerificationCode'));
 const OrderConfirmation = lazy(() => import('../pages/user/OrderConfirmation'));
 const TrackOrder = lazy(() => import('../pages/user/TrackOrder'));
 
-//UserRoutes
-
+/**
+ * Pathless layout + absolute child paths so /home, /about, etc. match in React Router 7.
+ * A single parent path="/" only matches the root segment and can fail for /home, which
+ * previously fell through to App's "*" redirect and caused an infinite navigation loop.
+ */
 const UserRoutes = (
-  <Route path="/" element={<UserLayout />}>
-    <Route index element={<Navigate to="/home" replace />} />
-    <Route path="home" element={<Home />} />
-    <Route path="about" element={<About />} />
-    <Route path="contact" element={<Contact />} />
-    <Route path="product/:id" element={<ProductDetail />} />
-    <Route path="category" element={<Category />} />
-    <Route path="categorypage" element={<Category />} />
-    <Route path="cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
-    <Route path="shipping" element={<ProtectedRoute><ShippingInformation /></ProtectedRoute>} />
-    <Route path="size-chart" element={<SizeChart />} />
-    <Route path="shipping-method" element={<ShippingMethod />} />
-    <Route path="payment" element={<PaymentDetails />} />
-    <Route path="verify-code" element={<VerificationCode />} />
-    <Route path="order-success" element={<OrderConfirmation />} />
-    <Route path="track-order" element={<TrackOrder />} />
+  <Route element={<UserLayout />}>
+    <Route path="/" element={<Navigate to="/home" replace />} />
+    <Route path="/home" element={<Home />} />
+    <Route path="/about" element={<About />} />
+    <Route path="/contact" element={<Contact />} />
+    <Route path="/product/:id" element={<ProductDetail />} />
+    <Route path="/category" element={<Category />} />
+    <Route path="/categorypage" element={<Category />} />
+    <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+    <Route path="/shipping" element={<ProtectedRoute><ShippingInformation /></ProtectedRoute>} />
+    <Route path="/size-chart" element={<SizeChart />} />
+    <Route path="/shipping-method" element={<ShippingMethod />} />
+    <Route path="/payment" element={<PaymentDetails />} />
+    <Route path="/verify-code" element={<VerificationCode />} />
+    <Route path="/order-success" element={<OrderConfirmation />} />
+    <Route path="/track-order" element={<TrackOrder />} />
   </Route>
 );
 

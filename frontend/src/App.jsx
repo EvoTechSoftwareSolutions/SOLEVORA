@@ -1,20 +1,16 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 /* Import modularized routes */
 import UserRoutes from './routes/UserRoutes';
 import AdminRoutes from './routes/AdminRoutes';
 import ProfileRoutes from './routes/ProfileRoutes';
 
-/* Import new authentication routes from feature/thilina */
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import CheckEmail from "./pages/CheckEmail";
-import ResetPassword from "./pages/ResetPassword";
+/* Authentication pages (centralized path) */
+import { Login, Register, ForgotPassword, CheckEmail, ResetPassword, ResetSuccess } from "./pages/auth";
 import Logout from "./pages/Logout";
-import ResetSuccess from "./pages/ResetSuccess";
 import OrderConfirmation from "./pages/user/OrderConfirmation";
+import NotFound from "./pages/NotFound";
 
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
@@ -44,7 +40,6 @@ function App() {
                 {ProfileRoutes}
 
                 {/* Authentication Routes */}
-                <Route path="/" element={<Login />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -54,7 +49,8 @@ function App() {
                 <Route path="/logout" element={<Logout />} />
                 <Route path="/order-confirmation" element={<OrderConfirmation />} />
 
-                {/* Default Route: Redirect to Home or a 404 Page */}
+                {/* Unknown paths: static 404 (avoid redirect loop with /home) */}
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
           </CartProvider>

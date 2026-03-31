@@ -28,10 +28,13 @@ const ShippingInformation = () => {
         fullName: user.name || checkoutData.fullName,
         email: user.email || checkoutData.email,
         phone: user.phone || checkoutData.phone,
-        streetAddress: user.location || checkoutData.streetAddress, // Assuming location is the street address for now
+        streetAddress: user.streetAddress || user.location || checkoutData.streetAddress,
+        city: user.city || checkoutData.city,
+        postalCode: user.postalCode || checkoutData.postalCode,
         country: user.country || checkoutData.country || 'United States',
         userId: user.id
       };
+
     }
     return { ...checkoutData, country: checkoutData.country || 'United States' };
   });

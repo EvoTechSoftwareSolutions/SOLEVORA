@@ -122,6 +122,8 @@ const PaymentDetails = () => {
                 merchant_id: merchant_id,
                 return_url: `${window.location.origin}/profile/orders`,
                 cancel_url: window.location.href,
+                // NOTE: localhost cannot be reached by PayHere servers for webhook callbacks.
+                // Use a publicly reachable backend URL in production (or via ngrok during local dev).
                 notify_url: "http://localhost:5000/api/payment/notify",
                 order_id: orderData.id.toString(),
                 items: "SoleVora Order #" + orderData.id,
@@ -139,10 +141,17 @@ const PaymentDetails = () => {
 
             window.payhere.onCompleted = function onCompleted(orderId) {
                 console.log("Payment completed. OrderID:" + orderId);
-                const currentItems = [...cart];
-                // Clear only the checked out items
-                currentItems.forEach(item => removeFromCart(item.id, item.size));
-                navigate('/order-confirmation', { state: { orderId: orderId, items: currentItems, paymentMethod: 'creditcard' } });
+                // Fallback update for local development where notify_url is not publicly reachable.
+                axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: 'paid' })
+                    .catch((updateErr) => {
+                        console.error('Failed to update paid status after PayHere completion:', updateErr);
+                    })
+                    .finally(() => {
+                        const currentItems = [...cart];
+                        // Clear only the checked out items
+                        currentItems.forEach(item => removeFromCart(item.id, item.size));
+                        navigate('/order-confirmation', { state: { orderId: orderId, items: currentItems, paymentMethod: 'creditcard' } });
+                    });
             };
 
             window.payhere.onDismissed = function onDismissed() {

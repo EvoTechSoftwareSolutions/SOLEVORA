@@ -27,30 +27,32 @@ const Navbar = () => {
       <div className="nav-actions">
           {user ? (
             <>
-              <Link to="/cart" className="icon-btn responsive">
+              <Link to="/cart" className="icon-btn responsive" onClick={() => setMenuOpen(false)}>
                 <span className="material-symbols-outlined">shopping_cart</span>
               </Link>
-              <Link to="/profile" className="icon-btn responsive">
+              <Link to="/profile" className="icon-btn responsive" onClick={() => setMenuOpen(false)}>
                 <span className="material-symbols-outlined">person</span>
               </Link>
-              <Link to="/profile/wishlist" className="icon-btn responsive">
+              <Link to="/profile/wishlist" className="icon-btn responsive" onClick={() => setMenuOpen(false)}>
                 <span className="material-symbols-outlined">favorite</span>
               </Link>
-              <Link to="/logout" className="icon-btn logout-nav-btn responsive" title="Logout">
+              <Link to="/logout" className="icon-btn logout-nav-btn responsive" title="Logout" onClick={() => setMenuOpen(false)}>
                 <span className="material-symbols-outlined">logout</span>
               </Link>
+
             </>
           ) : (
             <>
-              <Link to="/cart" className="icon-btn responsive">
+              <Link to="/cart" className="icon-btn responsive" onClick={() => setMenuOpen(false)}>
                 <span className="material-symbols-outlined">shopping_cart</span>
               </Link>
-              <Link to="/login" className="icon-btn responsive">
+              <Link to="/login" className="icon-btn responsive" onClick={() => setMenuOpen(false)}>
                 <span className="material-symbols-outlined">person</span>
               </Link>
-              <Link to="/login" className="icon-btn responsive">
+              <Link to="/login" className="icon-btn responsive" onClick={() => setMenuOpen(false)}>
                 <span className="material-symbols-outlined">favorite</span>
               </Link>
+
             </>
           )}
         </div>

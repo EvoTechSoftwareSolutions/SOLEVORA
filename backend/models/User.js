@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
 
@@ -33,6 +34,23 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    streetAddress: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    city: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    postalCode: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    country: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+
     newsletter: {
         type: DataTypes.BOOLEAN,
         defaultValue: true
@@ -50,7 +68,16 @@ const User = sequelize.define('User', {
         allowNull: true
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    hooks: {
+        beforeSave: async (user) => {
+            if (user.changed('password')) {
+                const salt = await bcrypt.genSalt(10);
+                user.password = await bcrypt.hash(user.password, salt);
+            }
+        }
+    }
 });
 
 export default User;
+

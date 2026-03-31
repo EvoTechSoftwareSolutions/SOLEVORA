@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Modal from '../components/ui/Modal';
+import Modal from '../../components/ui/Modal';
 import './Addresses.css';
 
 const Addresses = () => {

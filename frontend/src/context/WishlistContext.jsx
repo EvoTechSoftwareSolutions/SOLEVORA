@@ -1,45 +1,30 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Toast from '../components/ui/Toast';
 
 const WishlistContext = createContext();
 
+const getUserId = () => {
+    try {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) return null;
+        const id = JSON.parse(userStr).id;
+        return id == null ? null : id;
+    } catch {
+        return null;
+    }
+};
+
 export const WishlistProvider = ({ children }) => {
     const [wishlist, setWishlist] = useState([]);
-    const [userId, setUserId] = useState(null);
+    const [userId, setUserId] = useState(() => getUserId());
     const [toast, setToast] = useState(null);
-
-    const getUserId = () => {
-        const userStr = localStorage.getItem('user');
-        return userStr ? JSON.parse(userStr).id : null;
-    };
 
     const showToast = (message, type = 'success') => {
         setToast({ message, type, id: Date.now() });
     };
 
-    // Watch for localStorage changes to user ID
-    useEffect(() => {
-        const id = getUserId();
-        setUserId(id);
-        
-        const checkUser = () => {
-            const currentId = getUserId();
-            if (currentId !== id) {
-                setUserId(currentId);
-            }
-        };
-
-        const interval = setInterval(checkUser, 1000); 
-        window.addEventListener('storage', checkUser);
-        
-        return () => {
-            clearInterval(interval);
-            window.removeEventListener('storage', checkUser);
-        };
-    }, [userId]);
-
-    const fetchWishlist = async () => {
+    const fetchWishlist = useCallback(async () => {
         const id = getUserId();
         if (id) {
             localStorage.removeItem('solevora_wishlist');
@@ -47,30 +32,48 @@ export const WishlistProvider = ({ children }) => {
                 const res = await axios.get(`http://localhost:5000/api/wishlist/${id}`);
                 setWishlist(res.data);
             } catch (err) {
-                console.error("Failed to fetch wishlist");
+                console.error('Failed to fetch wishlist');
             }
         } else {
             const localData = localStorage.getItem('solevora_wishlist');
             if (localData) setWishlist(JSON.parse(localData));
             else setWishlist([]);
         }
-    };
+    }, []);
+
+    // Sync logged-in user id without depending on userId (avoids effect + interval loops)
+    useEffect(() => {
+        const syncUserId = () => {
+            setUserId((prev) => {
+                const next = getUserId();
+                return Object.is(prev, next) ? prev : next;
+            });
+        };
+
+        syncUserId();
+        const interval = setInterval(syncUserId, 2000);
+        window.addEventListener('storage', syncUserId);
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('storage', syncUserId);
+        };
+    }, []);
 
     useEffect(() => {
         fetchWishlist();
-    }, [userId]);
+    }, [userId, fetchWishlist]);
 
     const addToWishlist = async (product) => {
-        const userId = getUserId();
-        if (userId) {
+        const uid = getUserId();
+        if (uid) {
             try {
                 await axios.post('http://localhost:5000/api/wishlist', {
-                    userId,
+                    userId: uid,
                     productId: product.id
                 });
                 fetchWishlist();
             } catch (err) {
-                console.error("Failed to add to wishlist");
+                console.error('Failed to add to wishlist');
             }
         } else {
             setWishlist((prev) => {
@@ -84,13 +87,13 @@ export const WishlistProvider = ({ children }) => {
     };
 
     const removeFromWishlist = async (productId) => {
-        const userId = getUserId();
-        if (userId) {
+        const uid = getUserId();
+        if (uid) {
             try {
-                await axios.delete(`http://localhost:5000/api/wishlist/${userId}/${productId}`);
+                await axios.delete(`http://localhost:5000/api/wishlist/${uid}/${productId}`);
                 fetchWishlist();
             } catch (err) {
-                console.error("Failed to remove from wishlist");
+                console.error('Failed to remove from wishlist');
             }
         } else {
             setWishlist(prev => {
