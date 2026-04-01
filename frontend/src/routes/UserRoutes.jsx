@@ -10,7 +10,7 @@ const Home = lazy(() => import('../pages/user/Home'));
 const About = lazy(() => import('../pages/user/AboutUs'));
 const Contact = lazy(() => import('../pages/user/Contact'));
 const ProductDetail = lazy(() => import('../pages/user/ProductDetail'));
-const Category = lazy(() => import('../pages/CategoryPage'));
+const Category = lazy(() => import('../pages/user/CategoryPage'));
 const Cart = lazy(() => import('../pages/user/Cart'));
 const ShippingInformation = lazy(() => import('../pages/user/ShippingInformation'));
 const SizeChart = lazy(() => import('../pages/user/SizeChart'));

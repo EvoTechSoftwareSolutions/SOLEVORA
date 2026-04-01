@@ -8,9 +8,9 @@ import ProfileRoutes from './routes/ProfileRoutes';
 
 /* Authentication pages (centralized path) */
 import { Login, Register, ForgotPassword, CheckEmail, ResetPassword, ResetSuccess } from "./pages/auth";
-import Logout from "./pages/Logout";
+import Logout from "./pages/user/Logout";
 import OrderConfirmation from "./pages/user/OrderConfirmation";
-import NotFound from "./pages/NotFound";
+import NotFound from "./pages/user/NotFound";
 
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
