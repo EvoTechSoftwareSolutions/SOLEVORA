@@ -1,68 +1,67 @@
+import React from "react";
 import { Link } from "react-router-dom";
-import { LuCircleCheckBig } from "react-icons/lu";
-import successImage from "../assets/reset-success.png";
+import { HiOutlineCheckCircle, HiOutlineArrowNarrowLeft } from "react-icons/hi";
+
+// High-fidelity visual for success
+const SUCCESS_IMAGE = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80";
 
 function ResetSuccess() {
   return (
-    <div className="min-h-screen bg-[#f4f4f4]">
-      <div className="flex flex-col min-h-screen md:flex-row">
-        {/* Left Side */}
-        <div className="relative w-full md:w-1/2 h-[420px] md:h-screen">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-manrope selection:bg-primary/20">
+      <div className="w-full max-w-[1000px] bg-white rounded-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row animate-fadeIn">
+        
+        {/* Left Side: Visual Narrative */}
+        <div className="hidden md:block md:w-1/2 relative bg-secondary">
           <img
-            src={successImage}
-            alt="Password Reset Success"
-            className="object-cover w-full h-full"
+            src={SUCCESS_IMAGE}
+            alt="Success Footwear"
+            className="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-overlay hover:opacity-70 transition-opacity duration-700"
           />
-
-          <div className="absolute inset-0 bg-black/35"></div>
-
-          <div className="absolute z-10 text-white left-8 md:left-14 bottom-14">
-            <div className="inline-block px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] bg-orange-500 rounded-full">
-              Limited Edition
-            </div>
-
-            <p className="max-w-md mt-8 text-lg leading-9 text-gray-200 md:text-xl">
-              Redefining the pace of modern retail with curated
-              precision and kinetic energy.
-            </p>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+          <div className="absolute bottom-12 left-12 right-12 z-10 flex flex-col items-start gap-4">
+            <span className="px-4 py-1.5 bg-primary rounded-full text-[9px] font-black uppercase tracking-[.3em] text-white shadow-xl shadow-primary/30">Limited Edition</span>
+            <p className="text-sm font-medium text-gray-300 leading-relaxed italic opacity-80 italic">Redefining the pace of modern retail with curated precision and kinetic energy.</p>
           </div>
         </div>
 
-        {/* Right Side */}
-        <div className="relative w-full md:w-1/2 bg-[#f4f4f4] flex items-center justify-center px-6 md:px-16 py-12">
-          <div className="w-full max-w-md text-center md:text-left">
-            {/* Success Icon */}
-            <div className="w-28 h-28 mx-auto md:mx-0 rounded-full bg-[#fdf3ee] flex items-center justify-center shadow-sm">
-              <LuCircleCheckBig className="text-6xl text-orange-500" />
+        {/* Right Side: Identity Access */}
+        <div className="flex-1 p-8 md:p-16 flex flex-col justify-center items-start text-left relative overflow-hidden">
+            {/* Background Decor */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+
+            <div className="w-24 h-24 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 mb-10 shadow-lg shadow-emerald-500/10 border-4 border-white relative z-10">
+                <HiOutlineCheckCircle size={48} className="animate-pulse" />
             </div>
 
-            <h2 className="mt-12 text-4xl md:text-5xl font-bold text-[#241815] leading-tight">
-              Password Reset
-              <br />
-              Successful
-            </h2>
+            <header className="mb-10 relative z-10">
+                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-secondary leading-[.9] italic">RESET <br /><span className="text-primary italic">SUCCESSFUL</span></h1>
+                <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-6 leading-relaxed max-w-sm italic opacity-80">Encryption sequence updated. Your identity access points are now functional with the new security key.</p>
+            </header>
 
-            <p className="mt-6 text-[#685b55] text-lg md:text-xl leading-9 max-w-lg">
-              Your password has been successfully updated. You can now use your new
-              password to log in to your account.
-            </p>
-
-            <Link
-              to="/"
-              className="mt-12 w-full h-16 rounded-2xl bg-orange-500 text-white text-xl font-semibold hover:bg-orange-600 transition flex items-center justify-center shadow-[0_10px_20px_rgba(255,102,0,0.15)]"
+            <Link 
+                to="/login"
+                className="mt-8 h-18 w-full bg-black text-white rounded-[1.5rem] font-black text-xs flex items-center justify-center gap-3 hover:bg-primary transition-all shadow-2xl shadow-black/10 active:scale-95 group uppercase tracking-widest relative z-10 h-16"
             >
-              Back to Login →
+                <span>Back to Hub Access</span>
+                <HiOutlineArrowNarrowLeft size={20} className="group-hover:-translate-x-2 transition-transform" />
             </Link>
-          </div>
 
-          {/* Bottom Right Decorative Stars */}
-          <div className="absolute hidden right-10 bottom-10 opacity-40 md:block">
-            <div className="relative w-32 h-32">
-              <div className="absolute top-0 right-0 text-5xl text-orange-100">✦</div>
-              <div className="absolute text-orange-100 left-6 bottom-6 text-7xl">✧</div>
-              <div className="absolute bottom-0 text-4xl text-orange-100 right-4">✦</div>
+            <footer className="w-full mt-16 pt-8 border-t border-slate-100/50 flex flex-col items-center relative z-10">
+                <div className="flex gap-1.5 opacity-20 group">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="w-1.5 h-1.5 bg-secondary rounded-full group-hover:bg-primary transition-colors" />
+                    ))}
+                </div>
+                <p className="mt-4 text-[9px] text-gray-300 font-bold uppercase tracking-widest italic tracking-[.3em]">Institutional Grade Security Verified</p>
+            </footer>
+
+            {/* Corner Decor */}
+            <div className="absolute bottom-10 right-10 hidden lg:flex flex-col items-end gap-2 opacity-10">
+                <span className="text-4xl font-light">✦</span>
+                <span className="text-6xl font-light translate-x-4">✦</span>
+                <span className="text-2xl font-light">✦</span>
             </div>
-          </div>
         </div>
       </div>
     </div>

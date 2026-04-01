@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  HiOutlineArrowLeft, 
   HiOutlineDocumentText, 
   HiOutlineEye, 
   HiOutlineClock, 
@@ -16,8 +15,6 @@ import {
   HiOutlineScale,
   HiOutlineShoppingBag
 } from 'react-icons/hi';
-
-import '../../styles/user/Legal.css';
 
 // Assets
 import privacyHeroImg from '../../assets/privacy/privacy-hero.png';
@@ -122,28 +119,24 @@ function PrivacyPolicyPage() {
   ];
 
   return (
-    <div className="legal-page-container bg-[#f7f7f7]">
+    <div className="flex flex-col w-full bg-[#f7f7f7] font-poppins min-h-screen overflow-x-hidden pt-px">
+      
       {/* Privacy Hero */}
-      <section className="legal-hero privacy">
-        {/* Back Button Overlay */}
-        <div className="absolute top-8 left-8 sm:left-12 lg:left-16 z-20">
-          <Link to="/home" className="flex items-center gap-2 px-5 py-2.5 rounded shadow-lg bg-[#ef8a3a] text-white text-sm font-bold hover:bg-[#db7c31] transition-all tracking-wider">
-            SOLE VORA
-          </Link>
+      <section className="relative w-full h-[500px] flex items-center justify-center bg-[#7a1515] overflow-hidden">
+        <div className="absolute top-10 left-10 md:left-16 z-20">
+          <Link to="/home" className="px-6 py-2 bg-brand-gold text-white font-black rounded-lg shadow-xl hover:bg-orange-600 transition-all uppercase tracking-widest text-xs">Sole Vora</Link>
         </div>
-
-        <div className="hero-shoe">
-           <img src={privacyHeroImg} alt="Privacy Sneakers" />
+        <div className="absolute left-[50%] md:left-[35%] top-[50%] -translate-x-1/2 -translate-y-1/2 w-full max-w-lg opacity-40 md:opacity-100 mix-blend-screen pointer-events-none z-10">
+           <img src={privacyHeroImg} alt="Privacy Backdrop" className="w-full rotate-[-5deg] scale-125" />
         </div>
-
-        <h1 className="hero-title relative z-10">
-          Privacy<br /><b>Policy</b>
+        <h1 className="relative z-20 text-7xl md:text-9xl text-white font-black leading-none uppercase italic tracking-tighter opacity-90 drop-shadow-2xl text-center">
+            Privacy<br /><span className="text-brand-gold">Policy</span>
         </h1>
       </section>
 
       {/* Privacy Intro */}
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 py-12">
-        <p className="max-w-4xl text-[#404040] text-sm sm:text-base leading-8 opacity-80 text-center mx-auto">
+      <section className="max-w-4xl mx-auto px-6 py-12 text-center">
+        <p className="text-gray-500 font-medium text-lg leading-relaxed italic opacity-80">
           At Solevora, we believe that luxury extends beyond the physical product—it encompasses 
           the entire experience, including how we handle your personal information. This policy 
           outlines our commitment to your privacy and data security.
@@ -151,37 +144,35 @@ function PrivacyPolicyPage() {
       </section>
 
       {/* Privacy Cards List */}
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 pb-16 space-y-6">
+      <section className="max-w-7xl mx-auto px-6 pb-24 space-y-8 w-full">
         {privacyCards.map((card) => (
-          <div key={card.id} className="legal-card flex flex-col md:flex-row shadow-sm">
-            <div className="card-sidebar">
-              <span className="card-number">{card.id}</span>
-              <div className="card-tag-wrapper">
-                <div className="card-icon-box">{card.icon}</div>
-                <h3 className="card-tag-text">{card.title}</h3>
-              </div>
-            </div>
-            <div className="card-main-content">
-              <p>{card.text1}</p>
-              <p className="mt-4">{card.text2}</p>
-            </div>
+          <div key={card.id} className="bg-white rounded-[2rem] shadow-sm flex flex-col md:flex-row overflow-hidden border border-black/5 hover:-translate-y-1 hover:shadow-xl transition-all duration-500">
+             <div className="w-full md:w-1/3 bg-gray-50/50 p-10 flex flex-col items-start gap-4 relative overflow-hidden">
+                <span className="absolute -bottom-10 -right-5 text-gray-200/40 font-black text-[12rem] italic tracking-tighter leading-none pointer-events-none select-none">{card.id}</span>
+                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary relative z-10 shadow-sm">{card.icon}</div>
+                <h3 className="text-xl font-black uppercase tracking-tight relative z-10 leading-tight">{card.title}</h3>
+             </div>
+             <div className="flex-1 p-10 md:p-12 flex flex-col justify-center gap-4">
+                <p className="text-gray-600 leading-relaxed font-medium italic">"{card.text1}"</p>
+                <p className="text-gray-400 text-sm leading-relaxed">{card.text2}</p>
+             </div>
           </div>
         ))}
       </section>
 
       {/* Terms Hero */}
-      <section className="legal-hero terms">
-        <div className="hero-shoe rotate-[-15deg] top-[45%] left-[50%]">
-           <img src={termsHeroImg} alt="Terms Sneakers" />
+      <section className="relative w-full h-[500px] flex items-center justify-center bg-[#3a261a] overflow-hidden">
+        <div className="absolute right-[50%] md:right-[35%] top-[50%] -translate-x-1/2 -translate-y-1/2 w-full max-w-lg opacity-40 md:opacity-100 mix-blend-screen pointer-events-none z-10">
+           <img src={termsHeroImg} alt="Terms Backdrop" className="w-full rotate-[15deg] scale-125" />
         </div>
-        <h2 className="hero-title relative z-10">
-          Terms &<br /><b>Conditions</b>
+        <h2 className="relative z-20 text-7xl md:text-9xl text-white font-black leading-none uppercase italic tracking-tighter opacity-90 drop-shadow-2xl text-center">
+            Terms &<br /><span className="text-primary">Conditions</span>
         </h2>
       </section>
 
       {/* Terms Intro */}
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 py-12">
-        <p className="max-w-4xl text-[#404040] text-sm sm:text-base leading-8 opacity-80 text-center mx-auto">
+      <section className="max-w-4xl mx-auto px-6 py-12 text-center">
+        <p className="text-gray-500 font-medium text-lg leading-relaxed italic opacity-80">
           Welcome to Solevora. These terms govern your use of our platform and the purchase 
           of our premium footwear. By accessing our site, you agree to these conditions of 
           use and our commerce policies.
@@ -189,20 +180,18 @@ function PrivacyPolicyPage() {
       </section>
 
       {/* Terms Cards List */}
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 pb-24 space-y-6">
+      <section className="max-w-7xl mx-auto px-6 pb-32 space-y-8 w-full">
         {termsCards.map((card) => (
-          <div key={card.id} className="legal-card flex flex-col md:flex-row shadow-sm">
-            <div className="card-sidebar">
-              <span className="card-number">{card.id}</span>
-              <div className="card-tag-wrapper">
-                <div className="card-icon-box">{card.icon}</div>
-                <h3 className="card-tag-text">{card.title}</h3>
-              </div>
-            </div>
-            <div className="card-main-content">
-              <p>{card.text1}</p>
-              <p className="mt-4">{card.text2}</p>
-            </div>
+          <div key={card.id} className="bg-white rounded-[2rem] shadow-sm flex flex-col md:flex-row overflow-hidden border border-black/5 hover:-translate-y-1 hover:shadow-xl transition-all duration-500">
+             <div className="w-full md:w-1/3 bg-gray-50/50 p-10 flex flex-col items-start gap-4 relative overflow-hidden">
+                <span className="absolute -bottom-10 -right-5 text-gray-200/40 font-black text-[12rem] italic tracking-tighter leading-none pointer-events-none select-none">{card.id}</span>
+                <div className="w-12 h-12 bg-secondary/5 rounded-2xl flex items-center justify-center text-secondary relative z-10 shadow-sm">{card.icon}</div>
+                <h3 className="text-xl font-black uppercase tracking-tight relative z-10 leading-tight">{card.title}</h3>
+             </div>
+             <div className="flex-1 p-10 md:p-12 flex flex-col justify-center gap-4">
+                <p className="text-gray-600 leading-relaxed font-medium italic">"{card.text1}"</p>
+                <p className="text-gray-400 text-sm leading-relaxed">{card.text2}</p>
+             </div>
           </div>
         ))}
       </section>

@@ -12,8 +12,6 @@ export default defineConfig({
     alias: {
       'swiper/react': path.resolve(__dirname, 'node_modules/swiper/swiper-react.mjs'),
       'swiper/modules': path.resolve(__dirname, 'node_modules/swiper/modules/index.mjs'),
-      'swiper/css/autoplay': path.resolve(__dirname, 'node_modules/swiper/modules/autoplay.css'),
-      'swiper/css': path.resolve(__dirname, 'node_modules/swiper/swiper.css'),
     }
   },
   optimizeDeps: {

@@ -1,19 +1,15 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
-import logo from "../../assets/logo.png"
 import Footer from "../../components/common/Footer";
-import "../../styles/user/UserLayout.css";
-import "../../styles/user/Home.css";
 
 const UserLayout = () => {
   return (
-    <div className="layout-wrapper">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="main-content">
+      <main className="flex-grow">
         <Outlet />
       </main>
-
-   <Footer />
+      <Footer />
     </div>
   );
 };

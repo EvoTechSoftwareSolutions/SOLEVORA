@@ -1,160 +1,109 @@
-import React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import '../../styles/user/OrderConfirmation.css';
+import React from "react";
+import { Link } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 
 const OrderConfirmation = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { orderId, items, paymentMethod } = location.state || {};
-
-  // Compute dynamic estimated delivery (5-7 business days from now)
-  const getDeliveryEstimate = () => {
-    const now = new Date();
-    const start = new Date(now);
-    start.setDate(start.getDate() + 5);
-    const end = new Date(now);
-    end.setDate(end.getDate() + 7);
-    const fmt = (d) => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    return `${fmt(start)} – ${fmt(end)}`;
-  };
-
-  if (!orderId) {
-    return (
-      <div className="oc-page" style={{ textAlign: 'center', padding: '100px' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '72px', color: '#ccc' }}>receipt_long</span>
-        <h2 style={{ marginTop: '16px' }}>No order data found.</h2>
-        <p style={{ color: '#888', marginBottom: '28px' }}>It looks like you arrived here directly.</p>
-        <Link to="/home" className="oc-continue-btn">Go Home</Link>
-      </div>
-    );
-  }
-
-  const orderedItems = items || [];
-  const subtotal = orderedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const total = subtotal;
-
-  const isCOD = paymentMethod === 'cod';
-
-  const user = (() => {
-    try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
-  })();
+  const { cartItems, cartTotal } = useCart();
+  const orderNumber = "SV-" + Math.floor(100000 + Math.random() * 900000);
 
   return (
-    <div className="oc-page">
-      <div className="oc-container">
-
+    <div className="bg-[#fdfdfd] min-h-screen py-16 md:py-24 px-6 md:px-12 font-manrope selection:bg-primary/20">
+      <div className="max-w-[780px] mx-auto flex flex-col gap-12">
+        
         {/* Success Header */}
-        <div className="oc-header">
-          <div className="oc-check-circle">
-            <span className="material-symbols-outlined oc-check-icon">
-              {isCOD ? 'local_shipping' : 'check_circle'}
-            </span>
+        <header className="text-center flex flex-col items-center gap-6 animate-fadeIn">
+          <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center">
+             <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white shadow-xl shadow-primary/30">
+                <span className="material-symbols-outlined text-3xl font-black">check</span>
+             </div>
           </div>
-          <h1 className="oc-title">
-            {isCOD ? 'Order Placed Successfully!' : 'Thank you for your order!'}
-          </h1>
-          <p className="oc-subtitle">
-            Your order <span className="oc-order-number">#{orderId}</span> has been placed and is being processed.
-          </p>
-
-          {/* COD Badge */}
-          {isCOD && (
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '8px',
-              marginTop: '14px', backgroundColor: '#fff7f3',
-              border: '1px solid #ffd5c0', borderRadius: '50px',
-              padding: '8px 20px', color: '#e05c1a', fontWeight: '600', fontSize: '14px'
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>payments</span>
-              Cash on Delivery — Pay when you receive
-            </div>
-          )}
-        </div>
-
-        {/* Order Details Card */}
-        <div className="oc-summary-card">
-          <div className="oc-card-header">
-            <h2 className="oc-card-title">Order Summary</h2>
-            <span className="oc-item-count">{orderedItems.length} ITEM{orderedItems.length !== 1 ? 'S' : ''}</span>
+          <div className="flex flex-col gap-2">
+            <h1 className="text-4xl md:text-5xl font-black text-secondary uppercase tracking-tighter italic">ORDER <span className="text-primary">CONFIRMED</span></h1>
+            <p className="text-sm md:text-base text-gray-400 font-bold uppercase tracking-widest leading-relaxed italic max-w-sm mx-auto">Your SoleVora shipment is being prepared. Tracking ID: <span className="text-secondary font-black opacity-100">{orderNumber}</span></p>
           </div>
+        </header>
 
-          {orderedItems.length > 0 ? (
-            <div className="oc-items-list">
-              {orderedItems.map((item, idx) => (
-                <div key={idx} className="oc-item-row">
-                  <div className="oc-item-visual">
-                    <img src={item.image_url || item.image} alt={item.name} className="oc-item-img"
-                      onError={(e) => { e.target.src = 'https://via.placeholder.com/60'; }}
-                    />
-                  </div>
-                  <div className="oc-item-details">
-                    <h4 className="oc-item-name">{item.name}</h4>
-                    <p className="oc-item-variant">Size: {item.size} &nbsp;|&nbsp; Qty: {item.quantity}</p>
-                  </div>
-                  <div className="oc-item-price">
-                    ${(item.price * item.quantity).toFixed(2)}
-                  </div>
+        {/* Summary Card */}
+        <main className="bg-white rounded-[3rem] shadow-2xl border border-black/5 overflow-hidden animate-fadeInDelay">
+           
+           {/* Card Header */}
+           <div className="px-10 py-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h3 className="text-sm font-black uppercase tracking-widest text-secondary italic border-l-4 border-primary pl-4">Shipment Manifest</h3>
+              <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest italic">{cartItems.length} ITEMS DETECTED</span>
+           </div>
+
+           {/* Items List */}
+           <div className="px-10 py-6 max-h-[400px] overflow-y-auto scrollbar-none italic">
+              {cartItems.map((item, idx) => (
+                <div key={idx} className="py-6 border-b border-gray-50 last:border-none flex items-center gap-6 group hover:translate-x-2 transition-transform">
+                   <div className="w-20 h-16 bg-gray-50 rounded-2xl overflow-hidden shrink-0 shadow-sm">
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                   </div>
+                   <div className="flex-1 flex flex-col gap-1">
+                      <h4 className="text-sm font-black uppercase truncate tracking-tight text-secondary">{item.name}</h4>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">SIZE {item.size} • QTY {item.quantity}</p>
+                   </div>
+                   <span className="text-sm font-black text-secondary">${item.price * item.quantity}</span>
                 </div>
               ))}
-            </div>
-          ) : (
-            <p style={{ textAlign: 'center', padding: '20px', color: '#aaa' }}>No items to display.</p>
-          )}
+           </div>
 
-          <div className="oc-breakdown-section">
-            <div className="oc-estimated-delivery">
-              <p className="oc-section-label">ESTIMATED DELIVERY</p>
-              <div className="oc-delivery-info">
-                <span className="material-symbols-outlined oc-truck-icon">local_shipping</span>
-                <span className="oc-date">{getDeliveryEstimate()}</span>
+           {/* Detailed Breakdown */}
+           <div className="grid grid-cols-1 md:grid-cols-12 bg-white border-t border-gray-100 p-10 gap-10">
+              <div className="md:col-span-7 flex flex-col gap-6">
+                 <div className="flex flex-col gap-2">
+                    <span className="text-[9px] font-black text-gray-300 uppercase tracking-[.3em]">Estimated Arrival</span>
+                    <div className="flex items-center gap-3 text-secondary">
+                       <span className="material-symbols-outlined text-xl">local_shipping</span>
+                       <span className="text-sm font-black uppercase tracking-tight italic">3-5 BUSINESS DAYS</span>
+                    </div>
+                 </div>
+                 <div className="flex flex-col gap-2">
+                    <span className="text-[9px] font-black text-gray-300 uppercase tracking-[.3em]">Shipping Destination</span>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-relaxed">Refer to your primary address in profile for courier hand-off details.</p>
+                 </div>
               </div>
-            </div>
+              
+              <div className="md:col-span-5 flex flex-col gap-4">
+                 <div className="space-y-2 uppercase tracking-tighter">
+                    <div className="flex justify-between text-[11px] font-bold text-gray-400">
+                       <span>Subtotal</span>
+                       <span className="text-secondary font-black">${cartTotal}</span>
+                    </div>
+                    <div className="flex justify-between text-[11px] font-bold text-gray-400">
+                       <span>Tax (GST)</span>
+                       <span className="text-secondary font-black italic">INCLUDED</span>
+                    </div>
+                    <div className="flex justify-between text-[11px] font-bold text-gray-400">
+                       <span>Shipping</span>
+                       <span className="text-green-600 font-black italic tracking-widest">FREE</span>
+                    </div>
+                 </div>
+                 <div className="pt-4 border-t-2 border-gray-100 flex justify-between items-baseline italic">
+                    <span className="text-sm font-black text-secondary uppercase">Order Total</span>
+                    <span className="text-3xl font-black text-primary">${cartTotal}</span>
+                 </div>
+              </div>
+           </div>
 
-            <div className="oc-totals">
-              <div className="oc-total-row">
-                <span className="oc-total-key">Subtotal</span>
-                <span className="oc-total-val">${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="oc-total-row">
-                <span className="oc-total-key">Shipping</span>
-                <span className="oc-total-val-green">Free</span>
-              </div>
-              <div className="oc-grand-total">
-                <span className="oc-grand-label">{isCOD ? 'Amount Due on Delivery' : 'Total'}</span>
-                <span className="oc-grand-amount">${total.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Payment method or email confirmation */}
-          <div className="oc-card-footer">
-            {isCOD ? (
-              <>
-                <span className="material-symbols-outlined oc-info-icon">info</span>
-                <p className="oc-footer-text">
-                  Please keep <span className="oc-bold">${total.toFixed(2)}</span> ready to pay the delivery agent upon receipt.
-                </p>
-              </>
-            ) : (
-              <>
-                <span className="material-symbols-outlined oc-info-icon">info</span>
-                <p className="oc-footer-text">
-                  A confirmation email has been sent to <span className="oc-bold">{user?.email || 'your email'}</span>.
-                </p>
-              </>
-            )}
-          </div>
-        </div>
+           {/* Card Footer Support */}
+           <div className="px-10 py-5 bg-secondary flex items-center gap-4 group">
+              <span className="material-symbols-outlined text-white/30 text-lg group-hover:text-primary transition-colors">contact_support</span>
+              <p className="text-[10px] text-white/50 font-bold uppercase tracking-[.15em] flex-1">Need assistance? Contact our concierge at <span className="text-white hover:text-primary cursor-pointer transition-colors">support@solevora.com</span></p>
+           </div>
+        </main>
 
         {/* Bottom Actions */}
-        <div className="oc-actions">
-          <button className="oc-track-btn" onClick={() => navigate('/profile/orders')}>
-            TRACK ORDER
-          </button>
-          <button className="oc-continue-btn" onClick={() => navigate('/category')}>
-            CONTINUE SHOPPING
-          </button>
-        </div>
+        <footer className="flex flex-col sm:flex-row justify-center gap-6 animate-fadeInDelay">
+           <Link to="/track-order" className="px-12 h-14 bg-primary text-white rounded-2xl font-black text-xs flex items-center justify-center gap-3 hover:-translate-y-1 transition-all shadow-xl shadow-primary/30 uppercase tracking-widest">
+              Track Shipment
+              <span className="material-symbols-outlined text-lg">map</span>
+           </Link>
+           <Link to="/home" className="px-12 h-14 bg-white text-secondary border border-gray-100 rounded-2xl font-black text-xs flex items-center justify-center gap-3 hover:bg-gray-50 transition-all shadow-sm uppercase tracking-widest italic">
+              Continue Shopping
+              <span className="material-symbols-outlined text-lg">shopping_bag</span>
+           </Link>
+        </footer>
 
       </div>
     </div>

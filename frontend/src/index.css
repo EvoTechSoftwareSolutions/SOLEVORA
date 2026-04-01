@@ -2,32 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --color-primary: #ff6d2e;
-  --color-secondary: #0c121e;
-  --color-bg-light: #f8fafc;
-  --color-white: #ffffff;
-  --color-text-dark: #1e293b;
-  --color-text-muted: #64748b;
+@layer base {
+  :root {
+    --color-primary: #ff6d2e;
+    --color-secondary: #0c121e;
+    --color-bg-light: #f8fafc;
+    --color-white: #ffffff;
+    --color-text-dark: #1e293b;
+    --color-text-muted: #64748b;
 
-  --font-main: "Inter", sans-serif;
-  --font-display: "Outfit", sans-serif;
+    --font-main: "Inter", sans-serif;
+    --font-display: "Outfit", sans-serif;
+  }
+
+  body {
+    @apply m-0 p-0 box-border bg-bg-light text-secondary font-inter antialiased overflow-x-hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-outfit tracking-tighter;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 rounded-full hover:bg-gray-300 transition-colors;
+  }
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: var(--font-main);
-  background-color: var(--color-bg-light);
-  color: var(--color-text-dark);
+@layer components {
+  .container-custom {
+    @apply mx-auto px-6 md:px-10 max-w-[1440px];
+  }
+  
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-widest bg-black text-white transition-all hover:bg-primary shadow-xl shadow-black/10 active:scale-95;
+  }
+
+  .input-standard {
+    @apply w-full h-14 px-6 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all font-bold text-sm tracking-wide;
+  }
 }
 
-/* Base Utility Classes */
-.container {
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 40px;
-  padding-right: 40px;
-  max-width: 1400px;
+@layer utilities {
+  .clip-path-banner {
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+  }
 }

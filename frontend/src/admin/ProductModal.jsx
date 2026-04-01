@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { HiOutlineX, HiOutlineCloudUpload, HiOutlineDuplicate, HiOutlineCube, HiOutlineCurrencyDollar } from "react-icons/hi";
 
-const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
+const ProductModal = ({ isOpen, onClose, onSave, product = null }) => {
     const [categories, setCategories] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         price: '',
-        stock_quantity: '',
+        stock: '',
         categoryId: '',
         image_url: '',
         image_url_2: '',
@@ -28,7 +28,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                     name: product.name || '',
                     description: product.description || '',
                     price: product.price || '',
-                    stock_quantity: product.stock_quantity || '',
+                    stock: product.stock || '',
                     categoryId: product.categoryId || '',
                     image_url: product.image_url || '',
                     image_url_2: product.image_url_2 || '',
@@ -40,7 +40,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                     name: '',
                     description: '',
                     price: '',
-                    stock_quantity: '',
+                    stock: '',
                     categoryId: '',
                     image_url: '',
                     image_url_2: '',
@@ -59,7 +59,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                 setFormData(prev => ({ ...prev, categoryId: response.data[0].id }));
             }
         } catch (error) {
-            console.error('Error fetching categories:', error);
+            console.error('Category retrieval failure:', error);
         }
     };
 
@@ -77,23 +77,18 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
             const payload = {
                 ...formData,
                 price: parseFloat(formData.price),
-                stock_quantity: parseInt(formData.stock_quantity)
+                stock: parseInt(formData.stock)
             };
 
-            let response;
             if (isEdit) {
-                response = await axios.put(`http://localhost:5000/api/products/${product.id}`, payload);
+                await axios.put(`http://localhost:5000/api/products/${product.id}`, payload);
             } else {
-                response = await axios.post('http://localhost:5000/api/products', payload);
+                await axios.post('http://localhost:5000/api/products', payload);
             }
-
-            if (response.status === 200 || response.status === 201) {
-                onProductSaved(response.data);
-                onClose();
-            }
+            onSave();
         } catch (error) {
-            setError(error.response?.data?.message || `Error ${isEdit ? 'updating' : 'creating'} product. Please try again.`);
-            console.error(`Error ${isEdit ? 'updating' : 'creating'} product:`, error);
+            setError(error.response?.data?.message || `Protocol mismatch during ${isEdit ? 'refactoring' : 'injection'}.`);
+            console.error('Transaction failure:', error);
         } finally {
             setLoading(false);
         }
@@ -102,154 +97,119 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm transition-all animate-fadeIn">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all scale-100">
-                {/* Modal Header */}
-                <div className="px-6 py-4 flex justify-between items-center border-b border-gray-100">
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn italic selection:bg-primary/20">
+            <div className="bg-white rounded-[3rem] border border-slate-100 shadow-2xl w-full max-w-2xl overflow-hidden animate-scaleIn">
+                
+                {/* Header */}
+                <header className="px-10 py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-800">{isEdit ? 'Edit Product' : 'Add New Product'}</h2>
-                        <p className="text-xs text-gray-500 mt-1">{isEdit ? 'Update product details in your inventory' : 'Fill in the details to add to your inventory'}</p>
+                        <h2 className="text-2xl font-black uppercase tracking-tighter text-secondary italic">{isEdit ? 'Refactor' : 'Inject'} <span className="text-primary">Unit</span></h2>
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[.3em] mt-1">Magnitude Specification Protocol v2.6</p>
                     </div>
-                    <button 
-                        onClick={onClose}
-                        className="p-1 rounded-full hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
-                    >
-                        <XMarkIcon className="w-5 h-5" />
+                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-gray-400 hover:text-rose-500 hover:border-rose-100 transition-all active:scale-90">
+                        <HiOutlineX size={20} />
                     </button>
-                </div>
+                </header>
 
-                {/* Modal Body */}
-                <form onSubmit={handleSubmit} className="px-6 py-4">
+                <form onSubmit={handleSubmit} className="p-10 max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-100">
                     {error && (
-                        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded flex items-center">
-                            <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                            {error}
+                        <div className="mb-8 p-4 bg-rose-50 border border-rose-100 text-rose-500 text-[10px] font-black uppercase tracking-widest rounded-2xl flex items-center gap-3">
+                             <HiOutlineExclamationCircle size={18} />
+                             {error}
                         </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-8">
                         {/* Name */}
-                        <div className="col-span-2">
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Product Name</label>
+                        <div className="col-span-2 flex flex-col gap-2 group">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within:text-primary transition-colors">Unit Designation (Name)</label>
                             <input 
-                                type="text"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                required
-                                placeholder="Enter product name (e.g. SoleRunner V1)"
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
+                                type="text" name="name" value={formData.name} onChange={handleChange} required
+                                placeholder="CORE MAGNITUDE MODEL"
+                                className="w-full h-14 px-6 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all font-bold text-xs uppercase tracking-widest"
                             />
                         </div>
 
                         {/* Category */}
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Category</label>
-                            <select 
-                                name="categoryId"
-                                value={formData.categoryId}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none appearance-none bg-no-repeat bg-[right_1rem_center]"
-                                style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236b7280\' stroke-width=\'2\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundSize: '1.2em' }}
-                            >
-                                <option value="" disabled>Select Category</option>
-                                {categories.map(cat => (
-                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                ))}
-                            </select>
+                        <div className="flex flex-col gap-2 group">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within:text-primary transition-colors">Classification</label>
+                            <div className="relative">
+                                <select 
+                                    name="categoryId" value={formData.categoryId} onChange={handleChange} required
+                                    className="w-full h-14 px-6 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all font-bold text-xs uppercase tracking-widest appearance-none"
+                                >
+                                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+                                </select>
+                                <HiOutlineDuplicate className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" size={18} />
+                            </div>
                         </div>
 
                         {/* Price */}
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Price ($)</label>
-                            <input 
-                                type="number"
-                                step="0.01"
-                                name="price"
-                                value={formData.price}
-                                onChange={handleChange}
-                                required
-                                placeholder="0.00"
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
-                            />
+                        <div className="flex flex-col gap-2 group">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within:text-primary transition-colors">Procurement Value ($)</label>
+                            <div className="relative">
+                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 font-black text-xs leading-none mt-[1px]">$</span>
+                                <input 
+                                    type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} required
+                                    className="w-full h-14 pl-10 pr-6 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all font-bold text-xs uppercase tracking-widest"
+                                />
+                            </div>
                         </div>
 
                         {/* Stock */}
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Stock Quantity</label>
-                            <input 
-                                type="number"
-                                name="stock_quantity"
-                                value={formData.stock_quantity}
-                                onChange={handleChange}
-                                required
-                                placeholder="0"
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
-                            />
-                        </div>
-
-                        {/* Image URL */}
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Main Image URL</label>
-                            <input 
-                                type="text"
-                                name="image_url"
-                                value={formData.image_url}
-                                onChange={handleChange}
-                                placeholder="https://unsplash.com/..."
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
-                            />
-                        </div>
-
-                        {/* Additional Image URLs */}
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL 2</label>
-                            <input type="text" name="image_url_2" value={formData.image_url_2} onChange={handleChange} placeholder="Optional secondary image URL" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL 3</label>
-                            <input type="text" name="image_url_3" value={formData.image_url_3} onChange={handleChange} placeholder="Optional third image URL" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL 4</label>
-                            <input type="text" name="image_url_4" value={formData.image_url_4} onChange={handleChange} placeholder="Optional fourth image URL" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
+                        <div className="flex flex-col gap-2 group">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within:text-primary transition-colors">Quantity (Units)</label>
+                            <div className="relative">
+                                <HiOutlineCube className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
+                                <input 
+                                    type="number" name="stock" value={formData.stock} onChange={handleChange} required
+                                    className="w-full h-14 pl-14 pr-6 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all font-bold text-xs uppercase tracking-widest"
+                                />
+                            </div>
                         </div>
 
                         {/* Description */}
-                        <div className="col-span-2">
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Description</label>
+                        <div className="col-span-2 flex flex-col gap-2 group">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within:text-primary transition-colors">Technical intelligence (Description)</label>
                             <textarea 
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                rows="3"
-                                placeholder="Describe the key features and materials..."
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none resize-none"
-                            ></textarea>
+                                name="description" value={formData.description} onChange={handleChange} rows="3"
+                                className="w-full p-6 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all font-bold text-xs uppercase tracking-widest resize-none"
+                            />
+                        </div>
+
+                        {/* Image URLs */}
+                        <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50/50 rounded-[2rem] border border-slate-100">
+                             {[
+                                { label: 'Primary Vector', name: 'image_url' },
+                                { label: 'Auxiliary 01', name: 'image_url_2' },
+                                { label: 'Auxiliary 02', name: 'image_url_3' },
+                                { label: 'Auxiliary 03', name: 'image_url_4' },
+                             ].map((img) => (
+                                <div key={img.name} className="flex flex-col gap-2 group/img">
+                                     <label className="text-[8px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within/img:text-primary transition-colors">{img.label}</label>
+                                     <div className="relative">
+                                        <HiOutlineCloudUpload className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
+                                        <input 
+                                            type="text" name={img.name} value={formData[img.name]} onChange={handleChange} 
+                                            className="w-full h-11 pl-10 pr-4 bg-white border border-slate-100 rounded-xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/30 transition-all font-bold text-[10px] uppercase tracking-widest"
+                                        />
+                                     </div>
+                                </div>
+                             ))}
                         </div>
                     </div>
-
-                    {/* Footer Actions */}
-                    <div className="mt-6 flex gap-3">
-                        <button 
-                            type="button"
-                            onClick={onClose}
-                            className="flex-1 py-2 px-4 rounded-lg border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button 
-                            type="submit"
-                            disabled={loading}
-                            className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold text-white shadow-md transition-all ${loading ? 'bg-orange-300' : 'bg-[#f66d3b] hover:bg-orange-600'}`}
-                        >
-                            {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Product' : 'Create Product')}
-                        </button>
-                    </div>
                 </form>
+
+                {/* Footer */}
+                <footer className="p-10 border-t border-slate-50 bg-slate-50/30 flex gap-4">
+                    <button type="button" onClick={onClose} className="flex-1 h-14 bg-white border border-slate-100 text-gray-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:text-rose-500 hover:border-rose-100 transition-all active:scale-95">Abort Mission</button>
+                    <button 
+                        onClick={handleSubmit} disabled={loading}
+                        className="flex-[2] h-14 bg-secondary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary transition-all shadow-xl shadow-secondary/10 active:scale-95 disabled:opacity-50 group"
+                    >
+                        {loading ? 'Transmitting Data...' : isEdit ? 'Commit Refactor' : 'Initialize Injection'}
+                    </button>
+                </footer>
             </div>
         </div>
     );

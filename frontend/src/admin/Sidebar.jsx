@@ -1,118 +1,114 @@
-import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAdminAuth } from '../context/AdminAuthContext';
-import logo from '../assets/logo.png';
-import './Sidebar.css';
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { 
+    HiOutlineViewGrid, 
+    HiOutlineShoppingBag, 
+    HiOutlineUsers, 
+    HiOutlineCube, 
+    HiOutlineChartBar, 
+    HiOutlineCog, 
+    HiOutlineLogout,
+    HiOutlineMenuAlt2,
+    HiOutlineX
+} from "react-icons/hi";
 
 const Sidebar = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { isAdmin, logout } = useAdminAuth();
-    const currentPath = location.pathname;
+    const [isOpen, setIsOpen] = useState(false);
+    
+    // Retrieve admin info
+    const adminUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
+    const role = adminUser.role || 'Admin';
 
-    const isTabActive = (pathName) => {
-        if (currentPath === '/admin' && pathName === '/admin') return 'active';
-        if (pathName !== '/admin' && currentPath === pathName) return 'active';
-        return '';
-    };
+    const menuItems = [
+        { name: "Overview", path: "/admin", icon: <HiOutlineViewGrid size={22} />, roles: ["admin", "store_manager"] },
+        { name: "Inventory", path: "/admin/products", icon: <HiOutlineCube size={22} />, roles: ["admin", "store_manager"] },
+        { name: "Orders", path: "/admin/orders", icon: <HiOutlineShoppingBag size={22} />, roles: ["admin", "store_manager"] },
+        { name: "Intelligence", path: "/admin/analytics", icon: <HiOutlineChartBar size={22} />, roles: ["admin", "store_manager"] },
+        { name: "Personnel", path: "/admin/customers", icon: <HiOutlineUsers size={22} />, roles: ["admin", "store_manager"] },
+        { name: "System Config", path: "/admin/settings", icon: <HiOutlineCog size={22} />, roles: ["admin"] },
+    ];
+
+    const filteredItems = menuItems.filter(item => item.roles.includes(role.toLowerCase()));
 
     const handleLogout = () => {
-        logout();
-        navigate('/admin-login', { replace: true });
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        navigate('/admin-login');
     };
 
     return (
-        <div className="app-sidebar">
-            <div className="app-sidebar-logo">
-                <img src={logo} alt="SoleVora Logo" style={{ width: '100%', maxWidth: '130px', height: 'auto', display: 'block', margin: '0 auto', marginTop: '-15px' }} />
-            </div>
+        <>
+            <button 
+                onClick={() => setIsOpen(!isOpen)}
+                className="fixed top-6 left-6 z-[2000] lg:hidden w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center shadow-xl active:scale-95 transition-transform"
+            >
+                {isOpen ? <HiOutlineX size={24} /> : <HiOutlineMenuAlt2 size={24} />}
+            </button>
 
-            <div className="app-nav-items">
-                <Link to="/admin" style={{ textDecoration: 'none' }}>
-                    <div className={`app-nav-item ${isTabActive('/admin')}`}>
-                        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="14" width="7" height="7"></rect>
-                            <rect x="3" y="14" width="7" height="7"></rect>
-                        </svg>
-                        Dashboard
+            {isOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1800] lg:hidden animate-fadeIn"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
+
+            <aside className={`fixed inset-y-0 left-0 w-80 bg-white border-r border-slate-100 z-[1900] transform transition-all duration-500 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:static flex flex-col p-8 font-manrope italic`}>
+                
+                {/* Branding */}
+                <div className="mb-14 flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/30">
+                         <HiOutlineCube size={24} className="animate-pulse" />
                     </div>
-                </Link>
-
-                <Link to="/admin/products" style={{ textDecoration: 'none' }}>
-                    <div className={`app-nav-item ${isTabActive('/admin/products')}`}>
-                        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 8H3V18a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z"></path>
-                            <path d="M22 8v-2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2"></path>
-                            <path d="M10 12h4"></path>
-                        </svg>
-                        Products
+                    <div>
+                        <h1 className="text-xl font-black uppercase tracking-tighter text-secondary italic leading-none">SOLE<span className="text-primary">VORA</span></h1>
+                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-[.4em] mt-1">Admin Backbone</p>
                     </div>
-                </Link>
-
-                <Link to="/admin/orders" style={{ textDecoration: 'none' }}>
-                    <div className={`app-nav-item ${isTabActive('/admin/orders')}`}>
-                        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="9" cy="21" r="1"></circle>
-                            <circle cx="20" cy="21" r="1"></circle>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                        </svg>
-                        Orders
-                    </div>
-                </Link>
-
-                <Link to="/admin/customers" style={{ textDecoration: 'none' }}>
-                    <div className={`app-nav-item ${isTabActive('/admin/customers')}`}>
-                        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M17 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M9 21v-2a4 4 0 0 1 4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <circle cx="17" cy="7" r="3"></circle>
-                        </svg>
-                        Customers
-                    </div>
-                </Link>
-
-                <Link to="/admin/analytics" style={{ textDecoration: 'none' }}>
-                    <div className={`app-nav-item ${isTabActive('/admin/analytics')}`}>
-                        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="18" y1="20" x2="18" y2="10"></line>
-                            <line x1="12" y1="20" x2="12" y2="4"></line>
-                            <line x1="6" y1="20" x2="6" y2="14"></line>
-                            <path d="M4 22h16"></path>
-                        </svg>
-                        Analytics
-                    </div>
-                </Link>
-            </div>
-
-            {/* SYSTEM section — Settings only for admin */}
-            <div className="app-system-label">SYSTEM</div>
-            <div className="app-nav-items app-system-items">
-                {isAdmin && (
-                    <Link to="/admin/settings" style={{ textDecoration: 'none' }}>
-                        <div className={`app-nav-item ${isTabActive('/admin/settings')}`}>
-                            <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                            </svg>
-                            Settings
-                        </div>
-                    </Link>
-                )}
-
-                {/* Logout */}
-                <div className="app-nav-item app-nav-logout" onClick={handleLogout}>
-                    <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    Logout
                 </div>
-            </div>
-        </div>
+
+                {/* Primary Nav */}
+                <nav className="flex-1 flex flex-col gap-2">
+                    <h5 className="text-[9px] font-black uppercase tracking-[.3em] text-gray-300 mb-4 px-4">Directives</h5>
+                    {filteredItems.map((item) => {
+                        const isActive = location.pathname === item.path;
+                        return (
+                            <Link 
+                                key={item.name}
+                                to={item.path}
+                                onClick={() => setIsOpen(false)}
+                                className={`flex items-center gap-4 px-6 py-4 rounded-2xl transition-all group ${isActive ? 'bg-secondary text-white shadow-xl shadow-secondary/20 scale-[1.02]' : 'text-gray-400 hover:bg-slate-50 hover:text-secondary'}`}
+                            >
+                                <span className={`transition-colors ${isActive ? 'text-white' : 'group-hover:text-primary transition-colors'}`}>{item.icon}</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest">{item.name}</span>
+                                {isActive && <span className="ml-auto w-1.5 h-1.5 bg-white rounded-full animate-pulse" />}
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                {/* Account Actions */}
+                <div className="mt-auto pt-8 border-t border-slate-50">
+                    <div className="mb-8 p-4 bg-slate-50 rounded-2xl flex items-center gap-4">
+                        <div className="w-10 h-10 bg-white rounded-xl overflow-hidden border border-slate-100 flex items-center justify-center shadow-sm">
+                             <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${adminUser.name || 'Admin'}`} alt="" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                             <h4 className="text-[10px] font-black uppercase tracking-widest text-secondary truncate">{adminUser.name || 'Root Operator'}</h4>
+                             <p className="text-[8px] font-bold text-primary uppercase tracking-widest opacity-60 truncate">{role}</p>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-rose-400 hover:bg-rose-50 transition-all group uppercase"
+                    >
+                        <HiOutlineLogout size={22} className="group-hover:text-rose-600" />
+                        <span className="text-[10px] font-black tracking-widest group-hover:text-rose-600">Terminate Session</span>
+                    </button>
+                    <p className="mt-8 text-center text-[8px] font-bold text-gray-300 uppercase tracking-[.4em] opacity-40">System Core v2.6.4</p>
+                </div>
+            </aside>
+        </>
     );
 };
 

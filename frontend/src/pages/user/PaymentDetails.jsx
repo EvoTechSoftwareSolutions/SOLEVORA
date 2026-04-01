@@ -1,386 +1,205 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import Modal from '../../components/ui/Modal';
-import '../../styles/user/PaymentDetails.css';
 
 const PaymentDetails = () => {
     const navigate = useNavigate();
-    const { selectedCart: cart, selectedCartTotal: cartTotal, checkoutData, clearCart, removeFromCart } = useCart();
+    const { cartItems, cartTotal } = useCart();
+    const [selectedMethod, setSelectedMethod] = useState("Credit Card");
+    const [formData, setFormData] = useState({
+        cardName: "", cardNumber: "", expiry: "", cvv: ""
+    });
 
-    const [paymentMethod, setPaymentMethod] = useState('creditcard');
-    const [promoCode, setPromoCode] = useState('');
-    const [promoApplied, setPromoApplied] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalContent, setModalContent] = useState({ title: '', body: '' });
-
-    const showMessage = (title, body) => {
-        setModalContent({ title, body });
-        setIsModalOpen(true);
-    };
-
-    const getLoggedInUser = () => {
-        const userStr = localStorage.getItem("user");
-        if (userStr) return JSON.parse(userStr);
-        return null;
-    };
-
-    const user = getLoggedInUser();
-    
-    // Constants from ShippingMethod.jsx
-    const shippingMethods = [
-        { id: 'standard', name: 'Standard Shipping', price: 0 },
-        { id: 'express', name: 'Express Shipping', price: 15.00 },
-        { id: 'nextday', name: 'Next Day Delivery', price: 25.00 },
+    const paymentMethods = [
+        { id: "Card", name: "Credit Card", icon: "credit_card", sub: "Visa / Master" },
+        { id: "Paypal", name: "PayPal", icon: "account_balance_wallet", sub: "e-Wallet" },
+        { id: "Crypto", name: "Crypto", icon: "currency_bitcoin", sub: "Web3" },
+        { id: "Cash", name: "Cash on Delivery", icon: "payments", sub: "Local" }
     ];
 
-    const grossTotal = cartTotal;
-    const promoDiscount = promoApplied ? grossTotal * 0.1 : 0;
-    
-    // Get shipping charge based on selected method
-    const selectedShippingMethod = checkoutData.shippingMethod || 'Standard Shipping';
-    const shippingMethodObj = shippingMethods.find(m => m.name === selectedShippingMethod) || shippingMethods[0];
-    const shippingCharge = shippingMethodObj.price;
-
-    const total = grossTotal - promoDiscount + shippingCharge;
-
-    const handleApplyPromo = () => {
-        if (promoCode.trim().toLowerCase() === 'save10') setPromoApplied(true);
-        else showMessage('Invalid Promo', 'The code you entered is invalid. Try "SAVE10" for a discount.');
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // Here you would typically process the payment
+        navigate('/order-confirmation');
     };
-
-    const handlePlaceOrder = async () => {
-        if (paymentMethod === 'cod') {
-            await handleCOD();
-        } else if (paymentMethod === 'creditcard') {
-            await handlePayHere();
-        } else {
-            showMessage('Coming Soon', `Payment via ${paymentMethod} is currently under development. Please use Credit Card or Cash on Delivery.`);
-        }
-    };
-
-    const handleCOD = async () => {
-        try {
-            const orderPayload = {
-                total_amount: total,
-                status: 'pending',
-                shipping_address: `${checkoutData.streetAddress || 'N/A'}, ${checkoutData.city || 'N/A'}, ${checkoutData.postalCode || '00000'}`,
-                contact_number: checkoutData.phone || 'N/A',
-                email: checkoutData.email || user?.email || 'guest@example.com',
-                userId: user?.id || null,
-                items: cart.map(item => ({
-                    productId: item.id,
-                    quantity: item.quantity,
-                    price: item.price,
-                    size: item.size
-                }))
-            };
-
-            const response = await axios.post('http://localhost:5000/api/orders', orderPayload);
-            const orderData = response.data;
-            const currentItems = [...cart];
-            // Clear only the checked out items
-            currentItems.forEach(item => removeFromCart(item.id, item.size));
-            navigate('/order-confirmation', { state: { orderId: orderData.id, items: currentItems, paymentMethod: 'cod' } });
-        } catch (error) {
-            console.error('Error placing COD order:', error);
-            showMessage('Order Failed', 'Could not place your order. Please try again.');
-        }
-    };
-
-    const handlePayHere = async () => {
-        try {
-            const orderPayload = {
-                total_amount: total,
-                status: 'pending',
-                shipping_address: `${checkoutData.streetAddress || 'N/A'}, ${checkoutData.city || 'N/A'}, ${checkoutData.postalCode || '00000'}`,
-                contact_number: checkoutData.phone || 'N/A',
-                email: checkoutData.email || user?.email || 'guest@example.com',
-                userId: user?.id || null,
-                items: cart.map(item => ({
-                    productId: item.id,
-                    quantity: item.quantity,
-                    price: item.price,
-                    size: item.size
-                }))
-            };
-
-            const response = await axios.post('http://localhost:5000/api/orders', orderPayload);
-            const orderData = response.data;
-
-            const hashResponse = await axios.post('http://localhost:5000/api/payment/hash', {
-                order_id: orderData.id,
-                amount: total,
-                currency: 'LKR'
-            });
-
-            const { hash, merchant_id } = hashResponse.data;
-
-            const payment = {
-                sandbox: true,
-                merchant_id: merchant_id,
-                return_url: `${window.location.origin}/profile/orders`,
-                cancel_url: window.location.href,
-                // NOTE: localhost cannot be reached by PayHere servers for webhook callbacks.
-                // Use a publicly reachable backend URL in production (or via ngrok during local dev).
-                notify_url: "http://localhost:5000/api/payment/notify",
-                order_id: orderData.id.toString(),
-                items: "SoleVora Order #" + orderData.id,
-                amount: total.toFixed(2),
-                currency: "LKR",
-                hash: hash,
-                first_name: checkoutData.firstName || (user?.name ? user.name.split(' ')[0] : "Guest"),
-                last_name: checkoutData.lastName || (user?.name ? user.name.split(' ')[1] : "User"),
-                email: checkoutData.email || user?.email || 'guest@example.com',
-                phone: checkoutData.phone || '0000000000',
-                address: checkoutData.streetAddress || 'Address line 1',
-                city: checkoutData.city || 'Colombo',
-                country: "Sri Lanka",
-            };
-
-            window.payhere.onCompleted = function onCompleted(orderId) {
-                console.log("Payment completed. OrderID:" + orderId);
-                // Fallback update for local development where notify_url is not publicly reachable.
-                axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: 'paid' })
-                    .catch((updateErr) => {
-                        console.error('Failed to update paid status after PayHere completion:', updateErr);
-                    })
-                    .finally(() => {
-                        const currentItems = [...cart];
-                        // Clear only the checked out items
-                        currentItems.forEach(item => removeFromCart(item.id, item.size));
-                        navigate('/order-confirmation', { state: { orderId: orderId, items: currentItems, paymentMethod: 'creditcard' } });
-                    });
-            };
-
-            window.payhere.onDismissed = function onDismissed() {
-                showMessage('Payment Dismissed', 'You dismissed the payment popup. Your order is saved as pending.');
-            };
-
-            window.payhere.onError = function onError(error) {
-                showMessage('Payment Error', 'There was an error with PayHere: ' + error);
-            };
-
-            window.payhere.startPayment(payment);
-
-        } catch (error) {
-            console.error('Error placing order:', error);
-            showMessage('Order Failed', 'Error initiating payment. Please try again.');
-        }
-    };
-
-    if (cart.length === 0) {
-        return (
-            <div className="pd-page">
-                <div className="pd-container" style={{ textAlign: 'center', padding: '100px 20px' }}>
-                    <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
-                    <p className="mb-8 text-gray-500">Add some items before proceeding to payment.</p>
-                    <Link to="/category" className="pd-place-order-btn" style={{ display: 'inline-block', width: 'auto', padding: '12px 30px' }}>
-                        Browse Products
-                    </Link>
-                </div>
-            </div>
-        );
-    }
 
     return (
-        <div className="pd-page">
-            <div className="pd-container">
-                <nav className="pd-breadcrumb">
-                    <Link to="/">Home</Link>
-                    <span className="pd-bc-sep">/</span>
-                    <Link to="/cart">Cart</Link>
-                    <span className="pd-bc-sep">/</span>
-                    <Link to="/shipping">Checkout</Link>
-                    <span className="pd-bc-sep">/</span>
-                    <span className="pd-bc-current">Payment</span>
+        <div className="bg-[#f5f0ea] min-h-screen py-8 md:py-16 font-manrope text-secondary select-none">
+            <div className="max-w-[1080px] mx-auto px-4 md:px-6">
+                
+                {/* Breadcrumb */}
+                <nav className="flex items-center gap-2 mb-6 text-[11px] md:text-sm">
+                   <Link to="/shipping-method" className="text-secondary font-bold hover:text-primary transition-colors">Shipping</Link>
+                   <span className="text-gray-400">/</span>
+                   <span className="font-black text-primary">Payment Details</span>
                 </nav>
 
-                <div className="pd-stepper-wrap">
-                    <div className="pd-stepper">
-                        <div className="pd-step-item">
-                            <div className="pd-circle pd-circle-completed">1</div>
-                            <span className="pd-step-lbl pd-lbl-completed">Shipping</span>
-                        </div>
-                        <div className="pd-connector pd-connector-filled"></div>
-                        <div className="pd-step-item">
-                            <div className="pd-circle pd-circle-completed">2</div>
-                            <span className="pd-step-lbl pd-lbl-completed">Method</span>
-                        </div>
-                        <div className="pd-connector pd-connector-filled"></div>
-                        <div className="pd-step-item">
-                            <div className="pd-circle pd-circle-active">3</div>
-                            <span className="pd-step-lbl pd-lbl-active">Payment</span>
-                        </div>
-                    </div>
+                {/* Checkout Stepper */}
+                <div className="max-w-[600px] mx-auto mb-12">
+                   <div className="flex items-center justify-between mb-2">
+                       <div className="flex flex-col items-center gap-2">
+                          <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-black text-sm shadow-xl shadow-primary/30">1</div>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-primary">Info</span>
+                       </div>
+                       <div className="flex-grow h-1 bg-primary mx-4 -mt-6 rounded-full" />
+                       <div className="flex flex-col items-center gap-2">
+                          <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-black text-sm shadow-xl shadow-primary/30">2</div>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-primary">Ship</span>
+                       </div>
+                       <div className="flex-grow h-1 bg-primary mx-4 -mt-6 rounded-full" />
+                       <div className="flex flex-col items-center gap-2">
+                          <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-black text-sm shadow-xl shadow-primary/30 ring-4 ring-white">3</div>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-primary">Pay</span>
+                       </div>
+                   </div>
+                   <p className="text-center text-[11px] text-gray-400 font-bold uppercase tracking-widest">Step 3: Secure your purchase</p>
                 </div>
 
-                <div className="pd-grid">
-                    <div className="pd-content-col">
-                        <h1 className="pd-page-title">Payment Details</h1>
-                        <p className="pd-page-subtitle">Secure your order with your preferred payment method.</p>
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    
+                    {/* Left: Payment Content */}
+                    <main className="lg:col-span-8 flex flex-col gap-8 animate-fadeIn">
+                       <div>
+                          <h2 className="text-2xl font-black uppercase tracking-tight">Payment Method</h2>
+                          <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">All transactions are secure and encrypted.</p>
+                       </div>
 
-                        <h3 className="pd-section-title">Select Payment Method</h3>
-                        
-                        <div className="pd-methods-grid">
-                            <div 
-                                className={`pd-method-card ${paymentMethod === 'creditcard' ? 'active' : ''}`} 
-                                onClick={() => setPaymentMethod('creditcard')}
-                            >
-                                <span className="material-symbols-outlined pd-method-icon">credit_card</span>
-                                <span className="pd-method-name">Credit Card</span>
-                            </div>
-                            <div 
-                                className={`pd-method-card ${paymentMethod === 'paypal' ? 'active' : ''}`} 
-                                onClick={() => setPaymentMethod('paypal')}
-                            >
-                                <span className="material-symbols-outlined pd-method-icon">account_balance_wallet</span>
-                                <span className="pd-method-name">PayPal</span>
-                            </div>
-                            <div 
-                                className={`pd-method-card ${paymentMethod === 'applepay' ? 'active' : ''}`} 
-                                onClick={() => setPaymentMethod('applepay')}
-                            >
-                                <span className="pd-method-sub">iOS</span>
-                                <span className="pd-method-name">Apple Pay</span>
-                            </div>
-                            <div 
-                                className={`pd-method-card ${paymentMethod === 'cod' ? 'active' : ''}`} 
-                                onClick={() => setPaymentMethod('cod')}
-                            >
-                                <span className="material-symbols-outlined pd-method-icon">payments</span>
-                                <span className="pd-method-name">Cash on Delivery</span>
-                            </div>
-                        </div>
-
-                        {/* Payment Info Card */}
-                        <div className="pd-form-card" style={{ padding: '30px', textAlign: 'center' }}>
-                            {paymentMethod === 'creditcard' ? (
-                                <>
-                                    <div style={{ marginBottom: '20px' }}>
-                                        <img src="https://www.payhere.lk/downloads/images/payhere_square_logo.png" alt="PayHere" style={{ width: '100px', margin: '0 auto' }} />
-                                    </div>
-                                    <p className="text-sm text-gray-600 mb-4">You will be redirected to PayHere secure gateway to complete your transaction.</p>
-                                    <div className="flex items-center justify-center gap-2 text-green-600 font-semibold text-sm">
-                                        <span className="material-symbols-outlined">verified_user</span>
-                                        SSL Secure Transaction
-                                    </div>
-                                </>
-                            ) : paymentMethod === 'cod' ? (
-                                <div style={{ padding: '10px 0' }}>
-                                    <span className="material-symbols-outlined" style={{ fontSize: '52px', color: '#f66d3b', display: 'block', marginBottom: '16px' }}>local_shipping</span>
-                                    <h3 style={{ fontWeight: '700', fontSize: '18px', marginBottom: '10px', color: '#111' }}>Pay When You Receive</h3>
-                                    <p className="text-sm text-gray-500" style={{ maxWidth: '320px', margin: '0 auto 16px', lineHeight: '1.7' }}>
-                                        Your order will be delivered to your address. Payment is collected by the delivery agent upon arrival.
-                                    </p>
-                                    <div style={{ background: '#fff7f3', border: '1px solid #ffd5c0', borderRadius: '12px', padding: '14px 18px', textAlign: 'left', maxWidth: '340px', margin: '0 auto' }}>
-                                        <p style={{ fontSize: '13px', color: '#444', marginBottom: '6px' }}><strong>📍 Delivery Address:</strong></p>
-                                        <p style={{ fontSize: '13px', color: '#666' }}>{checkoutData.streetAddress || 'N/A'}, {checkoutData.city || 'N/A'}</p>
-                                        <p style={{ fontSize: '13px', color: '#444', marginTop: '10px', marginBottom: '6px' }}><strong>💰 Amount Due on Delivery:</strong></p>
-                                        <p style={{ fontSize: '20px', fontWeight: '800', color: '#f66d3b' }}>${total.toFixed(2)}</p>
-                                    </div>
-                                    <div className="flex items-center justify-center gap-2 text-green-600 font-semibold text-sm" style={{ marginTop: '16px' }}>
-                                        <span className="material-symbols-outlined">check_circle</span>
-                                        No online payment required
-                                    </div>
+                       {/* Method Grid */}
+                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          {paymentMethods.map(method => (
+                             <div 
+                               key={method.id}
+                               onClick={() => setSelectedMethod(method.name)}
+                               className={`bg-white border-2 rounded-2xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${selectedMethod === method.name ? 'border-primary bg-primary/5 shadow-lg' : 'border-gray-100 hover:border-primary/30 over:scale-105'}`}
+                             >
+                                <span className={`material-symbols-outlined text-2xl ${selectedMethod === method.name ? 'text-primary' : 'text-gray-400'}`}>{method.icon}</span>
+                                <div className="text-center">
+                                   <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block">{method.sub}</span>
+                                   <span className="text-xs font-black uppercase tracking-tight">{method.name}</span>
                                 </div>
-                            ) : (
-                                <p className="text-gray-500 py-10">Details for {paymentMethod.replace('card', ' card')} will be shown here.</p>
-                            )}
-                        </div>
+                             </div>
+                          ))}
+                       </div>
 
-                        <div className="pd-nav-actions">
-                            <Link to="/shipping" className="pd-back-link">
-                                <span className="material-symbols-outlined">arrow_back</span>
-                                Back to Shipping Method
-                            </Link>
-                        </div>
-                    </div>
+                       {/* Form Section */}
+                       <div className="bg-white rounded-3xl p-8 shadow-sm border border-black/5 flex flex-col gap-6">
+                          <div className="flex flex-col gap-2">
+                             <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Cardholder Name</label>
+                             <input 
+                                type="text" placeholder="JOHN DOE" required
+                                className="h-12 px-5 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all text-sm font-medium uppercase placeholder:normal-case"
+                             />
+                          </div>
 
-                    <div className="pd-summary-card">
-                        <h3 className="pd-summary-title">Order Summary</h3>
-                        
-                        {/* Horizontal scroll item cards */}
-                        <div className="pd-items-scroll">
-                            {cart.map(item => (
-                                <div key={`${item.id}-${item.size}`} className="pd-item-card">
-                                    <div className="pd-item-img-wrap">
-                                        <img src={item.image_url} alt={item.name} className="pd-item-img" />
-                                        <span className="pd-qty-badge">{item.quantity}</span>
-                                    </div>
-                                    <p className="pd-item-name">{item.name}</p>
-                                    <p className="pd-item-variant">Size: {item.size}</p>
-                                    <div className="pd-item-footer">
-                                        <span className="pd-item-qty-lbl">Qty: {item.quantity}</span>
-                                        <span className="pd-item-price">${(item.price * item.quantity).toFixed(2)}</span>
-                                    </div>
+                          <div className="flex flex-col gap-2">
+                             <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Card Number</label>
+                             <div className="relative flex items-center">
+                                <input 
+                                   type="text" placeholder="0000 0000 0000 0000" required
+                                   className="w-full h-12 px-5 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all text-sm font-medium"
+                                />
+                                <span className="absolute right-4 material-symbols-outlined text-gray-300">credit_card</span>
+                             </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-6">
+                             <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Expiry Date</label>
+                                <input 
+                                   type="text" placeholder="MM / YY" required
+                                   className="h-12 px-5 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all text-sm font-medium"
+                                />
+                             </div>
+                             <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">CVV / CVC</label>
+                                <div className="relative flex items-center">
+                                   <input 
+                                      type="password" placeholder="***" required maxLength="3"
+                                      className="w-full h-12 px-5 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all text-sm font-medium"
+                                   />
+                                   <span className="absolute right-4 material-symbols-outlined text-gray-300">lock</span>
                                 </div>
-                            ))}
-                        </div>
+                             </div>
+                          </div>
 
-                        {/* Promo Code */}
-                        <div className="pd-promo">
-                            <input
-                                type="text"
-                                placeholder="Promo code"
-                                value={promoCode}
-                                onChange={e => setPromoCode(e.target.value)}
-                                className="pd-promo-input"
-                            />
-                            <button type="button" onClick={handleApplyPromo} className="pd-promo-btn">
-                                Apply
-                            </button>
-                        </div>
+                          <div className="flex items-center gap-3 ml-1">
+                             <input type="checkbox" id="saveCard" className="w-4 h-4 accent-primary rounded cursor-pointer" />
+                             <label htmlFor="saveCard" className="text-xs font-bold text-gray-400 select-none cursor-pointer">Save card details for future purchases</label>
+                          </div>
+                       </div>
 
-                        {/* Price Breakdown */}
-                        <div className="pd-totals">
-                            <div className="pd-total-row">
-                                <span className="pd-total-key">Gross Total</span>
-                                <span className="pd-total-val">${grossTotal.toFixed(2)}</span>
-                            </div>
-                            <div className="pd-total-row">
-                                <span className="pd-total-key">Promo Discount</span>
-                                <span className="pd-total-val">-${promoDiscount.toFixed(2)}</span>
-                            </div>
-                            <div className="pd-total-row">
-                                <span className="pd-total-key">Shipping</span>
-                                <span className="pd-free">
-                                    {shippingCharge === 0 ? 'Free' : `$${shippingCharge.toFixed(2)}`}
-                                </span>
-                            </div>
-                            {/* Bold Total */}
-                            <div className="pd-total-final">
-                                <span className="pd-final-label">Total</span>
-                                <span className="pd-final-amount">${total.toFixed(2)}</span>
-                            </div>
-                        </div>
+                       <div className="pt-4 flex flex-col sm:flex-row items-center gap-8">
+                          <Link to="/shipping-method" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-secondary transition-colors">
+                             <span className="material-symbols-outlined text-[18px]">west</span>
+                             Back to Shipping
+                          </Link>
+                          <button 
+                             onClick={handleSubmit}
+                             className="px-12 h-14 bg-black text-white rounded-full font-black text-sm flex items-center gap-3 hover:bg-primary transition-all shadow-xl shadow-black/10 active:scale-95 group"
+                          >
+                             COMPLETE PURCHASE
+                             <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">verified</span>
+                          </button>
+                       </div>
+                    </main>
 
-                        {/* Place Order */}
-                        <button className="pd-place-order-btn" onClick={handlePlaceOrder}>
-                            <span className="material-symbols-outlined">shopping_bag</span>
-                            {paymentMethod === 'cod' ? 'Place Order' : 'Pay Now'}
-                        </button>
+                    {/* Right: Order Summary Sidebar */}
+                    <aside className="lg:col-span-4 lg:sticky lg:top-8 flex flex-col gap-6 min-w-0">
+                       <div className="bg-[#fde8cc] rounded-[2rem] p-8 flex flex-col gap-6 shadow-sm border border-orange-200/50">
+                          <h3 className="text-lg font-black uppercase tracking-widest">Summary</h3>
+                          
+                          {/* Item Scroll Strip */}
+                          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x">
+                             {cartItems.map((item, idx) => (
+                               <div key={idx} className="snap-center bg-white rounded-2xl p-3 min-w-[180px] flex flex-col gap-2 shadow-sm border border-orange-100">
+                                  <div className="relative w-16 h-14 bg-gray-50 rounded-xl overflow-hidden shrink-0">
+                                     <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                                     <span className="absolute -top-1 -left-1 w-5 h-5 bg-primary text-white text-[9px] font-black flex items-center justify-center rounded-full ring-2 ring-white">{item.quantity}</span>
+                                  </div>
+                                  <div>
+                                     <h4 className="text-[10px] font-black uppercase truncate tracking-tight">{item.name}</h4>
+                                     <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">EU {item.size}</p>
+                                  </div>
+                                  <div className="flex justify-between items-center mt-1">
+                                     <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Qty: {item.quantity}</span>
+                                     <span className="text-sm font-black font-manrope">${item.price * item.quantity}</span>
+                                  </div>
+                               </div>
+                             ))}
+                          </div>
 
-                        {/* Terms */}
-                        <p className="pd-terms">
-                            By placing your order, you agree to Solevora's{' '}
-                            <Link to="/terms">Terms of Service</Link> and{' '}
-                            <Link to="/privacy">Privacy Policy</Link>.
-                        </p>
-                    </div>
+                          {/* Price Rows */}
+                          <div className="space-y-3 pt-4 border-t border-orange-200/50 uppercase tracking-tighter">
+                             <div className="flex justify-between text-xs font-bold text-gray-500">
+                                <span>Subtotal</span>
+                                <span className="text-secondary font-black">${cartTotal}</span>
+                             </div>
+                             <div className="flex justify-between text-xs font-bold text-gray-500">
+                                <span>Shipping</span>
+                                <span className="text-green-600 font-black tracking-widest italic">FREE</span>
+                             </div>
+                             <div className="pt-4 border-t-2 border-orange-300/30 flex justify-between items-baseline">
+                                <span className="text-sm font-black">Final Total</span>
+                                <span className="text-2xl font-black text-primary">${cartTotal}</span>
+                             </div>
+                          </div>
+
+                          <div className="flex justify-center gap-3 opacity-30 mt-4 grayscale group-hover:grayscale-0 transition-all">
+                             <div className="w-10 h-6 bg-black rounded-sm" />
+                             <div className="w-10 h-6 bg-black rounded-sm" />
+                             <div className="w-10 h-6 bg-black rounded-sm" />
+                             <div className="w-10 h-6 bg-black rounded-sm" />
+                          </div>
+
+                          <p className="text-[9px] text-gray-400 text-center font-bold uppercase leading-relaxed tracking-tight px-4 opacity-50">
+                             By clicking Complete Purchase, you authorize SoleVora to charge your card.
+                          </p>
+                       </div>
+                    </aside>
+
                 </div>
 
-                <Modal 
-                    isOpen={isModalOpen} 
-                    onClose={() => setIsModalOpen(false)}
-                    title={modalContent.title}
-                    actions={
-                        <button className="modal-btn modal-btn-confirm" onClick={() => setIsModalOpen(false)}>Got it</button>
-                    }
-                >
-                    <p>{modalContent.body}</p>
-                </Modal>
             </div>
         </div>
     );

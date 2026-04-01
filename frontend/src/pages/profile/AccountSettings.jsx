@@ -1,424 +1,249 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
+import { MdOutlineAccountCircle, MdOutlineShield, MdOutlineNotificationsNone, MdOutlineContactMail, MdOutlineVpnKey, MdOutlineFingerprint, MdDeleteOutline, MdArrowForward } from "react-icons/md";
 import axios from 'axios';
-import './AccountSettings.css';
 
 const AccountSettings = () => {
-    const [profileData, setProfileData] = useState({
-        fullName: '',
-        email: '',
-        phone: '',
-        location: '',
-        streetAddress: '',
-        city: '',
-        postalCode: '',
-        country: '',
-    });
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const [name, setName] = useState(user?.name || "");
+    const [email, setEmail] = useState(user?.email || "");
+    const [username, setUsername] = useState(user?.username || "Vora_User_01");
+    const userId = user?.id;
 
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [pwLoading, setPwLoading] = useState(false);
+    const [pwMessage, setPwMessage] = useState(null); // { type: 'success'|'error', text: string }
 
-    const [passwordData, setPasswordData] = useState({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-    });
+    const canSubmitPassword = useMemo(() => {
+        if (!userId) return false;
+        if (!currentPassword || !newPassword || !confirmPassword) return false;
+        if (newPassword !== confirmPassword) return false;
+        if (newPassword.length < 6) return false;
+        return true;
+    }, [userId, currentPassword, newPassword, confirmPassword]);
 
-    const [message, setMessage] = useState("");
+    const handlePasswordUpdate = async (e) => {
+        e.preventDefault();
+        setPwMessage(null);
 
-    const [twoFactor, setTwoFactor] = useState(false);
-
-    const [preferences, setPreferences] = useState({
-        newsletter: true,
-        pushNotifications: true,
-        usageReports: false,
-    });
-
-    const getUserId = () => {
-        const userStr = localStorage.getItem("user");
-        if (userStr) {
-            return JSON.parse(userStr).id;
-        }
-        return null;
-    };
-
-    useEffect(() => {
-        const fetchProfile = async () => {
-            const userId = getUserId();
-            if (!userId) return;
-
-            try {
-                const res = await axios.get(`http://localhost:5000/user/${userId}`);
-                setProfileData({
-                    fullName: res.data.name || '',
-                    email: res.data.email || '',
-                    phone: res.data.phone || '',
-                    location: res.data.location || '',
-                    streetAddress: res.data.streetAddress || '',
-                    city: res.data.city || '',
-                    postalCode: res.data.postalCode || '',
-                    country: res.data.country || '',
-                });
-                setPreferences({
-                    newsletter: res.data.newsletter,
-                    pushNotifications: res.data.pushNotifications,
-                    usageReports: res.data.usageReports
-                });
-
-            } catch (err) {
-                console.error("Failed to fetch profile");
-            }
-        };
-        fetchProfile();
-    }, []);
-
-    const handleProfileChange = (e) => {
-        setProfileData({ ...profileData, [e.target.name]: e.target.value });
-    };
-
-    const handlePasswordChange = (e) => {
-        setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
-    };
-
-    const saveChanges = async (type) => {
-        const userId = getUserId();
         if (!userId) {
-            setMessage("You are not logged in!");
+            setPwMessage({ type: 'error', text: 'Please log in again to change your password.' });
             return;
         }
-        
-        try {
-            let res;
-            if (type === 'profile' || type === 'preferences') {
-                const payload = {
-                    name: profileData.fullName,
-                    email: profileData.email,
-                    phone: profileData.phone,
-                    location: profileData.location,
-                    streetAddress: profileData.streetAddress,
-                    city: profileData.city,
-                    postalCode: profileData.postalCode,
-                    country: profileData.country,
-                    ...preferences
-                };
-
-
-                // Automatically include password change if new password is provided
-                if (passwordData.newPassword) {
-                    if (passwordData.newPassword !== passwordData.confirmPassword) {
-                        setMessage("New passwords do not match");
-                        return;
-                    }
-                    if (!passwordData.currentPassword) {
-                        setMessage("Current password is required to set a new one");
-                        return;
-                    }
-                    payload.currentPassword = passwordData.currentPassword;
-                    payload.newPassword = passwordData.newPassword;
-                }
-
-                res = await axios.put(`http://localhost:5000/user/${userId}`, payload);
-                localStorage.setItem("user", JSON.stringify(res.data.user));
-                // Clear password fields on success
-                setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-            } else if (type === 'password') {
-                if (passwordData.newPassword !== passwordData.confirmPassword) {
-                    setMessage("Passwords do not match");
-                    return;
-                }
-                res = await axios.put(`http://localhost:5000/user/${userId}/password`, {
-                    currentPassword: passwordData.currentPassword,
-                    newPassword: passwordData.newPassword
-                });
-                setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-            }
-
-            setMessage(res.data.message);
-            setTimeout(() => setMessage(""), 3000); 
-        } catch (err) {
-            setMessage(err.response?.data?.message || "Operation failed");
+        if (newPassword !== confirmPassword) {
+            setPwMessage({ type: 'error', text: 'New password and confirm password do not match.' });
+            return;
         }
-    };
+        if (newPassword.length < 6) {
+            setPwMessage({ type: 'error', text: 'New password must be at least 6 characters.' });
+            return;
+        }
 
-
-    const deleteAccount = async () => {
-        if (!window.confirm("Are you sure you want to delete your account? This is permanent!")) return;
-        const userId = getUserId();
+        setPwLoading(true);
         try {
-            await axios.delete(`http://localhost:5000/user/${userId}`);
-            localStorage.removeItem("user");
-            window.location.href = "/";
+            const resp = await axios.put(`http://localhost:5000/user/${userId}/password`, {
+                currentPassword,
+                newPassword,
+            });
+            setPwMessage({ type: 'success', text: resp.data?.message || 'Password updated successfully.' });
+            setCurrentPassword("");
+            setNewPassword("");
+            setConfirmPassword("");
         } catch (err) {
-            setMessage("Failed to delete account");
+            setPwMessage({ type: 'error', text: err?.response?.data?.message || 'Password update failed. Please try again.' });
+        } finally {
+            setPwLoading(false);
         }
     };
 
     return (
-        <div className="as-container">
-            {/* Page Header */}
-            <div className="as-header">
-                <h2>Account Management</h2>
-                <p>Review your information and update your security preferences.</p>
-                {message && <div style={{marginTop: "1rem", color: "#f97316", fontWeight: "600"}}>{message}</div>}
-            </div>
+        <div className="flex flex-col gap-12 animate-fadeIn relative z-10 selection:bg-primary/20 italic">
+            
+            {/* Header */}
+            <header>
+                <h2 className="text-3xl font-black uppercase tracking-tighter text-secondary italic leading-none">IDENTITY <span className="text-primary italic">MATRIX</span></h2>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[.3em] mt-3">Personal Intelligence Management • Global Node #772</p>
+            </header>
 
-            {/* Profile Information Section */}
-            <div className="as-card">
-                <div className="as-card-title">
-                    <span className="material-symbols-outlined as-card-icon as-profile-icon">person</span>
-                    <h3>Profile Information</h3>
-                </div>
-                <div className="as-form-grid">
-                    <div className="as-form-group">
-                        <label htmlFor="as-fullName">Full Name</label>
-                        <input
-                            type="text"
-                            id="as-fullName"
-                            name="fullName"
-                            value={profileData.fullName}
-                            onChange={handleProfileChange}
-                        />
+            {/* Profile Matrix Card */}
+            <section className="bg-white rounded-[2.5rem] border border-slate-100 p-8 md:p-12 shadow-sm flex flex-col gap-10 group transition-all duration-500 hover:shadow-2xl">
+                 <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                        <MdOutlineAccountCircle size={28} />
                     </div>
-                    <div className="as-form-group">
-                        <label htmlFor="as-email">Email Address</label>
-                        <input
-                            type="email"
-                            id="as-email"
-                            name="email"
-                            value={profileData.email}
-                            onChange={handleProfileChange}
-                        />
-                    </div>
-                    <div className="as-form-group">
-                        <label htmlFor="as-phone">Phone Number</label>
-                        <input
-                            type="tel"
-                            id="as-phone"
-                            name="phone"
-                            value={profileData.phone}
-                            onChange={handleProfileChange}
-                        />
-                    </div>
-                    <div className="as-form-group">
-                        <label htmlFor="as-location">Location Label</label>
-                        <input
-                            type="text"
-                            id="as-location"
-                            name="location"
-                            placeholder="Home, Office, etc."
-                            value={profileData.location}
-                            onChange={handleProfileChange}
-                        />
-                    </div>
-                </div>
+                    <h3 className="text-sm font-black uppercase tracking-widest text-secondary italic">Core Identity Profile</h3>
+                 </div>
 
-                <div className="as-card-divider"></div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="flex flex-col gap-2 group/input">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within/input:text-primary transition-colors">Legal Identity Designation</label>
+                        <input 
+                            type="text" 
+                            value={name} 
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full h-14 px-6 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all font-bold text-xs uppercase tracking-widest"
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2 group/input">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within/input:text-primary transition-colors">Neural Endpoint (Email)</label>
+                        <input 
+                            type="email" 
+                            disabled
+                            value={email} 
+                            className="w-full h-14 px-6 bg-slate-50 border border-transparent rounded-2xl outline-none font-bold text-xs uppercase tracking-widest opacity-50 cursor-not-allowed"
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2 group/input">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within/input:text-primary transition-colors">System Alias</label>
+                        <input 
+                            type="text" 
+                            value={username} 
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="w-full h-14 px-6 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all font-bold text-xs uppercase tracking-widest"
+                        />
+                    </div>
+                 </div>
 
-                <div className="as-card-heading">
-                    <span className="material-symbols-outlined">local_shipping</span>
-                    <h4>Default Shipping Address</h4>
-                </div>
+                 <div className="flex justify-end pt-4 border-t border-slate-50">
+                    <button className="px-10 h-14 bg-secondary text-white rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-primary transition-all shadow-xl shadow-secondary/10 active:scale-95 flex items-center gap-3">
+                        Commit Integration
+                        <MdArrowForward size={18} />
+                    </button>
+                 </div>
+            </section>
 
-                <div className="as-form-grid">
-                    <div className="as-form-group as-full-width">
+            {/* Security Protocol Card */}
+            <section className="bg-white rounded-[2.5rem] border border-slate-100 p-8 md:p-12 shadow-sm flex flex-col gap-10 group transition-all duration-500 hover:shadow-2xl">
+                 <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                        <MdOutlineShield size={28} />
+                    </div>
+                    <h3 className="text-sm font-black uppercase tracking-widest text-secondary italic">Security Access Protocols</h3>
+                 </div>
 
-                        <label htmlFor="as-streetAddress">Street Address</label>
-                        <input
-                            type="text"
-                            id="as-streetAddress"
-                            name="streetAddress"
-                            placeholder="123 Luxury Lane"
-                            value={profileData.streetAddress}
-                            onChange={handleProfileChange}
-                        />
+                 <div className="bg-emerald-50/50 p-6 rounded-[2rem] border border-emerald-100 flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                         <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
+                            <MdOutlineFingerprint size={24} />
+                         </div>
+                         <div>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Two-Factor Authentication</h4>
+                            <p className="text-[8px] font-bold text-emerald-600 uppercase tracking-widest opacity-60">Status: Active • Biometric Override Enabled</p>
+                         </div>
                     </div>
-                    <div className="as-form-group">
-                        <label htmlFor="as-city">City</label>
-                        <input
-                            type="text"
-                            id="as-city"
-                            name="city"
-                            placeholder="New York"
-                            value={profileData.city}
-                            onChange={handleProfileChange}
-                        />
-                    </div>
-                    <div className="as-form-group">
-                        <label htmlFor="as-postalCode">Postal Code</label>
-                        <input
-                            type="text"
-                            id="as-postalCode"
-                            name="postalCode"
-                            placeholder="10001"
-                            value={profileData.postalCode}
-                            onChange={handleProfileChange}
-                        />
-                    </div>
-                    <div className="as-form-group as-full-width">
-                        <label htmlFor="as-country">Country</label>
-                        <input
-                            type="text"
-                            id="as-country"
-                            name="country"
-                            placeholder="United States"
-                            value={profileData.country}
-                            onChange={handleProfileChange}
-                        />
-                    </div>
-                </div>
-
-                <div className="as-card-actions">
-                    <button className="as-btn-primary" onClick={() => saveChanges('profile')}>Save Changes</button>
-                </div>
-            </div>
-
-            {/* Security Section */}
-            <div className="as-card">
-                <div className="as-card-title">
-                    <span className="material-symbols-outlined as-card-icon as-security-icon">shield_lock</span>
-                    <h3>Security</h3>
-                </div>
-                <div className="as-form-grid as-single-col-first">
-                    <div className="as-form-group as-full-width">
-                        <label htmlFor="as-currentPassword">Current Password</label>
-                        <input
-                            type="password"
-                            id="as-currentPassword"
-                            name="currentPassword"
-                            value={passwordData.currentPassword}
-                            onChange={handlePasswordChange}
-                        />
-                    </div>
-                    <div className="as-form-group">
-                        <label htmlFor="as-newPassword">New Password</label>
-                        <input
-                            type="password"
-                            id="as-newPassword"
-                            name="newPassword"
-                            placeholder="Min. 8 characters"
-                            value={passwordData.newPassword}
-                            onChange={handlePasswordChange}
-                        />
-                    </div>
-                    <div className="as-form-group">
-                        <label htmlFor="as-confirmPassword">Confirm New Password</label>
-                        <input
-                            type="password"
-                            id="as-confirmPassword"
-                            name="confirmPassword"
-                            placeholder="Re-type new password"
-                            value={passwordData.confirmPassword}
-                            onChange={handlePasswordChange}
-                        />
-                    </div>
-                </div>
-
-                {/* Two-Factor Authentication */}
-                <div className="as-two-factor-row">
-                    <div className="as-two-factor-info">
-                        <div className="as-two-factor-icon-wrap">
-                            <span className="material-symbols-outlined as-two-factor-icon">verified_user</span>
-                        </div>
-                        <div>
-                            <h4>Two-Factor Authentication</h4>
-                            <p>Secure your account with an extra layer of protection</p>
-                        </div>
-                    </div>
-                    <label className="as-toggle-switch">
-                        <input
-                            type="checkbox"
-                            checked={twoFactor}
-                            onChange={() => setTwoFactor(!twoFactor)}
-                        />
-                        <span className="as-toggle-slider"></span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" className="sr-only peer" defaultChecked />
+                        <div className="w-11 h-6 bg-slate-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-emerald-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                     </label>
-                </div>
+                 </div>
 
-                <div className="as-card-actions">
-                    <button className="as-btn-primary" onClick={() => saveChanges('password')}>Update Password</button>
-                </div>
-            </div>
+                 <form onSubmit={handlePasswordUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                     <div className="flex flex-col gap-2 group/input">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within/input:text-primary transition-colors">Current password</label>
+                        <input
+                            type="password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className="w-full h-14 px-6 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all font-bold text-xs"
+                        />
+                     </div>
 
-            {/* Preferences Section */}
-            <div className="as-card">
-                <div className="as-card-title">
-                    <span className="material-symbols-outlined as-card-icon as-preferences-icon">settings</span>
-                    <h3>Preferences</h3>
-                </div>
-                <div className="as-preferences-list">
-                    {/* Newsletter */}
-                    <div className="as-preference-item">
-                        <div className="as-preference-info">
-                            <div className="as-preference-icon-wrap">
-                                <span className="material-symbols-outlined as-preference-icon">mail</span>
+                     <div className="flex flex-col gap-2 group/input">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within/input:text-primary transition-colors">New password</label>
+                        <input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            placeholder="At least 6 characters"
+                            className="w-full h-14 px-6 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all font-bold text-xs"
+                        />
+                     </div>
+
+                     <div className="flex flex-col gap-2 group/input">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within/input:text-primary transition-colors">Confirm new password</label>
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Repeat new password"
+                            className="w-full h-14 px-6 bg-slate-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all font-bold text-xs"
+                        />
+                     </div>
+
+                     <div className="flex flex-col justify-end gap-3">
+                        {pwMessage && (
+                            <div
+                                className={`text-[10px] font-black uppercase tracking-widest px-5 py-4 rounded-2xl border ${
+                                    pwMessage.type === 'success'
+                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                        : 'bg-rose-50 text-rose-700 border-rose-100'
+                                }`}
+                                role="status"
+                            >
+                                {pwMessage.text}
                             </div>
-                            <div>
-                                <h4>Newsletter</h4>
-                                <p>Weekly solar insights and energy saving tips</p>
-                            </div>
-                        </div>
-                        <label className="as-toggle-switch">
-                            <input
-                                type="checkbox"
-                                checked={preferences.newsletter}
-                                onChange={() => setPreferences({ ...preferences, newsletter: !preferences.newsletter })}
-                            />
-                            <span className="as-toggle-slider"></span>
-                        </label>
+                        )}
+                        <button
+                            type="submit"
+                            disabled={!canSubmitPassword || pwLoading}
+                            className="px-10 h-14 bg-secondary text-white rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-primary transition-all shadow-xl shadow-secondary/10 active:scale-95 flex items-center justify-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                            {pwLoading ? 'Updating…' : 'Update password'}
+                            <MdArrowForward size={18} />
+                        </button>
+                     </div>
+                 </form>
+            </section>
+
+            {/* Logistics & System Prefs */}
+            <section className="bg-white rounded-[2.5rem] border border-slate-100 p-8 md:p-12 shadow-sm flex flex-col gap-10 group transition-all duration-500 hover:shadow-2xl">
+                 <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                        <MdOutlineNotificationsNone size={28} />
                     </div>
+                    <h3 className="text-sm font-black uppercase tracking-widest text-secondary italic">Propagation Preferences</h3>
+                 </div>
 
-                    {/* Push Notifications */}
-                    <div className="as-preference-item">
-                        <div className="as-preference-info">
-                            <div className="as-preference-icon-wrap">
-                                <span className="material-symbols-outlined as-preference-icon">notifications</span>
+                 <div className="flex flex-col gap-4">
+                    {[
+                        { title: 'Magnitude Updates', desc: 'Secure alerts on limited quantity drops.', icon: <MdOutlineContactMail /> },
+                        { title: 'Direct Transmission (SMS)', desc: 'Mobile coordinate tracking synchronization.', icon: <MdOutlineVpnKey /> }
+                    ].map((pref, i) => (
+                        <div key={i} className="flex items-center justify-between p-6 rounded-[2rem] hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 bg-white shadow-sm border border-slate-100 rounded-xl flex items-center justify-center text-gray-400">{pref.icon}</div>
+                                <div>
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-secondary">{pref.title}</h4>
+                                    <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest opacity-60 mt-0.5">{pref.desc}</p>
+                                </div>
                             </div>
-                            <div>
-                                <h4>Push Notifications</h4>
-                                <p>Get alerts about your panel performance in real-time</p>
-                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" className="sr-only peer" defaultChecked={i===0} />
+                                <div className="w-11 h-6 bg-slate-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-primary/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
                         </div>
-                        <label className="as-toggle-switch">
-                            <input
-                                type="checkbox"
-                                checked={preferences.pushNotifications}
-                                onChange={() => setPreferences({ ...preferences, pushNotifications: !preferences.pushNotifications })}
-                            />
-                            <span className="as-toggle-slider"></span>
-                        </label>
-                    </div>
+                    ))}
+                 </div>
+            </section>
 
-                    {/* Usage Reports */}
-                    <div className="as-preference-item">
-                        <div className="as-preference-info">
-                            <div className="as-preference-icon-wrap">
-                                <span className="material-symbols-outlined as-preference-icon">lab_profile</span>
-                            </div>
-                            <div>
-                                <h4>Usage Reports</h4>
-                                <p>Monthly breakdown of your energy consumption</p>
-                            </div>
-                        </div>
-                        <label className="as-toggle-switch">
-                            <input
-                                type="checkbox"
-                                checked={preferences.usageReports}
-                                onChange={() => setPreferences({ ...preferences, usageReports: !preferences.usageReports })}
-                            />
-                            <span className="as-toggle-slider"></span>
-                        </label>
+            {/* Termination Zone */}
+            <section className="bg-rose-50/50 rounded-[2.5rem] border border-rose-100 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 group">
+                 <div className="flex items-center gap-6">
+                    <div className="w-14 h-14 bg-white border border-rose-100 text-rose-500 rounded-[1.5rem] flex items-center justify-center shadow-sm group-hover:bg-rose-500 group-hover:text-white transition-all">
+                        <MdDeleteOutline size={32} />
                     </div>
-                </div>
-                <div className="as-card-actions">
-                    <button className="as-btn-primary" onClick={() => saveChanges('preferences')}>Save Preferences</button>
-                </div>
-            </div>
+                    <div>
+                        <h4 className="text-sm font-black uppercase tracking-widest text-rose-600">Identity Termination</h4>
+                        <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest opacity-80 mt-1">Erase all magnitude logs and encrypted identity tokens.</p>
+                    </div>
+                 </div>
+                 <button className="px-10 h-12 bg-white text-rose-500 border border-rose-100 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all active:scale-95 italic">Initialize Termination</button>
+            </section>
 
-            {/* Delete Account Section */}
-            <div className="as-delete-card">
-                <div className="as-delete-info">
-                    <h4>Delete Account</h4>
-                    <p>Once you delete your account, there is no going back. Please be certain.</p>
-                </div>
-                <button className="as-btn-delete" onClick={deleteAccount}>Delete Account</button>
-            </div>
+            <p className="text-center text-[9px] font-bold text-gray-300 uppercase tracking-[.3em] opacity-50 pb-8 italic">Identity Matrix Control v2.6 • SoleVora Network</p>
+
         </div>
     );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import './MyOrders.css';
+import { MdOutlineShoppingBag, MdPendingActions, MdCheckCircle, MdVisibility, MdLocalShipping, MdChevronLeft, MdChevronRight } from "react-icons/md";
 
 const PAGE_SIZE = 10;
 
@@ -10,13 +10,7 @@ const MyOrders = () => {
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
 
-    const getLoggedInUser = () => {
-        const userStr = localStorage.getItem("user");
-        if (userStr) return JSON.parse(userStr);
-        return null;
-    };
-
-    const user = getLoggedInUser();
+    const user = JSON.parse(localStorage.getItem("user") || "null");
 
     const fetchOrders = async () => {
         if (!user?.email) {
@@ -27,9 +21,9 @@ const MyOrders = () => {
             const encodedEmail = encodeURIComponent(user.email.trim());
             const response = await axios.get(`http://localhost:5000/api/orders/search?email=${encodedEmail}`);
             setOrders(response.data);
-            setLoading(false);
         } catch (error) {
             console.error('Error fetching orders:', error);
+        } finally {
             setLoading(false);
         }
     };
@@ -50,10 +44,6 @@ const MyOrders = () => {
     const totalFiltered = filteredOrders.length;
     const totalPages = totalFiltered === 0 ? 0 : Math.ceil(totalFiltered / PAGE_SIZE);
 
-    useEffect(() => {
-        if (totalPages > 0 && page > totalPages) setPage(totalPages);
-    }, [totalPages, page]);
-
     const paginatedOrders = useMemo(() => {
         const start = (page - 1) * PAGE_SIZE;
         return filteredOrders.slice(start, start + PAGE_SIZE);
@@ -63,153 +53,136 @@ const MyOrders = () => {
     const rangeEnd = totalFiltered === 0 ? 0 : Math.min(page * PAGE_SIZE, totalFiltered);
 
     return (
-        <div className="mo-dashboard-content">
-            <div className="mo-page-header">
-                <h1 className="mo-main-title">My Orders</h1>
-                <p className="mo-sub-title">Track your recent purchases and manage your order history</p>
-            </div>
+        <div className="flex flex-col gap-10 animate-fadeIn relative z-10 selection:bg-primary/20">
+            
+            {/* Header */}
+            <header>
+                <h2 className="text-3xl font-black uppercase tracking-tighter text-secondary italic">TRANSACTION <span className="text-primary italic">LOGS</span></h2>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[.3em] mt-1">Magnitude Procurement History • Blockchain Verified</p>
+            </header>
 
-            <div className="mo-metric-cards">
-                <div className="mo-metric-card card-blue">
-                    <div className="mo-card-icon-wrap">
-                        <div className="mo-icon-circle">
-                            <span className="material-symbols-outlined">shopping_bag</span>
+            {/* Metrics */}
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                    { label: 'Cumulative', value: orders.length, icon: <MdOutlineShoppingBag />, color: 'bg-primary text-white shadow-primary/20' },
+                    { label: 'In-Protocol', value: orders.filter(o => o.status === 'pending').length, icon: <MdPendingActions />, color: 'bg-secondary text-white shadow-secondary/20' },
+                    { label: 'Finalized', value: orders.filter(o => o.status === 'delivered').length, icon: <MdCheckCircle />, color: 'bg-emerald-500 text-white shadow-emerald-500/20' },
+                ].map((metric, i) => (
+                    <div key={i} className={`p-8 rounded-[2.5rem] flex items-center justify-between shadow-2xl relative overflow-hidden group ${metric.color}`}>
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                        <div className="flex flex-col gap-1 relative z-10">
+                            <span className="text-[9px] font-black uppercase tracking-[.25em] opacity-60">{metric.label}</span>
+                            <span className="text-3xl font-black italic">{metric.value} <span className="text-xs uppercase not-italic opacity-40">Units</span></span>
                         </div>
+                        <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform">{metric.icon}</div>
                     </div>
-                    <div className="mo-card-info">
-                        <span className="mo-card-label">Total Orders</span>
-                        <h2 className="mo-card-value">{orders.length}</h2>
-                    </div>
-                </div>
-                <div className="mo-metric-card card-orange">
-                    <div className="mo-card-icon-wrap">
-                        <div className="mo-icon-circle">
-                            <span className="material-symbols-outlined">pending_actions</span>
-                        </div>
-                    </div>
-                    <div className="mo-card-info">
-                        <span className="mo-card-label">Pending</span>
-                        <h2 className="mo-card-value">{orders.filter(o => o.status === 'pending').length}</h2>
-                    </div>
-                </div>
-                <div className="mo-metric-card card-green">
-                    <div className="mo-card-icon-wrap">
-                        <div className="mo-icon-circle">
-                            <span className="material-symbols-outlined">check_circle</span>
-                        </div>
-                    </div>
-                    <div className="mo-card-info">
-                        <span className="mo-card-label">Completed</span>
-                        <h2 className="mo-card-value">{orders.filter(o => o.status === 'delivered').length}</h2>
-                    </div>
-                </div>
-            </div>
-
-            <div className="mo-tabs-row">
-                {['All Orders', 'Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'].map(tab => (
-                    <button
-                        key={tab}
-                        className={`mo-tab-link ${subTab === tab ? 'active' : ''}`}
-                        onClick={() => setSubTab(tab)}
-                    >
-                        {tab}
-                    </button>
                 ))}
-            </div>
+            </section>
 
-            <div className="mo-table-wrapper">
-                <table className="mo-orders-data-table">
-                    <thead>
-                        <tr>
-                            <th>ORDER ID</th>
-                            <th>ITEMS</th>
-                            <th>TOTAL</th>
-                            <th>STATUS</th>
-                            <th>DATE</th>
-                            <th>ACTIONS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan="6" className="mo-status-cell">Loading orders...</td></tr>
-                        ) : filteredOrders.length === 0 ? (
-                            <tr><td colSpan="6" className="mo-status-cell">{`No orders found for ${user?.email || 'this account'}`}</td></tr>
-                        ) : paginatedOrders.map((order) => (
-                            <tr key={order.id}>
-                                <td>
-                                    <div className="mo-id-text">#ORD-{order.id}</div>
-                                </td>
-                                <td>
-                                    <div className="mo-items-preview">
-                                        {order.items && order.items.length > 0 ? (
-                                            <div className="mo-img-stack">
-                                                <img src={order.items[0].product?.image_url} alt="product" className="mo-thumb" />
-                                                {order.items.length > 1 && (
-                                                    <span className="mo-more-count">+{order.items.length - 1}</span>
-                                                )}
-                                            </div>
-                                        ) : 'No items'}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="mo-price-text">${parseFloat(order.total_amount).toFixed(2)}</div>
-                                </td>
-                                <td>
-                                    <span className={`mo-badge ${order.status.toLowerCase()}`}>
-                                        {order.status.toUpperCase()}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div className="mo-date-text">{new Date(order.createdAt).toLocaleDateString()}</div>
-                                </td>
-                                <td>
-                                    <div className="mo-action-btns">
-                                        <button className="mo-view-btn" title="View Details">
-                                            <span className="material-symbols-outlined">visibility</span>
-                                        </button>
-                                        <button className="mo-track-btn" title="Track Order">
-                                            <span className="material-symbols-outlined">local_shipping</span>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            <div className="mo-pagination-footer">
-                <div className="mo-page-stats">
-                    {totalFiltered === 0
-                        ? 'No orders to show'
-                        : `Showing ${rangeStart}–${rangeEnd} of ${totalFiltered} orders`}
+            {/* Controls */}
+            <section className="flex flex-col gap-6">
+                <div className="bg-slate-50 p-1.5 rounded-[1.5rem] flex gap-1 overflow-x-auto scrollbar-none italic border border-slate-100/50">
+                    {['All Orders', 'Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'].map(tab => (
+                        <button
+                            key={tab}
+                            onClick={() => setSubTab(tab)}
+                            className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${subTab === tab ? 'bg-white text-secondary shadow-sm scale-105' : 'text-gray-400 hover:text-secondary'}`}
+                        >
+                            {tab}
+                        </button>
+                    ))}
                 </div>
-                {totalPages > 1 && (
-                    <div className="mo-page-nav" role="navigation" aria-label="Order list pages">
-                        <button
-                            type="button"
-                            className="mo-nav-btn"
-                            disabled={page <= 1}
-                            onClick={() => setPage((p) => Math.max(1, p - 1))}
-                            aria-label="Previous page"
-                        >
-                            <span className="material-symbols-outlined">chevron_left</span>
-                        </button>
-                        <span className="mo-page-indicator" aria-current="page">
-                            Page {page} of {totalPages}
-                        </span>
-                        <button
-                            type="button"
-                            className="mo-nav-btn"
-                            disabled={page >= totalPages}
-                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                            aria-label="Next page"
-                        >
-                            <span className="material-symbols-outlined">chevron_right</span>
-                        </button>
+
+                {/* Table */}
+                <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse italic">
+                            <thead>
+                                <tr className="border-b border-slate-50 bg-slate-50/30 font-black text-[9px] text-gray-400 uppercase tracking-widest">
+                                    <th className="py-6 px-8">Order ID</th>
+                                    <th className="py-6 px-8">Magnitude Manifest</th>
+                                    <th className="py-6 px-8 text-center">Value</th>
+                                    <th className="py-6 px-8 text-center">Status</th>
+                                    <th className="py-6 px-8 text-right">Timestamp</th>
+                                    <th className="py-6 px-8 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {loading ? (
+                                    <tr><td colSpan="6" className="py-20 text-center animate-pulse text-[10px] font-bold text-gray-300 uppercase tracking-widest">Synchronizing Logs...</td></tr>
+                                ) : filteredOrders.length === 0 ? (
+                                    <tr><td colSpan="6" className="py-20 text-center text-[10px] font-bold text-gray-300 uppercase tracking-widest italic">No Data Packets Found in this Vector</td></tr>
+                                ) : paginatedOrders.map((order) => (
+                                    <tr key={order.id} className="hover:bg-slate-50/50 transition-colors group">
+                                        <td className="py-6 px-8">
+                                            <span className="text-xs font-black text-secondary group-hover:text-primary transition-colors">#ORD-{order.id.toString().slice(-6).toUpperCase()}</span>
+                                        </td>
+                                        <td className="py-6 px-8">
+                                            {order.items && order.items.length > 0 ? (
+                                                <div className="flex -space-x-4">
+                                                    {order.items.slice(0, 3).map((item, idx) => (
+                                                        <div key={idx} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-slate-100 shadow-sm ring-1 ring-black/5">
+                                                            <img src={item.product?.image_url} alt="" className="w-full h-full object-cover" />
+                                                        </div>
+                                                    ))}
+                                                    {order.items.length > 3 && (
+                                                        <div className="w-10 h-10 rounded-full border-2 border-white bg-secondary text-white flex items-center justify-center text-[8px] font-black shadow-sm ring-1 ring-black/5">+{order.items.length - 3}</div>
+                                                    )}
+                                                </div>
+                                            ) : <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Null Contents</span>}
+                                        </td>
+                                        <td className="py-6 px-8 text-center">
+                                            <span className="text-xs font-black text-secondary">${parseFloat(order.total_amount).toFixed(2)}</span>
+                                        </td>
+                                        <td className="py-6 px-8 text-center text-[8px]">
+                                            <span className={`inline-block px-3 py-1 rounded-full font-black uppercase tracking-widest ${
+                                                order.status === 'delivered' ? 'bg-emerald-50 text-emerald-600' : 
+                                                order.status === 'cancelled' ? 'bg-rose-50 text-rose-500' : 'bg-blue-50 text-blue-600'
+                                            }`}>
+                                                {order.status}
+                                            </span>
+                                        </td>
+                                        <td className="py-6 px-8 text-right text-[10px] font-bold text-gray-400">
+                                            {new Date(order.createdAt).toLocaleDateString()}
+                                        </td>
+                                        <td className="py-6 px-8 text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <button className="w-8 h-8 rounded-lg bg-slate-50 text-gray-400 hover:bg-black hover:text-white transition-all flex items-center justify-center active:scale-90"><MdVisibility /></button>
+                                                <button className="w-8 h-8 rounded-lg bg-slate-50 text-gray-400 hover:bg-primary hover:text-white transition-all flex items-center justify-center active:scale-90"><MdLocalShipping /></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <footer className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-slate-100 pt-8 italic">
+                        <span className="text-[9px] font-black text-gray-300 uppercase tracking-[.3em]">Showing Log Range {rangeStart}–{rangeEnd} of {totalFiltered}</span>
+                        <div className="flex items-center gap-4 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
+                            <button 
+                                disabled={page <= 1}
+                                onClick={() => setPage(page - 1)}
+                                className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-gray-400 hover:text-primary transition-all disabled:opacity-30 disabled:scale-95"
+                            >
+                                <MdChevronLeft size={24} />
+                            </button>
+                            <span className="text-[10px] font-black text-secondary px-4">BATCH {page} / {totalPages}</span>
+                            <button 
+                                disabled={page >= totalPages}
+                                onClick={() => setPage(page + 1)}
+                                className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-gray-400 hover:text-primary transition-all disabled:opacity-30 disabled:scale-95"
+                            >
+                                <MdChevronRight size={24} />
+                            </button>
+                        </div>
+                    </footer>
                 )}
-            </div>
+            </section>
+
         </div>
     );
 };

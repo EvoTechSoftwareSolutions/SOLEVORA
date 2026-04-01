@@ -15,7 +15,6 @@ import NotFound from "./pages/NotFound";
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { AdminAuthProvider } from './context/AdminAuthContext';
-import './App.css';
 
 /**
  * App Component
@@ -28,7 +27,16 @@ function App() {
       <AdminAuthProvider>
         <WishlistProvider>
           <CartProvider>
-            <Suspense fallback={<div className="global-loader">Loading...</div>}>
+            <Suspense fallback={
+                <div className="fixed inset-0 bg-white flex flex-col items-center justify-center gap-6 z-[6000]">
+                    <div className="flex gap-2">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                        ))}
+                    </div>
+                    <div className="text-secondary font-black uppercase text-xs tracking-[.3em] animate-pulse italic">Engaging Protocol...</div>
+                </div>
+            }>
               <Routes>
                 {/* User Facing Module (Shopper Pages) */}
                 {UserRoutes}
