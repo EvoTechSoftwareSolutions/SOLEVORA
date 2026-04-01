@@ -12,6 +12,7 @@ const ProductsManagement = lazy(() => import('../admin/ProductsManagement'));
 const OrdersManagement   = lazy(() => import('../admin/OrdersManagement'));
 const CustomerManagement = lazy(() => import('../admin/CustomerManagement'));
 const Analytics          = lazy(() => import('../admin/Analytics'));
+const Messages           = lazy(() => import('../admin/Messages'));
 
 // Pages – admin only
 const Settings = lazy(() => import('../admin/Settings'));
@@ -35,6 +36,7 @@ const AdminRoutes = [
         <Route path="orders"        element={<OrdersManagement />} />
         <Route path="customers"     element={<CustomerManagement />} />
         <Route path="analytics"     element={<Analytics />} />
+        <Route path="messages"      element={<Messages />} />
 
         {/* Admin-only: settings page */}
         <Route

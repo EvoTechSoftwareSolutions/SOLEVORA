@@ -24,6 +24,10 @@ const Contact = sequelize.define('Contact', {
   message: {
     type: DataTypes.TEXT,
   },
+  isRead: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
 }, {
   tableName: "contacts",
 });

@@ -51,6 +51,28 @@ const ProductsManagement = () => {
         fetchProducts();
     };
 
+    const filteredProducts = products.filter(prod => {
+        if (subTab === 'All Products') return true;
+        
+        let status = 'Active';
+        if (prod.stock_quantity === 0) {
+            status = 'Out of Stock';
+        } else if (prod.stock_quantity < 20) {
+            status = 'Low Stock';
+        }
+
+        if (subTab === 'Active') {
+            return status === 'Active';
+        }
+        if (subTab === 'Out of Stock') {
+            return status === 'Out of Stock';
+        }
+        if (subTab === 'Drafts') {
+            return prod.status === 'Draft' || !prod.image_url;
+        }
+        return true;
+    });
+
     return (
         <div className="dashboard-content">
             {/* Page Title */}
@@ -125,74 +147,76 @@ const ProductsManagement = () => {
                     <tbody>
                         {loading ? (
                             <tr><td colSpan="7" style={{ textAlign: 'center', padding: '50px' }}>Loading inventory...</td></tr>
-                        ) : products.length === 0 ? (
-                            <tr><td colSpan="7" style={{ textAlign: 'center', padding: '50px' }}>No products found in inventory.</td></tr>
-                        ) : products.map(prod => {
-                            const stockPct = Math.min(100, Math.round((prod.stock_quantity / 150) * 100)); // Assume 150 is max capacity for bar
-                            let status = 'Active';
-                            let badgeClass = 'status-active';
-                            
-                            if (prod.stock_quantity === 0) {
-                                status = 'Out of Stock';
-                                badgeClass = 'status-out';
-                            } else if (prod.stock_quantity < 20) {
-                                status = 'Low Stock';
-                                badgeClass = 'status-low';
-                            }
+                        ) : filteredProducts.length === 0 ? (
+                            <tr><td colSpan="7" style={{ textAlign: 'center', padding: '50px' }}>No products found.</td></tr>
+                        ) : (
+                            filteredProducts.map(prod => {
+                                const stockPct = Math.min(100, Math.round((prod.stock_quantity / 150) * 100)); // Assume 150 is max capacity for bar
+                                let status = 'Active';
+                                let badgeClass = 'status-active';
+                                
+                                if (prod.stock_quantity === 0) {
+                                    status = 'Out of Stock';
+                                    badgeClass = 'status-out';
+                                } else if (prod.stock_quantity < 20) {
+                                    status = 'Low Stock';
+                                    badgeClass = 'status-low';
+                                }
 
-                            return (
-                                <tr key={prod.id}>
-                                    <td>
-                                        <div className="td-product">
-                                            <div className="product-images">
-                                                <img src={prod.image_url || 'https://via.placeholder.com/50'} alt={prod.name} className="product-img" />
+                                return (
+                                    <tr key={prod.id}>
+                                        <td>
+                                            <div className="td-product">
+                                                <div className="product-images">
+                                                    <img src={prod.image_url || 'https://via.placeholder.com/50'} alt={prod.name} className="product-img" />
+                                                </div>
+                                                <div>
+                                                    <div className="td-product-name">{prod.name}</div>
+                                                    <div className="td-product-desc">{prod.description?.substring(0, 30)}{prod.description?.length > 30 ? '...' : ''}</div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <div className="td-product-name">{prod.name}</div>
-                                                <div className="td-product-desc">{prod.description?.substring(0, 30)}{prod.description?.length > 30 ? '...' : ''}</div>
+                                        </td>
+                                        <td><div className="td-sku">SLV-{prod.category?.name?.substring(0,3).toUpperCase() || 'UNC'}-{prod.id}</div></td>
+                                        <td><span className="category-badge">{prod.category?.name || 'Uncategorized'}</span></td>
+                                        <td>
+                                            <div className="stock-level-container">
+                                                <div className="stock-text-row">
+                                                    <span className="stock-percent">{stockPct}%</span>
+                                                    <span className="stock-left">{prod.stock_quantity} left</span>
+                                                </div>
+                                                <div className="stock-bar-bg">
+                                                    <div className="stock-bar-fill" style={{ width: `${stockPct}%`, backgroundColor: status === 'Out of Stock' ? '#ef4444' : (status === 'Low Stock' ? '#f59e0b' : '#f66d3b') }}></div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td><div className="td-sku">SLV-{prod.category?.name?.substring(0,3).toUpperCase() || 'UNC'}-{prod.id}</div></td>
-                                    <td><span className="category-badge">{prod.category?.name || 'Uncategorized'}</span></td>
-                                    <td>
-                                        <div className="stock-level-container">
-                                            <div className="stock-text-row">
-                                                <span className="stock-percent">{stockPct}%</span>
-                                                <span className="stock-left">{prod.stock_quantity} left</span>
+                                        </td>
+                                        <td><div className="td-price">${parseFloat(prod.price).toFixed(2)}</div></td>
+                                        <td>
+                                            <div className={`status-badge ${badgeClass}`}>
+                                                <span className="status-dot"></span>
+                                                {status === 'Draft' ? 'Draft' : status}
                                             </div>
-                                            <div className="stock-bar-bg">
-                                                <div className="stock-bar-fill" style={{ width: `${stockPct}%`, backgroundColor: status === 'Out of Stock' ? '#ef4444' : (status === 'Low Stock' ? '#f59e0b' : '#f66d3b') }}></div>
+                                        </td>
+                                        <td>
+                                            <div className="td-actions">
+                                                <button className="action-icon" onClick={() => handleEdit(prod)} title="Edit Product">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                                </button>
+                                                <button className="action-icon" onClick={() => handleDelete(prod.id)} title="Delete Product">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                                </button>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td><div className="td-price">${parseFloat(prod.price).toFixed(2)}</div></td>
-                                    <td>
-                                        <div className={`status-badge ${badgeClass}`}>
-                                            <span className="status-dot"></span>
-                                            {status}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className="td-actions">
-                                            <button className="action-icon" onClick={() => handleEdit(prod)} title="Edit Product">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                            </button>
-                                            <button className="action-icon" onClick={() => handleDelete(prod.id)} title="Delete Product">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )
-                        })}
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        )}
                     </tbody>
                 </table>
 
                 {/* Pagination */}
                 <div className="pagination">
                     <div className="page-info">
-                        Showing {products.length} products
+                        Showing {filteredProducts.length} products
                     </div>
                 </div>
             </div>

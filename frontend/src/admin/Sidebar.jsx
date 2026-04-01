@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import logo from '../assets/logo.png';
 import './Sidebar.css';
@@ -9,6 +10,23 @@ const Sidebar = () => {
     const navigate = useNavigate();
     const { isAdmin, logout } = useAdminAuth();
     const currentPath = location.pathname;
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/contact/unread');
+                setUnreadCount(response.data.count);
+            } catch (error) {
+                console.error("Error fetching unread messages count:", error);
+            }
+        };
+        fetchUnreadCount();
+        
+        // Polling every 30 seconds for new messages
+        const interval = setInterval(fetchUnreadCount, 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     const isTabActive = (pathName) => {
         if (currentPath === '/admin' && pathName === '/admin') return 'active';
@@ -71,6 +89,32 @@ const Sidebar = () => {
                             <circle cx="17" cy="7" r="3"></circle>
                         </svg>
                         Customers
+                    </div>
+                </Link>
+                
+                <Link to="/admin/messages" style={{ textDecoration: 'none' }}>
+                    <div className={`app-nav-item ${isTabActive('/admin/messages')}`} style={{ position: 'relative' }}>
+                        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        Messages
+                        {unreadCount > 0 && (
+                            <span style={{
+                                position: 'absolute',
+                                right: '15px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                backgroundColor: '#f66d3b',
+                                color: 'white',
+                                borderRadius: '50%',
+                                padding: '2px 8px',
+                                fontSize: '12px',
+                                fontWeight: 'bold'
+                            }}>
+                                {unreadCount}
+                            </span>
+                        )}
                     </div>
                 </Link>
 
