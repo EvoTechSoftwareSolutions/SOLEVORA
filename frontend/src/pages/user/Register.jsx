@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import registerImage from "../assets/login-shoe.png";
+import registerImage from "../../assets/login-shoe.png";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
 import { HiOutlineMail, HiOutlineUser } from "react-icons/hi";

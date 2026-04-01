@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { LuEye, LuCircleCheck, LuCircle } from "react-icons/lu";
-import resetImage from "../assets/reset-password.png";
-import "./Auth.css";
+import resetImage from "../../assets/reset-password.png";
+import "../../styles/Auth.css";
 
 function ResetPassword() {
   const navigate = useNavigate();

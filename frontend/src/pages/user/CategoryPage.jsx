@@ -1,8 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
-import { useWishlist } from "../context/WishlistContext";
+import { useCart } from "../../context/CartContext";
+import { useWishlist } from "../../context/WishlistContext";
 import {
   HiOutlineHeart,
   HiHeart,
@@ -11,31 +11,31 @@ import {
 } from "react-icons/hi";
 
 // Hero
-import heroImage from "../assets/category/hero-shoe.png";
+import heroImage from "../../assets/category/hero-shoe.png";
 
 // Category images
-import catSneakers from "../assets/category/cat-sneakers.png";
-import catRunning from "../assets/category/cat-running.png";
-import catFormal from "../assets/category/cat-formal.png";
-import catBoots from "../assets/category/cat-boots.png";
-import catSandals from "../assets/category/cat-sandals.png";
-import catHeels from "../assets/category/cat-heels.png";
-import catLoafers from "../assets/category/cat-loafers.png";
-import catAthletic from "../assets/category/cat-athletic.png";
+import catSneakers from "../../assets/category/cat-sneakers.png";
+import catRunning from "../../assets/category/cat-running.png";
+import catFormal from "../../assets/category/cat-formal.png";
+import catBoots from "../../assets/category/cat-boots.png";
+import catSandals from "../../assets/category/cat-sandals.png";
+import catHeels from "../../assets/category/cat-heels.png";
+import catLoafers from "../../assets/category/cat-loafers.png";
+import catAthletic from "../../assets/category/cat-athletic.png";
 
 // Product images
-import product1 from "../assets/category/product-1.png";
-import product2 from "../assets/category/product-2.png";
-import product3 from "../assets/category/product-3.png";
-import product4 from "../assets/category/product-4.png";
-import product5 from "../assets/category/product-5.png";
-import product6 from "../assets/category/product-6.png";
-import product7 from "../assets/category/product-7.png";
-import product8 from "../assets/category/product-8.png";
-import product9 from "../assets/category/product-9.png";
+import product1 from "../../assets/category/product-1.png";
+import product2 from "../../assets/category/product-2.png";
+import product3 from "../../assets/category/product-3.png";
+import product4 from "../../assets/category/product-4.png";
+import product5 from "../../assets/category/product-5.png";
+import product6 from "../../assets/category/product-6.png";
+import product7 from "../../assets/category/product-7.png";
+import product8 from "../../assets/category/product-8.png";
+import product9 from "../../assets/category/product-9.png";
 
 // Bottom banner
-import heritageImage from "../assets/category/heritage-shoe.png";
+import heritageImage from "../../assets/category/heritage-shoe.png";
 
 function CategoryPage() {
   const [selectedGender, setSelectedGender] = useState("All");

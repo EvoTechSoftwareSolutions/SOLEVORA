@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { LuCircleCheckBig } from "react-icons/lu";
-import successImage from "../assets/reset-success.png";
+import successImage from "../../assets/reset-success.png";
 
 function ResetSuccess() {
   return (

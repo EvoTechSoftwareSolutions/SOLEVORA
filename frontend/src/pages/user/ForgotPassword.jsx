@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import forgotImage from "../assets/shoe.png";
+import forgotImage from "../../assets/shoe.png";
 import { HiOutlineMail } from "react-icons/hi";
-import "./Auth.css";
+import "../../styles/Auth.css";
 
 function ForgotPassword() {
   const navigate = useNavigate();

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { HiOutlineMailOpen } from "react-icons/hi";
-import checkImage from "../assets/check-email.png";
-import "./Auth.css";
+import checkImage from "../../assets/check-email.png";
+import "../../styles/Auth.css";
 
 function CheckEmail() {
   return (
