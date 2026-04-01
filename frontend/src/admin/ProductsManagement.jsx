@@ -67,8 +67,8 @@ const ProductsManagement = () => {
         if (subTab === 'Out of Stock') {
             return status === 'Out of Stock';
         }
-        if (subTab === 'Drafts') {
-            return prod.status === 'Draft' || !prod.image_url;
+        if (subTab === 'Low Stock') {
+            return status === 'Low Stock';
         }
         return true;
     });
@@ -107,7 +107,7 @@ const ProductsManagement = () => {
             {/* Tabs Bar */}
             <div className="tabs-bar">
                 <div className="tabs-left">
-                    {['All Products', 'Active', 'Out of Stock', 'Drafts'].map(tab => (
+                    {['All Products', 'Active', 'Out of Stock', 'Low Stock'].map(tab => (
                         <button
                             key={tab}
                             className={`tab-link ${subTab === tab ? 'active' : ''}`}
