@@ -1,49 +1,81 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import registerImage from "../../assets/login-shoe.png";
+import registerImage from "../../assets/shoe.png";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
 import { HiOutlineMail, HiOutlineUser } from "react-icons/hi";
 import { LuLock } from "react-icons/lu";
 
 function Register() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setMessage("");
 
-    if (formData.password !== formData.confirmPassword) {
+    if (!name || !email || !password || !confirmPassword) {
+      setMessage("Please fill all fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
       setMessage("Passwords do not match");
       return;
     }
 
     setIsLoading(true);
     try {
-      await axios.post("http://localhost:5000/register", {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
+      const res = await axios.post("http://localhost:5000/register", {
+        name,
+        email,
+        password,
       });
+
       setMessage("Registration successful! Redirecting...");
+      setName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
       setTimeout(() => navigate("/login"), 2000);
     } catch (error) {
       setMessage(error.response?.data?.message || "Registration failed");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleRegister = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/register", {
+        name: "Google User",
+        email: "googleuser@gmail.com",
+        password: "social_register",
+      });
+      setMessage("Registration successful! Redirecting...");
+      setTimeout(() => navigate("/login"), 2000);
+    } catch (error) {
+      setMessage("Google registration failed");
+    }
+  };
+
+  const handleAppleRegister = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/register", {
+        name: "Apple User",
+        email: "appleuser@gmail.com",
+        password: "social_register",
+      });
+      setMessage("Registration successful! Redirecting...");
+      setTimeout(() => navigate("/login"), 2000);
+    } catch (error) {
+      setMessage("Apple registration failed");
     }
   };
 
@@ -60,122 +92,116 @@ function Register() {
         </div>
       </div>
 
-      {/* Right Panel */}
-      <div className="flex-1 flex items-center justify-center p-8 md:p-16 lg:p-24 bg-white relative">
-        <div className="absolute top-10 right-10 opacity-5 select-none pointer-events-none hidden lg:block text-right">
-            <span className="text-8xl font-black italic block">HUB</span>
-            <span className="text-4xl font-black italic block -mt-4 text-primary">ACCESS</span>
+      {/* Right Side */}
+      <div className="w-full md:w-1/2 bg-[#f8f2e8] p-8 flex flex-col justify-center">
+        <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">Create Account</h1>
+
+        <p className="mt-1 text-xs text-gray-500">
+          Join Solevora for exclusive access to the latest drops.
+        </p>
+
+        <form className="mt-4 space-y-3" onSubmit={handleRegister}>
+          <div>
+            <label className="block mb-1 text-xs font-semibold text-[#24324a]">Full Name</label>
+            <input
+              type="text"
+              placeholder="Enter your full name"
+              className="w-full h-11 px-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 text-xs font-semibold text-[#24324a]">Email Address</label>
+            <input
+              type="email"
+              placeholder="name@example.com"
+              className="w-full h-11 px-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="flex gap-4">
+            <div className="w-1/2">
+              <label className="block mb-1 text-xs font-semibold text-[#24324a]">Password</label>
+              <input
+                type="password"
+                placeholder="********"
+                className="w-full h-11 px-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="w-1/2">
+              <label className="block mb-1 text-xs font-semibold text-[#24324a]">
+                Confirm
+              </label>
+              <input
+                type="password"
+                placeholder="********"
+                className="w-full h-11 px-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-11 mt-4 text-base font-semibold text-white transition bg-orange-500 rounded-xl hover:bg-orange-600 disabled:opacity-50"
+          >
+            {isLoading ? "Creating..." : "Create Account"}
+          </button>
+
+          {message && (
+            <p className={`text-[10px] text-center font-bold italic animate-fadeIn ${message.includes("successful") ? "text-emerald-500" : "text-rose-500"}`}>
+              {message}
+            </p>
+          )}
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center mt-6 mb-4">
+          <div className="flex-grow border-t border-gray-300"></div>
+          <span className="px-3 text-[10px] text-gray-400">Or continue with</span>
+          <div className="flex-grow border-t border-gray-300"></div>
         </div>
 
-        <div className="w-full max-w-md animate-fadeIn">
-          <header className="mb-8">
-            <h1 className="text-4xl font-black text-secondary tracking-tighter italic uppercase">Join Vora</h1>
-            <p className="text-sm text-gray-400 font-medium mt-2 italic">Initiate your biometric asset network.</p>
-          </header>
+        {/* Social Buttons */}
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={handleGoogleRegister}
+            className="flex items-center justify-center w-1/2 gap-2 h-10 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 text-xs font-medium transition-all active:scale-95"
+          >
+            <FcGoogle size={20} />
+            Google
+          </button>
 
-          <form onSubmit={handleRegister} className="flex flex-col gap-5">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-1">Identity Tag</label>
-              <div className="relative group">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-                  <HiOutlineUser size={20} />
-                </div>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Lex Mercer"
-                  className="input-standard pl-14"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
+          <button
+            type="button"
+            onClick={handleAppleRegister}
+            className="flex items-center justify-center w-1/2 gap-2 h-10 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 text-xs font-medium transition-all active:scale-95"
+          >
+            <FaApple size={18} />
+            Apple
+          </button>
+        </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-1">Secure Email</label>
-              <div className="relative group">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-                  <HiOutlineMail size={20} />
-                </div>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="lex@example.com"
-                  className="input-standard pl-14"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-1">Cipher</label>
-                <div className="relative group">
-                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-                    <LuLock size={18} />
-                    </div>
-                    <input
-                    type="password"
-                    name="password"
-                    placeholder="••••"
-                    className="input-standard pl-12"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    />
-                </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-1">Confirm</label>
-                <div className="relative group">
-                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-                    <LuLock size={18} />
-                    </div>
-                    <input
-                    type="password"
-                    name="confirmPassword"
-                    placeholder="••••"
-                    className="input-standard pl-12"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    required
-                    />
-                </div>
-                </div>
-            </div>
-
-            <button type="submit" className="h-16 bg-black text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-black/10 hover:bg-primary transition-all active:scale-95 group flex items-center justify-center gap-3 mt-4">
-              <span>{isLoading ? "Syncing..." : "Initialize Profile"}</span>
-              {!isLoading && <div className="w-2 h-2 rounded-full bg-white animate-pulse" />}
-            </button>
-
-            {message && (
-              <div className={`p-4 rounded-xl text-xs font-bold text-center italic animate-fadeIn ${message.includes("successful") ? "bg-emerald-50 border border-emerald-100 text-emerald-500" : "bg-rose-50 border border-rose-100 text-rose-500"}`}>
-                {message}
-              </div>
-            )}
-          </form>
-
-          <div className="relative my-10 flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100" /></div>
-            <span className="relative px-6 bg-white text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]">Neural Protocol</span>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 mb-8">
-            <button className="flex-1 h-14 bg-white border border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:border-black transition-all active:scale-95">
-              <FcGoogle size={20} /> Google
-            </button>
-            <button className="flex-1 h-14 bg-white border border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:border-black transition-all active:scale-95">
-              <FaApple size={18} /> Apple
-            </button>
-          </div>
-
-          <p className="text-center text-xs font-bold text-gray-400 uppercase tracking-widest italic">
-            Existing secure node? <Link to="/login" className="text-primary hover:underline ml-1">Re-authenticate here</Link>
-          </p>
+        {/* Sign In */}
+        <div className="mt-6 text-center text-xs text-gray-500">
+          Already have an account?
+          <Link to="/login" className="ml-1 text-orange-500 cursor-pointer font-bold hover:underline">
+            Sign In
+          </Link>
         </div>
       </div>
     </div>
