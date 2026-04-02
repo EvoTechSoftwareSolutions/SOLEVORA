@@ -33,10 +33,38 @@ function Login() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/login", {
+        email: "googleuser@gmail.com",
+        password: "social_login",
+      });
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("isAuthenticated", "true");
+      navigate(from, { replace: true });
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Google login failed");
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/login", {
+        email: "appleuser@gmail.com",
+        password: "social_login",
+      });
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("isAuthenticated", "true");
+      navigate(from, { replace: true });
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Apple login failed");
+    }
+  };
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-bg-light font-manrope selection:bg-primary/20">
       {/* Hidden Admin Entry */}
-      <div 
+      <div
         onClick={() => navigate('/admin-login')}
         className="fixed bottom-3 right-3 text-secondary opacity-5 cursor-pointer z-[9999] hover:opacity-20 transition-opacity"
         title="Admin Entry"
@@ -49,92 +77,109 @@ function Login() {
         <img src={loginImage} alt="Login Shoe" className="w-full h-full object-cover opacity-80" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         <div className="absolute bottom-[10%] left-[10%] text-white z-10 animate-fadeIn">
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-4 block">SoleVora Prime</span>
-            <h2 className="text-3xl md:text-5xl font-black leading-none mb-4 italic tracking-tighter uppercase">Step into the <br /> future.</h2>
-            <p className="text-sm text-gray-300 max-w-xs font-medium italic">Join our community and get exclusive access to limited drops and high-performance engineering.</p>
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-4 block">SoleVora Prime</span>
+          <h2 className="text-3xl md:text-5xl font-black leading-none mb-4 italic tracking-tighter uppercase">Step into the <br /> future.</h2>
+          <p className="text-sm text-gray-300 max-w-xs font-medium italic">Join our community and get exclusive access to limited drops and high-performance engineering.</p>
         </div>
       </div>
 
-      {/* Right Panel */}
-      <div className="flex-1 flex items-center justify-center p-8 md:p-16 lg:p-24 bg-white relative">
-        <div className="absolute top-10 right-10 opacity-5 select-none pointer-events-none hidden lg:block">
-            <span className="text-9xl font-black italic">VORA</span>
-        </div>
+      {/* Right Side */}
+      <div className="w-full px-8 py-4 md:w-1/2 md:px-8 flex flex-col justify-center bg-white">
+        <h1 className="text-xl font-bold md:text-2xl text-slate-900">
+          Welcome Back
+        </h1>
 
-        <div className="w-full max-w-md animate-fadeIn">
-          <header className="mb-10">
-            <h1 className="text-4xl font-black text-secondary tracking-tighter italic uppercase">Welcome Back</h1>
-            <p className="text-sm text-gray-400 font-medium mt-2 italic">Initiate your biometric secure access network.</p>
-          </header>
+        <p className="mt-1 text-[#6f7d95] text-xs leading-5 max-w-md">
+          Sign in to your Solevora account to access your orders and wishlist.
+        </p>
 
-          <form onSubmit={handleLogin} className="flex flex-col gap-6">
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-1">Email Protocol</label>
-              <div className="relative group">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-                  <HiOutlineMail size={20} />
-                </div>
-                <input
-                  type="email"
-                  placeholder="name@example.com"
-                  className="input-standard pl-14"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
+        <form className="mt-4" onSubmit={handleLogin}>
+          <div className="mb-2">
+            <label className="block text-[#24324a] text-xs font-semibold mb-1">
+              Email Address
+            </label>
+
+            <div className="flex items-center bg-[#f4f4f4] rounded-xl px-3 h-12">
+              <HiOutlineMail className="text-[#94a3b8] text-base mr-2" />
+              <input
+                type="email"
+                placeholder="name@example.com"
+                className="w-full text-sm bg-transparent outline-none text-slate-700"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between items-center px-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-secondary">Cipher Key</label>
-                <Link to="/forgot-password" size="sm" className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline">Lost access?</Link>
-              </div>
-              <div className="relative group">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
-                  <LuLock size={20} />
-                </div>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="input-standard pl-14"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <button type="submit" className="h-16 bg-black text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-black/10 hover:bg-primary transition-all active:scale-95 group flex items-center justify-center gap-3">
-              <span>Sign In</span>
-              <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            </button>
-
-            {message && (
-              <div className="p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-500 text-xs font-bold text-center italic animate-fadeIn">
-                {message}
-              </div>
-            )}
-          </form>
-
-          <div className="relative my-10 flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100" /></div>
-            <span className="relative px-6 bg-white text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]">Neural Connect</span>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-10">
-            <button className="flex-1 h-14 bg-white border border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:border-black transition-all active:scale-95">
-              <FcGoogle size={22} /> Google
-            </button>
-            <button className="flex-1 h-14 bg-white border border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:border-black transition-all active:scale-95">
-              <FaApple size={20} /> Apple
-            </button>
+          <div className="mb-1">
+            <label className="block text-[#24324a] text-xs font-semibold mb-1">
+              Password
+            </label>
+
+            <div className="flex items-center bg-[#f4f4f4] rounded-xl px-3 h-12">
+              <LuLock className="text-[#94a3b8] text-base mr-2" />
+              <input
+                type="password"
+                placeholder="••••••••"
+                className="w-full text-sm bg-transparent outline-none text-slate-700"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
           </div>
 
-          <p className="text-center text-xs font-bold text-gray-400 uppercase tracking-widest italic">
-            No secure node? <Link to="/register" className="text-primary hover:underline ml-1">Establish one here</Link>
-          </p>
+          <div className="mt-1 text-right">
+            <Link to="/forgot-password" size="sm" className="text-[10px] font-medium text-orange-500 hover:underline">
+              Forgot Password?
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-2.5 mt-4 text-base font-semibold text-white transition bg-orange-500 hover:bg-orange-600 rounded-xl"
+          >
+            Sign In
+          </button>
+
+          {message && (
+            <p className="mt-1 text-[10px] text-center text-red-600">{message}</p>
+          )}
+        </form>
+
+        <div className="flex items-center mb-3 mt-4">
+          <div className="flex-1 border-t border-gray-300"></div>
+          <span className="px-3 text-[10px] text-gray-400">
+            Or continue with
+          </span>
+          <div className="flex-1 border-t border-gray-300"></div>
         </div>
+
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="flex items-center justify-center flex-1 gap-2 border border-gray-300 h-10 rounded-xl hover:bg-white text-xs"
+          >
+            <FcGoogle className="text-lg" />
+            Google
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAppleLogin}
+            className="flex items-center justify-center flex-1 gap-2 border border-gray-300 h-10 rounded-xl hover:bg-white text-xs"
+          >
+            <FaApple className="text-lg" />
+            Apple
+          </button>
+        </div>
+
+        <p className="mt-3 text-center text-xs text-gray-500">
+          Don&apos;t have an account?
+          <Link to="/register" className="ml-1 text-orange-500 cursor-pointer hover:underline font-semibold">
+            Sign Up
+          </Link>
+        </p>
       </div>
     </div>
   );
