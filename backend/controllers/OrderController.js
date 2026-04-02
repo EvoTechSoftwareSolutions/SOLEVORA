@@ -51,7 +51,28 @@ export const getOrderById = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+export const getOrdersByUserId = async (req, res) => {
+    try {
+        const userId = parseInt(req.params.id);
 
+        const orders = await Order.findAll({
+            where: { userId },
+            include: [
+                {
+                    model: OrderItem,
+                    as: 'items',
+                    include: [{ model: Product, as: 'product' }]
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        res.status(200).json(orders);
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 export const getOrdersByEmail = async (req, res) => {
     try {
         let { email } = req.query;
