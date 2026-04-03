@@ -4,15 +4,21 @@ import Product from '../models/Product.js';
 
 export const createOrder = async (req, res) => {
     try {
-        const { total_amount, shipping_address, contact_number, email, userId, items } = req.body;
+        const { total_amount, shipping_address, contact_number, email, userId, items, payment_method } = req.body;
         const normalizedEmail = email ? email.trim().toLowerCase() : null;
+
+        // Payment status for COD is always pending initially. For online, should probably be handled by payment controller.
+        const initialPaymentStatus = payment_method === 'cod' ? 'pending' : 'pending';
+
         const order = await Order.create({ 
             total_amount, 
             status: 'pending', 
             shipping_address, 
             contact_number, 
             email: normalizedEmail, 
-            userId 
+            userId,
+            payment_method: payment_method || 'online',
+            payment_status: initialPaymentStatus
         });
         
         if (items && items.length > 0) {
@@ -97,10 +103,10 @@ export const getOrdersByEmail = async (req, res) => {
 export const updateOrderStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body;
+        const { status, tracking_number, carrier, payment_status } = req.body;
         
-        await Order.update({ status }, { where: { id } });
-        res.status(200).json({ message: 'Order status updated successfully' });
+        await Order.update({ status, tracking_number, carrier, payment_status }, { where: { id } });
+        res.status(200).json({ message: 'Order updated successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

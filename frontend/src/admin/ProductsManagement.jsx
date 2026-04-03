@@ -1,279 +1,223 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './ProductsManagement.css';
 import ProductModal from './ProductModal';
+import { 
+    HiOutlinePlus, 
+    HiOutlinePencil, 
+    HiOutlineTrash, 
+    HiOutlineFilter, 
+    HiOutlineDownload, 
+    HiOutlineChevronLeft, 
+    HiOutlineChevronRight,
+    HiOutlineCube,
+    HiOutlineExclamationCircle,
+    HiOutlineRefresh
+} from "react-icons/hi";
 
 const ProductsManagement = () => {
-    const [subTab, setSubTab] = useState('All Products');
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(null);
-
-    const fetchProducts = async () => {
-        try {
-            const response = await axios.get('http://localhost:5000/api/products');
-            setProducts(response.data);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            setLoading(false);
-        }
-    };
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [activeTab, setActiveTab] = useState('all');
 
     useEffect(() => {
         fetchProducts();
     }, []);
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
-            try {
-                await axios.delete(`http://localhost:5000/api/products/${id}`);
-                fetchProducts();
-            } catch (error) {
-                console.error('Error deleting product:', error);
-                alert('Error deleting product. Please try again.');
-            }
+    const fetchProducts = async () => {
+        setLoading(true);
+        try {
+            const res = await axios.get('http://localhost:5000/api/products');
+            setProducts(res.data);
+        } catch (error) {
+            console.error('Inventory synchronization failure:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleEdit = (product) => {
-        setSelectedProduct(product);
+    const handleDelete = async (id) => {
+        if (!window.confirm('Erase this unit from the magnitude network?')) return;
+        try {
+            await axios.delete(`http://localhost:5000/api/products/${id}`);
+            fetchProducts();
+        } catch (error) {
+            console.error('Unit erasure failure:', error);
+        }
+    };
+
+    const openAddModal = () => {
+        setEditingProduct(null);
         setIsModalOpen(true);
     };
 
-    const handleAddClick = () => {
-        setSelectedProduct(null);
+    const openEditModal = (product) => {
+        setEditingProduct(product);
         setIsModalOpen(true);
     };
 
-    const handleProductSaved = () => {
+    const handleSave = () => {
+        setIsModalOpen(false);
         fetchProducts();
     };
 
-    const filteredProducts = products.filter(prod => {
-        if (subTab === 'All Products') return true;
-        
-        let status = 'Active';
-        if (prod.stock_quantity === 0) {
-            status = 'Out of Stock';
-        } else if (prod.stock_quantity < 20) {
-            status = 'Low Stock';
-        }
-
-        if (subTab === 'Active') {
-            return status === 'Active';
-        }
-        if (subTab === 'Out of Stock') {
-            return status === 'Out of Stock';
-        }
-        if (subTab === 'Low Stock') {
-            return status === 'Low Stock';
-        }
+    const filteredProducts = products.filter(p => {
+        if (activeTab === 'all') return true;
+        if (activeTab === 'low') return p.stock > 0 && p.stock < 10;
+        if (activeTab === 'out') return p.stock === 0;
         return true;
     });
 
     return (
-        <div className="dashboard-content">
-            {/* Page Title */}
-            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+        <div className="flex flex-col gap-10 animate-fadeIn relative z-10 selection:bg-primary/20 italic">
+            
+            {/* Header */}
+            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                 <div>
-                    <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#111' }}>Product Inventory</h1>
-                    <p style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>Manage and track your premium footwear collection</p>
+                    <h2 className="text-3xl font-black uppercase tracking-tighter text-secondary italic">INVENTORY <span className="text-primary italic">CORE</span></h2>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[.3em] mt-1">Magnitude Asset Management • Real-time Quantization</p>
                 </div>
-                <button 
-                    className="btn-add-product" 
-                    onClick={handleAddClick}
-                    style={{ 
-                        backgroundColor: '#f66d3b', 
-                        color: '#fff', 
-                        border: 'none', 
-                        borderRadius: '8px', 
-                        padding: '10px 20px', 
-                        fontSize: '14px', 
-                        fontWeight: '600', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '8px', 
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 12px rgba(246, 109, 59, 0.2)'
-                    }}
-                >
-                    <svg style={{ width: '18px', height: '18px' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    Add New Product
-                </button>
-            </div>
-
-            {/* Tabs Bar */}
-            <div className="tabs-bar">
-                <div className="tabs-left">
-                    {['All Products', 'Active', 'Out of Stock', 'Low Stock'].map(tab => (
-                        <button
-                            key={tab}
-                            className={`tab-link ${subTab === tab ? 'active' : ''}`}
-                            onClick={() => setSubTab(tab)}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div>
-
-                <div className="tabs-right">
-                    <button className="btn-secondary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-                        Filter
+                <div className="flex gap-4 w-full lg:w-auto">
+                    <button className="flex-1 lg:flex-none h-14 px-6 bg-white border border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-secondary hover:border-secondary transition-all active:scale-95 shadow-sm">
+                        <HiOutlineDownload size={20} />
+                        Export Manifest
                     </button>
-                    <button className="btn-secondary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Export
+                    <button 
+                        onClick={openAddModal}
+                        className="flex-1 lg:flex-none h-14 px-8 bg-primary text-white rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:bg-secondary transition-all shadow-xl shadow-primary/20 active:scale-95"
+                    >
+                        <HiOutlinePlus size={20} />
+                        Inject New Unit
                     </button>
                 </div>
-            </div>
+            </header>
 
-            {/* Table Container */}
-            <div className="table-container">
-                <table className="products-table">
-                    <thead>
-                        <tr>
-                            <th>PRODUCT</th>
-                            <th>SKU</th>
-                            <th>CATEGORY</th>
-                            <th>STOCK LEVEL</th>
-                            <th>PRICE</th>
-                            <th>STATUS</th>
-                            <th>ACTIONS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan="7" style={{ textAlign: 'center', padding: '50px' }}>Loading inventory...</td></tr>
-                        ) : filteredProducts.length === 0 ? (
-                            <tr><td colSpan="7" style={{ textAlign: 'center', padding: '50px' }}>No products found.</td></tr>
-                        ) : (
-                            filteredProducts.map(prod => {
-                                const stockPct = Math.min(100, Math.round((prod.stock_quantity / 150) * 100)); // Assume 150 is max capacity for bar
-                                let status = 'Active';
-                                let badgeClass = 'status-active';
-                                
-                                if (prod.stock_quantity === 0) {
-                                    status = 'Out of Stock';
-                                    badgeClass = 'status-out';
-                                } else if (prod.stock_quantity < 20) {
-                                    status = 'Low Stock';
-                                    badgeClass = 'status-low';
-                                }
-
-                                return (
-                                    <tr key={prod.id}>
-                                        <td>
-                                            <div className="td-product">
-                                                <div className="product-images">
-                                                    <img src={prod.image_url || 'https://via.placeholder.com/50'} alt={prod.name} className="product-img" />
-                                                </div>
-                                                <div>
-                                                    <div className="td-product-name">{prod.name}</div>
-                                                    <div className="td-product-desc">{prod.description?.substring(0, 30)}{prod.description?.length > 30 ? '...' : ''}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td><div className="td-sku">SLV-{prod.category?.name?.substring(0,3).toUpperCase() || 'UNC'}-{prod.id}</div></td>
-                                        <td><span className="category-badge">{prod.category?.name || 'Uncategorized'}</span></td>
-                                        <td>
-                                            <div className="stock-level-container">
-                                                <div className="stock-text-row">
-                                                    <span className="stock-percent">{stockPct}%</span>
-                                                    <span className="stock-left">{prod.stock_quantity} left</span>
-                                                </div>
-                                                <div className="stock-bar-bg">
-                                                    <div className="stock-bar-fill" style={{ width: `${stockPct}%`, backgroundColor: status === 'Out of Stock' ? '#ef4444' : (status === 'Low Stock' ? '#f59e0b' : '#f66d3b') }}></div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td><div className="td-price">${parseFloat(prod.price).toFixed(2)}</div></td>
-                                        <td>
-                                            <div className={`status-badge ${badgeClass}`}>
-                                                <span className="status-dot"></span>
-                                                {status === 'Draft' ? 'Draft' : status}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className="td-actions">
-                                                <button className="action-icon" onClick={() => handleEdit(prod)} title="Edit Product">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                                </button>
-                                                <button className="action-icon" onClick={() => handleDelete(prod.id)} title="Delete Product">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })
-                        )}
-                    </tbody>
-                </table>
-
-                {/* Pagination */}
-                <div className="pagination">
-                    <div className="page-info">
-                        Showing {filteredProducts.length} products
-                    </div>
-                </div>
-            </div>
-
-            {/* Bottom Metrics Area */}
-            <div className="bottom-metrics">
-                <div className="metric-card-bottom">
-                    <div className="metric-header">
-                        <div className="metric-icon-circle ic-orange">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            {/* Metrics */}
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                    { label: 'Total Magnitude', value: products.length, icon: <HiOutlineCube />, color: 'bg-primary text-white shadow-primary/20' },
+                    { label: 'Critically Low', value: products.filter(p => p.stock < 10 && p.stock > 0).length, icon: <HiOutlineExclamationCircle />, color: 'bg-rose-500 text-white shadow-rose-500/20' },
+                    { label: 'Stock Cycle Status', value: 'Nominal', icon: <HiOutlineRefresh />, color: 'bg-secondary text-white shadow-secondary/20' },
+                ].map((stat, i) => (
+                    <div key={i} className={`p-8 rounded-[2.5rem] flex items-center justify-between shadow-2xl relative overflow-hidden group ${stat.color}`}>
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                        <div className="flex flex-col gap-1 relative z-10">
+                            <span className="text-[9px] font-black uppercase tracking-[.25em] opacity-60">{stat.label}</span>
+                            <span className="text-3xl font-black italic">{stat.value}</span>
                         </div>
-                        <div className="metric-badge badge-green">+4%</div>
+                        <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform">{stat.icon}</div>
                     </div>
-                    <div className="metric-title">TOTAL SKU</div>
-                    <div className="metric-value">{products.length}</div>
+                ))}
+            </section>
+
+            {/* Table Area */}
+            <section className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                <div className="p-8 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-center gap-6">
+                    <div className="flex gap-2">
+                        {['all', 'low', 'out'].map((t) => (
+                            <button 
+                                key={t}
+                                onClick={() => setActiveTab(t)}
+                                className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === t ? 'bg-secondary text-white shadow-lg shadow-secondary/10' : 'text-gray-400 hover:text-secondary'}`}
+                            >
+                                {t === 'all' ? 'All Units' : t === 'low' ? 'Low Stock' : 'Out of Mesh'}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-4 text-gray-400">
+                        <HiOutlineFilter className="hover:text-primary cursor-pointer transition-colors" size={20} />
+                        <div className="w-px h-6 bg-slate-100" />
+                        <span className="text-[9px] font-black uppercase tracking-widest">{filteredProducts.length} Results</span>
+                    </div>
                 </div>
 
-                <div className="metric-card-bottom">
-                    <div className="metric-header">
-                        <div className="metric-icon-circle ic-orange">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                        </div>
-                        <div className="metric-badge badge-orange">Low Stock</div>
-                    </div>
-                    <div className="metric-title">LOW STOCK ITEMS</div>
-                    <div className="metric-value">{products.filter(p => p.stock_quantity > 0 && p.stock_quantity < 20).length}</div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left italic border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50/50 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-slate-50">
+                                <th className="py-6 px-8">Unit Specification</th>
+                                <th className="py-6 px-8">Stock Level</th>
+                                <th className="py-6 px-8 text-center">Procurement Value</th>
+                                <th className="py-6 px-8 text-center">Status</th>
+                                <th className="py-6 px-8 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                            {loading ? (
+                                <tr><td colSpan="5" className="py-20 text-center animate-pulse text-[10px] font-bold text-gray-300 uppercase tracking-widest">Hydrating Inventory Mesa...</td></tr>
+                            ) : filteredProducts.length === 0 ? (
+                                <tr><td colSpan="5" className="py-20 text-center text-[10px] font-bold text-gray-300 uppercase tracking-widest italic">No Asset Fragments Detected in this Vector</td></tr>
+                            ) : filteredProducts.map((p) => (
+                                <tr key={p.id} className="hover:bg-slate-50/50 transition-colors group">
+                                    <td className="py-6 px-8">
+                                        <div className="flex items-center gap-4">
+                                             <div className="w-14 h-14 bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 p-2 shrink-0 group-hover:scale-110 transition-transform">
+                                                <img src={p.image_url} alt="" className="w-full h-full object-contain" />
+                                             </div>
+                                             <div className="flex flex-col">
+                                                <h4 className="text-xs font-black uppercase tracking-tighter text-secondary leading-tight truncate max-w-[200px]">{p.name}</h4>
+                                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">ID: #SV-{p.id.toString().slice(-6).toUpperCase()} • {p.category}</p>
+                                             </div>
+                                        </div>
+                                    </td>
+                                    <td className="py-6 px-8">
+                                        <div className="w-32 flex flex-col gap-2">
+                                            <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest">
+                                                <span className={p.stock < 10 ? 'text-rose-500' : 'text-emerald-500'}>{p.stock} Units</span>
+                                                <span className="text-gray-300">/ 100</span>
+                                            </div>
+                                            <div className="h-1.5 bg-slate-50 rounded-full overflow-hidden">
+                                                <div className="rounded-full transition-all duration-1000" style={{ width: `${Math.min(p.stock, 100)}%` }} />
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="py-6 px-8 text-center">
+                                        <span className="text-xs font-black text-secondary">${p.price}</span>
+                                    </td>
+                                    <td className="py-6 px-8 text-center text-[8px]">
+                                         <span className={`inline-block px-3 py-1 rounded-full font-black uppercase tracking-widest ${
+                                            p.stock === 0 ? 'bg-rose-50 text-rose-500' : 
+                                            p.stock < 10 ? 'bg-orange-50 text-orange-500' : 'bg-emerald-50 text-emerald-600'
+                                         }`}>
+                                            {p.stock === 0 ? 'Out of mesh' : p.stock < 10 ? 'Critical' : 'Nominal'}
+                                         </span>
+                                    </td>
+                                    <td className="py-6 px-8 text-right">
+                                        <div className="flex justify-end gap-2">
+                                            <button onClick={() => openEditModal(p)} className="w-9 h-9 rounded-xl bg-slate-100 text-gray-400 hover:bg-secondary hover:text-white transition-all flex items-center justify-center shadow-sm active:scale-90"><HiOutlinePencil size={18} /></button>
+                                            <button onClick={() => handleDelete(p.id)} className="w-9 h-9 rounded-xl bg-slate-100 text-gray-400 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center shadow-sm active:scale-90"><HiOutlineTrash size={18} /></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
 
-                <div className="metric-card-bottom">
-                    <div className="metric-header">
-                        <div className="metric-icon-circle ic-blue">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                        </div>
-                        <div className="metric-badge badge-gray">Inventory</div>
-                    </div>
-                    <div className="metric-title">TOTAL STOCK</div>
-                    <div className="metric-value">{products.reduce((acc, p) => acc + parseInt(p.stock_quantity), 0)}</div>
-                </div>
+                <footer className="p-8 border-t border-slate-50 flex flex-col sm:flex-row items-center justify-between gap-6 bg-slate-50/20 italic">
+                     <span className="text-[9px] font-black text-gray-300 uppercase tracking-[.3em]">Showing Index {filteredProducts.length > 0 ? '1' : '0'}–{filteredProducts.length} of {products.length} Units</span>
+                     <div className="flex items-center gap-3">
+                         <button className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-gray-400 hover:bg-secondary hover:text-white transition-all disabled:opacity-30"><HiOutlineChevronLeft size={20} /></button>
+                         <div className="flex gap-1">
+                            {[1].map(n => <button key={n} className="w-10 h-10 rounded-xl bg-secondary text-white text-[10px] font-black shadow-lg shadow-secondary/10">{n}</button>)}
+                         </div>
+                         <button className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-gray-400 hover:bg-secondary hover:text-white transition-all disabled:opacity-30"><HiOutlineChevronRight size={20} /></button>
+                     </div>
+                </footer>
+            </section>
 
-                <div className="metric-card-bottom">
-                    <div className="metric-header">
-                        <div className="metric-icon-circle ic-purple">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-                        </div>
-                        <div className="metric-badge badge-red">Out of Stock</div>
-                    </div>
-                    <div className="metric-title">TOTAL OUT</div>
-                    <div className="metric-value">{products.filter(p => p.stock_quantity === 0).length}</div>
-                </div>
-            </div>
+            {isModalOpen && (
+                <ProductModal 
+                    isOpen={isModalOpen} 
+                    onClose={() => setIsModalOpen(false)} 
+                    onSave={handleSave} 
+                    product={editingProduct} 
+                />
+            )}
 
-            <ProductModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
-                onProductSaved={handleProductSaved}
-                product={selectedProduct}
-            />
+            <p className="text-center text-[9px] font-bold text-gray-300 uppercase tracking-[.4em] opacity-50 pb-8 italic">Inventory Grid Neural Sync v2.6 • SoleVora Network</p>
+
         </div>
     );
 };

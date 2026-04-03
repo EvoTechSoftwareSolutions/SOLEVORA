@@ -3,7 +3,12 @@
    Premium Animated Notifications
    ============================================== */
 
-.toast-container {
+/* Example TailwindCSS usage */
+/* Toast */
+/* Use Tailwind classes like fixed, bottom-8, right-8, bg-white, etc. */
+
+/* Custom styles */
+/* .toast-container {
   position: fixed;
   bottom: 30px;
   right: 30px;

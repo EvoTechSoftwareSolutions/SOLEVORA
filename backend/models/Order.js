@@ -30,6 +30,22 @@ const Order = sequelize.define('Order', {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: true
+    },
+    tracking_number: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    carrier: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    payment_method: {
+        type: DataTypes.ENUM('online', 'cod'),
+        defaultValue: 'online'
+    },
+    payment_status: {
+        type: DataTypes.ENUM('pending', 'paid', 'failed'),
+        defaultValue: 'pending'
     }
 }, {
     timestamps: true,

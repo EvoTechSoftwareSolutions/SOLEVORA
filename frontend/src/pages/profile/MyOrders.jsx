@@ -222,6 +222,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import './MyOrders.css';
+import Modal from '../../components/ui/Modal';
 
 const PAGE_SIZE = 10;
 
@@ -230,6 +231,8 @@ const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [isTrackModalOpen, setIsTrackModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   // Get logged-in user from localStorage
   const getLoggedInUser = () => {
@@ -285,6 +288,31 @@ const MyOrders = () => {
 
   const rangeStart = totalFiltered === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const rangeEnd = totalFiltered === 0 ? 0 : Math.min(page * PAGE_SIZE, totalFiltered);
+
+  const handleTrackOrder = (order) => {
+    setSelectedOrder(order);
+    setIsTrackModalOpen(true);
+  };
+
+  const getProgressStatus = (status) => {
+    const statuses = ['pending', 'processing', 'shipped', 'delivered'];
+    const currentIndex = statuses.indexOf(status.toLowerCase());
+    if (currentIndex === -1) return -1; // Status like 'cancelled' or 'paid' that doesn't fit the stepper
+    return currentIndex;
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    if (window.confirm('Are you sure you want to cancel this order?')) {
+      try {
+        await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: 'cancelled' });
+        alert('Order cancelled successfully');
+        fetchOrders(); // Refresh the list
+      } catch (error) {
+        console.error('Error cancelling order:', error);
+        alert('Error cancelling order');
+      }
+    }
+  };
 
   return (
     <div className="mo-dashboard-content">
@@ -384,9 +412,22 @@ const MyOrders = () => {
                     <button className="mo-view-btn" title="View Details">
                       <span className="material-symbols-outlined">visibility</span>
                     </button>
-                    <button className="mo-track-btn" title="Track Order">
+                    <button 
+                      className="mo-track-btn" 
+                      title="Track Order"
+                      onClick={() => handleTrackOrder(order)}
+                    >
                       <span className="material-symbols-outlined">local_shipping</span>
                     </button>
+                    {['pending', 'paid'].includes(order.status.toLowerCase()) && (
+                      <button 
+                        className="mo-cancel-btn" 
+                        title="Cancel Order"
+                        onClick={() => handleCancelOrder(order.id)}
+                      >
+                        <span className="material-symbols-outlined">cancel</span>
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -424,8 +465,101 @@ const MyOrders = () => {
           </div>
         )}
       </div>
+
+      {/* Track Order Modal */}
+      {selectedOrder && (
+        <Modal
+          isOpen={isTrackModalOpen}
+          onClose={() => setIsTrackModalOpen(false)}
+          title={`Track Order #ORD-${selectedOrder.id}`}
+        >
+          <div className="mo-track-modal-content">
+            <div className="mo-track-header">
+              <div>
+                <p className="mo-track-date">Placed on {new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
+              </div>
+              <div className={`mo-badge ${selectedOrder.status.toLowerCase()}`}>
+                {selectedOrder.status.toUpperCase()}
+              </div>
+            </div>
+
+            <div className="mo-tracking-stepper">
+              {['Pending', 'Processing', 'Shipped', 'Delivered'].map((step, index) => {
+                const progress = getProgressStatus(selectedOrder.status);
+                const isCompleted = index <= progress;
+                const isActive = index === progress;
+                
+                return (
+                  <div key={index} className={`mo-step-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}`}>
+                    <div className="mo-step-point"></div>
+                    <div className="mo-step-label">{step}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mo-order-items">
+              <h3>Items in this order</h3>
+              <div className="mo-items-list">
+                {selectedOrder.items.map((item, idx) => (
+                  <div key={idx} className="mo-track-item">
+                    <div className="mo-item-img">
+                      <img src={item.product?.image_url} alt={item.product?.name} />
+                    </div>
+                    <div className="mo-item-details">
+                      <h4>{item.product?.name}</h4>
+                      <p>Size: {item.size} | Qty: {item.quantity}</p>
+                    </div>
+                    <div className="mo-item-price">
+                      ${((item.price_at_purchase || item.product?.price || 0) * item.quantity).toFixed(2)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mo-track-footer">
+              <div className="mo-shipping-info">
+                <h4>Shipping Address</h4>
+                <p>{selectedOrder.shipping_address}</p>
+                {selectedOrder.tracking_number && (
+                  <div className="mo-external-tracking">
+                    <p><strong>Carrier:</strong> {selectedOrder.carrier}</p>
+                    <p><strong>Tracking #:</strong> {selectedOrder.tracking_number}</p>
+                  </div>
+                )}
+              </div>
+              <div className="mo-total-info">
+                <h4>Total Amount</h4>
+                <p className="mo-total-val">${parseFloat(selectedOrder.total_amount).toFixed(2)}</p>
+                <div className="mo-payment-summary">
+                  <span className={`mo-pay-method ${selectedOrder.payment_method}`}>
+                    {selectedOrder.payment_method === 'cod' ? 'CASH ON DELIVERY' : 'ONLINE PAYMENT'}
+                  </span>
+                  <span className={`mo-pay-status ${selectedOrder.payment_status}`}>
+                    {selectedOrder.payment_status?.toUpperCase()}
+                  </span>
+                </div>
+                {selectedOrder.payment_method === 'cod' && selectedOrder.status !== 'delivered' && (
+                  <p className="mo-cod-reminder">Please have exact change ready upon delivery.</p>
+                )}
+                {selectedOrder.tracking_number && (
+                  <a 
+                    href={`https://www.google.com/search?q=${selectedOrder.carrier}+tracking+${selectedOrder.tracking_number}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="mo-track-external-btn"
+                  >
+                    Track Package
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
 
-export default MyOrders;
+export default MyOrders;

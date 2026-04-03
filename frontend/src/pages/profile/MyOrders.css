@@ -175,7 +175,8 @@
 }
 
 .mo-view-btn,
-.mo-track-btn {
+.mo-track-btn,
+.mo-cancel-btn {
     border: none;
     background: #f1f5f9;
     padding: 6px;
@@ -187,6 +188,11 @@
 .mo-view-btn:hover,
 .mo-track-btn:hover {
     background: #f97316;
+    color: #fff;
+}
+
+.mo-cancel-btn:hover {
+    background: #ef4444;
     color: #fff;
 }
 
@@ -311,4 +317,293 @@
         width: 35px;
         height: 35px;
     }
+}
+
+/* -------- Track Order Modal -------- */
+.mo-track-modal-content {
+    padding: 10px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.mo-track-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.mo-track-date {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.mo-tracking-stepper {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 30px 0 40px;
+    padding: 0 10px;
+}
+
+.mo-tracking-stepper::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 40px;
+    right: 40px;
+    height: 3px;
+    background: #f1f5f9;
+    z-index: 1;
+}
+
+.mo-step-item {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.mo-step-point {
+    width: 26px;
+    height: 26px;
+    background: #f1f5f9;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 0 1px #e2e8f0;
+}
+
+.mo-step-item.completed .mo-step-point {
+    background: #22c55e;
+    box-shadow: 0 0 0 1px #22c55e;
+}
+
+.mo-step-item.active .mo-step-point {
+    background: #22c55e;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2), 0 0 0 1px #22c55e;
+}
+
+.mo-step-label {
+    font-weight: 700;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mo-step-item.completed .mo-step-label,
+.mo-step-item.active .mo-step-label {
+    color: #1e293b;
+}
+
+/* Stepper Line Progress */
+.mo-step-item.completed + .mo-step-item::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    right: 50%;
+    width: 100%;
+    height: 3px;
+    background: #22c55e;
+    z-index: -1;
+}
+
+.mo-order-items {
+    margin-bottom: 25px;
+}
+
+.mo-order-items h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 15px;
+}
+
+.mo-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mo-track-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #f1f5f9;
+}
+
+.mo-item-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.mo-item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mo-item-details {
+    flex: 1;
+}
+
+.mo-item-details h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 3px;
+}
+
+.mo-item-details p {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.mo-item-price {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #1e293b;
+}
+
+.mo-track-footer {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+    padding: 20px;
+    background: #f1f5f9;
+    border-radius: 12px;
+}
+
+.mo-shipping-info h4,
+.mo-total-info h4 {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.mo-shipping-info p {
+    font-size: 0.9rem;
+    color: #1e293b;
+    line-height: 1.5;
+}
+
+.mo-total-val {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #f97316;
+}
+
+.mo-external-tracking {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed #cbd5e1;
+}
+
+.mo-external-tracking p {
+    font-size: 0.8rem !important;
+    margin-bottom: 2px;
+}
+
+.mo-track-external-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: #1e293b;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+.mo-track-external-btn:hover {
+    background: #f97316;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+@media (max-width: 640px) {
+    .mo-track-footer {
+        grid-template-columns: 1fr;
+    }
+    
+    .mo-tracking-stepper::before {
+        display: none;
+    }
+    
+    .mo-tracking-stepper {
+        flex-direction: column;
+        gap: 20px;
+        align-items: flex-start;
+        padding-left: 30px;
+    }
+    
+    .mo-tracking-stepper::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 42px;
+        width: 3px;
+        background: #f1f5f9;
+    }
+    
+    .mo-step-item {
+        flex-direction: row;
+        width: 100%;
+        gap: 20px;
+    }
+    
+    .mo-step-item::after {
+        display: none !important;
+    }
+}
+
+/* -------- Payment Details -------- */
+.mo-payment-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 8px 0;
+}
+
+.mo-pay-method {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #475569;
+}
+
+.mo-pay-status {
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.mo-pay-status.paid { color: #16a34a; }
+.mo-pay-status.pending { color: #f97316; }
+
+.mo-cod-reminder {
+    font-size: 0.7rem;
+    background: #fffbeb;
+    color: #92400e;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border-left: 3px solid #f59e0b;
+    margin-top: 8px;
+    font-weight: 500;
 }

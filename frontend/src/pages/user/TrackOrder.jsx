@@ -134,10 +134,37 @@ const TrackOrder = () => {
                                 <h4>Shipping To</h4>
                                 <p>{orderInfo.email}</p>
                                 <p>{orderInfo.shipping_address}</p>
+                                {orderInfo.tracking_number && (
+                                    <div className="external-tracking-info" style={{ marginTop: '15px', borderTop: '1px dashed #ddd', paddingTop: '10px' }}>
+                                        <p><strong>Carrier:</strong> {orderInfo.carrier}</p>
+                                        <p><strong>Tracking #:</strong> {orderInfo.tracking_number}</p>
+                                    </div>
+                                )}
                             </div>
                             <div>
                                 <h4>Total Paid</h4>
                                 <p className="total-amount">${parseFloat(orderInfo.total_amount).toFixed(2)}</p>
+                                {orderInfo.tracking_number && (
+                                    <a 
+                                        href={`https://www.google.com/search?q=${orderInfo.carrier}+tracking+${orderInfo.tracking_number}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="track-package-btn"
+                                        style={{ 
+                                            display: 'inline-block', 
+                                            marginTop: '10px', 
+                                            padding: '8px 16px', 
+                                            background: '#1a1a1a', 
+                                            color: '#fff', 
+                                            textDecoration: 'none', 
+                                            borderRadius: '8px', 
+                                            fontSize: '0.85rem', 
+                                            fontWeight: '700' 
+                                        }}
+                                    >
+                                        Track Package
+                                    </a>
+                                )}
                             </div>
                         </div>
                     </div>

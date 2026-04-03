@@ -21,14 +21,10 @@ const AdminRoute = ({ children, adminOnly = false }) => {
     // Admin-only route but user is store_manager → show access denied
     if (adminOnly && !isAdmin) {
         return (
-            <div style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', minHeight: '60vh', gap: 12,
-                fontFamily: 'Inter, sans-serif'
-            }}>
-                <div style={{ fontSize: 48 }}>🔒</div>
-                <h2 style={{ fontSize: 20, fontWeight: 800, color: '#111', margin: 0 }}>Access Restricted</h2>
-                <p style={{ fontSize: 14, color: '#888', margin: 0, textAlign: 'center', maxWidth: 320 }}>
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 font-inter">
+                <div className="text-4xl">🔒</div>
+                <h2 className="text-20 font-bold text-gray-900">Access Restricted</h2>
+                <p className="text-14 text-gray-800">
                     This section is only accessible to <strong>System Admins</strong>.<br />
                     Contact your administrator if you need access.
                 </p>
