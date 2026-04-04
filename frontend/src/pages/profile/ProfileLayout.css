@@ -25,7 +25,7 @@
     border-right: 1px solid #f1f5f9;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 0px);
+    height: calc(100vh - 80px);
     position: sticky;
     top: 80px;
     overflow-y: auto;
@@ -115,9 +115,7 @@
     transition: all 0.3s;
     font-size: 13px;
     font-weight: 600;
-    
 }
-
 
 .sidebar-link:hover {
     color: #1e293b;
@@ -263,14 +261,16 @@
     flex-shrink: 0;
 }
 
-/* Mobile / tablet: top bar & drawer (hidden on desktop) */
+/* Mobile top bar & drawer — hidden on desktop */
 .profile-mobile-top-bar,
 .profile-drawer-backdrop,
 .profile-drawer-panel-header {
     display: none;
 }
 
-/* --- Responsive: tablet --- */
+/* =============================================
+   RESPONSIVE: Tablet (769px – 1024px)
+   ============================================= */
 @media (max-width: 1024px) {
     .profile-main-wrapper {
         flex-direction: row;
@@ -281,6 +281,7 @@
         width: 200px;
         flex-shrink: 0;
         top: 72px;
+        height: calc(100vh - 72px);
         max-height: calc(100vh - 72px);
         border-right: 1px solid #f1f5f9;
     }
@@ -308,11 +309,12 @@
 
     .profile-content-area {
         padding: 24px 20px;
-        margin-left: 0;
     }
 }
 
-/* --- Responsive: mobile & small tablet (left drawer) — aligned with Navbar --- */
+/* =============================================
+   RESPONSIVE: Mobile (≤ 768px)
+   ============================================= */
 @media (max-width: 768px) {
     .profile-layout-wrapper {
         overflow-x: hidden;
@@ -323,20 +325,29 @@
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
+        /* FIX: remove any top gap caused by sticky bar offset */
+        padding-top: 0;
+        margin-top: 0;
     }
 
-    /* Same bar treatment as .header-main */
+    /* ── Mobile top bar ──
+       KEY FIX: position sticky but top:0 relative to its scroll container,
+       NOT top:80px. The Navbar already occupies its own space above.
+       Using top:0 means the bar sticks right below the navbar with
+       zero extra white-space gap.
+    */
     .profile-mobile-top-bar {
         display: block;
         position: sticky;
-        top: 80px;
+        top: 0;           /* ← WAS top:80px → caused the white space gap */
         z-index: 25;
         width: 100%;
         margin: 0;
+        padding: 0;
         box-sizing: border-box;
-        background-color: var(--color-white);
+        background-color: #ffffff;
         border-bottom: 1px solid #f1f5f9;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         font-family: var(--font-main);
     }
 
@@ -344,51 +355,50 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
-        min-height: 56px;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        gap: 12px;
+        min-height: 52px;
+        padding: 8px 16px;
         box-sizing: border-box;
+        width: 100%;
     }
 
-    /* Match Navbar .mobile-toggle */
     .profile-drawer-toggle {
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        padding: 8px;
-        margin: 0;
-        margin-left: -8px;
+        padding: 6px;
+        margin-left: -6px;
         background: none;
         border: none;
         cursor: pointer;
-        color: var(--color-text-dark);
+        color: var(--color-text-dark, #0f172a);
         transition: color 0.2s ease;
     }
 
     .profile-drawer-toggle:hover,
     .profile-drawer-toggle.is-active {
-        color: var(--color-primary);
+        color: #ff6d2e;
     }
 
     .profile-drawer-toggle .material-symbols-outlined {
-        font-size: 26px;
+        font-size: 24px;
         line-height: 1;
     }
 
+    /* User info on right side of mobile bar */
     .profile-mobile-top-user {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         min-width: 0;
         flex: 1;
         justify-content: flex-end;
     }
 
     .profile-mobile-top-avatar {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         overflow: hidden;
         flex-shrink: 0;
@@ -409,36 +419,37 @@
         align-items: flex-end;
         justify-content: center;
         min-width: 0;
-        gap: 2px;
+        gap: 1px;
         text-align: right;
     }
 
     .profile-mobile-top-name {
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 600;
-        color: #475569;
+        color: #1e293b;
         line-height: 1.25;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: min(200px, 46vw);
+        max-width: min(180px, 42vw);
     }
 
     .profile-mobile-top-tier {
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--color-primary);
+        font-size: 10px;
+        font-weight: 700;
+        color: #ff6d2e;
         text-transform: uppercase;
         letter-spacing: 0.06em;
         line-height: 1.2;
     }
 
+    /* Backdrop */
     .profile-drawer-backdrop {
         display: block;
         position: fixed;
         left: 0;
         right: 0;
-        top: 80px;
+        top: 0;
         bottom: 0;
         background: rgba(15, 23, 42, 0.35);
         z-index: 35;
@@ -454,21 +465,21 @@
         pointer-events: auto;
     }
 
+    /* Sidebar as slide-in drawer */
     .profile-sidebar {
         position: fixed;
         left: 0;
-        top: 80px;
+        top: 0;
         bottom: 0;
-        width: min(300px, 88vw);
-        max-height: none;
-        height: auto;
+        width: min(280px, 85vw);
+        max-height: 100vh;
+        height: 100vh;
         transform: translateX(-100%);
         transition: transform 0.28s ease;
         z-index: 40;
-        background-color: var(--color-white);
+        background-color: #ffffff;
         border-right: 1px solid #f1f5f9;
-        border-bottom: none;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
         overflow-y: auto;
         overflow-x: hidden;
         flex-direction: column;
@@ -484,12 +495,13 @@
         justify-content: space-between;
         flex-shrink: 0;
         min-height: 56px;
-        padding: 0 20px;
+        padding: 0 16px;
         box-sizing: border-box;
-        background-color: var(--color-white);
+        background-color: #ffffff;
         border-bottom: 1px solid #f1f5f9;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-        font-family: var(--font-main);
+        position: sticky;
+        top: 0;
+        z-index: 1;
     }
 
     .profile-drawer-panel-title {
@@ -507,16 +519,16 @@
         background: none;
         border: none;
         cursor: pointer;
-        color: var(--color-text-dark);
+        color: #0f172a;
         transition: color 0.2s ease;
     }
 
     .profile-drawer-close:hover {
-        color: var(--color-primary);
+        color: #ff6d2e;
     }
 
     .profile-drawer-close .material-symbols-outlined {
-        font-size: 26px;
+        font-size: 24px;
         line-height: 1;
     }
 
@@ -550,13 +562,9 @@
 
     .sidebar-nav {
         flex-direction: column;
-        flex-wrap: nowrap;
-        overflow: visible;
-        gap: 8px;
-        margin-bottom: 24px;
+        gap: 6px;
+        margin-bottom: 16px;
         padding: 0;
-        margin-left: 0;
-        margin-right: 0;
     }
 
     .sidebar-link {
@@ -568,25 +576,20 @@
         font-size: 13px;
         font-weight: 600;
         white-space: normal;
-        flex-shrink: 0;
-        min-width: 0;
-        text-align: left;
     }
 
     .sidebar-icon {
-        font-size: 22px;
+        font-size: 20px;
     }
 
     .sidebar-text {
         display: inline;
         line-height: 1.2;
-        max-width: none;
-        white-space: normal;
     }
 
     .sidebar-bottom-section {
         border-top: 1px solid #e2e8f0;
-        padding-top: 16px;
+        padding-top: 12px;
         margin-top: 8px;
     }
 
@@ -606,41 +609,36 @@
         padding: 0 16px 24px 16px;
     }
 
+    /* ── Content area: no extra top padding ── */
     .profile-content-area {
         padding: 16px;
         width: 100%;
         flex: 1;
-    }
-
-    /* Match Navbar horizontal padding on narrow screens */
-    .profile-mobile-top-bar .container {
-        padding-left: 24px;
-        padding-right: 24px;
+        /* FIX: ensure no extra margin/padding pushing content down */
+        margin-top: 0;
+        box-sizing: border-box;
     }
 }
 
+/* =============================================
+   RESPONSIVE: Small Mobile (≤ 480px)
+   ============================================= */
 @media (max-width: 480px) {
-    .profile-mobile-top-bar .container {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-
     .profile-mobile-top-inner {
-        min-height: 52px;
-        padding-top: 8px;
-        padding-bottom: 8px;
+        min-height: 48px;
+        padding: 6px 12px;
     }
 
     .profile-mobile-top-name {
-        font-size: 14px;
-        max-width: min(180px, 42vw);
+        font-size: 13px;
+        max-width: min(160px, 38vw);
     }
 
     .profile-mobile-top-tier {
-        font-size: 10px;
+        font-size: 9px;
     }
 
     .profile-content-area {
-        padding: 12px;
+        padding: 10px;
     }
 }
