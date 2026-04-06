@@ -112,7 +112,7 @@ const PaymentDetails = () => {
             const hashResponse = await axios.post('http://localhost:5000/api/payment/hash', {
                 order_id: orderData.id,
                 amount: total,
-                currency: 'LKR'
+                currency: 'USD'
             });
 
             const { hash, merchant_id } = hashResponse.data;
@@ -128,7 +128,7 @@ const PaymentDetails = () => {
                 order_id: orderData.id.toString(),
                 items: "SoleVora Order #" + orderData.id,
                 amount: total.toFixed(2),
-                currency: "LKR",
+                currency: "USD",
                 hash: hash,
                 first_name: checkoutData.firstName || (user?.name ? user.name.split(' ')[0] : "Guest"),
                 last_name: checkoutData.lastName || (user?.name ? user.name.split(' ')[1] : "User"),

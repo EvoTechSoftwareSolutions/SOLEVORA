@@ -60,8 +60,8 @@ export const handlePaymentNotification = async (req, res) => {
         if (localSig === String(md5sig || '').toUpperCase()) {
             if (status_code === '2') {
                 // Success
-                await Order.update({ status: 'paid' }, { where: { id: order_id } });
-                console.log(`Payment successful: Order ${order_id} marked as PAID.`);
+                await Order.update({ status: 'processing', payment_status: 'paid' }, { where: { id: order_id } });
+                console.log(`Payment successful: Order ${order_id} marked as PROCESSING.`);
             } else if (status_code === '0') {
                 // Pending
                 console.log(`Payment pending for Order ${order_id}.`);

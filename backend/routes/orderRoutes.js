@@ -1,5 +1,6 @@
 import express from 'express';
 import { createOrder, getOrderById, getOrdersByEmail, updateOrderStatus, getOrdersByUserId } from '../controllers/OrderController.js';
+import { requireStoreAccess } from '../middleware/roleMiddleware.js';
 
 const router = express.Router();
 

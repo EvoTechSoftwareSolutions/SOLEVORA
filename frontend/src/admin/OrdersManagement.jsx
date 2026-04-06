@@ -1,32 +1,28 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-    HiOutlineShoppingBag, 
-    HiOutlineClipboardList, 
-    HiOutlineCheckCircle, 
-    HiOutlineTrash, 
-    HiOutlineEye, 
-    HiOutlineFilter,
-    HiOutlineChevronLeft,
-    HiOutlineChevronRight
-} from "react-icons/hi";
-
-const PAGE_SIZE = 10;
+import './OrdersManagement.css';
 
 const OrdersManagement = () => {
     const [subTab, setSubTab] = useState('All Orders');
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [page, setPage] = useState(1);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [updateLoading, setUpdateLoading] = useState(false);
+
+    // Form states for update
+    const [status, setStatus] = useState('');
+    const [trackingNumber, setTrackingNumber] = useState('');
+    const [carrier, setCarrier] = useState('');
+    const [estimatedDelivery, setEstimatedDelivery] = useState('');
 
     const fetchOrders = async () => {
-        setLoading(true);
         try {
             const response = await axios.get('http://localhost:5000/api/admin/orders');
             setOrders(response.data);
+            setLoading(false);
         } catch (error) {
-            console.error('Procurement log synchronization failure:', error);
-        } finally {
+            console.error('Error fetching orders:', error);
             setLoading(false);
         }
     };
@@ -36,169 +32,240 @@ const OrdersManagement = () => {
     }, []);
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Erase this procurement log from the network memory?')) return;
-        try {
-            await axios.delete(`http://localhost:5000/api/admin/orders/${id}`);
-            fetchOrders();
-        } catch (error) {
-            console.error('Log erasure failure:', error);
+        if (window.confirm('Are you sure you want to delete this order?')) {
+            try {
+                await axios.delete(`http://localhost:5000/api/admin/orders/${id}`);
+                fetchOrders();
+            } catch (error) {
+                alert('Error deleting order');
+            }
         }
     };
 
-    const filteredOrders = useMemo(() => orders.filter(order => {
+    const handleOpenModal = (order) => {
+        setSelectedOrder(order);
+        setStatus(order.status);
+        setTrackingNumber(order.tracking_number || '');
+        setCarrier(order.carrier || '');
+        setEstimatedDelivery(order.estimated_delivery ? new Date(order.estimated_delivery).toISOString().split('T')[0] : '');
+        setIsModalOpen(true);
+    };
+
+    const handleUpdateOrder = async (e) => {
+        e.preventDefault();
+        setUpdateLoading(true);
+        try {
+            await axios.put(`http://localhost:5000/api/orders/${selectedOrder.id}/status`, {
+                status,
+                tracking_number: trackingNumber,
+                carrier,
+                estimated_delivery: estimatedDelivery
+            });
+            setIsModalOpen(false);
+            fetchOrders();
+        } catch (error) {
+            alert('Error updating order: ' + (error.response?.data?.message || error.message));
+        } finally {
+            setUpdateLoading(false);
+        }
+    };
+
+    const filteredOrders = orders.filter(order => {
         if (subTab === 'All Orders') return true;
         return order.status.toLowerCase() === subTab.toLowerCase();
-    }), [orders, subTab]);
-
-    useEffect(() => {
-        setPage(1);
-    }, [subTab]);
-
-    const totalFiltered = filteredOrders.length;
-    const totalPages = totalFiltered === 0 ? 0 : Math.ceil(totalFiltered / PAGE_SIZE);
-
-    const paginatedOrders = useMemo(() => {
-        const start = (page - 1) * PAGE_SIZE;
-        return filteredOrders.slice(start, start + PAGE_SIZE);
-    }, [filteredOrders, page]);
-
-    const rangeStart = totalFiltered === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
-    const rangeEnd = totalFiltered === 0 ? 0 : Math.min(page * PAGE_SIZE, totalFiltered);
+    });
 
     return (
-        <div className="flex flex-col gap-10 animate-fadeIn relative z-10 selection:bg-primary/20 italic">
-            
-            {/* Header Area */}
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div>
-                    <h2 className="text-3xl font-black uppercase tracking-tighter text-secondary italic leading-none">ORDER <span className="text-primary italic">PROTOCOL</span></h2>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[.3em] mt-3">Magnitude Distribution Log • Blockchain Synchronized</p>
-                </div>
-            </header>
+        <div className="dashboard-content">
+            <div className="page-header" style={{ marginBottom: '25px' }}>
+                <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#111' }}>Orders Management</h1>
+                <p style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>Track and fulfill customer orders efficiently</p>
+            </div>
 
-            {/* Global Metrics */}
-            <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                    { label: 'Cumulative Volume', value: orders.length, icon: <HiOutlineShoppingBag />, color: 'bg-primary text-white shadow-primary/20' },
-                    { label: 'In-Transit / Pending', value: orders.filter(o => o.status === 'pending').length, icon: <HiOutlineClipboardList />, color: 'bg-secondary text-white shadow-secondary/20' },
-                    { label: 'Finalized Delivery', value: orders.filter(o => o.status === 'delivered').length, icon: <HiOutlineCheckCircle />, color: 'bg-emerald-500 text-white shadow-emerald-500/20' },
-                ].map((stat, i) => (
-                    <div key={i} className={`p-8 rounded-[2.5rem] flex items-center justify-between shadow-2xl relative overflow-hidden group ${stat.color}`}>
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                        <div className="flex flex-col gap-1 relative z-10">
-                            <span className="text-[9px] font-black uppercase tracking-[.25em] opacity-60">{stat.label}</span>
-                            <span className="text-3xl font-black italic">{stat.value}</span>
+            <div className="metric-cards">
+                <div className="metric-card-box card-blue">
+                    <div className="card-top-icon-row">
+                        <div className="icon-circle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                         </div>
-                        <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform">{stat.icon}</div>
                     </div>
-                ))}
-            </section>
+                    <div className="card-title-text">Total Orders</div>
+                    <div className="card-value-text">{orders.length}</div>
+                </div>
+                <div className="metric-card-box card-orange">
+                    <div className="card-top-icon-row">
+                        <div className="icon-circle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        </div>
+                    </div>
+                    <div className="card-title-text">Pending Shipment</div>
+                    <div className="card-value-text">{orders.filter(o => ['paid', 'processing'].includes(o.status.toLowerCase())).length}</div>
+                </div>
+            </div>
 
-            {/* Log Controls */}
-            <section className="flex flex-col gap-6">
-                <div className="bg-white p-1.5 rounded-[1.5rem] flex flex-wrap gap-1 border border-slate-100 shadow-sm">
-                    {['All Orders', 'Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'].map(tab => (
+            <div className="tabs-bar">
+                <div className="tabs-left">
+                    {['All Orders', 'Pending', 'Paid', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(tab => (
                         <button
                             key={tab}
+                            className={`tab-btn ${subTab === tab ? 'active' : ''}`}
                             onClick={() => setSubTab(tab)}
-                            className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${subTab === tab ? 'bg-secondary text-white shadow-lg shadow-secondary/10 scale-105' : 'text-gray-400 hover:text-secondary hover:bg-slate-50'}`}
                         >
                             {tab}
                         </button>
                     ))}
                 </div>
+            </div>
 
-                {/* Data Grid */}
-                <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-                    <div className="p-8 border-b border-slate-50 flex items-center justify-between">
-                         <div className="flex items-center gap-4 text-gray-400">
-                             <HiOutlineFilter className="hover:text-primary cursor-pointer transition-colors" size={20} />
-                             <span className="text-[9px] font-black uppercase tracking-widest">{totalFiltered} Signals Found</span>
-                         </div>
-                         <p className="text-[9px] font-black uppercase tracking-widest text-gray-300">Live Propagation Feed</p>
-                    </div>
+            <div className="table-container">
+                <table className="orders-table">
+                    <thead>
+                        <tr>
+                            <th>ORDER ID</th>
+                            <th>EMAIL</th>
+                            <th>ITEMS</th>
+                            <th>TOTAL</th>
+                            <th>STATUS</th>
+                            <th>TRACKING</th>
+                            <th>DATE</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>Loading orders...</td></tr>
+                        ) : filteredOrders.length === 0 ? (
+                            <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>No orders found</td></tr>
+                        ) : filteredOrders.map((order) => (
+                            <tr key={order.id}>
+                                <td><div className="td-order-id">#ORD-{order.id}</div></td>
+                                <td><div className="td-email">{order.email}</div></td>
+                                <td>
+                                    <div className="td-items-flex">
+                                        <div className="item-img-box">
+                                            {order.items?.slice(0, 3).map((item, i) => (
+                                                <img key={i} src={item.product?.image_url} alt="" className="item-img" style={{ marginLeft: i > 0 ? '-10px' : '0' }} />
+                                            ))}
+                                        </div>
+                                        <span className="td-items-count">{order.items?.length > 3 ? `+${order.items.length - 3}` : ''}</span>
+                                    </div>
+                                </td>
+                                <td><span className="td-total">${parseFloat(order.total_amount).toFixed(2)}</span></td>
+                                <td>
+                                    <span className={`status-badge ${order.status.toLowerCase()}`}>
+                                        {order.status.toUpperCase()}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div className="td-tracking-info">
+                                        <div style={{ fontWeight: '700', fontSize: '11px', color: '#1e293b' }}>{order.carrier || 'N/A'}</div>
+                                        <div style={{ fontSize: '11px', color: '#64748b' }}>{order.tracking_number || '-'}</div>
+                                    </div>
+                                </td>
+                                <td><div className="td-order-date">{new Date(order.createdAt).toLocaleDateString()}</div></td>
+                                <td>
+                                    <div className="td-actions">
+                                        <button className="action-btn-gray" title="Manage Order" onClick={() => handleOpenModal(order)}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        </button>
+                                        <button className="delete-btn" onClick={() => handleDelete(order.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ff4444', marginLeft: '10px' }}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left italic border-collapse">
-                            <thead>
-                                <tr className="bg-slate-50/50 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-slate-50">
-                                    <th className="py-6 px-8">Signal Index</th>
-                                    <th className="py-6 px-8">Personnel Endpoint</th>
-                                    <th className="py-6 px-8 text-center">Magnitude Value</th>
-                                    <th className="py-6 px-8 text-center">Transmission Status</th>
-                                    <th className="py-6 px-8 text-right">Timestamp</th>
-                                    <th className="py-6 px-8 text-right">Overrides</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {loading ? (
-                                    <tr><td colSpan="6" className="py-20 text-center animate-pulse text-[10px] font-bold text-gray-300 uppercase tracking-widest">Intercepting Data Packets...</td></tr>
-                                ) : paginatedOrders.length === 0 ? (
-                                    <tr><td colSpan="6" className="py-20 text-center text-[10px] font-bold text-gray-300 uppercase tracking-widest italic">No Procurements Detected in this Vector</td></tr>
-                                ) : paginatedOrders.map((order) => (
-                                    <tr key={order.id} className="group hover:bg-slate-50/50 transition-colors">
-                                        <td className="py-6 px-8">
-                                            <span className="text-xs font-black text-secondary group-hover:text-primary transition-colors">#ORD-{order.id.toString().slice(-6).toUpperCase()}</span>
-                                        </td>
-                                        <td className="py-6 px-8">
-                                            <div className="flex items-center gap-3">
-                                                 <div className="w-8 h-8 rounded-full border border-slate-200 overflow-hidden shrink-0 bg-slate-100">
-                                                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${order.email}`} alt="" />
-                                                 </div>
-                                                 <span className="text-[10px] font-black text-secondary truncate max-w-[150px] uppercase">{order.email}</span>
-                                            </div>
-                                        </td>
-                                        <td className="py-6 px-8 text-center">
-                                            <span className="text-xs font-black text-secondary">${parseFloat(order.total_amount).toFixed(2)}</span>
-                                        </td>
-                                        <td className="py-6 px-8 text-center text-[8px]">
-                                             <span className={`inline-block px-3 py-1 rounded-full font-black uppercase tracking-widest ${
-                                                order.status === 'delivered' ? 'bg-emerald-50 text-emerald-600' :
-                                                order.status === 'cancelled' ? 'bg-rose-50 text-rose-500' : 'bg-blue-50 text-blue-600'
-                                             }`}>{order.status}</span>
-                                        </td>
-                                        <td className="py-6 px-8 text-right text-[10px] font-bold text-gray-400">
-                                            {new Date(order.createdAt).toLocaleDateString()}
-                                        </td>
-                                        <td className="py-6 px-8 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <button className="w-8 h-8 rounded-lg bg-slate-50 text-gray-400 hover:bg-black hover:text-white transition-all flex items-center justify-center active:scale-90"><HiOutlineEye /></button>
-                                                <button onClick={() => handleDelete(order.id)} className="w-8 h-8 rounded-lg bg-slate-50 text-gray-400 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center active:scale-90"><HiOutlineTrash /></button>
-                                            </div>
-                                        </td>
-                                    </tr>
+            {/* Order Details & Delivery Management Modal */}
+            {isModalOpen && selectedOrder && (
+                <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2 style={{ fontSize: '18px', fontWeight: '800' }}>Manage Order #ORD-{selectedOrder.id}</h2>
+                            <button className="close-btn" onClick={() => setIsModalOpen(false)}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="order-details-grid">
+                                <div className="details-section">
+                                    <h3>Customer & Contact</h3>
+                                    <div className="details-card-inner">
+                                        <div className="detail-row"><span className="detail-label">Email:</span> <span className="detail-value">{selectedOrder.email}</span></div>
+                                        <div className="detail-row"><span className="detail-label">Phone:</span> <span className="detail-value">{selectedOrder.contact_number || 'N/A'}</span></div>
+                                        <div className="detail-row"><span className="detail-label">Payment:</span> <span className="detail-value">{selectedOrder.payment_method?.toUpperCase()}</span></div>
+                                        <div className="detail-row"><span className="detail-label">Address:</span> <span className="detail-value" style={{ textAlign: 'right', fontSize: '12px', maxWidth: '150px' }}>{selectedOrder.shipping_address}</span></div>
+                                    </div>
+                                </div>
+                                <div className="details-section">
+                                    <h3>Order Summary</h3>
+                                    <div className="details-card-inner">
+                                        <div className="detail-row"><span className="detail-label">Subtotal:</span> <span className="detail-value">${parseFloat(selectedOrder.total_amount).toFixed(2)}</span></div>
+                                        <div className="detail-row"><span className="detail-label">Date:</span> <span className="detail-value">{new Date(selectedOrder.createdAt).toLocaleString()}</span></div>
+                                        <div className="detail-row"><span className="detail-label">Current Status:</span> 
+                                            <span className={`status-badge ${selectedOrder.status.toLowerCase()}`}>{selectedOrder.status.toUpperCase()}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="modal-items-list">
+                                <h3 style={{ fontSize: '14px', color: '#888', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '15px' }}>Ordered Items</h3>
+                                {selectedOrder.items?.map((item, idx) => (
+                                    <div key={idx} className="modal-item-row">
+                                        <img src={item.product?.image_url} alt="" className="modal-item-img" />
+                                        <div className="modal-item-info">
+                                            <div className="item-name-tag">{item.product?.name}</div>
+                                            <div className="item-meta-tag">Size: {item.size} | Qty: {item.quantity} | Price: ${parseFloat(item.price_at_purchase).toFixed(2)}</div>
+                                        </div>
+                                        <div className="item-total-price" style={{ fontWeight: '700' }}>
+                                            ${(item.quantity * item.price_at_purchase).toFixed(2)}
+                                        </div>
+                                    </div>
                                 ))}
-                            </tbody>
-                        </table>
+                            </div>
+
+                            <form className="delivery-form" onSubmit={handleUpdateOrder}>
+                                <div className="form-title-row">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                                    <h3>Update Delivery Management</h3>
+                                </div>
+                                <div className="update-inputs-grid">
+                                    <div className="form-group">
+                                        <label>Order Status</label>
+                                        <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                                            <option value="pending">Pending</option>
+                                            <option value="paid">Paid</option>
+                                            <option value="processing">Processing</option>
+                                            <option value="shipped">Shipped</option>
+                                            <option value="delivered">Delivered</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Carrier Name</label>
+                                        <input type="text" className="form-input" placeholder="e.g. UPS, DHL, Fedex" value={carrier} onChange={(e) => setCarrier(e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Tracking Number</label>
+                                        <input type="text" className="form-input" placeholder="Enter tracking ID" value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Est. Delivery Date</label>
+                                        <input type="date" className="form-input" value={estimatedDelivery} onChange={(e) => setEstimatedDelivery(e.target.value)} />
+                                    </div>
+                                    <button type="submit" className="update-order-btn" disabled={updateLoading}>
+                                        {updateLoading ? 'Updating...' : 'Update Order & Notify Customer'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-
-                    <footer className="p-8 border-t border-slate-50 flex flex-col sm:flex-row items-center justify-between gap-6 bg-slate-50/20 italic">
-                         <span className="text-[9px] font-black text-gray-300 uppercase tracking-[.3em]">Showing Log Batch {rangeStart}–{rangeEnd} of {totalFiltered}</span>
-                         <div className="flex items-center gap-3">
-                             <button 
-                                disabled={page <= 1}
-                                onClick={() => setPage(page - 1)}
-                                className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-gray-400 hover:bg-secondary hover:text-white transition-all disabled:opacity-30 active:scale-90"
-                            >
-                                <HiOutlineChevronLeft size={20} />
-                            </button>
-                             <div className="flex gap-1">
-                                <span className="text-[10px] font-black text-secondary px-4 h-10 flex items-center justify-center bg-white border border-slate-100 rounded-xl shadow-sm italic">PACKET {page} / {totalPages}</span>
-                             </div>
-                             <button 
-                                disabled={page >= totalPages}
-                                onClick={() => setPage(page + 1)}
-                                className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-gray-400 hover:text-secondary hover:text-white transition-all disabled:opacity-30 active:scale-90"
-                            >
-                                <HiOutlineChevronRight size={20} />
-                            </button>
-                         </div>
-                    </footer>
                 </div>
-            </section>
-
-            <p className="text-center text-[9px] font-bold text-gray-300 uppercase tracking-[.4em] opacity-50 pb-8 italic">Procurement Distributed Grid v2.6 • SoleVora Network</p>
-
+            )}
         </div>
     );
 };

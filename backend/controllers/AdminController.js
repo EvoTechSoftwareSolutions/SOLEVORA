@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
+import OrderItem from '../models/OrderItem.js';
 import sequelize from '../config/db.js';
 import { Op } from 'sequelize';
 
@@ -59,7 +60,14 @@ export const getAllCustomers = async (req, res) => {
 
 export const getAllOrders = async (req, res) => {
     try {
-        const orders = await Order.findAll({ order: [['createdAt', 'DESC']] });
+        const orders = await Order.findAll({ 
+            include: [{
+                model: OrderItem,
+                as: 'items',
+                include: [{ model: Product, as: 'product' }]
+            }],
+            order: [['createdAt', 'DESC']] 
+        });
         res.status(200).json(orders);
     } catch (error) {
         res.status(500).json({ message: error.message });
