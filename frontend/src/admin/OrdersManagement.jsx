@@ -99,13 +99,13 @@ const OrdersManagement = () => {
                         </div>
                     </div>
                     <div className="card-title-text">Pending Shipment</div>
-                    <div className="card-value-text">{orders.filter(o => o.status === 'processing').length}</div>
+                    <div className="card-value-text">{orders.filter(o => ['paid', 'processing'].includes(o.status.toLowerCase())).length}</div>
                 </div>
             </div>
 
             <div className="tabs-bar">
                 <div className="tabs-left">
-                    {['All Orders', 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(tab => (
+                    {['All Orders', 'Pending', 'Paid', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(tab => (
                         <button
                             key={tab}
                             className={`tab-btn ${subTab === tab ? 'active' : ''}`}
@@ -126,6 +126,7 @@ const OrdersManagement = () => {
                             <th>ITEMS</th>
                             <th>TOTAL</th>
                             <th>STATUS</th>
+                            <th>TRACKING</th>
                             <th>DATE</th>
                             <th>ACTIONS</th>
                         </tr>
@@ -154,6 +155,12 @@ const OrdersManagement = () => {
                                     <span className={`status-badge ${order.status.toLowerCase()}`}>
                                         {order.status.toUpperCase()}
                                     </span>
+                                </td>
+                                <td>
+                                    <div className="td-tracking-info">
+                                        <div style={{ fontWeight: '700', fontSize: '11px', color: '#1e293b' }}>{order.carrier || 'N/A'}</div>
+                                        <div style={{ fontSize: '11px', color: '#64748b' }}>{order.tracking_number || '-'}</div>
+                                    </div>
                                 </td>
                                 <td><div className="td-order-date">{new Date(order.createdAt).toLocaleDateString()}</div></td>
                                 <td>
@@ -231,6 +238,7 @@ const OrdersManagement = () => {
                                         <label>Order Status</label>
                                         <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
                                             <option value="pending">Pending</option>
+                                            <option value="paid">Paid</option>
                                             <option value="processing">Processing</option>
                                             <option value="shipped">Shipped</option>
                                             <option value="delivered">Delivered</option>

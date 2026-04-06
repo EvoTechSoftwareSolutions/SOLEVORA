@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
+import OrderItem from '../models/OrderItem.js';
 import sequelize from '../config/db.js';
 import { Op } from 'sequelize';
 

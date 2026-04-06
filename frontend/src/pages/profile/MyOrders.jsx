@@ -76,7 +76,7 @@ const MyOrders = () => {
   };
 
   const getProgressStatus = (status) => {
-    const statuses = ['pending', 'processing', 'shipped', 'delivered'];
+    const statuses = ['pending', 'paid', 'processing', 'shipped', 'delivered'];
     const currentIndex = statuses.indexOf(status.toLowerCase());
     if (currentIndex === -1) return -1;
     return currentIndex;
@@ -117,7 +117,7 @@ const MyOrders = () => {
           
           <div className="mo-tracking-card-body">
             <div className="mo-tc-stepper">
-              {['Pending', 'Processing', 'Shipped', 'Delivered'].map((step, index) => {
+              {['Pending', 'Paid', 'Processing', 'Shipped', 'Delivered'].map((step, index) => {
                 const progress = getProgressStatus(activeTrackingOrder.status);
                 const isCompleted = index <= progress;
                 const isActive = index === progress;
