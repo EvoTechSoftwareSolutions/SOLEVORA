@@ -8,6 +8,6 @@ router.post('/', createOrder);
 router.get('/search', getOrdersByEmail);
 router.get('/:id', getOrderById);
 router.get('/user/:id', getOrdersByUserId);
-router.put('/:id/status', requireStoreAccess, updateOrderStatus);
+router.put('/:id/status', updateOrderStatus);
 
 export default router;

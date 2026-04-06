@@ -113,9 +113,18 @@ export const updateOrderStatus = async (req, res) => {
         if (estimated_delivery) updateData.estimated_delivery = estimated_delivery;
         if (actual_delivery) updateData.actual_delivery = actual_delivery;
 
-        // Automatically set actual_delivery if status is changed to 'delivered'
+        // Security Check: Only allow 'paid' or 'cancelled' updates without admin role
+        const adminId = req.headers['x-admin-id'];
+        if (!adminId && (status === 'shipped' || status === 'delivered' || status === 'processing')) {
+            return res.status(403).json({ message: 'Forbidden: Admin access required for status update.' });
+        }
+
+        // Auto-update extra fields based on status
         if (status === 'delivered' && !actual_delivery) {
             updateData.actual_delivery = new Date();
+        }
+        if (status === 'paid') {
+            updateData.payment_status = 'paid';
         }
 
         await Order.update(updateData, { where: { id } });
