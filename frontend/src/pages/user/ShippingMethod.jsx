@@ -7,16 +7,21 @@ import '../../styles/user/ShippingMethod.css';
 const ShippingMethod = () => {
   const navigate = useNavigate();
   const { selectedCart: cart, selectedCartTotal: cartTotal, updateCheckoutData } = useCart();
+    const [isToastOpen, setIsToastOpen] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState('standard');
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', body: '' });
 
-  const showMessage = (title, body) => {
-    setModalContent({ title, body });
-    setIsModalOpen(true);
-  };
+const showMessage = (title, body) => {
+  setModalContent({ title, body });
+  setIsToastOpen(true);
+
+  setTimeout(() => {
+    setIsToastOpen(false);
+  }, 2500); // auto hide after 2.5s
+};
 
   const shippingMethods = [
     { id: 'standard', name: 'Standard Shipping', time: '3-5 business days', price: 0 },
@@ -56,9 +61,15 @@ const ShippingMethod = () => {
   }
 
   return (
+    
     <div className="sm-page">
       <div className="sm-container">
-        
+        {isToastOpen && (
+  <div className="toast">
+    {modalContent.body}
+  </div>
+)}
+    
         {/* ── Breadcrumb ── */}
         <nav className="sm-breadcrumb">
           <Link to="/">Home</Link>

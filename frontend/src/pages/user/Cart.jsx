@@ -156,6 +156,8 @@ const Cart = () => {
                 modules={[Pagination, A11y, Navigation]}
                 spaceBetween={20}
                 slidesPerView={1.2}
+                 centeredSlides={true}
+                 centerInsufficientSlides={true}
                 navigation={{
                     nextEl: '.swiper-button-next',
                     prevEl: '.swiper-button-prev',

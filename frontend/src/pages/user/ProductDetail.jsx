@@ -208,7 +208,7 @@ function ProductDetail() {
                                 }}
                             >
                                 <span className={`material-symbols-outlined ${isInWishlist(product.id) ? 'fill' : ''}`}>favorite</span>
-                                Wishlist
+                                <span className="wish-text">Wishlist</span>
                             </button>
                         </div>
 

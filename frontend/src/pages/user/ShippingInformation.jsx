@@ -7,16 +7,20 @@ import '../../styles/user/ShippingInformation.css';
 const ShippingInformation = () => {
   const navigate = useNavigate();
   const { selectedCart: cart, selectedCartTotal: cartTotal, checkoutData, updateCheckoutData } = useCart();
-  
+  const [isToastOpen, setIsToastOpen] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', body: '' });
   
-  const showMessage = (title, body) => {
-    setModalContent({ title, body });
-    setIsModalOpen(true);
-  };
+const showMessage = (title, body) => {
+  setModalContent({ title, body });
+  setIsToastOpen(true);
+
+  setTimeout(() => {
+    setIsToastOpen(false);
+  }, 2500); // auto hide after 2.5s
+};
 
   // Pre-fill from logged in user
   const [formData, setFormData] = useState(() => {
@@ -222,7 +226,11 @@ const ShippingInformation = () => {
                   required
                 />
               </div>
-
+{isToastOpen && (
+  <div className="toast">
+    {modalContent.body}
+  </div>
+)}
               {/* Continue to Shipping Method Button */}
               <div className="si-continue-btn-container">
                 <button 
@@ -294,10 +302,10 @@ const ShippingInformation = () => {
             </div>
 
             {/* Place Order */}
-            <button className="si-place-order-btn" onClick={handleContinue}>
+            {/* <button className="si-place-order-btn" onClick={handleContinue}>
               <span className="material-symbols-outlined">local_shipping</span>
               Continue
-            </button>
+            </button> */}
 
             {/* Terms */}
             <p className="si-terms">

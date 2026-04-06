@@ -125,10 +125,10 @@
 
 /* ── Two-column grid ── */
 .si-grid {
-  display: grid;
-  grid-template-columns: 1fr 380px;
+  display: flex;
   gap: 22px;
   align-items: start;
+  justify-content: center;
 }
 
 /* ─────────────────────────────
@@ -139,6 +139,7 @@
   border-radius: 14px;
   padding: 22px 24px 26px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  width: 100%;
 }
 
 .si-form-heading {
@@ -250,8 +251,9 @@
   background: #fde8cc;
   border-radius: 16px;
   padding: 22px 18px 20px;
-  position: sticky;
   top: 24px;
+  width: 100%;
+  max-width: 380px;
 }
 
 .si-summary-title {
@@ -527,13 +529,19 @@
 
 @media (max-width: 768px) {
   .si-container {
-    padding: 0 12px;
+    padding: 0 30px;
   }
   .si-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
-    gap: 16px;
-    align-items: start;
+    flex-direction: column-reverse;
   }
+  .si-summary-card {
+  background: #fde8cc;
+  border-radius: 16px;
+  padding: 22px 18px 20px;
+  top: 24px;
+  width: 100%;
+  max-width: 680px;
+}
   .si-promo {
     flex-direction: row;
     align-items: stretch;
@@ -544,18 +552,30 @@
     flex: 1 1 0;
     min-width: 0;
     width: auto;
-    border-radius: 9999px;
+    border-radius: 16px;
     font-size: 11.5px;
+    height: 40px;
   }
   .si-promo-btn {
     flex-shrink: 0;
     width: auto;
+    height: 40px;
     min-width: 76px;
     font-size: 11.5px;
   }
-  .si-summary-card {
-    padding: 16px;
-  }
+ 
+
+  .si-item-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  min-width: 130px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
 }
 
 @media (max-width: 480px) {
@@ -829,7 +849,16 @@
     font-size: 5px;
   }
 }
+@media(max-width: 480px){
+  .si-container{
+    padding: 30px;
+  }
 
+.reverse > * {
+  /* reverse order */
+  display: contents; /* keep grid items flexible */
+}
+}
 @media (max-width: 425px) {
   .si-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 170px);
@@ -955,127 +984,65 @@
   }
 }
 
-@media (max-width: 325px) {
-  .si-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 140px);
-    gap: 8px;
-    align-items: start;
-  }
+@media (max-width: 280px) {
+.si-summary-card {
+  background: #fde8cc;
+  border-radius: 16px;
+  padding: 22px 18px 20px;
+  top: 24px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.si-summary-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 16px;
+}
+  .si-breadcrumb {
+  gap: 4px;
+  font-size: 8px;
+}
   
   .si-form-card {
-    padding: 8px 8px 12px;
+    padding: 10px;
   }
-  
-  .si-row-2 {
-    grid-template-columns: 1fr;
-    gap: 8px;
+  .si-container {
+  padding: 0 15px;
+}
+
+}
+
+/*toast message */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+
+  background: rgb(180, 11, 11);
+  color: #fff;
+
+  padding: 12px 18px;
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+
+  animation: toastSlide 0.3s ease;
+  z-index: 999;
+}
+
+/* Animation */
+@keyframes toastSlide {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
-  .si-summary-card {
-    padding: 5px 4px 5px;
-  }
-  
-  .si-summary-title {
-    font-size: 10px;
-    margin-bottom: 4px;
-  }
-  
-  .si-item-card {
-    min-width: 70px;
-    max-width: 75px;
-    padding: 2px;
-  }
-  
-  .si-item-img-wrap {
-    width: 28px;
-    height: 24px;
-  }
-  
-  .si-item-name {
-    font-size: 6px;
-    line-height: 0.9;
-  }
-  
-  .si-item-variant {
-    font-size: 5px;
-  }
-  
-  .si-item-price {
-    font-size: 9px;
-  }
-  
-  .si-item-qty-lbl {
-    font-size: 6px;
-  }
-  
-  .si-item-footer {
-    margin-top: 0.5px;
-  }
-  
-  .si-promo-input {
-    flex: 1 1 0;
-    min-width: 0;
-    width: auto;
-    height: 36px;
-    font-size: 9.5px;
-    padding: 0 8px;
-    box-sizing: border-box;
-    border-radius: 9999px;
-  }
-  .si-promo-btn {
-    flex-shrink: 0;
-    width: auto;
-    min-width: 58px;
-    height: 36px;
-    font-size: 9.5px;
-    padding: 0 6px;
-    box-sizing: border-box;
-    border-radius: 8px;
-  }
-  
-  .si-total-row {
-    font-size: 7px;
-    margin-bottom: 5px;
-  }
-  
-  .si-total-key {
-    font-size: 6px;
-  }
-  
-  .si-total-val {
-    font-size: 7px;
-  }
-  
-  .si-final-label {
-    font-size: 9px;
-  }
-  
-  .si-final-amount {
-    font-size: 11px;
-  }
-  
-  .si-form-continue-btn {
-    font-size: 9px;
-    padding: 6px 16px;
-  }
-  
-  .si-form-continue-btn .material-symbols-outlined {
-    font-size: 14px;
-  }
-  
-  .si-place-order-btn {
-    padding: 4px 5px;
-    font-size: 8px;
-  }
-  
-  .si-terms {
-    font-size: 6px;
-    line-height: 1.2;
-  }
-  
-  .si-qty-badge {
-    width: 9px;
-    height: 9px;
-    font-size: 4px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
