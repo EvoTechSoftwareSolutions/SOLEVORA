@@ -90,7 +90,7 @@
 /* --- Wishlist Grid --- */
 .wl-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 32px;
 }
 
@@ -101,7 +101,7 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     transition: all 0.3s;
     position: relative;
-    max-width: 260px;
+    width: 100%;
 }
 
 .wl-card:hover {
@@ -341,7 +341,7 @@
     }
 
     .wl-grid {
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
 
