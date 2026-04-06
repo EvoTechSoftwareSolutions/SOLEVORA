@@ -59,7 +59,14 @@ export const getAllCustomers = async (req, res) => {
 
 export const getAllOrders = async (req, res) => {
     try {
-        const orders = await Order.findAll({ order: [['createdAt', 'DESC']] });
+        const orders = await Order.findAll({ 
+            include: [{
+                model: OrderItem,
+                as: 'items',
+                include: [{ model: Product, as: 'product' }]
+            }],
+            order: [['createdAt', 'DESC']] 
+        });
         res.status(200).json(orders);
     } catch (error) {
         res.status(500).json({ message: error.message });

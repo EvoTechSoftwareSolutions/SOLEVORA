@@ -103,10 +103,25 @@ export const getOrdersByEmail = async (req, res) => {
 export const updateOrderStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status, tracking_number, carrier, payment_status } = req.body;
+        const { status, tracking_number, carrier, payment_status, estimated_delivery, actual_delivery } = req.body;
         
-        await Order.update({ status, tracking_number, carrier, payment_status }, { where: { id } });
-        res.status(200).json({ message: 'Order updated successfully' });
+        const updateData = {};
+        if (status) updateData.status = status;
+        if (tracking_number !== undefined) updateData.tracking_number = tracking_number;
+        if (carrier !== undefined) updateData.carrier = carrier;
+        if (payment_status) updateData.payment_status = payment_status;
+        if (estimated_delivery) updateData.estimated_delivery = estimated_delivery;
+        if (actual_delivery) updateData.actual_delivery = actual_delivery;
+
+        // Automatically set actual_delivery if status is changed to 'delivered'
+        if (status === 'delivered' && !actual_delivery) {
+            updateData.actual_delivery = new Date();
+        }
+
+        await Order.update(updateData, { where: { id } });
+        
+        const updatedOrder = await Order.findByPk(id);
+        res.status(200).json({ message: 'Order updated successfully', order: updatedOrder });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

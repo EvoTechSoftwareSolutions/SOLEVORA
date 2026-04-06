@@ -12,7 +12,7 @@ const Order = sequelize.define('Order', {
         allowNull: false
     },
     status: {
-        type: DataTypes.ENUM('pending', 'paid', 'shipped', 'delivered', 'cancelled'),
+        type: DataTypes.ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled'),
         defaultValue: 'pending'
     },
     shipping_address: {
@@ -37,6 +37,14 @@ const Order = sequelize.define('Order', {
     },
     carrier: {
         type: DataTypes.STRING,
+        allowNull: true
+    },
+    estimated_delivery: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    actual_delivery: {
+        type: DataTypes.DATE,
         allowNull: true
     },
     payment_method: {
