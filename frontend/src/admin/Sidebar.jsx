@@ -6,10 +6,12 @@ import logo from '../assets/logo.png';
 import './Sidebar.css';
 
 const Sidebar = () => {
+    // current route info
     const location = useLocation();
     const navigate = useNavigate();
     const { isAdmin, logout } = useAdminAuth();
     const currentPath = location.pathname;
+    // unread messages count
     const [unreadCount, setUnreadCount] = useState(0);
 
     useEffect(() => {
@@ -33,7 +35,7 @@ const Sidebar = () => {
         if (pathName !== '/admin' && currentPath === pathName) return 'active';
         return '';
     };
-
+// logout function
     const handleLogout = () => {
         logout();
         navigate('/admin-login', { replace: true });
@@ -44,7 +46,7 @@ const Sidebar = () => {
             <div className="app-sidebar-logo">
                 <img src={logo} alt="SoleVora Logo" style={{ width: '100%', maxWidth: '130px', height: 'auto', display: 'block', margin: '0 auto', marginTop: '-15px' }} />
             </div>
-
+           {/* main navigation */}
             <div className="app-nav-items">
                 <Link to="/admin" style={{ textDecoration: 'none' }}>
                     <div className={`app-nav-item ${isTabActive('/admin')}`}>
@@ -57,7 +59,7 @@ const Sidebar = () => {
                         Dashboard
                     </div>
                 </Link>
-
+            {/* products */}
                 <Link to="/admin/products" style={{ textDecoration: 'none' }}>
                     <div className={`app-nav-item ${isTabActive('/admin/products')}`}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
@@ -68,7 +70,7 @@ const Sidebar = () => {
                         Products
                     </div>
                 </Link>
-
+               {/* orders */}
                 <Link to="/admin/orders" style={{ textDecoration: 'none' }}>
                     <div className={`app-nav-item ${isTabActive('/admin/orders')}`}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
@@ -79,7 +81,7 @@ const Sidebar = () => {
                         Orders
                     </div>
                 </Link>
-
+                {/* customers */}
                 <Link to="/admin/customers" style={{ textDecoration: 'none' }}>
                     <div className={`app-nav-item ${isTabActive('/admin/customers')}`}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
@@ -91,7 +93,7 @@ const Sidebar = () => {
                         Customers
                     </div>
                 </Link>
-                
+                {/* messages with unread badge */}
                 <Link to="/admin/messages" style={{ textDecoration: 'none' }}>
                     <div className={`app-nav-item ${isTabActive('/admin/messages')}`} style={{ position: 'relative' }}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
@@ -117,7 +119,7 @@ const Sidebar = () => {
                         )}
                     </div>
                 </Link>
-
+               {/* analytics */}
                 <Link to="/admin/analytics" style={{ textDecoration: 'none' }}>
                     <div className={`app-nav-item ${isTabActive('/admin/analytics')}`}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
