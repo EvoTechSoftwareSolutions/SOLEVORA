@@ -16,7 +16,7 @@ function Login() {
   const location = useLocation();
 
   const from = location.state?.from || "/home";
-
+// normal login
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -32,7 +32,7 @@ function Login() {
       setMessage(error.response?.data?.message || "Login failed");
     }
   };
-
+// fake Google login (demo)
   const handleGoogleLogin = async () => {
     try {
       const res = await axios.post("http://localhost:5000/login", {
@@ -46,7 +46,7 @@ function Login() {
       setMessage(error.response?.data?.message || "Google login failed");
     }
   };
-
+// fake Apple login (demo)
   const handleAppleLogin = async () => {
     try {
       const res = await axios.post("http://localhost:5000/login", {
@@ -101,6 +101,7 @@ function Login() {
 
             <div className="flex items-center bg-[#f4f4f4] rounded-xl px-3 h-12">
               <HiOutlineMail className="text-[#94a3b8] text-base mr-2" />
+              {/* email input */}
               <input
                 type="email"
                 placeholder="name@example.com"

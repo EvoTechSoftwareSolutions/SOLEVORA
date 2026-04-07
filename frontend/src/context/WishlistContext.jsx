@@ -1,9 +1,9 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Toast from '../components/ui/Toast';
-
+// create wishlist context
 const WishlistContext = createContext();
-
+// helper to get user id from localStorage
 const getUserId = () => {
     try {
         const userStr = localStorage.getItem('user');
@@ -23,7 +23,7 @@ export const WishlistProvider = ({ children }) => {
     const showToast = (message, type = 'success') => {
         setToast({ message, type, id: Date.now() });
     };
-
+// get wishlist (API if logged in, localStorage if guest)
     const fetchWishlist = useCallback(async () => {
         const id = getUserId();
         if (id) {
@@ -58,7 +58,7 @@ export const WishlistProvider = ({ children }) => {
             window.removeEventListener('storage', syncUserId);
         };
     }, []);
-
+// keep userId updated (handles login/logout in other tabs)
     useEffect(() => {
         fetchWishlist();
     }, [userId, fetchWishlist]);
@@ -85,7 +85,7 @@ export const WishlistProvider = ({ children }) => {
         }
         showToast(`${product.name} added to your wishlist!`);
     };
-
+// remove item
     const removeFromWishlist = async (productId) => {
         const uid = getUserId();
         if (uid) {
