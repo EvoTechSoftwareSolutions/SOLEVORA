@@ -7,7 +7,7 @@ const Dashboard = () => {
     const [chartFilter, setChartFilter] = useState('Monthly');
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
-
+// get dashboard stats from backend
     useEffect(() => {
         const fetchStats = async () => {
             try {
@@ -21,11 +21,11 @@ const Dashboard = () => {
         };
         fetchStats();
     }, []);
-
+// simple loading UI
     if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading dashboard...</div>;
-    
+    // fallback if no orders
     const recentOrders = stats.recentOrders || [];
-
+// static top selling products
     const topSelling = [
         {
             name: 'Zenith Runner X',
