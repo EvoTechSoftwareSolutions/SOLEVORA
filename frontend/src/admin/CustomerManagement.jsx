@@ -5,7 +5,7 @@ import './CustomerManagement.css';
 const CustomerManagement = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
-
+// fetch customers from API
   const fetchCustomers = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/admin/customers');
@@ -20,7 +20,7 @@ const CustomerManagement = () => {
   useEffect(() => {
     fetchCustomers();
   }, []);
-
+// delete customer by id
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
@@ -34,11 +34,12 @@ const CustomerManagement = () => {
 
   return (
     <div className="dashboard-content">
+      {/* page header */}
       <div className="page-header" style={{ marginBottom: '25px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#111' }}>Customer Management</h1>
         <p style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>Analyze and interact with your customer base</p>
       </div>
-
+      {/* simple stats card */}
       <div className="metric-cards">
         <div className="metric-card">
           <div className="card-top">
@@ -48,7 +49,7 @@ const CustomerManagement = () => {
           <div className="chart-line-orange"></div>
         </div>
       </div>
-
+       {/* table section */}
       <div className="table-container">
         <div className="table-filters">
           <div className="filters-left">
@@ -58,7 +59,7 @@ const CustomerManagement = () => {
             </div>
           </div>
         </div>
-
+           {/* customers table */}
         <table className="customers-table">
           <thead>
             <tr>
