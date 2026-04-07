@@ -3,7 +3,9 @@ import axios from 'axios';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
+    // categories for dropdown
     const [categories, setCategories] = useState([]);
+    // form data for product
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -19,7 +21,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
     const [error, setError] = useState('');
 
     const isEdit = !!product;
-
+// run only when modal opens
     useEffect(() => {
         if (isOpen) {
             fetchCategories();
@@ -36,6 +38,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                     image_url_4: product.image_url_4 || ''
                 });
             } else {
+                // reset form for new product
                 setFormData({
                     name: '',
                     description: '',
@@ -50,7 +53,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
             }
         }
     }, [isOpen, product, isEdit]);
-
+// get categories from backend
     const fetchCategories = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/categories');
@@ -62,17 +65,17 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
             console.error('Error fetching categories:', error);
         }
     };
-
+// handle input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
-
+// submit form (create or update product)
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
-
+     // convert values before sending
         try {
             const payload = {
                 ...formData,
@@ -98,7 +101,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
             setLoading(false);
         }
     };
-
+// don't render if modal is closed
     if (!isOpen) return null;
 
     return (
