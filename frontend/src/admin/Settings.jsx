@@ -5,12 +5,11 @@ import './Settings.css';
 
 const API = 'http://localhost:5000/api/admin';
 
-// ── Helper: API headers with admin id ────────────────────────────────────────
+//  API headers with admin id 
 const authHeaders = (adminUser) => ({ 'x-admin-id': adminUser?.id });
 
-// ══════════════════════════════════════════════════════════════════════════════
+
 // Settings Page Component
-// ══════════════════════════════════════════════════════════════════════════════
 const Settings = () => {
     const { adminUser, isAdmin } = useAdminAuth();
 
@@ -26,7 +25,7 @@ const Settings = () => {
     const [editingStaff, setEditingStaff] = useState(null);
     const [staffForm, setStaffForm] = useState({ name: '', email: '', password: '', role: 'store_manager' });
 
-    // ── Load data ─────────────────────────────────────────────────────────────
+    // Load data 
     useEffect(() => {
         const load = async () => {
             try {
@@ -50,7 +49,7 @@ const Settings = () => {
         setTimeout(() => setToast(null), 3500);
     };
 
-    // ── Save system settings ──────────────────────────────────────────────────
+    //  Save system settings 
     const handleSaveSettings = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -64,7 +63,7 @@ const Settings = () => {
         }
     };
 
-    // ── Staff management ──────────────────────────────────────────────────────
+    // Staff management 
     const openNewStaff = () => {
         setEditingStaff(null);
         setStaffForm({ name: '', email: '', password: '', role: 'store_manager' });
@@ -110,7 +109,7 @@ const Settings = () => {
         }
     };
 
-    // ─────────────────────────────────────────────────────────────────────────
+
     if (loading) return <div className="st-loading"><div className="st-spinner" /></div>;
 
     const TABS = [
@@ -189,7 +188,7 @@ const Settings = () => {
                 </nav>
 
                 <div className="st-content">
-                    {/* ── Store Settings ────────────────────────────────────── */}
+                    {/*Store Settings */}
                     {activeTab === 'store' && settings && (
                         <form className="st-form" onSubmit={handleSaveSettings}>
                             <div className="st-section-title">Store Information</div>
@@ -249,7 +248,7 @@ const Settings = () => {
                         </form>
                     )}
 
-                    {/* ── Shipping Settings ─────────────────────────────────── */}
+                    {/* Shipping Settings */}
                     {activeTab === 'shipping' && settings && (
                         <form className="st-form" onSubmit={handleSaveSettings}>
                             <div className="st-section-title">Shipping & Delivery</div>
@@ -277,7 +276,7 @@ const Settings = () => {
                         </form>
                     )}
 
-                    {/* ── Staff Management ──────────────────────────────────── */}
+                    {/* Staff Management  */}
                     {activeTab === 'staff' && (
                         <div className="st-form">
                             <div className="st-staff-header">
