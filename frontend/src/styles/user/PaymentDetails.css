@@ -1,7 +1,4 @@
-/* ==============================================
-   PAYMENT DETAILS – SoleVora
-   Matches screenshot design exactly
-   ============================================== */
+
 
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
@@ -1553,4 +1550,27 @@
     font-size: 5px;
     line-height: 1.1;
   }
+}
+
+@media(max-width:280px){
+  .pd-container {
+  padding: 0 24px;
+}
+
+  .pd-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  align-items: center;
+}
+.pd-summary-card {
+  background-color: #fde8cc;
+  border-radius: 20px;
+  padding: 30px;
+  position: static;
+  top: 100px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+
 }
