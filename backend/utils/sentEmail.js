@@ -1,7 +1,7 @@
 // backend/utils/sendEmail.js
 import nodemailer from "nodemailer";
 
-export const sendEmail = async (to, subject, html) => {
+export const sendEmail = async (to, subject, html, attachments = []) => {
   const transporter = nodemailer.createTransport({
     secure: true,
     host: "smtp.gmail.com",
@@ -17,5 +17,6 @@ export const sendEmail = async (to, subject, html) => {
     to,
     subject,
     html,
+    attachments
   });
 };

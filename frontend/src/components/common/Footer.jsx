@@ -25,15 +25,17 @@ const [popupType, setPopupType] = useState("success");
       const res = await axios.post("http://localhost:5000/api/newsletter/subscribe", { email });
 
       setMessage(res.data.message || "Thank you for subscribing!");
-      setShowPopup(true);
       setPopupType("success");
+      setShowPopup(true);
       setEmail("");
     } catch (err) {
-      setMessage("Error subscribing. Please try again.");
+      console.error("Subscription error:", err);
+      const errorMessage = err.response?.data?.message || "Error subscribing. Please try again.";
+      setMessage(errorMessage);
+      setPopupType("error");
       setShowPopup(true);
     } finally {
       setLoading(false);
-      setPopupType("error"); 
     }
   };
 
