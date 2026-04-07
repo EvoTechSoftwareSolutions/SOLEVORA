@@ -9,7 +9,7 @@ const ProductsManagement = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
-
+// fetch products
     const fetchProducts = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/products');
@@ -20,11 +20,11 @@ const ProductsManagement = () => {
             setLoading(false);
         }
     };
-
+// run when page loads
     useEffect(() => {
         fetchProducts();
     }, []);
-
+// delete product
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
             try {
@@ -36,21 +36,21 @@ const ProductsManagement = () => {
             }
         }
     };
-
+// open modal for edit
     const handleEdit = (product) => {
         setSelectedProduct(product);
         setIsModalOpen(true);
     };
-
+// open modal for adding new product
     const handleAddClick = () => {
         setSelectedProduct(null);
         setIsModalOpen(true);
     };
-
+// after save (create/update)
     const handleProductSaved = () => {
         fetchProducts();
     };
-
+// filter products based on tab
     const filteredProducts = products.filter(prod => {
         if (subTab === 'All Products') return true;
         
@@ -267,7 +267,7 @@ const ProductsManagement = () => {
                     <div className="metric-value">{products.filter(p => p.stock_quantity === 0).length}</div>
                 </div>
             </div>
-
+        {/* modal */}
             <ProductModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
