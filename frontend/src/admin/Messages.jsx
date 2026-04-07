@@ -6,7 +6,7 @@ const Messages = () => {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedMessage, setSelectedMessage] = useState(null);
-
+// fetch messages from API
     const fetchMessages = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/contact');
@@ -21,7 +21,7 @@ const Messages = () => {
     useEffect(() => {
         fetchMessages();
     }, []);
-
+// mark message as read in backend
     const handleMarkAsRead = async (id) => {
         try {
             await axios.put(`http://localhost:5000/api/contact/${id}/read`);
@@ -32,14 +32,14 @@ const Messages = () => {
             console.error("Error marking message as read:", error);
         }
     };
-
+// open message modal
     const handleViewMessage = (msg) => {
         setSelectedMessage(msg);
         if (!msg.isRead) {
             handleMarkAsRead(msg.id);
         }
     };
-
+// close modal
     const closeModal = () => {
         setSelectedMessage(null);
     };
@@ -48,11 +48,12 @@ const Messages = () => {
 
     return (
         <div className="messages-container">
+            {/* page header */}
             <div className="messages-header">
                 <h2>Customer Messages</h2>
                 <p>View and manage contact us messages</p>
             </div>
-
+           {/* if no messages */}
             <div className="messages-list">
                 {messages.length === 0 ? (
                     <div className="no-messages">No messages found.</div>
@@ -89,7 +90,7 @@ const Messages = () => {
                     </table>
                 )}
             </div>
-
+{/* modal (only show when message selected) */}
             {selectedMessage && (
                 <div className="modal-overlay" onClick={closeModal}>
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -114,6 +115,7 @@ const Messages = () => {
                                 {selectedMessage.message}
                             </div>
                         </div>
+                        {/* footer */}
                         <div className="modal-footer">
                             <button className="btn-close" onClick={closeModal}>Close</button>
                         </div>
