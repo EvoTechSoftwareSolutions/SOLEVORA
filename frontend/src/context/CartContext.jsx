@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import Toast from '../components/ui/Toast';
-
+// create cart context
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
@@ -19,7 +19,7 @@ export const CartProvider = ({ children }) => {
     const showToast = (message, type = 'success') => {
         setToast({ message, type, id: Date.now() });
     };
-
+// add product to cart
     const addToCart = (product, size) => {
         setCart((prevCart) => {
             const existingItem = prevCart.find(item => item.id === product.id && item.size === size);
@@ -35,11 +35,11 @@ export const CartProvider = ({ children }) => {
         showToast(`${product.name} (Size: ${size}) added to your cart!`);
     };
 
-    // ... handle removeFromCart, updateQuantity, clearCart ...
+    // handle removeFromCart, updateQuantity, clearCart 
     const removeFromCart = (productId, size) => {
         setCart(prevCart => prevCart.filter(item => !(item.id === productId && item.size === size)));
     };
-
+        // update quantity
     const updateQuantity = (productId, size, quantity) => {
         if (quantity < 1) return;
         setCart(prevCart => 
@@ -50,7 +50,7 @@ export const CartProvider = ({ children }) => {
             )
         );
     };
-
+// select/unselect single item
     const toggleItemSelection = (productId, size) => {
         setCart(prevCart => 
             prevCart.map(item => 
@@ -60,11 +60,11 @@ export const CartProvider = ({ children }) => {
             )
         );
     };
-
+// select/unselect all items
     const toggleAllSelection = (isSelected) => {
         setCart(prevCart => prevCart.map(item => ({ ...item, selected: isSelected })));
     };
-
+// checkout form data
     const [checkoutData, setCheckoutData] = useState({
         fullName: '',
         email: '',
@@ -79,7 +79,7 @@ export const CartProvider = ({ children }) => {
     const updateCheckoutData = (newData) => {
         setCheckoutData(prev => ({ ...prev, ...newData }));
     };
-
+// clear cart after order
     const clearCart = () => {
         setCart([]);
         setCheckoutData({
@@ -92,7 +92,7 @@ export const CartProvider = ({ children }) => {
             shippingMethod: 'Economy (Free)'
         });
     };
-
+// total price (all items)
     const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
     const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
