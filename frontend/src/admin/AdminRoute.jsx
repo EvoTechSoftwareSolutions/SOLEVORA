@@ -1,14 +1,9 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+// Import custom admin authentication context
 import { useAdminAuth } from '../context/AdminAuthContext';
 
-/**
- * AdminRoute – wraps admin pages requiring authentication.
- * 
- * Props:
- *   children       – the page component to render
- *   adminOnly      – if true, only 'admin' role passes; store_manager gets 403
- */
+ 
 const AdminRoute = ({ children, adminOnly = false }) => {
     const { adminUser, isAdmin } = useAdminAuth();
     const location = useLocation();
