@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 
 const SuccessPopup = ({ message, onClose, type }) => {
   return (
+    // background overlay (fade in/out)
     <motion.div
       className="popup-overlay"
       initial={{ opacity: 0 }}
@@ -18,7 +19,7 @@ const SuccessPopup = ({ message, onClose, type }) => {
         <button className="popup-close-btn" onClick={onClose} aria-label="Close popup">
           ×
         </button>
-
+           {/* title changes based on type */}
         <h2>
           {type === "success" ? "🎉 Thank You!" : "⚠️ Notice"}
         </h2>
