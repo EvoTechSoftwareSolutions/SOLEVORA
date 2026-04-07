@@ -15,7 +15,7 @@ const OrdersManagement = () => {
     const [trackingNumber, setTrackingNumber] = useState('');
     const [carrier, setCarrier] = useState('');
     const [estimatedDelivery, setEstimatedDelivery] = useState('');
-
+// fetch orders from API
     const fetchOrders = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/admin/orders');
@@ -26,11 +26,11 @@ const OrdersManagement = () => {
             setLoading(false);
         }
     };
-
+// load orders when page opens
     useEffect(() => {
         fetchOrders();
     }, []);
-
+// delete order
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this order?')) {
             try {
@@ -41,7 +41,7 @@ const OrdersManagement = () => {
             }
         }
     };
-
+// open modal and fill form with order data
     const handleOpenModal = (order) => {
         setSelectedOrder(order);
         setStatus(order.status);
@@ -50,7 +50,7 @@ const OrdersManagement = () => {
         setEstimatedDelivery(order.estimated_delivery ? new Date(order.estimated_delivery).toISOString().split('T')[0] : '');
         setIsModalOpen(true);
     };
-
+// update order (status + delivery info)
     const handleUpdateOrder = async (e) => {
         e.preventDefault();
         setUpdateLoading(true);
@@ -69,7 +69,7 @@ const OrdersManagement = () => {
             setUpdateLoading(false);
         }
     };
-
+// filter orders based on selected tab
     const filteredOrders = orders.filter(order => {
         if (subTab === 'All Orders') return true;
         return order.status.toLowerCase() === subTab.toLowerCase();
@@ -98,6 +98,7 @@ const OrdersManagement = () => {
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                         </div>
                     </div>
+                    {/* pending orders */}
                     <div className="card-title-text">Pending Shipment</div>
                     <div className="card-value-text">{orders.filter(o => ['paid', 'processing'].includes(o.status.toLowerCase())).length}</div>
                 </div>
@@ -116,7 +117,7 @@ const OrdersManagement = () => {
                     ))}
                 </div>
             </div>
-
+          {/* orders table */}
             <div className="table-container">
                 <table className="orders-table">
                     <thead>
@@ -227,7 +228,7 @@ const OrdersManagement = () => {
                                     </div>
                                 ))}
                             </div>
-
+                            {/* update form */}
                             <form className="delivery-form" onSubmit={handleUpdateOrder}>
                                 <div className="form-title-row">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
