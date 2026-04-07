@@ -43,11 +43,12 @@ const Analytics = () => {
 
     return (
         <div className="dashboard-content">
+            {/* page header */}
             <div className="page-header" style={{ marginBottom: '25px' }}>
                 <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#111' }}>Analytics Deep-Dive</h1>
                 <p style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>Review real-time performance metrics and business intelligence.</p>
             </div>
-
+           {/* top metrics cards */}
             <div className="metrics-grid-analytics">
                 <div className="metric-card-top card-orange-a">
                     <div className="card-top-row">
@@ -58,7 +59,7 @@ const Analytics = () => {
                     <div className="metric-title-top">Total Revenue</div>
                     <div className="metric-value-top">${stats.totalRevenue.toLocaleString()}</div>
                 </div>
-
+                {/* total orders */}
                 <div className="metric-card-top card-blue-a">
                     <div className="card-top-row">
                         <div className="top-icon-circle">
@@ -89,11 +90,12 @@ const Analytics = () => {
                     <div className="metric-value-top">{stats.lowStockItems}</div>
                 </div>
             </div>
-
+           {/* simple chart section (static svg for now) */}
             <div className="charts-grid">
                 <div className="analytics-card">
                     <div className="analytics-card-title">Revenue vs. Target</div>
                     <div className="chart-container">
+                        {/* line chart using SVG */}
                         <svg className="chart-svg-main" viewBox="0 0 600 200" preserveAspectRatio="none">
                             <path d="M 0 130 C 80 120, 100 20, 200 40 C 250 80, 260 85, 300 75 C 340 90, 360 85, 400 30 C 450 40, 500 20, 600 0"
                                 fill="none" stroke="#f66d3b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -101,7 +103,7 @@ const Analytics = () => {
                     </div>
                 </div>
             </div>
-
+            {/* footer */}
             <div className="footer-text">
                 © 2026 SoleVora Admin Dashboard. Powered by Enterprise Intelligence Systems.
             </div>
