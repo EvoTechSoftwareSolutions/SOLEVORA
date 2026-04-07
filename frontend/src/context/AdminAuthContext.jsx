@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-
+// create context
 const AdminAuthContext = createContext(null);
 
 export const AdminAuthProvider = ({ children }) => {
@@ -20,17 +20,17 @@ export const AdminAuthProvider = ({ children }) => {
             delete axios.defaults.headers.common['x-admin-id'];
         }
     }, [adminUser]);
-
+// logout function
     const login = (userData) => {
         localStorage.setItem('adminUser', JSON.stringify(userData));
         setAdminUser(userData);
     };
-
+// logout function
     const logout = () => {
         localStorage.removeItem('adminUser');
         setAdminUser(null);
     };
-
+// role checks
     const isAdmin        = adminUser?.role === 'admin';
     const isStoreManager = adminUser?.role === 'store_manager';
     const hasStoreAccess = isAdmin || isStoreManager;
@@ -42,7 +42,7 @@ export const AdminAuthProvider = ({ children }) => {
         </AdminAuthContext.Provider>
     );
 };
-
+// custom hook for easy access
 export const useAdminAuth = () => {
     const ctx = useContext(AdminAuthContext);
     if (!ctx) throw new Error('useAdminAuth must be used within AdminAuthProvider');
