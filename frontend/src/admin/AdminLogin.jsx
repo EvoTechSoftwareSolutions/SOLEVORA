@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import logo from '../assets/logo.png';
 import './AdminLogin.css';
-
+// Admin Login Component
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -20,6 +20,7 @@ const AdminLogin = () => {
 
         setLoading(true);
         try {
+            // Send login request to backend
             const res = await axios.post('http://localhost:5000/admin-login', { email, password });
             login(res.data.user);
             navigate('/admin', { replace: true });
@@ -70,7 +71,7 @@ const AdminLogin = () => {
                             />
                         </div>
                     </div>
-
+                    {/* Password Field */}
                     <div className="al-field">
                         <label className="al-label">Password</label>
                         <div className="al-input-wrap">
@@ -92,6 +93,7 @@ const AdminLogin = () => {
                     {error && <div className="al-error">{error}</div>}
 
                     <button id="admin-login-btn" type="submit" className="al-submit" disabled={loading}>
+                          {/* Show spinner when loading */}
                         {loading
                             ? <span className="al-spinner" />
                             : <>
@@ -114,7 +116,7 @@ const AdminLogin = () => {
                         Store Manager
                     </div>
                 </div>
-
+ {/* Back to user login */}
                 <p className="al-back-link" onClick={() => navigate('/login')}>
                     ← Back to Customer Login
                 </p>
