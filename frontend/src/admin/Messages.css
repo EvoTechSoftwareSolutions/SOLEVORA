@@ -1,9 +1,10 @@
+/* main container for messages page */
 .messages-container {
     padding: 20px;
     background-color: #f9fafb;
     min-height: 100vh;
 }
-
+/* header title */
 .messages-header h2 {
     color: #111827;
     margin-bottom: 5px;
@@ -13,7 +14,7 @@
     color: #6b7280;
     margin-bottom: 25px;
 }
-
+/* wrapper for message list */
 .messages-list {
     background-color: white;
     border-radius: 8px;
@@ -25,7 +26,7 @@
     width: 100%;
     border-collapse: collapse;
 }
-
+/* table header */
 .messages-table th {
     background-color: #f3f4f6;
     color: #374151;
@@ -35,7 +36,7 @@
     font-size: 14px;
     border-bottom: 1px solid #e5e7eb;
 }
-
+/* table cells */
 .messages-table td {
     padding: 16px;
     border-bottom: 1px solid #e5e7eb;
@@ -52,7 +53,7 @@
     color: #111827;
     background-color: #fef3c7;
 }
-
+/* small circle for status (read/unread) */
 .status-dot {
     width: 10px;
     height: 10px;
@@ -67,7 +68,7 @@
 .status-dot.read {
     background-color: #10b981;
 }
-
+/* view button */
 .view-btn {
     background-color: #f66d3b;
     color: white;
@@ -131,7 +132,7 @@
 .close-btn:hover {
     color: #111827;
 }
-
+/* modal body content */
 .modal-body {
     padding: 20px;
 }
