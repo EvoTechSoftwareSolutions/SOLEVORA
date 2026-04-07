@@ -16,7 +16,7 @@ const Navbar = () => {
 
     const handleToggle = () => setMenuOpen(!menuOpen);
 
-    // ✅ Logout function
+    // Logout function
     const handleLogout = () => {
         localStorage.removeItem('user');
         localStorage.removeItem('auth_token'); // remove auth token if used
