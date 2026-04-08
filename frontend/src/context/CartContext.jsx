@@ -16,6 +16,30 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('solevora_cart', JSON.stringify(cart));
     }, [cart]);
 
+    const [lockedSubtotal, setLockedSubtotal] = useState(() => {
+        const raw = localStorage.getItem('solevora_checkout_lockedSubtotal');
+        const n = raw == null ? null : Number(raw);
+        return Number.isFinite(n) ? n : null;
+    });
+
+    const [checkoutPromo, setCheckoutPromo] = useState(() => {
+        try {
+            const raw = localStorage.getItem('solevora_checkout_promo');
+            return raw ? JSON.parse(raw) : { code: '', applied: false };
+        } catch {
+            return { code: '', applied: false };
+        }
+    });
+
+    useEffect(() => {
+        if (lockedSubtotal == null) localStorage.removeItem('solevora_checkout_lockedSubtotal');
+        else localStorage.setItem('solevora_checkout_lockedSubtotal', String(lockedSubtotal));
+    }, [lockedSubtotal]);
+
+    useEffect(() => {
+        localStorage.setItem('solevora_checkout_promo', JSON.stringify(checkoutPromo));
+    }, [checkoutPromo]);
+
     const showToast = (message, type = 'success') => {
         setToast({ message, type, id: Date.now() });
     };
@@ -64,6 +88,17 @@ export const CartProvider = ({ children }) => {
     const toggleAllSelection = (isSelected) => {
         setCart(prevCart => prevCart.map(item => ({ ...item, selected: isSelected })));
     };
+
+    const lockCheckoutSubtotal = (subtotal) => {
+        const next = Number(subtotal);
+        if (!Number.isFinite(next)) return;
+        setLockedSubtotal(next);
+    };
+
+    const clearCheckoutLock = () => {
+        setLockedSubtotal(null);
+        setCheckoutPromo({ code: '', applied: false });
+    };
 // checkout form data
     const [checkoutData, setCheckoutData] = useState({
         fullName: '',
@@ -82,6 +117,7 @@ export const CartProvider = ({ children }) => {
 // clear cart after order
     const clearCart = () => {
         setCart([]);
+        clearCheckoutLock();
         setCheckoutData({
             fullName: '',
             email: '',
@@ -103,7 +139,10 @@ export const CartProvider = ({ children }) => {
         <CartContext.Provider value={{ 
             cart, addToCart, removeFromCart, updateQuantity, clearCart, 
             toggleItemSelection, toggleAllSelection,
-            cartTotal, cartCount, selectedCart, selectedCartTotal, checkoutData, updateCheckoutData, showToast
+            cartTotal, cartCount, selectedCart, selectedCartTotal,
+            lockedSubtotal, lockCheckoutSubtotal, clearCheckoutLock,
+            checkoutPromo, setCheckoutPromo,
+            checkoutData, updateCheckoutData, showToast
         }}>
             {children}
             {toast && (

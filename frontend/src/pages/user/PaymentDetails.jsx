@@ -7,11 +7,21 @@ import '../../styles/user/PaymentDetails.css';
 
 const PaymentDetails = () => {
     const navigate = useNavigate();
-    const { selectedCart: cart, selectedCartTotal: cartTotal, checkoutData, clearCart, removeFromCart } = useCart();
+    const {
+        selectedCart: cart,
+        selectedCartTotal,
+        lockedSubtotal,
+        lockCheckoutSubtotal,
+        checkoutPromo,
+        setCheckoutPromo,
+        checkoutData,
+        clearCart,
+        removeFromCart
+    } = useCart();
 
     const [paymentMethod, setPaymentMethod] = useState('creditcard');
-    const [promoCode, setPromoCode] = useState('');
-    const [promoApplied, setPromoApplied] = useState(false);
+    const [promoCode, setPromoCode] = useState(checkoutPromo?.code || '');
+    const [promoApplied, setPromoApplied] = useState(!!checkoutPromo?.applied);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState({ title: '', body: '' });
 
@@ -35,7 +45,7 @@ const PaymentDetails = () => {
         { id: 'nextday', name: 'Next Day Delivery', price: 25.00 },
     ];
 
-    const grossTotal = cartTotal;
+    const grossTotal = (lockedSubtotal ?? selectedCartTotal);
     const promoDiscount = promoApplied ? grossTotal * 0.1 : 0;
     
     // Get shipping charge based on selected method
@@ -46,11 +56,16 @@ const PaymentDetails = () => {
     const total = grossTotal - promoDiscount + shippingCharge;
 
     const handleApplyPromo = () => {
-        if (promoCode.trim().toLowerCase() === 'save10') setPromoApplied(true);
+        if (promoCode.trim().toLowerCase() === 'save10') {
+            setPromoApplied(true);
+            setCheckoutPromo({ code: promoCode, applied: true });
+        }
         else showMessage('Invalid Promo', 'The code you entered is invalid. Try "SAVE10" for a discount.');
     };
 
     const handlePlaceOrder = async () => {
+        // Keep subtotal stable through payment
+        lockCheckoutSubtotal(grossTotal);
         if (paymentMethod === 'cod') {
             await handleCOD();
         } else if (paymentMethod === 'creditcard') {

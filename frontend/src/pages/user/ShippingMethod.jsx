@@ -6,11 +6,19 @@ import '../../styles/user/ShippingMethod.css';
 
 const ShippingMethod = () => {
   const navigate = useNavigate();
-  const { selectedCart: cart, selectedCartTotal: cartTotal, updateCheckoutData } = useCart();
+  const {
+    selectedCart: cart,
+    selectedCartTotal,
+    lockedSubtotal,
+    lockCheckoutSubtotal,
+    checkoutPromo,
+    setCheckoutPromo,
+    updateCheckoutData
+  } = useCart();
     const [isToastOpen, setIsToastOpen] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState('standard');
-  const [promoCode, setPromoCode] = useState('');
-  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoCode, setPromoCode] = useState(checkoutPromo?.code || '');
+  const [promoApplied, setPromoApplied] = useState(!!checkoutPromo?.applied);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', body: '' });
 
@@ -29,18 +37,23 @@ const showMessage = (title, body) => {
     { id: 'nextday', name: 'Next Day Delivery', time: 'Delivery by tomorrow', price: 25.00 },
   ];
 
-  const grossTotal = cartTotal;
+  const grossTotal = (lockedSubtotal ?? selectedCartTotal);
   const promoDiscount = promoApplied ? grossTotal * 0.1 : 0;
   const currentShippingObj = shippingMethods.find(m => m.id === selectedMethod);
   const currentShipping = currentShippingObj?.price || 0;
   const total = grossTotal - promoDiscount + currentShipping;
 
   const handleApplyPromo = () => {
-    if (promoCode.trim().toLowerCase() === 'save10') setPromoApplied(true);
+    if (promoCode.trim().toLowerCase() === 'save10') {
+      setPromoApplied(true);
+      setCheckoutPromo({ code: promoCode, applied: true });
+    }
     else showMessage('Invalid Promo', 'The code you entered is invalid. Try "SAVE10" for a discount.');
   };
 
   const handleContinueToPayment = () => {
+    // Ensure locked subtotal exists before moving forward
+    lockCheckoutSubtotal(grossTotal);
     updateCheckoutData({
         shippingMethod: currentShippingObj.name
     });

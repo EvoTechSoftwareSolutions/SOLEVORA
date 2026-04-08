@@ -6,10 +6,19 @@ import '../../styles/user/ShippingInformation.css';
 
 const ShippingInformation = () => {
   const navigate = useNavigate();
-  const { selectedCart: cart, selectedCartTotal: cartTotal, checkoutData, updateCheckoutData } = useCart();
+  const {
+    selectedCart: cart,
+    selectedCartTotal,
+    lockedSubtotal,
+    lockCheckoutSubtotal,
+    checkoutPromo,
+    setCheckoutPromo,
+    checkoutData,
+    updateCheckoutData
+  } = useCart();
   const [isToastOpen, setIsToastOpen] = useState(false);
-  const [promoCode, setPromoCode] = useState('');
-  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoCode, setPromoCode] = useState(checkoutPromo?.code || '');
+  const [promoApplied, setPromoApplied] = useState(!!checkoutPromo?.applied);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', body: '' });
   
@@ -43,7 +52,7 @@ const showMessage = (title, body) => {
     return { ...checkoutData, country: checkoutData.country || 'United States' };
   });
 
-  const grossTotal = cartTotal;
+  const grossTotal = (lockedSubtotal ?? selectedCartTotal);
   const promoDiscount = promoApplied ? grossTotal * 0.1 : 0; // 10% discount for example
   const total = grossTotal - promoDiscount;
 
@@ -53,7 +62,10 @@ const showMessage = (title, body) => {
   };
 
   const handleApplyPromo = () => {
-    if (promoCode.trim().toLowerCase() === 'save10') setPromoApplied(true);
+    if (promoCode.trim().toLowerCase() === 'save10') {
+      setPromoApplied(true);
+      setCheckoutPromo({ code: promoCode, applied: true });
+    }
     else showMessage('Invalid Promo', 'The code you entered is invalid. Try "SAVE10" for a discount.');
   };
 
@@ -62,6 +74,8 @@ const showMessage = (title, body) => {
         showMessage('Required Fields', 'Please fill in all shipping fields before continuing.');
         return;
     }
+    // Freeze the subtotal at the start of checkout so totals remain stable across steps
+    lockCheckoutSubtotal(grossTotal);
     updateCheckoutData(formData);
     navigate('/shipping-method');
   };

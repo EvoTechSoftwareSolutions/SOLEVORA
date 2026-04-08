@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Scrollbar, A11y, Navigation } from 'swiper/modules';
@@ -7,7 +7,8 @@ import 'swiper/css';
 import '../../styles/user/Cart.css';
 
 const Cart = () => {
-  const { cart, removeFromCart, updateQuantity, toggleItemSelection, toggleAllSelection } = useCart();
+  const navigate = useNavigate();
+  const { cart, selectedCartTotal, removeFromCart, updateQuantity, toggleItemSelection, toggleAllSelection, lockCheckoutSubtotal } = useCart();
 
   const recommendedProducts = [
     { id: 101, name: 'Air Max 90', brand: 'Nike', price: 130, image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop' },
@@ -16,7 +17,7 @@ const Cart = () => {
   ];
 
   const selectedItems = cart.filter((item) => item.selected !== false);
-  const selectedSubtotal = selectedItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const selectedSubtotal = selectedCartTotal;
 
   const shipping = selectedItems.length ? 15.0 : 0.0;
   const total = selectedSubtotal + shipping;
@@ -133,9 +134,16 @@ const Cart = () => {
               <span className="value">${total.toFixed(2)}</span>
             </div>
 
-            <Link to="/shipping" className="checkout-btn">
+            <button
+              type="button"
+              className="checkout-btn"
+              onClick={() => {
+                lockCheckoutSubtotal(selectedSubtotal);
+                navigate('/shipping');
+              }}
+            >
               Proceed to Checkout <span className="material-symbols-outlined">credit_card</span>
-            </Link>
+            </button>
 
             <div className="payment-icons">
                <div className="pay-rect"></div>
