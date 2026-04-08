@@ -127,11 +127,28 @@ function CategoryPage() {
       try {
         const { data } = await axios.get("http://localhost:5000/api/products");
         const bgColors = [
-          "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]", 
-          "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]", 
-          "bg-[#dfdfdf]", "bg-[#efe8e0]", "bg-[#dcd0c2]", "bg-[#ffb0b0]"
+          "bg-[#f5aa31]",
+          "bg-[#cce3fc]",
+          "bg-[#f3952a]",
+          "bg-[#43523d]",
+          "bg-[#ebe8df]",
+          "bg-[#aeea49]",
+          "bg-[#dfdfdf]",
+          "bg-[#efe8e0]",
+          "bg-[#dcd0c2]",
+          "bg-[#ffb0b0]",
         ];
-        const fallbackImages = [product1, product2, product3, product4, product5, product6, product7, product8, product9];
+        const fallbackImages = [
+          product1,
+          product2,
+          product3,
+          product4,
+          product5,
+          product6,
+          product7,
+          product8,
+          product9,
+        ];
         const formatted = data.map((p, index) => ({
           id: p.id,
           category: p.category?.name || "Uncategorized",
@@ -139,11 +156,13 @@ function CategoryPage() {
           price: parseFloat(p.price) || 0,
           image: p.image_url || fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
-          gender: "All", 
-          sizes: ["6", "7", "8", "9", "10"],
+          gender:
+            p.gender ||
+            (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
+          sizes: ["6", "7", "7.5", "8", "9", "10"],
           featured: p.isFeatured || false,
           badge: index === 0 ? "New" : "",
-          colors: ["#333333", "#e5e7eb", "#ff6b3d"]
+          colors: ["#333333", "#e5e7eb", "#ff6b3d"],
         }));
 
         setProducts(formatted);
@@ -167,9 +186,12 @@ function CategoryPage() {
 
     if (selectedPrice !== "All") {
       filtered = filtered.filter((item) => {
-        if (selectedPrice === "$0-$50") return item.price >= 0 && item.price <= 50;
-        if (selectedPrice === "$50-$100") return item.price > 50 && item.price <= 100;
-        if (selectedPrice === "$100-$150") return item.price > 100 && item.price <= 150;
+        if (selectedPrice === "$0-$50")
+          return item.price >= 0 && item.price <= 50;
+        if (selectedPrice === "$50-$100")
+          return item.price > 50 && item.price <= 100;
+        if (selectedPrice === "$100-$150")
+          return item.price > 100 && item.price <= 150;
         if (selectedPrice === "$150+") return item.price > 150;
         return true;
       });
@@ -188,13 +210,25 @@ function CategoryPage() {
     return filtered;
   }, [products, selectedGender, selectedSize, selectedPrice, sortBy]);
 
-  const sizes = ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"];
+  const sizes = [
+    "6",
+    "6.5",
+    "7",
+    "7.5",
+    "8",
+    "8.5",
+    "9",
+    "9.5",
+    "10",
+    "10.5",
+    "11",
+    "12",
+    "13",
+  ];
   const priceRanges = ["All", "$0-$50", "$50-$100", "$100-$150", "$150+"];
 
   return (
     <div className="bg-[#f6f6f6] min-h-screen">
-
-
       {/* Hero Section */}
       <section className="relative h-[340px] sm:h-[420px] lg:h-[520px] overflow-hidden">
         <img
@@ -234,8 +268,8 @@ function CategoryPage() {
           </h2>
           <div className="w-12 h-[3px] rounded-full bg-[#df8b4a] mx-auto mt-3 mb-4" />
           <p className="text-[#666] text-sm sm:text-base leading-7">
-            Explore our curated collections designed for every occasion,
-            from high-performance athletic wear to refined evening elegance.
+            Explore our curated collections designed for every occasion, from
+            high-performance athletic wear to refined evening elegance.
           </p>
         </div>
 
@@ -274,7 +308,9 @@ function CategoryPage() {
             <h2 className="text-xl sm:text-2xl font-bold text-[#1f1f1f]">
               All Shoes
             </h2>
-            <p className="text-[#888] text-xs">{displayedProducts.length} products</p>
+            <p className="text-[#888] text-xs">
+              {displayedProducts.length} products
+            </p>
           </div>
 
           <select
@@ -347,7 +383,10 @@ function CategoryPage() {
                 Price Range
               </h4>
               <div className="px-1">
-                <input type="range" className="w-full accent-[#d57731] h-1 bg-white outline-none appearance-none rounded-full" />
+                <input
+                  type="range"
+                  className="w-full accent-[#d57731] h-1 bg-white outline-none appearance-none rounded-full"
+                />
                 <div className="flex justify-between text-[9px] text-[#777] font-semibold mt-2">
                   <span>$0</span>
                   <span>$50</span>
@@ -366,7 +405,9 @@ function CategoryPage() {
                 className="bg-[#f2f2f2] rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-md transition duration-300"
               >
                 {/* Top Image Box */}
-                <div className={`relative w-full aspect-square ${product.bg} flex items-center justify-center p-6`}>
+                <div
+                  className={`relative w-full aspect-square ${product.bg} flex items-center justify-center p-6`}
+                >
                   {product.badge && (
                     <span className="absolute top-4 left-4 bg-[#ff6b3d] text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
                       {product.badge}
@@ -376,12 +417,16 @@ function CategoryPage() {
                   <button
                     onClick={() => handleWishlistToggle(product)}
                     className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${
-                      isInWishlist(product.id) ? "text-red-500" : "text-[#888] hover:text-red-500 hover:bg-white"
+                      isInWishlist(product.id)
+                        ? "text-red-500"
+                        : "text-[#888] hover:text-red-500 hover:bg-white"
                     }`}
                   >
-                    {isInWishlist(product.id)
-                      ? <HiHeart size={18} />
-                      : <HiOutlineHeart size={18} />}
+                    {isInWishlist(product.id) ? (
+                      <HiHeart size={18} />
+                    ) : (
+                      <HiOutlineHeart size={18} />
+                    )}
                   </button>
 
                   <img
@@ -396,11 +441,11 @@ function CategoryPage() {
                   <p className="text-[#ff5c45] text-[10px] font-bold uppercase tracking-wider mb-1">
                     {product.category}
                   </p>
-                  
+
                   <h3 className="text-[17px] font-semibold text-[#222] truncate">
                     {product.name}
                   </h3>
-                  
+
                   <p className="mt-1 text-[20px] font-bold text-[#111]">
                     ${product.price.toFixed(2)}
                   </p>
@@ -426,8 +471,12 @@ function CategoryPage() {
 
             {displayedProducts.length === 0 && (
               <div className="text-center col-span-full py-14">
-                <h3 className="text-2xl font-semibold text-[#333]">No products found</h3>
-                <p className="text-[#666] mt-2">Try changing the filter options.</p>
+                <h3 className="text-2xl font-semibold text-[#333]">
+                  No products found
+                </h3>
+                <p className="text-[#666] mt-2">
+                  Try changing the filter options.
+                </p>
               </div>
             )}
           </div>
@@ -467,8 +516,6 @@ function CategoryPage() {
           </div>
         </div>
       </section>
-
-
     </div>
   );
 }
