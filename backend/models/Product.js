@@ -46,6 +46,18 @@ const Product = sequelize.define('Product', {
             model: Category,
             key: 'id'
         }
+    },
+    gender: {
+        type: DataTypes.ENUM('Men', 'Women', 'Kids', 'All'),
+        defaultValue: 'All'
+    },
+    sizes: {
+        type: DataTypes.TEXT,
+        defaultValue: '["6","6.5","7","7.5","8","8.5","9","9.5","10","10.5","11","12","13"]'
+    },
+    size_range: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }, {
     timestamps: true,

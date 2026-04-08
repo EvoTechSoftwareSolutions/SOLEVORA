@@ -139,8 +139,9 @@ function CategoryPage() {
           price: parseFloat(p.price) || 0,
           image: p.image_url || fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
-          gender: "All", 
-          sizes: ["6", "7", "8", "9", "10"],
+          gender: p.gender || "All", 
+          sizes: (typeof p.sizes === 'string' ? JSON.parse(p.sizes) : p.sizes) || ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"],
+          size_range: p.size_range || "",
           featured: p.isFeatured || false,
           badge: index === 0 ? "New" : "",
           colors: ["#333333", "#e5e7eb", "#ff6b3d"]
@@ -343,17 +344,23 @@ function CategoryPage() {
             </div>
 
             <div>
-              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-5">
+              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">
                 Price Range
               </h4>
-              <div className="px-1">
-                <input type="range" className="w-full accent-[#d57731] h-1 bg-white outline-none appearance-none rounded-full" />
-                <div className="flex justify-between text-[9px] text-[#777] font-semibold mt-2">
-                  <span>$0</span>
-                  <span>$50</span>
-                  <span>$100</span>
-                  <span>$150+</span>
-                </div>
+              <div className="flex flex-wrap gap-2">
+                {priceRanges.map((range) => (
+                  <button
+                    key={range}
+                    onClick={() => setSelectedPrice(range)}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${
+                      selectedPrice === range
+                        ? "bg-[#d57731] text-white"
+                        : "bg-white text-[#555] hover:bg-[#ffeacc]"
+                    }`}
+                  >
+                    {range}
+                  </button>
+                ))}
               </div>
             </div>
           </aside>

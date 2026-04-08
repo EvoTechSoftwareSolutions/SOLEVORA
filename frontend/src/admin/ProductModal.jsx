@@ -15,7 +15,10 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         image_url: '',
         image_url_2: '',
         image_url_3: '',
-        image_url_4: ''
+        image_url_4: '',
+        gender: 'All',
+        sizes: ['6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '12', '13'],
+        size_range: ''
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -35,7 +38,10 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                     image_url: product.image_url || '',
                     image_url_2: product.image_url_2 || '',
                     image_url_3: product.image_url_3 || '',
-                    image_url_4: product.image_url_4 || ''
+                    image_url_4: product.image_url_4 || '',
+                    gender: product.gender || 'All',
+                    sizes: (typeof product.sizes === 'string' ? JSON.parse(product.sizes) : product.sizes) || ['6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '12', '13'],
+                    size_range: product.size_range || ''
                 });
             } else {
                 // reset form for new product
@@ -48,7 +54,10 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                     image_url: '',
                     image_url_2: '',
                     image_url_3: '',
-                    image_url_4: ''
+                    image_url_4: '',
+                    gender: 'All',
+                    sizes: ['6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '12', '13'],
+                    size_range: ''
                 });
             }
         }
@@ -80,7 +89,8 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
             const payload = {
                 ...formData,
                 price: parseFloat(formData.price),
-                stock_quantity: parseInt(formData.stock_quantity)
+                stock_quantity: parseInt(formData.stock_quantity),
+                sizes: JSON.stringify(formData.sizes)
             };
 
             let response;
@@ -190,6 +200,37 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                                 onChange={handleChange}
                                 required
                                 placeholder="0"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
+                            />
+                        </div>
+
+                        {/* Gender */}
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Gender</label>
+                            <select 
+                                name="gender"
+                                value={formData.gender}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none appearance-none bg-no-repeat bg-[right_1rem_center]"
+                                style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236b7280\' stroke-width=\'2\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundSize: '1.2em' }}
+                            >
+                                <option value="All">All</option>
+                                <option value="Men">Men</option>
+                                <option value="Women">Women</option>
+                                <option value="Kids">Kids</option>
+                            </select>
+                        </div>
+
+                        {/* Size Range */}
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Size Range</label>
+                            <input 
+                                type="text"
+                                name="size_range"
+                                value={formData.size_range}
+                                onChange={handleChange}
+                                placeholder="e.g. 6-13"
                                 className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
                             />
                         </div>
