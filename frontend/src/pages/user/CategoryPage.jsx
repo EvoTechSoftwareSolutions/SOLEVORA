@@ -127,28 +127,11 @@ function CategoryPage() {
       try {
         const { data } = await axios.get("http://localhost:5000/api/products");
         const bgColors = [
-          "bg-[#f5aa31]",
-          "bg-[#cce3fc]",
-          "bg-[#f3952a]",
-          "bg-[#43523d]",
-          "bg-[#ebe8df]",
-          "bg-[#aeea49]",
-          "bg-[#dfdfdf]",
-          "bg-[#efe8e0]",
-          "bg-[#dcd0c2]",
-          "bg-[#ffb0b0]",
+          "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]", 
+          "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]", 
+          "bg-[#dfdfdf]", "bg-[#efe8e0]", "bg-[#dcd0c2]", "bg-[#ffb0b0]"
         ];
-        const fallbackImages = [
-          product1,
-          product2,
-          product3,
-          product4,
-          product5,
-          product6,
-          product7,
-          product8,
-          product9,
-        ];
+        const fallbackImages = [product1, product2, product3, product4, product5, product6, product7, product8, product9];
         const formatted = data.map((p, index) => ({
           id: p.id,
           category: p.category?.name || "Uncategorized",
@@ -186,12 +169,9 @@ function CategoryPage() {
 
     if (selectedPrice !== "All") {
       filtered = filtered.filter((item) => {
-        if (selectedPrice === "$0-$50")
-          return item.price >= 0 && item.price <= 50;
-        if (selectedPrice === "$50-$100")
-          return item.price > 50 && item.price <= 100;
-        if (selectedPrice === "$100-$150")
-          return item.price > 100 && item.price <= 150;
+        if (selectedPrice === "$0-$50") return item.price >= 0 && item.price <= 50;
+        if (selectedPrice === "$50-$100") return item.price > 50 && item.price <= 100;
+        if (selectedPrice === "$100-$150") return item.price > 100 && item.price <= 150;
         if (selectedPrice === "$150+") return item.price > 150;
         return true;
       });
@@ -210,25 +190,13 @@ function CategoryPage() {
     return filtered;
   }, [products, selectedGender, selectedSize, selectedPrice, sortBy]);
 
-  const sizes = [
-    "6",
-    "6.5",
-    "7",
-    "7.5",
-    "8",
-    "8.5",
-    "9",
-    "9.5",
-    "10",
-    "10.5",
-    "11",
-    "12",
-    "13",
-  ];
+  const sizes = ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"];
   const priceRanges = ["All", "$0-$50", "$50-$100", "$100-$150", "$150+"];
 
   return (
     <div className="bg-[#f6f6f6] min-h-screen">
+
+
       {/* Hero Section */}
       <section className="relative h-[340px] sm:h-[420px] lg:h-[520px] overflow-hidden">
         <img
@@ -268,8 +236,8 @@ function CategoryPage() {
           </h2>
           <div className="w-12 h-[3px] rounded-full bg-[#df8b4a] mx-auto mt-3 mb-4" />
           <p className="text-[#666] text-sm sm:text-base leading-7">
-            Explore our curated collections designed for every occasion, from
-            high-performance athletic wear to refined evening elegance.
+            Explore our curated collections designed for every occasion,
+            from high-performance athletic wear to refined evening elegance.
           </p>
         </div>
 
@@ -308,9 +276,7 @@ function CategoryPage() {
             <h2 className="text-xl sm:text-2xl font-bold text-[#1f1f1f]">
               All Shoes
             </h2>
-            <p className="text-[#888] text-xs">
-              {displayedProducts.length} products
-            </p>
+            <p className="text-[#888] text-xs">{displayedProducts.length} products</p>
           </div>
 
           <select
