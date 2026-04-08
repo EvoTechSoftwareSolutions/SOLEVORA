@@ -158,7 +158,7 @@ function CategoryPage() {
           gender:
             p.gender ||
             (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
-          sizes: ["6", "7", "7.5", "8", "9", "10"],
+          sizes: p.sizes ? (typeof p.sizes === 'string' ? JSON.parse(p.sizes) : p.sizes) : ["6", "7", "7.5", "8", "9", "10"],
           featured: p.isFeatured || false,
           badge: index === 0 ? "New" : "",
           colors: ["#333333", "#e5e7eb", "#ff6b3d"],
@@ -175,28 +175,37 @@ function CategoryPage() {
   const displayedProducts = useMemo(() => {
     let filtered = [...products];
 
+    // Gender filtering: include "All" gender products in every filter
     if (selectedGender !== "All") {
-      filtered = filtered.filter((item) => item.gender === selectedGender);
+      filtered = filtered.filter((item) => 
+        item.gender === selectedGender || item.gender === "All"
+      );
     }
 
+    // Size filtering
     if (selectedSize) {
-      filtered = filtered.filter((item) => item.sizes.includes(selectedSize));
+      filtered = filtered.filter((item) => 
+        item.sizes && item.sizes.includes(selectedSize)
+      );
     }
 
+    // Price filtering
     if (selectedPrice !== "All") {
       filtered = filtered.filter((item) => {
-        if (selectedPrice === "$0-$50") return item.price >= 0 && item.price <= 50;
-        if (selectedPrice === "$50-$100") return item.price > 50 && item.price <= 100;
-        if (selectedPrice === "$100-$150") return item.price > 100 && item.price <= 150;
-        if (selectedPrice === "$150+") return item.price > 150;
+        const price = parseFloat(item.price) || 0;
+        if (selectedPrice === "$0-$50") return price >= 0 && price <= 50;
+        if (selectedPrice === "$50-$100") return price > 50 && price <= 100;
+        if (selectedPrice === "$100-$150") return price > 100 && price <= 150;
+        if (selectedPrice === "$150+") return price > 150;
         return true;
       });
     }
 
+    // Sorting
     if (sortBy === "low-high") {
-      filtered.sort((a, b) => a.price - b.price);
+      filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
     } else if (sortBy === "high-low") {
-      filtered.sort((a, b) => b.price - a.price);
+      filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
     } else if (sortBy === "newest") {
       filtered.sort((a, b) => b.id - a.id);
     } else {
@@ -206,10 +215,24 @@ function CategoryPage() {
     return filtered;
   }, [products, selectedGender, selectedSize, selectedPrice, sortBy]);
 
-  const sizes =
-    selectedGender === "Kids"
-      ? ["1", "2", "3", "4", "5"]
-      : ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"];
+  // Dynamic size options based on actual products
+  const sizes = useMemo(() => {
+    const allSizes = new Set();
+    products.forEach(product => {
+      if (product.sizes && Array.isArray(product.sizes)) {
+        product.sizes.forEach(size => allSizes.add(size));
+      }
+    });
+    
+    const sortedSizes = Array.from(allSizes).sort((a, b) => {
+      // Convert to numbers for proper sorting
+      const numA = parseFloat(a);
+      const numB = parseFloat(b);
+      return numA - numB;
+    });
+    
+    return sortedSizes.length > 0 ? sortedSizes : ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"];
+  }, [products]);
 
   const priceRanges = ["All", "$0-$50", "$50-$100", "$100-$150", "$150+"];
 

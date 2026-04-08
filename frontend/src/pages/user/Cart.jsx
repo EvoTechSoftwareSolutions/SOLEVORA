@@ -22,9 +22,8 @@ const Cart = () => {
   const selectedItems = cart.filter((item) => item.selected !== false);
   const selectedSubtotal = selectedCartTotal;
 
-  // Calculate shipping cost and total
-  const shipping = selectedItems.length ? 15.0 : 0.0;
-  const total = selectedSubtotal + shipping;
+  // Cart summary shows subtotal only; shipping is chosen at checkout
+  const total = selectedSubtotal;
 
   // Check if all items are selected
   const allSelected = cart.length > 0 && selectedItems.length === cart.length;
@@ -134,8 +133,8 @@ const Cart = () => {
               <span className="value">${selectedSubtotal.toFixed(2)}</span>
             </div>
             <div className="summary-row">
-              <span className="label">Estimated Shipping</span>
-              <span className="value">${shipping.toFixed(2)}</span>
+              <span className="label">Shipping</span>
+              <span className="value">Calculated at checkout</span>
             </div>
             <div className="summary-total">
               <span className="label">Total</span>

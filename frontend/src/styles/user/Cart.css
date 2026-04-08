@@ -742,22 +742,30 @@
     
     /* Mobile Footer Links */
     .cart-footer-links {
-        flex-direction: row;
-        gap: 8px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
         margin-top: 16px;
+        width: 100%;
     }
     
     .back-link, .add-more-link {
         justify-content: center;
-        padding: 8px 12px;
-        font-size: 10px;
-        border-radius: 6px;
-        background-color: #f7f7f7;
+        padding: 12px 14px;
+        font-size: 12px;
+        line-height: 1.2;
+        border-radius: 12px;
+        background-color: #ffffff;
+        border: 1px solid #eef2f7;
+        min-height: 56px;
+        text-align: center;
+        flex-wrap: wrap;
     }
     
     .add-more-link {
         background-color: #fff4f0;
         color: #ff6d2e;
+        border-color: #ffe2d6;
     }
     
     /* Mobile Order Summary - Compact sidebar */
@@ -879,6 +887,10 @@
 @media (max-width: 480px) {
     .cart-page .container {
         padding: 0 30px;
+    }
+
+    .cart-footer-links {
+        grid-template-columns: 1fr;
     }
     
 }
