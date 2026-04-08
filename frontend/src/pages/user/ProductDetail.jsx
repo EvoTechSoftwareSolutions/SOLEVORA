@@ -19,7 +19,7 @@ function ProductDetail() {
     const [submittingReview, setSubmittingReview] = useState(false);
     const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
     const [reviewMsg, setReviewMsg] = useState({ text: '', type: '' });
-
+// get logged user (if exists)
     const user = (() => {
         try {
             const u = localStorage.getItem('user');
@@ -49,7 +49,7 @@ function ProductDetail() {
 
         fetchProduct();
     }, [id]);
-
+// fetch reviews
     const fetchReviews = async (productId) => {
         try {
             const res = await fetch(`http://localhost:5000/api/reviews/${productId}`);
@@ -57,7 +57,7 @@ function ProductDetail() {
             if (res.ok) setReviews(data);
         } catch (err) { console.error('Error loading reviews:', err); }
     };
-
+// submit review
     const handleReviewSubmit = async (e) => {
         e.preventDefault();
         if (!user) {
@@ -82,6 +82,7 @@ function ProductDetail() {
             });
             const data = await res.json();
             if (res.ok) {
+                // add new review to top
                 setReviews([data.review, ...reviews]);
                 setNewReview({ rating: 5, comment: '' });
                 setReviewMsg({ text: 'Thank you! Your review has been posted.', type: 'success' });
