@@ -1,13 +1,16 @@
+/* Main layout wrapper for user pages */
 .layout-wrapper {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
+/* Main content area (grows to fill space) */
 .main-content {
   flex: 1;
 }
 
+/* Centered container for page content */
 .container {
     max-width: 1400px;
     width: 100%;

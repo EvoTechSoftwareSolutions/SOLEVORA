@@ -1,10 +1,11 @@
+/* Main track order page container */
 .track-order-page {
     padding: 80px 20px;
     background: #fdfdfd;
     min-height: calc(100vh - 100px);
 }
 
-/* Mobile responsive */
+/* ================= Mobile Responsive ================= */
 @media (max-width: 768px) {
     .track-order-page {
         padding: 0;
@@ -17,17 +18,20 @@
     }
 }
 
+/* Centered container for track order content */
 .track-container {
     max-width: 800px;
     margin: 0 auto;
     width: 100%;
 }
 
+/* Header section for track order page */
 .track-header {
     text-align: center;
     margin-bottom: 40px;
 }
 
+/* Main heading in header */
 .track-header h1 {
     font-size: 2.5rem;
     font-weight: 800;
@@ -35,11 +39,13 @@
     margin-bottom: 15px;
 }
 
+/* Subtitle/description in header */
 .track-header p {
     color: #666;
     font-size: 1.1rem;
 }
 
+/* Card container for track order form */
 .track-form-card {
     background: #ffffff;
     padding: 40px;
@@ -48,6 +54,7 @@
     margin-bottom: 40px;
 }
 
+/* Track order form layout */
 .track-form {
     display: grid;
     grid-template-columns: 1fr 1fr auto;
@@ -55,18 +62,21 @@
     align-items: end;
 }
 
+/* Form group for label and input */
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
+/* Label for form input */
 .form-group label {
     font-size: 0.9rem;
     font-weight: 600;
     color: #4b5563;
 }
 
+/* Input field styles */
 .form-group input {
     padding: 15px 20px;
     border: 2px solid #e5e7eb;
@@ -77,11 +87,13 @@
     background: #f9fafb;
 }
 
+/* Input focus state */
 .form-group input:focus {
     border-color: #ff5e3a;
     background: #ffffff;
 }
 
+/* Track order button */
 .track-btn {
     background: #1a1a1a;
     color: white;
@@ -95,12 +107,14 @@
     height: 52px;
 }
 
+/* Track button hover effect */
 .track-btn:hover {
     background: #ff5e3a;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(255, 94, 58, 0.3);
 }
 
+/* Disabled state for track button */
 .track-btn:disabled {
     background: #9ca3af;
     cursor: not-allowed;
@@ -108,6 +122,7 @@
     box-shadow: none;
 }
 
+/* Error message for track order */
 .track-error {
     margin-top: 20px;
     padding: 15px;
@@ -120,6 +135,7 @@
     font-weight: 500;
 }
 
+/* Card for displaying tracking results */
 .tracking-results-card {
     background: #ffffff;
     border-radius: 24px;
@@ -128,11 +144,13 @@
     animation: fadeIn 0.5s ease-out forwards;
 }
 
+/* Animation for fade in effect */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Header for tracking results */
 .results-header {
     display: flex;
     justify-content: space-between;
@@ -142,6 +160,7 @@
     border-bottom: 1px solid #f3f4f6;
 }
 
+/* Order number heading in results */
 .results-header h2 {
     font-size: 1.8rem;
     font-weight: 800;
@@ -149,11 +168,13 @@
     margin-bottom: 5px;
 }
 
+/* Order date text */
 .order-date {
     color: #6b7280;
     font-size: 0.95rem;
 }
 
+/* Status badge for order status */
 .status-badge {
     padding: 8px 16px;
     border-radius: 20px;
@@ -161,13 +182,15 @@
     font-size: 0.9rem;
 }
 
+/* Status badge color variants */
 .status-badge.pending { background: #fef3c7; color: #d97706; }
 .status-badge.processing { background: #e0f2fe; color: #0284c7; }
 .status-badge.shipped { background: #dbeafe; color: #1d4ed8; }
 .status-badge.delivered { background: #d1fae5; color: #059669; }
 .status-badge.cancelled { background: #fee2e2; color: #dc2626; }
 
-/* Stepper */
+/* ================= Stepper ================= */
+/* Stepper for order status progression */
 .tracking-stepper {
     display: flex;
     justify-content: space-between;
@@ -175,6 +198,7 @@
     margin-bottom: 50px;
 }
 
+/* Stepper background line */
 .tracking-stepper::before {
     content: '';
     position: absolute;
@@ -186,6 +210,7 @@
     z-index: 1;
 }
 
+/* Individual step in stepper */
 .stepper-item {
     position: relative;
     z-index: 2;
@@ -196,6 +221,7 @@
     flex: 1;
 }
 
+/* Step point (circle) */
 .step-point {
     width: 34px;
     height: 34px;
@@ -205,10 +231,12 @@
     transition: all 0.3s ease;
 }
 
+/* Completed step point */
 .stepper-item.completed .step-point {
     background: #10b981;
 }
 
+/* Completed step connector */
 .stepper-item.completed::before {
     content: '';
     position: absolute;
@@ -220,31 +248,37 @@
     z-index: -1;
 }
 
+/* Remove connector for first step */
 .stepper-item:first-child::before {
     display: none;
 }
 
+/* Active step point */
 .stepper-item.active .step-point {
     background: #10b981;
     box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.2);
 }
 
+/* Step label text */
 .step-label {
     font-weight: 600;
     color: #9ca3af;
     font-size: 0.9rem;
 }
 
+/* Label color for completed/active step */
 .stepper-item.completed .step-label,
 .stepper-item.active .step-label {
     color: #1a1a1a;
 }
 
-/* Order Contents */
+/* ================= Order Contents ================= */
+/* Container for order items */
 .order-contents {
     margin-bottom: 30px;
 }
 
+/* Heading for order contents */
 .order-contents h3 {
     font-size: 1.2rem;
     font-weight: 700;
@@ -252,12 +286,14 @@
     color: #1a1a1a;
 }
 
+/* List of order items */
 .items-list {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
+/* Individual order item row */
 .tracking-item {
     display: flex;
     align-items: center;
@@ -267,6 +303,7 @@
     border-radius: 16px;
 }
 
+/* Wrapper for item image */
 .item-image-wrap {
     width: 80px;
     height: 80px;
@@ -276,16 +313,19 @@
     flex-shrink: 0;
 }
 
+/* Item image styles */
 .item-image-wrap img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
+/* Item details section */
 .item-details {
     flex: 1;
 }
 
+/* Item name heading */
 .item-details h4 {
     font-size: 1.1rem;
     font-weight: 600;
@@ -293,18 +333,21 @@
     color: #1a1a1a;
 }
 
+/* Item description text */
 .item-details p {
     color: #6b7280;
     font-size: 0.9rem;
 }
 
+/* Item price text */
 .item-price {
     font-weight: 700;
     font-size: 1.1rem;
     color: #1a1a1a;
 }
 
-/* Shipping Details */
+/* ================= Shipping Details ================= */
+/* Box for shipping details */
 .shipping-details-box {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -314,6 +357,7 @@
     gap: 40px;
 }
 
+/* Shipping details heading */
 .shipping-details-box h4 {
     font-size: 1rem;
     font-weight: 700;
@@ -323,12 +367,14 @@
     letter-spacing: 0.5px;
 }
 
+/* Shipping details text */
 .shipping-details-box p {
     color: #1a1a1a;
     line-height: 1.6;
     font-weight: 500;
 }
 
+/* Total order amount */
 .total-amount {
     font-size: 1.5rem !important;
     font-weight: 800 !important;

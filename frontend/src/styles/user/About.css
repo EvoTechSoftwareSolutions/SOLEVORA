@@ -1,4 +1,7 @@
 
+/* =========================
+  Main container for About page
+========================= */
 .main-container {
   display: flex;
   flex-direction: column;
@@ -9,6 +12,9 @@
   gap: 60px;
   margin-bottom: 50px;
 }
+/* =========================
+  Banner section with background image and intro text
+========================= */
 .about-banner {
   width: 100%;
   min-height: 400px;
@@ -24,19 +30,23 @@
   padding: 60px;
 }
 
+/* Text content area inside the about banner */
 .about-text {
   width: 70%;
 }
 
+/* Heading style for About page */
 .about-text h1 {
   font-size: 60px;
   font-weight: 900;
 }
 
+/* Tagline or highlight color */
 .about-tag {
   color: #889924;
 }
 
+/* Paragraph style for About section */
 .about-text p {
   font-size: 18px;
   color: #1e1e1e;
@@ -46,6 +56,9 @@
 
 
 
+/* =========================
+  Our Story section: layout and background
+========================= */
 .our-story {
   display: flex;
   align-items: center;
@@ -55,6 +68,7 @@
   background-color: rgba(255, 160, 7, 0.2);
 }
 
+/* Image styling for "Our Story" section */
 .story-image {
   flex: 1 1 400px; 
   max-width: 500px;
@@ -64,10 +78,12 @@
   box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
+/* Text block for "Our Story" section */
 .story-text {
   flex: 1 1 400px;
 }
 
+/* Heading for "Our Story" section */
 .story-text h2 {
   font-size: 36px;
   font-weight: 700;
@@ -75,6 +91,7 @@
   color: #1e1e1e;
 }
 
+/* Paragraph for "Our Story" section */
 .story-text p {
   font-size: 16px;
   line-height: 1.8;
@@ -82,6 +99,9 @@
   margin-bottom: 15px;
 }
 
+/* =========================
+  Mission and Vision section layout
+========================= */
 .goal {
   display: flex;
   gap: 40px; 
@@ -93,6 +113,7 @@
 }
 
 /* Each mission/vision card */
+/* Card for mission/vision content */
 .mission-vision {
   display: flex;
   flex-direction: column; 
@@ -108,6 +129,7 @@
   box-shadow: 0 8px 20px rgba(0,0,0,0.1);
 }
 
+/* Header row for mission/vision card */
 .mission-vision-head {
   display: flex;
   flex-direction: row;
@@ -116,6 +138,7 @@
   gap: 20px;
 }
 
+/* Icon image in mission/vision card */
 .mission-vision img {
   width: 50px; 
   height: 50px;
@@ -123,6 +146,7 @@
   margin-bottom: 16px;
 }
 
+/* Heading for mission/vision card */
 .mission-vision h3 {
   font-size: 44px;
   font-weight: 700;
@@ -130,6 +154,7 @@
   margin-bottom: 10px;
 }
 
+/* Paragraph for mission/vision card */
 .mission-vision p {
   font-size: 18px;
   line-height: 1.6;
@@ -138,18 +163,23 @@
 
 
 /* Section wrapper */
+/* =========================
+  Why We/Why Us section wrapper
+========================= */
 .why-we {
   padding: 60px;
     background-color: rgba(255, 160, 7, 0.3);;
    text-align: center;
 }
 
+/* Header for Why Us section */
 .why-us-header h1 {
   font-size: 42px;
   font-weight: 700;
   color: #1e1e1e;
 }
 
+/* Subtext for Why Us section */
 .why-us-header p {
   font-size: 16px;
   color: #475569;
@@ -158,6 +188,7 @@
 }
 
 /* Features container */
+/* Container for feature cards in Why Us section */
 .why-us-features {
   display: flex;
   justify-content: center;
@@ -166,6 +197,7 @@
 }
 
 /* Individual feature card */
+/* Individual feature card styling */
 .feature-card {
     display: flex;
     flex-direction: column;
@@ -178,17 +210,20 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+/* Centered feature card (for layout adjustment) */
 .feature-card.center{
     margin-top: 30px;
 }
 
 /* Hover effect (optional) */
+/* Hover effect for feature card */
 .feature-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
 }
 
 /* Icon */
+/* Icon in feature card */
 .feature-icon {
   margin-bottom: 15px;
   border-radius: 8px;
@@ -203,18 +238,21 @@ background-color: rgba(249, 115, 22, 0.2);
 
 }
 
+/* Icon color for about section */
 .about-icon {
   color: orange;      /* icon color */
   width: 30px;        /* width */
   height: 30px;       /* height */
 }
 /* Card title */
+/* Title for feature card */
 .feature-card h5 {
   font-size: 20px;
   font-weight: 700;
   color: #F97316;
 }
 
+/* Description for feature card */
 .feature-card p {
   font-size: 14px;
   line-height: 1.6;
@@ -223,6 +261,9 @@ background-color: rgba(249, 115, 22, 0.2);
 }
 
 /* Section wrapper */
+/* =========================
+  Stats section wrapper
+========================= */
 .stats-section {
   display: flex;
   justify-content: space-between;
@@ -233,6 +274,7 @@ background-color: rgba(249, 115, 22, 0.2);
   background-color: #1A2332; 
 }
 
+/* Individual stat card styling */
 .stat-card {
   display: flex;
   flex-direction: column;
@@ -245,17 +287,20 @@ background-color: rgba(249, 115, 22, 0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Hover effect for stat card */
 .stat-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
 }
 
+/* Icon in stat card */
 .stat-icon {
   font-size: 40px;      
   color: orange;        
   margin-bottom: 15px;
 }
 
+/* Stat card title */
 .stat-card h5 {
   font-size: 28px;
   font-weight: 700;
@@ -263,17 +308,22 @@ background-color: rgba(249, 115, 22, 0.2);
   margin-bottom: 5px;
 }
 
+/* Stat card subtitle */
 .stat-card span {
   font-size: 16px;
   color: #9A918A;
 }
 /* Section wrapper */
+/* =========================
+  Customer rating section wrapper
+========================= */
 .customer-rating {
   padding: 60px 20px;
     background-color: rgba(255, 160, 7, 0.3);;
   text-align: center;
 }
 
+/* Customer rating section heading */
 .customer-rating h3 {
   font-size: 36px;
   font-weight: 700;
@@ -282,6 +332,7 @@ background-color: rgba(249, 115, 22, 0.2);
 }
 
 /* Cards container */
+/* Container for rating cards */
 .rating-cards {
   display: flex;
   gap: 30px;
@@ -290,6 +341,7 @@ background-color: rgba(249, 115, 22, 0.2);
 }
 
 /* Individual card */
+/* Individual rating card styling */
 .rating-card {
   background-color: #fff;
   padding: 25px 20px;
@@ -304,12 +356,14 @@ background-color: rgba(249, 115, 22, 0.2);
 }
 
 /* Hover effect */
+/* Hover effect for rating card */
 .rating-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 25px rgba(0,0,0,0.15);
 }
 
 /* Star row */
+/* Star row in rating card */
 .star-row {
   font-size: 26px;
   color: #ebaa08; 
@@ -318,6 +372,7 @@ background-color: rgba(249, 115, 22, 0.2);
 
 
 /* Rating title and comment */
+/* Rating card content title and comment */
 .rating-content h4 {
   font-size: 20px;
   font-weight: 700;
@@ -325,22 +380,26 @@ background-color: rgba(249, 115, 22, 0.2);
   margin-bottom: 5px;
 }
 
+/* Rating card content subtitle */
 .rating-content span {
   font-size: 14px;
   color: #555;
 }
 
+/* Container for user info in rating card */
 .rating-users{
     display: flex;
     flex-direction: column;
 }
 /* User info */
+/* User info row in rating card */
 .user-info {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+/* User image in rating card */
 .user-img {
   width: 50px;
   height: 50px;
@@ -348,11 +407,13 @@ background-color: rgba(249, 115, 22, 0.2);
   object-fit: cover;
 }
 
+/* User name in rating card */
 .user-name {
   font-weight: 600;
   color: #1e1e1e;
 }
 
+/* Review date in rating card */
 .review-date {
   font-size: 12px;
   color: #888;

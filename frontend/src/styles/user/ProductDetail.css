@@ -1,3 +1,4 @@
+/* Main product detail page container */
 .product-detail-page {
     background-color: var(--color-bg-light);
     min-height: 100vh;
@@ -5,13 +6,15 @@
     padding-bottom: 100px;
 }
 
+/* Centered container for content */
 .product-detail-page .container {
     max-width: 1100px;
     margin: 0 auto;
     padding: 0 40px;
 }
 
-/* Breadcrumbs */
+/* ================= Breadcrumbs ================= */
+/* Breadcrumb navigation styles */
 .breadcrumbs {
     padding: 24px 0;
     font-size: 14px;
@@ -21,22 +24,26 @@
     align-items: center;
 }
 
+/* Breadcrumb link styles */
 .breadcrumbs a {
     text-decoration: none;
     color: inherit;
     transition: color 0.2s;
 }
 
+/* Breadcrumb link hover effect */
 .breadcrumbs a:hover {
     color: var(--color-primary);
 }
 
+/* Current breadcrumb item */
 .breadcrumbs .current {
     font-weight: 700;
     color: var(--color-primary);
 }
 
-/* Product Grid */
+/* ================= Product Grid ================= */
+/* Main grid for gallery and details */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
@@ -44,7 +51,8 @@
     margin-bottom: 80px;
 }
 
-/* Gallery Section */
+/* ================= Gallery Section ================= */
+/* Gallery section for product images */
 .gallery-section {
     grid-column: span 7;
     display: flex;
@@ -52,6 +60,7 @@
     gap: 16px;
 }
 
+/* Main image viewport */
 .main-viewport {
     background-color: #ffffff;
     border-radius: 12px;
@@ -63,18 +72,21 @@
     width: 100%;
 }
 
+/* Main product image */
 .main-viewport img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
+/* Thumbnail strip for images */
 .thumb-strip {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 14px;
 }
 
+/* Individual thumbnail box */
 .thumb-box {
     aspect-ratio: 1;
     border-radius: 8px;
@@ -88,17 +100,20 @@
 }
 
 
+/* Active thumbnail highlight */
 .thumb-box.active {
     border: 2px solid var(--color-primary);
 }
 
+/* Thumbnail image */
 .thumb-box img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-/* Details Section */
+/* ================= Details Section ================= */
+/* Product details section (right column) */
 .details-section {
     grid-column: span 5;
     display: flex;
@@ -109,6 +124,7 @@
     height: fit-content;
 }
 
+/* Brand badge above product title */
 .brand-badge {
     color: var(--color-primary);
     font-size: 11px;
@@ -119,6 +135,7 @@
     margin-bottom: 8px;
 }
 
+/* Product title */
 .details-header h1 {
     font-size: 28px;
     font-weight: 800;
@@ -126,38 +143,45 @@
     line-height: 1.1;
 }
 
+/* Row for rating stars and count */
 .rating-row {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
+/* Star rating container */
 .stars {
     display: flex;
     color: var(--color-primary);
 }
 
+/* Filled star icon */
 .stars .fill {
     font-variation-settings: 'FILL' 1;
 }
 
+/* Review count text */
 .review-count {
     color: #64748b;
     font-size: 13px;
     font-weight: 500;
 }
 
+/* Pricing row (current/old price) */
 .pricing {
     display: flex;
     align-items: baseline;
     gap: 12px;
 }
 
+/* Current price highlight */
 .current-price {
     font-size: 24px;
     font-weight: 800;
 }
 
+/* Old price (strikethrough) */
 .old-price {
     color: #94a3b8;
     text-decoration: line-through;
@@ -165,19 +189,22 @@
     font-weight: 500;
 }
 
+/* Product info/description text */
 .product-info-text {
     color: #475569;
     font-size: 13px;
     line-height: 1.6;
 }
 
-/* Size Selector */
+/* ================= Size Selector ================= */
+/* Size selector container */
 .size-selector {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
+/* Title row for size selector */
 .selector-title {
     display: flex;
     justify-content: space-between;
@@ -185,16 +212,19 @@
     font-weight: 800;
 }
 
+/* Size guide link */
 .guide-link {
     color: var(--color-primary);
 }
 
+/* Grid for size buttons */
 .size-btns {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
 }
 
+/* Individual size button */
 .size-btns button {
     height: 44px;
     border: 1px solid rgba(255, 109, 46, 0.2);
@@ -207,6 +237,7 @@
     transition: all 0.2s;
 }
 
+/* Active size button */
 .size-btns button.active {
     background-color: rgba(255, 109, 46, 0.05);
     border-color: var(--color-primary);
@@ -214,7 +245,8 @@
     font-weight: 800;
 }
 
-/* Buy Actions */
+/* ================= Buy Actions ================= */
+/* Row for add to cart and wishlist buttons */
 .buy-actions {
     display: flex;
     flex-direction: row;
@@ -222,6 +254,7 @@
     padding-top: 14px;
 }
 
+/* Add to cart button */
 .add-cart-btn {
     width: 700px;
     height: 52px;
@@ -240,11 +273,13 @@
     transition: transform 0.2s, background-color 0.2s;
 }
 
+/* Add to cart button hover effect */
 .add-cart-btn:hover {
     background-color: #e85a1e;
     transform: translateY(-2px);
 }
 
+/* Wishlist button */
 .wish-btn {
     width: 100%;
     height: 52px;
@@ -262,23 +297,27 @@
     cursor: pointer;
 }
 
+/* Active wishlist button */
 .wish-btn.active {
     background-color: #fff1f2;
     border-color: #fda4af;
     color: #e11d48;
 }
 
+/* Filled heart icon for active wishlist */
 .wish-btn.active .material-symbols-outlined {
     font-variation-settings: 'FILL' 1;
 }
 
-/* Features Strip */
+/* ================= Features Strip ================= */
+/* Feature icons strip below buy actions */
 .features-strip {
     display: flex;
     gap: 40px;
     padding-top: 0 24px;
 }
 
+/* Individual feature item */
 .f-item {
     display: flex;
     align-items: center;
@@ -288,15 +327,18 @@
     color: #64748b;
 }
 
+/* Icon color for feature item */
 .f-item .material-symbols-outlined {
     color: #ff6d2e;
 }
 
-/* Product Extra Info (Tabs) */
+/* ================= Product Extra Info (Tabs) ================= */
+/* Container for extra info tabs */
 .product-extra-info {
     margin-top: 60px;
 }
 
+/* Tabs navigation bar */
 .tabs-nav {
     display: flex;
     gap: 40px;
@@ -304,6 +346,7 @@
     padding: 0 40px;
 }
 
+/* Tab button styles */
 .tabs-nav button {
     background: none;
     border: none;
@@ -316,10 +359,12 @@
     transition: all 0.2s;
 }
 
+/* Active tab button */
 .tabs-nav button.active {
     color: #ff6d2e;
 }
 
+/* Underline for active tab */
 .tabs-nav button.active::after {
     content: '';
     position: absolute;
@@ -330,6 +375,7 @@
     background-color: #ff6d2e;
 }
 
+/* Outer container for tab pane (full width background) */
 .tab-pane-outer {
     background-color: #fdf6e9; /* Light beige from mockup */
     padding: 80px 0;
@@ -341,12 +387,14 @@
     width: 100vw;
 }
 
+/* Inner tab pane content container */
 .tab-pane {
     max-width: 1100px;
     margin: 0 auto;
     padding: 0 40px;
 }
 
+/* Grid for tab pane content */
 .pane-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -354,12 +402,14 @@
     align-items: center;
 }
 
+/* Heading in tab pane */
 .pane-content h2 {
     font-size: 24px;
     font-weight: 800;
     margin-bottom: 16px;
 }
 
+/* List of bullet features */
 .bullet-feats {
     list-style: none;
     padding: 0;
@@ -368,6 +418,7 @@
     gap: 16px;
 }
 
+/* Individual bullet feature item */
 .bullet-feats li {
     display: flex;
     align-items: center;
@@ -376,16 +427,19 @@
     font-weight: 600;
 }
 
+/* Icon for bullet feature */
 .bullet-feats .material-symbols-outlined {
     color: var(--color-primary);
 }
 
+/* Image in tab pane */
 .pane-visual img {
     width: 100%;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
+/* Grid for product specifications */
 .specs-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -393,11 +447,13 @@
     padding: 20px 0;
 }
 
+/* Individual specification item */
 .spec-item {
     border-bottom: 1px solid rgba(255, 109, 46, 0.1);
     padding-bottom: 12px;
 }
 
+/* Spec label */
 .spec-item h5 {
     font-size: 11px;
     color: #94a3b8;
@@ -405,12 +461,14 @@
     margin-bottom: 8px;
 }
 
+/* Spec value */
 .spec-item p {
     font-weight: 700;
     color: #1e293b;
 }
 
-/* Reviews Tab Content Layout */
+/* ================= Reviews Tab Content Layout ================= */
+/* Grid for reviews and add review form */
 .reviews-tab-content {
     display: grid;
     grid-template-columns: 1fr 400px;
@@ -424,12 +482,14 @@
     }
 }
 
+/* List of review cards */
 .reviews-list {
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
 
+/* Individual review card */
 .review-card {
     background: #ffffff;
     padding: 30px;
@@ -439,11 +499,13 @@
     transition: transform 0.2s;
 }
 
+/* Review card hover effect */
 .review-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
+/* Review card header row */
 .r-header {
     display: flex;
     align-items: center;
@@ -451,18 +513,21 @@
     margin-bottom: 12px;
 }
 
+/* Reviewer name */
 .r-user {
     font-weight: 800;
     font-size: 14px;
     color: #1a1a1a;
 }
 
+/* Review date */
 .r-date {
     font-size: 12px;
     color: #94a3b8;
     margin-left: auto;
 }
 
+/* Review text */
 .review-card p {
     color: #475569;
     font-size: 14px;
@@ -470,7 +535,8 @@
     font-style: italic;
 }
 
-/* Add Review Form Section */
+/* ================= Add Review Form Section ================= */
+/* Add review form container */
 .add-review-section {
     background: #ffffff;
     padding: 35px;
@@ -481,6 +547,7 @@
     top: 40px;
 }
 
+/* Add review form heading */
 .add-review-section h3 {
     font-size: 20px;
     font-weight: 800;
@@ -488,17 +555,20 @@
     color: #121212;
 }
 
+/* Login prompt for review form */
 .review-login-prompt {
     text-align: center;
     padding: 20px 0;
 }
 
+/* Login prompt text */
 .review-login-prompt p {
     color: #64748b;
     font-size: 14px;
     margin-bottom: 20px;
 }
 
+/* Login button in review prompt */
 .login-link-btn {
     display: inline-block;
     padding: 12px 24px;
@@ -511,16 +581,19 @@
     transition: background 0.2s;
 }
 
+/* Login button hover effect */
 .login-link-btn:hover {
     background: #333;
 }
 
+/* Review form layout */
 .review-form {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
+/* Review form message (success/error) */
 .review-msg {
     padding: 12px 16px;
     border-radius: 8px;
@@ -528,18 +601,21 @@
     font-weight: 600;
 }
 
+/* Success message style */
 .review-msg.success {
     background-color: #f0fdf4;
     color: #166534;
     border: 1px solid #bbf7d0;
 }
 
+/* Error message style */
 .review-msg.error {
     background-color: #fef2f2;
     color: #991b1b;
     border: 1px solid #fecaca;
 }
 
+/* Labels for rating and comment inputs */
 .rating-input label, 
 .comment-input label {
     display: block;
@@ -551,11 +627,13 @@
     letter-spacing: 0.05em;
 }
 
+/* Star rating input group */
 .star-input-group {
     display: flex;
     gap: 4px;
 }
 
+/* Star button for rating input */
 .star-btn {
     background: none;
     border: none;
@@ -565,19 +643,23 @@
     transition: all 0.2s;
 }
 
+/* Star icon in rating input */
 .star-btn .material-symbols-outlined {
     font-size: 28px;
     font-variation-settings: 'FILL' 0;
 }
 
+/* Active star button */
 .star-btn.active {
     color: #ff6d2e;
 }
 
+/* Filled star icon for active rating */
 .star-btn.active .material-symbols-outlined {
     font-variation-settings: 'FILL' 1;
 }
 
+/* Review comment textarea */
 .comment-input textarea {
     width: 100%;
     border: 1px solid #e2e8f0;
@@ -590,11 +672,13 @@
     outline: none;
 }
 
+/* Focus state for comment textarea */
 .comment-input textarea:focus {
     border-color: #ff6d2e;
     box-shadow: 0 0 0 4px rgba(255, 109, 46, 0.05);
 }
 
+/* Submit review button */
 .submit-review-btn {
     height: 50px;
     background-color: #121212;
@@ -607,16 +691,19 @@
     transition: all 0.2s;
 }
 
+/* Submit button hover effect */
 .submit-review-btn:hover:not(:disabled) {
     background-color: #333;
     transform: translateY(-1px);
 }
 
+/* Disabled state for submit button */
 .submit-review-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
+/* ================= Responsive Styles ================= */
 @media (max-width: 1024px) {
     .product-grid {
         grid-template-columns: 1fr;

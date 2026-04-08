@@ -1,7 +1,8 @@
 /* =========================================
-   Size Chart Page
-   ========================================= */
+  Size Chart Page Styles
+  ========================================= */
 
+/* Main size chart page container */
 .sc-page {
   background-color: #f2f0eb;
   min-height: 100vh;
@@ -9,12 +10,14 @@
   font-family: 'Inter', sans-serif;
 }
 
-/* ---- Hero ---- */
+/* ================= Hero Section ================= */
+/* Hero section with title and subtitle */
 .sc-hero {
   text-align: center;
   padding: 72px 20px 48px;
 }
 
+/* Hero main heading */
 .sc-hero h1 {
   font-size: 42px;
   font-weight: 800;
@@ -23,11 +26,13 @@
   margin-bottom: 16px;
 }
 
+/* Accent color for hero heading */
 .sc-hero-accent {
   color: #e8601e;
   font-style: italic;
 }
 
+/* Hero subtitle text */
 .sc-hero-sub {
   font-size: 15px;
   color: #6b7280;
@@ -36,7 +41,8 @@
   margin: 0 auto;
 }
 
-/* ---- Wrapper ---- */
+/* ================= Wrapper ================= */
+/* Wrapper for main content */
 .sc-wrapper {
   max-width: 680px;
   margin: 0 auto;
@@ -46,7 +52,8 @@
   gap: 32px;
 }
 
-/* ---- Matrix Card ---- */
+/* ================= Matrix Card ================= */
+/* Card for size matrix/table */
 .sc-card {
   background: #ffffff;
   border-radius: 14px;
@@ -54,6 +61,7 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
+/* Header row in matrix card */
 .sc-card-header {
   display: flex;
   align-items: center;
@@ -61,13 +69,15 @@
   margin-bottom: 28px;
 }
 
+/* Title in matrix card */
 .sc-card-title {
   font-size: 18px;
   font-weight: 700;
   color: #1a1a1a;
 }
 
-/* ---- Tabs ---- */
+/* ================= Tabs ================= */
+/* Tabs navigation bar */
 .sc-tabs {
   display: flex;
   background: #f3f4f6;
@@ -76,6 +86,7 @@
   gap: 2px;
 }
 
+/* Individual tab button */
 .sc-tab {
   padding: 6px 18px;
   border-radius: 999px;
@@ -89,22 +100,26 @@
   transition: background 0.2s, color 0.2s;
 }
 
+/* Active tab button */
 .sc-tab--active {
   background: #ffffff;
   color: #1a1a1a;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* ---- Table ---- */
+/* ================= Size Table ================= */
+/* Size chart table */
 .sc-table {
   width: 100%;
   border-collapse: collapse;
 }
 
+/* Table header row */
 .sc-table thead tr {
   border-bottom: 1px solid #e5e7eb;
 }
 
+/* Table header cell */
 .sc-table th {
   text-align: left;
   font-size: 11px;
@@ -114,40 +129,48 @@
   padding: 0 0 12px;
 }
 
+/* Last header cell right-aligned */
 .sc-table th:last-child {
   text-align: right;
 }
 
+/* Table body row */
 .sc-table tbody tr {
   border-bottom: 1px solid #f3f4f6;
   transition: background 0.15s;
 }
 
+/* Remove border from last row */
 .sc-table tbody tr:last-child {
   border-bottom: none;
 }
 
+/* Row hover effect */
 .sc-table tbody tr:hover {
   background: #fafafa;
 }
 
+/* Table cell */
 .sc-table td {
   padding: 16px 0;
   font-size: 15px;
   color: #4b5563;
 }
 
+/* Bold cell for emphasis */
 .sc-td--bold {
   font-weight: 700;
   color: #1a1a1a !important;
 }
 
+/* Right-aligned cell */
 .sc-td--right {
   text-align: right;
   color: #374151 !important;
 }
 
-/* ---- Disclaimer ---- */
+/* ================= Disclaimer ================= */
+/* Disclaimer text below table */
 .sc-disclaimer {
   margin-top: 20px;
   font-size: 10px;
@@ -156,7 +179,8 @@
   text-align: center;
 }
 
-/* ---- CTA Card ---- */
+/* ================= CTA Card ================= */
+/* Call-to-action card */
 .sc-cta {
   background: #1c1008;
   border-radius: 16px;
@@ -165,12 +189,14 @@
   color: #ffffff;
 }
 
+/* CTA heading */
 .sc-cta h2 {
   font-size: 26px;
   font-weight: 800;
   margin-bottom: 12px;
 }
 
+/* CTA description text */
 .sc-cta p {
   font-size: 14px;
   color: #b4a99a;
@@ -179,6 +205,7 @@
   margin: 0 auto 32px;
 }
 
+/* CTA button group */
 .sc-cta-btns {
   display: flex;
   gap: 12px;
@@ -186,7 +213,8 @@
   flex-wrap: wrap;
 }
 
-/* ---- CTA Buttons ---- */
+/* ================= CTA Buttons ================= */
+/* CTA button styles */
 .sc-btn {
   display: inline-block;
   padding: 14px 24px;
@@ -199,23 +227,26 @@
   transition: opacity 0.2s, transform 0.15s;
 }
 
+/* CTA button hover effect */
 .sc-btn:hover {
   opacity: 0.88;
   transform: translateY(-1px);
 }
 
+/* Primary CTA button */
 .sc-btn--primary {
   background: #e8601e;
   color: #ffffff;
 }
 
+/* Outline CTA button */
 .sc-btn--outline {
   background: transparent;
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
-/* ---- Responsive ---- */
+/* ================= Responsive Styles ================= */
 @media (max-width: 600px) {
   .sc-hero h1 {
     font-size: 30px;

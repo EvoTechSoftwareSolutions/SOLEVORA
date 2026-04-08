@@ -1,20 +1,28 @@
+/* =========================
+    Cart Page Main Layout
+========================= */
 .cart-page {
     background-color: #ffffff;
     min-height: 100vh;
     font-family: 'Manrope', sans-serif;
 }
 
+/* Container for cart content */
 .cart-page .container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 40px;
 }
 
+/* =========================
+    Header Section
+========================= */
 /* Header */
 .cart-header {
     padding: 40px 0 20px;
 }
 
+/* Header title */
 .cart-header h2 {
     font-size: 24px;
     font-weight: 800;
@@ -23,6 +31,7 @@
     gap: 12px;
 }
 
+/* Cart icon in header */
 .cart-header .c-icon {
     background-color: #f7f7f7;
     width: 40px;
@@ -33,6 +42,7 @@
     border-radius: 12px;
 }
 
+/* Item count badge */
 .item-count {
     color: #ff6d2e;
     font-size: 14px;

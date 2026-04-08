@@ -1,7 +1,11 @@
 
 
+
+/* Import Manrope font for consistent typography */
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
+
+/* Main page container for order confirmation */
 .oc-page {
   background-color: #fdfdfd; /* Very light background from image */
   min-height: 100vh;
@@ -10,13 +14,15 @@
   color: #1a1a1a;
 }
 
+
+/* Centered container for content */
 .oc-container {
   max-width: 780px;
   margin: 0 auto;
   padding: 0 24px;
 }
 
-/* Mobile responsive */
+/* Responsive adjustments for tablets and mobile */
 @media (max-width: 768px) {
   .oc-page {
     padding: 0;
@@ -36,6 +42,8 @@
 }
 
 /* Success Header */
+
+/* Success header section */
 .oc-header {
   text-align: center;
   margin-bottom: 50px;
@@ -44,6 +52,8 @@
   align-items: center;
 }
 
+
+/* Wrapper for checkmark icon */
 .oc-check-wrapper {
   background: #fff5f0;
   width: 80px;
@@ -55,6 +65,8 @@
   margin-bottom: 24px;
 }
 
+
+/* Checkmark icon styles */
 .oc-check-icon {
   font-size: 48px;
   color: #fff;
@@ -68,6 +80,8 @@
   font-weight: 800;
 }
 
+
+/* Main title for order confirmation */
 .oc-title {
   font-size: 34px;
   font-weight: 800;
@@ -75,6 +89,8 @@
   margin-bottom: 12px;
 }
 
+
+/* Subtitle/description under the title */
 .oc-subtitle {
   font-size: 15px;
   color: #8a7e74;
@@ -82,12 +98,16 @@
   max-width: 400px;
 }
 
+
+/* Order number highlight */
 .oc-order-number {
   font-weight: 700;
   color: #1a1a1a;
 }
 
-/* Order Summary Card */
+/* ================= Order Summary Card ================= */
+
+/* Card for order summary */
 .oc-summary-card {
   background: #fff;
   border-radius: 12px;
@@ -97,6 +117,8 @@
   border: 1px solid #f1f5f9;
 }
 
+
+/* Header of the summary card */
 .oc-card-header {
   padding: 24px 32px;
   display: flex;
@@ -105,12 +127,16 @@
   border-bottom: 1px solid #f8fafc;
 }
 
+
+/* Title in the summary card */
 .oc-card-title {
   font-size: 16px;
   font-weight: 800;
   color: #1a1a1a;
 }
 
+
+/* Item count in the summary card */
 .oc-item-count {
   font-size: 11px;
   font-weight: 700;
@@ -118,10 +144,14 @@
   letter-spacing: 0.1em;
 }
 
+
+/* List of ordered items */
 .oc-items-list {
   padding: 16px 32px;
 }
 
+
+/* Row for each item in the order */
 .oc-item-row {
   display: flex;
   align-items: center;
@@ -130,10 +160,14 @@
   border-bottom: 1px solid #f8fafc;
 }
 
+
+/* Remove border for last item row */
 .oc-item-row:last-child {
   border-bottom: none;
 }
 
+
+/* Visual/image container for item */
 .oc-item-visual {
   width: 68px;
   height: 60px;
@@ -143,16 +177,22 @@
   flex-shrink: 0;
 }
 
+
+/* Item image styles */
 .oc-item-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+
+/* Item details container */
 .oc-item-details {
   flex: 1;
 }
 
+
+/* Item name/title */
 .oc-item-name {
   font-size: 14px;
   font-weight: 800;
@@ -160,18 +200,24 @@
   margin-bottom: 2px;
 }
 
+
+/* Item variant (e.g., size, color) */
 .oc-item-variant {
   font-size: 12px;
   color: #94a3b8;
 }
 
+
+/* Item price */
 .oc-item-price {
   font-size: 15px;
   font-weight: 800;
   color: #1a1a1a;
 }
 
-/* Detailed Breakdown Section */
+/* ================= Detailed Breakdown Section ================= */
+
+/* Section for order breakdown (delivery, totals) */
 .oc-breakdown-section {
   display: flex;
   justify-content: space-between;
@@ -180,6 +226,8 @@
   border-top: 1px solid #f1f5f9;
 }
 
+
+/* Section label (e.g., DELIVERY, TOTAL) */
 .oc-section-label {
   font-size: 10px;
   font-weight: 800;
@@ -188,23 +236,31 @@
   margin-bottom: 12px;
 }
 
+
+/* Delivery info row */
 .oc-delivery-info {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+
+/* Truck icon for delivery info */
 .oc-truck-icon {
   font-size: 20px;
   color: #1a1a1a;
 }
 
+
+/* Delivery date text */
 .oc-date {
   font-size: 14px;
   font-weight: 800;
   color: #1a1a1a;
 }
 
+
+/* Totals section (subtotal, shipping, etc.) */
 .oc-totals {
   min-width: 220px;
   display: flex;
@@ -212,6 +268,8 @@
   gap: 10px;
 }
 
+
+/* Row for each total (subtotal, shipping, etc.) */
 .oc-total-row {
   display: flex;
   justify-content: space-between;
@@ -220,11 +278,15 @@
   font-weight: 600;
 }
 
+
+/* Highlight for green total values (e.g., discount) */
 .oc-total-val-green {
   color: #22c55e;
   font-weight: 700;
 }
 
+
+/* Grand total row */
 .oc-grand-total {
   display: flex;
   justify-content: space-between;
@@ -236,11 +298,15 @@
   color: #1a1a1a;
 }
 
+
+/* Grand total amount highlight */
 .oc-grand-amount {
   color: #ff7033;
 }
 
-/* Card Footer */
+/* ================= Card Footer ================= */
+
+/* Footer of the summary card */
 .oc-card-footer {
   padding: 16px 32px;
   background: #fcfcfc;
@@ -250,28 +316,38 @@
   gap: 10px;
 }
 
+
+/* Info icon in card footer */
 .oc-info-icon {
   font-size: 16px;
   color: #cbd5e1;
 }
 
+
+/* Footer text in card */
 .oc-footer-text {
   font-size: 11px;
   color: #94a3b8;
 }
 
+
+/* Bold text utility */
 .oc-bold {
   color: #64748b;
   font-weight: 700;
 }
 
-/* Bottom Actions */
+/* ================= Bottom Actions ================= */
+
+/* Action buttons at the bottom (track, continue) */
 .oc-actions {
   display: flex;
   justify-content: center;
   gap: 16px;
 }
 
+
+/* Track order button */
 .oc-track-btn {
   background: #ff7033;
   color: #fff;
@@ -285,11 +361,15 @@
   transition: all 0.2s;
 }
 
+
+/* Track order button hover effect */
 .oc-track-btn:hover {
   background: #f86321;
   transform: translateY(-1px);
 }
 
+
+/* Continue shopping button */
 .oc-continue-btn {
   background: #fff;
   color: #64748b;
@@ -302,11 +382,15 @@
   transition: all 0.2s;
 }
 
+
+/* Continue button hover effect */
 .oc-continue-btn:hover {
   background: #f8fafc;
   border-color: #cbd5e1;
 }
 
+
+/* Responsive: Stack breakdown section on small screens */
 @media (max-width: 650px) {
   .oc-breakdown-section {
     flex-direction: column;
@@ -314,32 +398,29 @@
   }
 }
 
-@media (max-width: 320px) {
 
+/* Responsive: Extra small screens */
+@media (max-width: 320px) {
   .oc-container {
     padding: 0 12px;
   }
-
   .oc-items-list {
     padding: 12px 6px;
   }
-
   .oc-item-row {
     flex-direction: column; 
     align-items: flex-start;
     gap: 10px;
     padding: 16px 0;
   }
-
   .oc-item-visual {
     width: 100%;
     height: 120px; 
   }
-
   .oc-item-img {
     object-fit: cover;
   }
-
+}
   .oc-item-details {
     width: 100%;
   }

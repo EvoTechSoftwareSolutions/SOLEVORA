@@ -1,3 +1,4 @@
+/* Success popup notification styles */
 .success-popup {
   position: fixed;
   top: 20px;
@@ -12,6 +13,7 @@
   z-index: 999;
 }
 
+/* Animation for sliding in the success popup */
 @keyframes slideIn {
   from {
     transform: translateX(100%);
@@ -23,11 +25,13 @@
   }
 }
 
+/* Disabled state for send button */
 .send-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
+/* Banner section for contact page */
 .contact-banner {
   position: relative;
   display: flex;
@@ -43,6 +47,7 @@
   );
 }
 
+/* Content inside the contact banner */
 .contact-content {
   position: relative;
   z-index: 2;
@@ -51,6 +56,7 @@
   text-align: center;
 }
 
+/* Decorative Adidas image in banner (hidden on mobile) */
 .contact-banner::before {
   content: "";
   position: absolute;
@@ -66,17 +72,19 @@
   z-index: 1;
 }
 
+/* Main heading in contact banner */
 .contact-content h1 {
   font-size: 50px;
   font-weight: 900;
   color: #FF8C42;
 }
 
+/* Subheading/description in contact banner */
 .contact-content p {
   font-size: 20px;
   color: #555;
 }
-/* Container */
+/* Main container for contact form and info */
 .contact-box {
   display: flex;
   justify-content: center;
@@ -88,6 +96,7 @@
   font-family: Arial, sans-serif;
 }
 
+/* Contact form container styles */
 .contact-form {
   flex: 1; 
   min-width: 260px;
@@ -98,6 +107,7 @@
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
+/* Contact form section heading */
 .contact-form h4 {
   margin-bottom: 20px;
   font-size: 24px;
@@ -105,12 +115,14 @@
   color: #1f1f1f;
 }
 
+/* Row for grouping form fields */
 .form-row {
   display: flex;
   gap: 20px;
   flex-wrap: wrap; 
 }
 
+/* Form group inside a row */
 .form-row .form-group {
   flex: 1;
   max-width: 260px;
@@ -119,18 +131,21 @@
   margin-bottom: 15px;
 }
 
+/* General form group styles */
 .form-group {
   display: flex;
   flex-direction: column;
   margin-bottom: 15px;
 }
 
+/* Label for form fields */
 label {
   margin-bottom: 5px;
   font-weight: 550;
   color: #333;
 }
 
+/* Input, select, and textarea styles in form */
 .contact-form input,
 .contact-form select,
 .contact-form textarea {
@@ -142,6 +157,7 @@ label {
   transition: border 0.3s;
 }
 
+/* Focus state for form fields */
 .contact-form input:focus,
 .contact-form select:focus,
 .contact-form textarea:focus {
@@ -149,11 +165,13 @@ label {
   outline: none;
 }
 
+/* Textarea specific styles */
 .contact-form textarea {
   min-height: 120px;
   resize: vertical;
 }
 
+/* Send button and form button styles */
 .contact-form button,
 .send-btn {
   display: inline-flex;          /* align icon + text */
@@ -171,20 +189,24 @@ label {
   transition: all 0.3s ease;
 }
 
+/* Icon inside send button */
 .send-btn svg {
   font-size: 18px;
 }
 
 
+/* Hover effect for form button */
 .contact-form button:hover {
   background-color: #e36200;
 }
 
+/* Contact information section */
 .contact-info {
   flex: 1;
   min-width: 260px;
 }
 
+/* Grid layout for contact details */
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -192,6 +214,7 @@ label {
   margin-bottom: 30px;
 }
 
+/* Individual contact info card */
 .contact-items {
   display: flex;
   flex-direction: column;
@@ -202,6 +225,7 @@ label {
   align-items: start;
 }
 
+/* Heading for contact info item */
 .contact-items h5 {
   margin: 10px 0 5px;
   font-size: 16px;
@@ -209,24 +233,27 @@ label {
   font-weight: 600;
 }
 
+/* Text for contact info item */
 .contact-items span {
   display: block;
   font-size: 14px;
   margin-bottom: 5px;
   color: #000;
 }
+/* Icon for contact info */
 .contactUs-icon{
   color: #F97316;
   font-weight: 600;
   font-size: 30px;
 }
-/* Social Section */
+/* Social media section */
 
 .social{
   background: rgba(255, 160, 7, 0.2);
   padding: 20px 30px;
   border-radius: 12px;
 }
+/* Social section heading */
 .social h5 {
   margin-bottom: 10px;
   font-size: 20px;
@@ -234,18 +261,21 @@ label {
   color: #1f1f1f;
 }
 
+/* Social section description */
 .social p {
   margin-bottom: 15px;
   font-size: 14px;
   color: #555;
 }
 
+/* Container for social media icons */
 .social-icon-container {
   display: flex;
   gap: 15px;
   font-size: 30px;
   color: #fff;
 }
+/* Individual social media icon styles */
 .social-icon-container span {
   width: 48px;
   height: 48px;
@@ -260,6 +290,7 @@ label {
   background-color: #fff;
   color: #000;
 }
+/* Map container styles */
 .map-container {
   width: 100%;
   height: 250px;
@@ -268,6 +299,7 @@ label {
   margin-bottom: 20px;
 }
 
+/* Embedded map styles */
 .map-container iframe {
   width: 100%;
   height: 100%;
@@ -275,14 +307,14 @@ label {
 
 
 
-/* Desktop / Large Tablet */
+/* Responsive: Desktop / Large Tablet */
 @media (max-width: 1200px) {
   .contact-box {
     padding: 50px 40px;
   }
 }
 
-/* Tablet (Portrait & Landscape) */
+/* Responsive: Tablet (Portrait & Landscape) */
 @media (max-width: 1024px) {
   .contact-banner {
     padding: 40px;
@@ -325,7 +357,7 @@ label {
   }
 }
 
-/* Small Tablet / Large Mobile */
+/* Responsive: Small Tablet / Large Mobile */
 @media (max-width: 768px) {
   .contact-banner {
     padding: 60px 20px;
@@ -363,7 +395,7 @@ label {
   }
 }
 
-/* Small Mobile */
+/* Responsive: Small Mobile */
 @media (max-width: 480px) {
   .contact-content h1 {
     font-size: 32px;
@@ -388,6 +420,7 @@ label {
     text-align: center;
   }
 }
+/* Responsive: Extra small screens (e.g., foldables) */
 @media (max-width: 280px) {
   contact-info {
   flex: 1;
@@ -440,7 +473,7 @@ label {
   height: 30px;
 }
 
-/*form */
+/* Form adjustments for extra small screens */
 
 label {
   font-size: 12px;

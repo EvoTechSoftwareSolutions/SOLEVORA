@@ -1,6 +1,8 @@
+/* Import Manrope font for consistent typography */
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
-/* ── Page ── */
+/* ================= Page Layout ================= */
+/* Main shipping method page container */
 .sm-page {
   background-color: #f5f0ea;
   min-height: 100vh;
@@ -9,13 +11,15 @@
   color: #1a1a1a;
 }
 
+/* Centered container for page content */
 .sm-container {
   max-width: 1080px;
   margin: 0 auto;
   padding: 0 24px;
 }
 
-/* ── Breadcrumb ── */
+/* ================= Breadcrumb Navigation ================= */
+/* Breadcrumb navigation bar */
 .sm-breadcrumb {
   display: flex;
   align-items: center;
@@ -24,6 +28,7 @@
   margin-bottom: 26px;
 }
 
+/* Breadcrumb link styles */
 .sm-breadcrumb a {
   color: #e07b39;
   text-decoration: none;
@@ -31,30 +36,36 @@
   transition: opacity 0.2s;
 }
 
+/* Breadcrumb link hover effect */
 .sm-breadcrumb a:hover { opacity: 0.7; }
 
+/* Breadcrumb separator */
 .sm-bc-sep {
   color: #b0a49a;
   font-size: 12px;
 }
 
+/* Current breadcrumb item */
 .sm-bc-current {
   color: #1a1a1a;
   font-weight: 600;
 }
 
-/* ── Stepper ── */
+/* ================= Stepper Navigation ================= */
+/* Stepper wrapper (centers stepper) */
 .sm-stepper-wrap {
   max-width: 560px;
   margin: 0 auto 36px;
 }
 
+/* Stepper bar container */
 .sm-stepper {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
 }
 
+/* Individual step item */
 .sm-step-item {
   display: flex;
   flex-direction: column;
@@ -63,6 +74,7 @@
   flex-shrink: 0;
 }
 
+/* Step circle (number) */
 .sm-circle {
   width: 38px;
   height: 38px;
@@ -74,32 +86,38 @@
   justify-content: center;
 }
 
+/* Active step circle */
 .sm-circle-active {
   background: #e07b39;
   color: #fff;
   box-shadow: 0 4px 14px rgba(224, 123, 57, 0.35);
 }
 
+/* Completed step circle */
 .sm-circle-completed {
   background: #e07b39;
   color: #fff;
 }
 
+/* Idle (inactive) step circle */
 .sm-circle-idle {
   background: #e8ddd4;
   color: #a89888;
 }
 
+/* Step label below circle */
 .sm-step-lbl {
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
 }
 
+/* Active, completed, and idle step label colors */
 .sm-lbl-active { color: #e07b39; }
 .sm-lbl-completed { color: #e07b39; }
 .sm-lbl-idle   { color: #a89888; font-weight: 500; }
 
+/* Connector line between steps */
 .sm-connector {
   flex: 1;
   height: 3px;
@@ -111,10 +129,12 @@
   overflow: hidden;
 }
 
+/* Filled connector for completed steps */
 .sm-connector-filled {
   background: #e07b39;
 }
 
+/* Step description below stepper */
 .sm-step-desc {
   text-align: center;
   font-size: 13px;
@@ -122,7 +142,8 @@
   margin: 0;
 }
 
-/* ── Grid ── */
+/* ================= Main Grid Layout ================= */
+/* Main grid for methods and summary */
 .sm-grid {
   display: grid;
   grid-template-columns: 1fr 380px;
@@ -130,11 +151,13 @@
   align-items: start;
 }
 
-/* ── Shipping Methods Column ── */
+/* ================= LEFT: Shipping Methods Column ================= */
+/* Left column for shipping methods */
 .sm-methods-col {
   padding-right: 12px;
 }
 
+/* Page title for shipping methods */
 .sm-page-title {
   font-size: 24px;
   font-weight: 800;
@@ -142,6 +165,7 @@
   color: #1a1a1a;
 }
 
+/* List of shipping method cards */
 .sm-methods-list {
   display: flex;
   flex-direction: column;
@@ -149,6 +173,7 @@
   margin-bottom: 32px;
 }
 
+/* Individual shipping method card */
 .sm-method-card {
   background: #fff;
   border: 1.5px solid #ede5de;
@@ -161,17 +186,20 @@
   transition: all 0.2s ease;
 }
 
+/* Hover effect for method card */
 .sm-method-card:hover {
   border-color: #e07b39;
   background: #fffdfb;
 }
 
+/* Active method card styles */
 .sm-method-card.active {
   border-color: #e07b39;
   background: #fffdfb;
   box-shadow: 0 4px 12px rgba(224, 123, 57, 0.08);
 }
 
+/* Main content in method card */
 .sm-method-main {
   display: flex;
   flex-direction: column;
@@ -179,6 +207,7 @@
   gap: 20px;
 }
 
+/* Custom radio button for selection */
 .sm-radio-custom {
   width: 24px;
   height: 24px;
@@ -190,23 +219,27 @@
   transition: all 0.2s;
 }
 
+/* Checked state for custom radio */
 .sm-radio-custom.checked {
   background: #e07b39;
   border-color: #e07b39;
 }
 
+/* Checkmark icon in radio */
 .sm-check {
   color: #fff;
   font-size: 16px !important;
   font-weight: 800;
 }
 
+/* Info section in method card */
 .sm-method-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
+/* Shipping method name */
 .sm-method-name {
   font-size: 16px;
   font-weight: 700;
@@ -214,23 +247,27 @@
   margin: 0;
 }
 
+/* Estimated delivery time */
 .sm-method-time {
   font-size: 14px;
   color: #8a7e74;
   margin: 0;
 }
 
+/* Shipping method price */
 .sm-method-price {
   font-size: 15px;
   font-weight: 700;
   color: #1a1a1a;
 }
 
+/* Highlight price for active method */
 .active .sm-method-price {
   color: #e07b39;
 }
 
-/* Nav Actions */
+/* Navigation actions (back/continue) */
+/* Navigation actions row */
 .sm-nav-actions {
   display: flex;
   justify-content: flex-start;
@@ -238,6 +275,7 @@
   margin-top: 40px;
 }
 
+/* Back link styles */
 .sm-back-link {
   display: flex;
   align-items: center;
@@ -249,14 +287,17 @@
   transition: color 0.2s;
 }
 
+/* Back link hover effect */
 .sm-back-link:hover {
   color: #1a1a1a;
 }
 
+/* Icon in back link */
 .sm-back-link .material-symbols-outlined {
   font-size: 18px;
 }
 
+/* Continue button styles */
 .sm-continue-btn {
   background: #ff7033;
   color: #fff;
@@ -270,15 +311,15 @@
   transition: all 0.3s ease;
 }
 
+/* Continue button hover effect */
 .sm-continue-btn:hover {
   background: #f86321;
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(255, 112, 51, 0.4);
 }
 
-/* ─────────────────────────────
-   RIGHT: Order Summary Card
-───────────────────────────── */
+/* ================= RIGHT: Order Summary Card ================= */
+/* Order summary card container */
 .sm-summary-card {
   background: #fde8cc;
   border-radius: 18px;
@@ -289,6 +330,7 @@
 
 }
 
+/* Order summary title */
 .sm-summary-title {
   font-size: 20px;
   font-weight: 800;
@@ -296,7 +338,8 @@
   margin: 0 0 20px;
 }
 
-/* ── Horizontal scroll item cards ── */
+/* ================= Horizontal Scroll Item Cards ================= */
+/* Scrollable container for item cards */
 .sm-items-scroll {
   display: flex;
   gap: 12px;
@@ -306,8 +349,10 @@
   scrollbar-width: none;
 }
 
+/* Hide scrollbar for item scroll */
 .sm-items-scroll::-webkit-scrollbar { display: none; }
 
+/* Individual item card */
 .sm-item-card {
   background: #fff;
   border-radius: 12px;
@@ -321,6 +366,7 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
+/* Wrapper for item image */
 .sm-item-img-wrap {
   position: relative;
   width: 72px;
@@ -331,6 +377,7 @@
   flex-shrink: 0;
 }
 
+/* Item image styles */
 .sm-item-img {
   width: 100%;
   height: 100%;
@@ -338,6 +385,7 @@
   border-radius: 8px;
 }
 
+/* Quantity badge on item image */
 .sm-qty-badge {
   position: absolute;
   top: -7px;
@@ -356,6 +404,7 @@
   z-index: 1;
 }
 
+/* Item name text */
 .sm-item-name {
   font-size: 13px;
   font-weight: 700;
@@ -364,12 +413,14 @@
   line-height: 1.3;
 }
 
+/* Item variant text */
 .sm-item-variant {
   font-size: 11.5px;
   color: #64748b;
   margin: 0;
 }
 
+/* Footer row in item card (qty, price) */
 .sm-item-footer {
   display: flex;
   align-items: center;
@@ -377,25 +428,29 @@
   margin-top: 4px;
 }
 
+/* Quantity label */
 .sm-item-qty-lbl {
   font-size: 12px;
   color: #64748b;
   font-weight: 500;
 }
 
+/* Item price text */
 .sm-item-price {
   font-size: 17px;
   font-weight: 800;
   color: #1a1a1a;
 }
 
-/* ── Promo ── */
+/* ================= Promo Code Section ================= */
+/* Promo code input row */
 .sm-promo {
   display: flex;
   gap: 8px;
   margin-bottom: 18px;
 }
 
+/* Promo code input field */
 .sm-promo-input {
   flex: 1;
   height: 46px;
@@ -411,13 +466,16 @@
   box-sizing: border-box;
 }
 
+/* Promo input placeholder color */
 .sm-promo-input::placeholder { color: #b0a49a; }
 
+/* Promo input focus state */
 .sm-promo-input:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(224, 123, 57, 0.25);
 }
 
+/* Apply promo button */
 .sm-promo-btn {
   height: 46px;
   padding: 0 22px;
@@ -434,12 +492,14 @@
   box-sizing: border-box;
 }
 
+/* Promo button hover effect */
 .sm-promo-btn:hover {
   background: #334155;
   transform: translateY(-1px);
 }
 
-/* ── Price Breakdown ── */
+/* ================= Price Breakdown Section ================= */
+/* Price breakdown container */
 .sm-totals {
   border-top: 1.5px solid rgba(0,0,0,0.07);
   padding-top: 10px;
@@ -449,6 +509,7 @@
   margin-bottom: 15px;
 }
 
+/* Row for subtotal, shipping, etc. */
 .sm-total-row {
   display: flex;
   justify-content: space-between;
@@ -456,22 +517,26 @@
   font-size: 13.5px;
 }
 
+/* Key/label in price row */
 .sm-total-key {
   color: #4a3f38;
   font-weight: 500;
 }
 
+/* Value/amount in price row */
 .sm-total-val {
   font-weight: 700;
   color: #1a1a1a;
 }
 
+/* Free shipping/discount text */
 .sm-free {
   font-weight: 700;
   color: #22c55e;
 }
 
-/* Bold total row */
+/* Bold total row (final total) */
+/* Final total row */
 .sm-total-final {
   display: flex;
   justify-content: space-between;
@@ -481,19 +546,22 @@
   margin-top: 2px;
 }
 
+/* Final total label */
 .sm-final-label {
   font-size: 18px;
   font-weight: 800;
   color: #1a1a1a;
 }
 
+/* Final total amount */
 .sm-final-amount {
   font-size: 20px;
   font-weight: 800;
   color: #e07b39;
 }
 
-/* ── Place Order button ── */
+/* ================= Place Order Button ================= */
+/* Place order button styles */
 .sm-place-order-btn {
   width: 100%;
   display: flex;
@@ -514,13 +582,15 @@
   margin-bottom: 12px;
 }
 
+/* Place order button hover effect */
 .sm-place-order-btn:hover {
   background: #c96c2a;
   box-shadow: 0 7px 22px rgba(224, 123, 57, 0.4);
   transform: translateY(-2px);
 }
 
-/* Terms */
+/* ================= Terms and Conditions ================= */
+/* Terms and conditions text */
 .sm-terms {
   font-size: 11px;
   color: #9a8e86;
@@ -529,11 +599,13 @@
   margin: 0;
 }
 
+/* Terms link styles */
 .sm-terms a {
   color: #7a6e66;
   text-decoration: underline;
 }
 
+/* ================= Responsive Styles ================= */
 @media (max-width: 1024px) {
   .sm-grid {
     grid-template-columns: 1fr 280px;
@@ -777,7 +849,8 @@
 
 
 
-/*toast message */
+/* ================= Toast Message ================= */
+/* Toast notification message */
 .toast {
   position: fixed;
   bottom: 20px;
@@ -798,7 +871,7 @@
   z-index: 999;
 }
 
-/* Animation */
+/* ================= Toast Animation ================= */
 @keyframes toastSlide {
   from {
     opacity: 0;

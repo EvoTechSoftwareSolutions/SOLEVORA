@@ -1,7 +1,9 @@
 
+/* Import Manrope font for consistent typography */
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
-/* ── Page ── */
+/* ================= Page Layout ================= */
+/* Main shipping information page container */
 .si-page {
   background-color: #f5f0ea;
   min-height: 100vh;
@@ -10,13 +12,15 @@
   color: #1a1a1a;
 }
 
+/* Centered container for page content */
 .si-container {
   max-width: 1080px;
   margin: 0 auto;
   padding: 0 24px;
 }
 
-/* ── Breadcrumb ── */
+/* ================= Breadcrumb Navigation ================= */
+/* Breadcrumb navigation bar */
 .si-breadcrumb {
   display: flex;
   align-items: center;
@@ -25,6 +29,7 @@
   margin-bottom: 20px;
 }
 
+/* Breadcrumb link styles */
 .si-breadcrumb a {
   color: #e07b39;
   text-decoration: none;
@@ -32,30 +37,36 @@
   transition: opacity 0.2s;
 }
 
+/* Breadcrumb link hover effect */
 .si-breadcrumb a:hover { opacity: 0.7; }
 
+/* Breadcrumb separator */
 .si-bc-sep {
   color: #b0a49a;
   font-size: 12px;
 }
 
+/* Current breadcrumb item */
 .si-bc-current {
   color: #1a1a1a;
   font-weight: 600;
 }
 
-/* ── Stepper ── */
+/* ================= Stepper Navigation ================= */
+/* Stepper wrapper (centers stepper) */
 .si-stepper-wrap {
   max-width: 560px;
   margin: 0 auto 24px;
 }
 
+/* Stepper bar container */
 .si-stepper {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
 }
 
+/* Individual step item */
 .si-step-item {
   display: flex;
   flex-direction: column;
@@ -64,6 +75,7 @@
   flex-shrink: 0;
 }
 
+/* Step circle (number) */
 .si-circle {
   width: 38px;
   height: 38px;
@@ -75,26 +87,31 @@
   justify-content: center;
 }
 
+/* Active step circle */
 .si-circle-active {
   background: #e07b39;
   color: #fff;
   box-shadow: 0 4px 14px rgba(224, 123, 57, 0.35);
 }
 
+/* Idle (inactive) step circle */
 .si-circle-idle {
   background: #e8ddd4;
   color: #a89888;
 }
 
+/* Step label below circle */
 .si-step-lbl {
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
 }
 
+/* Active and idle step label colors */
 .si-lbl-active { color: #e07b39; }
 .si-lbl-idle   { color: #a89888; font-weight: 500; }
 
+/* Connector line between steps */
 .si-connector {
   flex: 1;
   height: 3px;
@@ -106,6 +123,7 @@
   overflow: hidden;
 }
 
+/* Filled portion of connector for completed steps */
 .si-connector-fill::after {
   content: '';
   position: absolute;
@@ -116,6 +134,7 @@
   border-radius: 99px;
 }
 
+/* Step description below stepper */
 .si-step-desc {
   text-align: center;
   font-size: 13px;
@@ -123,7 +142,8 @@
   margin: 0;
 }
 
-/* ── Two-column grid ── */
+/* ================= Two-column Grid Layout ================= */
+/* Main grid for form and summary */
 .si-grid {
   display: flex;
   gap: 22px;
@@ -131,9 +151,8 @@
   justify-content: center;
 }
 
-/* ─────────────────────────────
-   LEFT: Shipping Form Card
-───────────────────────────── */
+/* ================= LEFT: Shipping Form Card ================= */
+/* Shipping form card container */
 .si-form-card {
   background: #fff;
   border-radius: 14px;
@@ -142,6 +161,7 @@
   width: 100%;
 }
 
+/* Form heading row (icon + title) */
 .si-form-heading {
   display: flex;
   align-items: center;
@@ -149,11 +169,13 @@
   margin-bottom: 24px;
 }
 
+/* Truck icon in heading */
 .si-truck-icon {
   font-size: 20px;
   line-height: 1;
 }
 
+/* Form title text */
 .si-form-title {
   font-size: 16px;
   font-weight: 700;
@@ -161,25 +183,29 @@
   margin: 0;
 }
 
-/* Form internals */
+/* Form internals (fields, rows) */
+/* Shipping form layout */
 .si-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
+/* Two-column row for fields */
 .si-row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
+/* Individual form field */
 .si-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
+/* Field label */
 .si-label {
   font-size: 12.5px;
   font-weight: 600;
@@ -187,6 +213,7 @@
   letter-spacing: 0.01em;
 }
 
+/* Input field styles */
 .si-input {
   width: 100%;
   height: 42px;
@@ -201,8 +228,10 @@
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
+/* Input placeholder color */
 .si-input::placeholder { color: #c2b5ab; }
 
+/* Input focus state */
 .si-input:focus {
   outline: none;
   border-color: #e07b39;
@@ -210,13 +239,15 @@
   box-shadow: 0 0 0 3px rgba(224, 123, 57, 0.12);
 }
 
-/* Continue to Shipping Method Button */
+/* ================= Continue to Shipping Method Button ================= */
+/* Container for continue button */
 .si-continue-btn-container {
   display: flex;
   justify-content: center;
   margin-top: 24px;
 }
 
+/* Continue button styles */
 .si-form-continue-btn {
   background: #ff7033;
   color: #fff;
@@ -234,19 +265,20 @@
   font-family: inherit;
 }
 
+/* Continue button hover effect */
 .si-form-continue-btn:hover {
   background: #f86321;
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(255, 112, 51, 0.45);
 }
 
+/* Icon in continue button */
 .si-form-continue-btn .material-symbols-outlined {
   font-size: 20px;
 }
 
-/* ─────────────────────────────
-   RIGHT: Order Summary Card
-───────────────────────────── */
+/* ================= RIGHT: Order Summary Card ================= */
+/* Order summary card container */
 .si-summary-card {
   background: #fde8cc;
   border-radius: 16px;
@@ -256,6 +288,7 @@
   max-width: 380px;
 }
 
+/* Order summary title */
 .si-summary-title {
   font-size: 18px;
   font-weight: 800;
@@ -263,7 +296,8 @@
   margin: 0 0 16px;
 }
 
-/* ── Horizontal scroll item cards ── */
+/* ================= Horizontal Scroll Item Cards ================= */
+/* Scrollable container for item cards */
 .si-items-scroll {
   display: flex;
   gap: 12px;
@@ -273,8 +307,10 @@
   scrollbar-width: none;
 }
 
+/* Hide scrollbar for item scroll */
 .si-items-scroll::-webkit-scrollbar { display: none; }
 
+/* Individual item card */
 .si-item-card {
   background: #fff;
   border-radius: 10px;
@@ -288,6 +324,7 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
+/* Wrapper for item image */
 .si-item-img-wrap {
   position: relative;
   width: 64px;
@@ -298,6 +335,7 @@
   flex-shrink: 0;
 }
 
+/* Item image styles */
 .si-item-img {
   width: 100%;
   height: 100%;
@@ -305,6 +343,7 @@
   border-radius: 8px;
 }
 
+/* Quantity badge on item image */
 .si-qty-badge {
   position: absolute;
   top: -7px;
@@ -323,6 +362,7 @@
   z-index: 1;
 }
 
+/* Item name text */
 .si-item-name {
   font-size: 12px;
   font-weight: 700;
@@ -331,12 +371,14 @@
   line-height: 1.3;
 }
 
+/* Item variant text */
 .si-item-variant {
   font-size: 11.5px;
   color: #64748b;
   margin: 0;
 }
 
+/* Footer row in item card (qty, price) */
 .si-item-footer {
   display: flex;
   align-items: center;
@@ -344,25 +386,29 @@
   margin-top: 4px;
 }
 
+/* Quantity label */
 .si-item-qty-lbl {
   font-size: 12px;
   color: #64748b;
   font-weight: 500;
 }
 
+/* Item price text */
 .si-item-price {
   font-size: 15px;
   font-weight: 800;
   color: #1a1a1a;
 }
 
-/* ── Promo ── */
+/* ================= Promo Code Section ================= */
+/* Promo code input row */
 .si-promo {
   display: flex;
   gap: 8px;
   margin-bottom: 18px;
 }
 
+/* Promo code input field */
 .si-promo-input {
   flex: 1;
   height: 46px;
@@ -378,13 +424,16 @@
   box-sizing: border-box;
 }
 
+/* Promo input placeholder color */
 .si-promo-input::placeholder { color: #b0a49a; }
 
+/* Promo input focus state */
 .si-promo-input:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(224, 123, 57, 0.25);
 }
 
+/* Apply promo button */
 .si-promo-btn {
   height: 46px;
   padding: 0 22px;
@@ -401,12 +450,14 @@
   box-sizing: border-box;
 }
 
+/* Promo button hover effect */
 .si-promo-btn:hover {
   background: #334155;
   transform: translateY(-1px);
 }
 
-/* ── Price Breakdown ── */
+/* ================= Price Breakdown Section ================= */
+/* Price breakdown container */
 .si-totals {
   border-top: 1px solid rgba(0,0,0,0.06);
   padding-top: 8px;
@@ -416,6 +467,7 @@
   margin-bottom: 14px;
 }
 
+/* Row for subtotal, shipping, etc. */
 .si-total-row {
   display: flex;
   justify-content: space-between;
@@ -423,22 +475,26 @@
   font-size: 13.5px;
 }
 
+/* Key/label in price row */
 .si-total-key {
   color: #4a3f38;
   font-weight: 500;
 }
 
+/* Value/amount in price row */
 .si-total-val {
   font-weight: 700;
   color: #1a1a1a;
 }
 
+/* Free shipping/discount text */
 .si-free {
   font-weight: 700;
   color: #22c55e;
 }
 
-/* Bold total row */
+/* Bold total row (final total) */
+/* Final total row */
 .si-total-final {
   display: flex;
   justify-content: space-between;
@@ -448,19 +504,22 @@
   margin-top: 2px;
 }
 
+/* Final total label */
 .si-final-label {
   font-size: 16px;
   font-weight: 800;
   color: #1a1a1a;
 }
 
+/* Final total amount */
 .si-final-amount {
   font-size: 18px;
   font-weight: 800;
   color: #e07b39;
 }
 
-/* ── Place Order button ── */
+/* ================= Place Order Button ================= */
+/* Place order button styles */
 .si-place-order-btn {
   width: 100%;
   display: flex;
@@ -481,19 +540,23 @@
   margin-bottom: 10px;
 }
 
+/* Place order button hover effect */
 .si-place-order-btn:hover {
   background: #c96c2a;
   box-shadow: 0 7px 22px rgba(224, 123, 57, 0.4);
   transform: translateY(-2px);
 }
 
+/* Place order button active state */
 .si-place-order-btn:active { transform: scale(0.98); }
 
+/* Icon in place order button */
 .si-place-order-btn .material-symbols-outlined {
   font-size: 19px;
 }
 
-/* ── Terms ── */
+/* ================= Terms and Conditions ================= */
+/* Terms and conditions text */
 .si-terms {
   font-size: 11px;
   color: #9a8e86;
@@ -502,15 +565,17 @@
   margin: 0;
 }
 
+/* Terms link styles */
 .si-terms a {
   color: #7a6e66;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
+/* Terms link hover effect */
 .si-terms a:hover { color: #e07b39; }
 
-/* ── Responsive ── */
+/* ================= Responsive Styles ================= */
 @media (max-width: 1024px) {
   .si-grid {
     grid-template-columns: 1fr 280px;
