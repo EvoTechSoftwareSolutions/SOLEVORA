@@ -122,16 +122,32 @@ function CategoryPage() {
 
   const [products, setProducts] = useState([]);
 
+  // Manual gender map based on current database products
+  const productGenderMap = {
+    1: "Men",     // SoleRunner V1
+    2: "Kids",    // Urban Glide
+    3: "Men",     // Hoop Master 3000
+    4: "Men",     // Speed Demon
+    5: "Women",   // City Walker
+    6: "Men",     // Court King
+    7: "Men",     // Marathon Elite
+    8: "Kids",    // Street Style
+    9: "Kids",    // Jump Force
+    10: "Men",    // Explorer Combat
+    11: "Women",  // Peep Toe Sandals
+  };
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const { data } = await axios.get("http://localhost:5000/api/products");
         const bgColors = [
-          "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]", 
-          "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]", 
+          "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]",
+          "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]",
           "bg-[#dfdfdf]", "bg-[#efe8e0]", "bg-[#dcd0c2]", "bg-[#ffb0b0]"
         ];
         const fallbackImages = [product1, product2, product3, product4, product5, product6, product7, product8, product9];
+
         const formatted = data.map((p, index) => ({
           id: p.id,
           category: p.category?.name || "Uncategorized",
@@ -139,8 +155,11 @@ function CategoryPage() {
           price: parseFloat(p.price) || 0,
           image: p.image_url || fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
-          gender: "All", 
-          sizes: ["6", "7", "8", "9", "10"],
+          gender: productGenderMap[p.id] || "Men",
+          sizes:
+            productGenderMap[p.id] === "Kids"
+              ? ["1", "2", "3", "4", "5"]
+              : ["6", "7", "8", "9", "10"],
           featured: p.isFeatured || false,
           badge: index === 0 ? "New" : "",
           colors: ["#333333", "#e5e7eb", "#ff6b3d"]
@@ -188,7 +207,11 @@ function CategoryPage() {
     return filtered;
   }, [products, selectedGender, selectedSize, selectedPrice, sortBy]);
 
-  const sizes = ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"];
+  const sizes =
+    selectedGender === "Kids"
+      ? ["1", "2", "3", "4", "5"]
+      : ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"];
+
   const priceRanges = ["All", "$0-$50", "$50-$100", "$100-$150", "$150+"];
 
   return (
@@ -305,7 +328,10 @@ function CategoryPage() {
                 {["All", "Men", "Women", "Kids"].map((gender) => (
                   <button
                     key={gender}
-                    onClick={() => setSelectedGender(gender)}
+                    onClick={() => {
+                      setSelectedGender(gender);
+                      setSelectedSize("");
+                    }}
                     className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${
                       selectedGender === gender
                         ? "bg-[#d57731] text-white"
@@ -396,11 +422,11 @@ function CategoryPage() {
                   <p className="text-[#ff5c45] text-[10px] font-bold uppercase tracking-wider mb-1">
                     {product.category}
                   </p>
-                  
+
                   <h3 className="text-[17px] font-semibold text-[#222] truncate">
                     {product.name}
                   </h3>
-                  
+
                   <p className="mt-1 text-[20px] font-bold text-[#111]">
                     ${product.price.toFixed(2)}
                   </p>
