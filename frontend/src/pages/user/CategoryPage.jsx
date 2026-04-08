@@ -155,17 +155,13 @@ function CategoryPage() {
           price: parseFloat(p.price) || 0,
           image: p.image_url || fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
-          gender: p.gender || "All", 
-          sizes: (typeof p.sizes === 'string' ? JSON.parse(p.sizes) : p.sizes) || ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"],
-          size_range: p.size_range || "",
-          gender: productGenderMap[p.id] || "Men",
-          sizes:
-            productGenderMap[p.id] === "Kids"
-              ? ["1", "2", "3", "4", "5"]
-              : ["6", "7", "8", "9", "10"],
+          gender:
+            p.gender ||
+            (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
+          sizes: ["6", "7", "7.5", "8", "9", "10"],
           featured: p.isFeatured || false,
           badge: index === 0 ? "New" : "",
-          colors: ["#333333", "#e5e7eb", "#ff6b3d"]
+          colors: ["#333333", "#e5e7eb", "#ff6b3d"],
         }));
 
         setProducts(formatted);
@@ -401,7 +397,9 @@ function CategoryPage() {
                 className="bg-[#f2f2f2] rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-md transition duration-300"
               >
                 {/* Top Image Box */}
-                <div className={`relative w-full aspect-square ${product.bg} flex items-center justify-center p-6`}>
+                <div
+                  className={`relative w-full aspect-square ${product.bg} flex items-center justify-center p-6`}
+                >
                   {product.badge && (
                     <span className="absolute top-4 left-4 bg-[#ff6b3d] text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
                       {product.badge}
@@ -411,12 +409,16 @@ function CategoryPage() {
                   <button
                     onClick={() => handleWishlistToggle(product)}
                     className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${
-                      isInWishlist(product.id) ? "text-red-500" : "text-[#888] hover:text-red-500 hover:bg-white"
+                      isInWishlist(product.id)
+                        ? "text-red-500"
+                        : "text-[#888] hover:text-red-500 hover:bg-white"
                     }`}
                   >
-                    {isInWishlist(product.id)
-                      ? <HiHeart size={18} />
-                      : <HiOutlineHeart size={18} />}
+                    {isInWishlist(product.id) ? (
+                      <HiHeart size={18} />
+                    ) : (
+                      <HiOutlineHeart size={18} />
+                    )}
                   </button>
 
                   <img
@@ -461,8 +463,12 @@ function CategoryPage() {
 
             {displayedProducts.length === 0 && (
               <div className="text-center col-span-full py-14">
-                <h3 className="text-2xl font-semibold text-[#333]">No products found</h3>
-                <p className="text-[#666] mt-2">Try changing the filter options.</p>
+                <h3 className="text-2xl font-semibold text-[#333]">
+                  No products found
+                </h3>
+                <p className="text-[#666] mt-2">
+                  Try changing the filter options.
+                </p>
               </div>
             )}
           </div>
@@ -502,8 +508,6 @@ function CategoryPage() {
           </div>
         </div>
       </section>
-
-
     </div>
   );
 }
