@@ -1,8 +1,21 @@
 import express from 'express';
 import User from '../models/User.js';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+import sequelize from '../config/db.js';
+import { QueryTypes } from 'sequelize';
 
 const router = express.Router();
+
+// Gmail transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'prasadkumarasinghe725@gmail.com',
+        pass: 'cagjsncvfzgyejcm',
+    },
+});
 
 // Register Route
 router.post('/register', async (req, res) => {
@@ -75,7 +88,6 @@ router.post('/login', async (req, res) => {
                 postalCode: user.postalCode || '',
                 country: user.country || '',
                 newsletter: user.newsletter,
-
                 pushNotifications: user.pushNotifications,
                 usageReports: user.usageReports
             }
@@ -124,7 +136,6 @@ router.post('/admin-login', async (req, res) => {
                 postalCode: user.postalCode || '',
                 country: user.country || '',
                 lastLogin: user.lastLogin
-
             }
         });
     } catch (error) {
@@ -132,7 +143,6 @@ router.post('/admin-login', async (req, res) => {
         res.status(500).json({ message: "Admin login failed" });
     }
 });
-
 
 // Get User Profile
 router.get('/user/:id', async (req, res) => {
@@ -152,7 +162,6 @@ router.get('/user/:id', async (req, res) => {
             postalCode: user.postalCode || '',
             country: user.country || '',
             newsletter: user.newsletter,
-
             pushNotifications: user.pushNotifications,
             usageReports: user.usageReports
         });
@@ -234,8 +243,6 @@ router.put('/user/:id', async (req, res) => {
     }
 });
 
-
-
 // Update Password
 router.put('/user/:id/password', async (req, res) => {
     try {
@@ -260,7 +267,6 @@ router.put('/user/:id/password', async (req, res) => {
     }
 });
 
-
 // Delete Account
 router.delete('/user/:id', async (req, res) => {
     try {
@@ -270,6 +276,132 @@ router.delete('/user/:id', async (req, res) => {
         res.json({ message: "Account deleted" });
     } catch (error) {
         res.status(500).json({ message: "Deletion failed" });
+    }
+});
+
+// Forgot password
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ where: { email } });
+
+        if (!user) {
+            return res.status(404).json({ message: 'Email not found' });
+        }
+
+        const rawToken = crypto.randomBytes(32).toString('hex');
+        const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+        await sequelize.query(
+            'DELETE FROM password_resets WHERE user_id = ?',
+            {
+                replacements: [user.id],
+                type: QueryTypes.DELETE
+            }
+        );
+
+        await sequelize.query(
+            'INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, ?)',
+            {
+                replacements: [user.id, tokenHash, expiresAt],
+                type: QueryTypes.INSERT
+            }
+        );
+
+        const resetLink = `http://localhost:5173/reset-password/${rawToken}`;
+
+        await transporter.sendMail({
+            from: 'prasadkumarasinghe725@gmail.com',
+            to: email,
+            subject: 'Password Reset Link',
+            html: `
+                <h2>Password Reset</h2>
+                <p>Click below to reset your password:</p>
+                <a href="${resetLink}" style="display:inline-block;padding:12px 20px;background:#f97316;color:white;text-decoration:none;border-radius:8px;">
+                    Reset Password
+                </a>
+                <p>This link expires in 15 minutes.</p>
+            `,
+        });
+
+        res.json({ message: 'Reset link sent to your email' });
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ message: 'Email sending failed' });
+    }
+});
+
+// Verify reset token
+router.get('/verify-reset-token/:token', async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+        const result = await sequelize.query(
+            'SELECT * FROM password_resets WHERE token_hash = ? AND expires_at > NOW()',
+            {
+                replacements: [tokenHash],
+                type: QueryTypes.SELECT
+            }
+        );
+
+        if (result.length === 0) {
+            return res.status(400).json({ message: 'Invalid or expired token' });
+        }
+
+        res.json({ message: 'Token valid' });
+    } catch (error) {
+        console.error('Verify token error:', error);
+        res.status(500).json({ message: 'Token verification failed' });
+    }
+});
+
+// Reset password
+router.post('/reset-password/:token', async (req, res) => {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    try {
+        const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+        const result = await sequelize.query(
+            'SELECT * FROM password_resets WHERE token_hash = ? AND expires_at > NOW()',
+            {
+                replacements: [tokenHash],
+                type: QueryTypes.SELECT
+            }
+        );
+
+        if (result.length === 0) {
+            return res.status(400).json({ message: 'Invalid or expired token' });
+        }
+
+        const resetRow = result[0];
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await sequelize.query(
+            'UPDATE users SET password = ? WHERE id = ?',
+            {
+                replacements: [hashedPassword, resetRow.user_id],
+                type: QueryTypes.UPDATE
+            }
+        );
+
+        await sequelize.query(
+            'DELETE FROM password_resets WHERE user_id = ?',
+            {
+                replacements: [resetRow.user_id],
+                type: QueryTypes.DELETE
+            }
+        );
+
+        res.json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({ message: 'Reset failed' });
     }
 });
 
