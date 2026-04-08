@@ -20,17 +20,17 @@ function ResetPassword() {
       </div>
     );
   }
-
+  // password validation checks
   const hasMinLength = newPassword.length >= 8;
   const hasSpecialAndNumber =
     /[0-9]/.test(newPassword) && /[^A-Za-z0-9]/.test(newPassword);
-
+// reset password function
   const handleResetPassword = async () => {
     if (!newPassword || !confirmPassword) {
       setMessage("Please fill all fields");
       return;
     }
-
+// basic validation
     if (newPassword !== confirmPassword) {
       setMessage("Passwords do not match");
       return;
@@ -101,7 +101,7 @@ function ResetPassword() {
             to ensure maximum security.
           </p>
 
-
+            {/* form */}
             <form
               className="space-y-8 mt-14"
               onSubmit={(e) => {
@@ -168,7 +168,7 @@ function ResetPassword() {
                   </div>
                 </div>
               </div>
-
+            {/* submit */}
               <button
                 type="submit"
                 className="w-full h-16 rounded-full bg-orange-500 text-white text-2xl font-semibold hover:bg-orange-600 transition shadow-[0_10px_20px_rgba(255,102,0,0.15)]"
