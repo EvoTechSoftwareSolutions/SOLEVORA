@@ -3,9 +3,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/user/VerificationCode.css';
 
 const VerificationCode = () => {
+  // navigation
   const navigate = useNavigate();
   const location = useLocation();
+  // store 6-digit code
   const [code, setCode] = useState(['', '', '', '', '', '']);
+  // resend timer
   const [timer, setTimer] = useState(30);
 
   useEffect(() => {
@@ -14,7 +17,7 @@ const VerificationCode = () => {
       return () => clearInterval(interval);
     }
   }, [timer]);
-
+// handle typing in input boxes
   const handleInputChange = (e, index) => {
     const value = e.target.value;
     if (value.length <= 1) {
@@ -29,14 +32,14 @@ const VerificationCode = () => {
       }
     }
   };
-
+// handle backspace navigation
   const handleKeyDown = (e, index) => {
     if (e.key === 'Backspace' && code[index] === '' && index > 0) {
       const prevInput = document.getElementById(`code-input-${index - 1}`);
       if (prevInput) prevInput.focus();
     }
   };
-
+// verify code
   const handleVerify = () => {
     const fullCode = code.join('');
     if (fullCode.length === 6) {
@@ -45,7 +48,7 @@ const VerificationCode = () => {
       alert('Please enter all 6 digits.');
     }
   };
-
+// format timer (mm:ss)
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
