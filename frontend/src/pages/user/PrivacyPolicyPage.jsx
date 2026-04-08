@@ -1,3 +1,6 @@
+// PrivacyPolicyPage Component - Displays privacy policy and terms & conditions
+// Provides comprehensive information about data collection, usage, and user rights
+// Features card-based layout with icons and detailed explanations for each policy point
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
@@ -19,11 +22,12 @@ import {
 
 import '../../styles/user/Legal.css';
 
-// Assets
+// Hero section images for visual appeal
 import privacyHeroImg from '../../assets/privacy/privacy-hero.png';
 import termsHeroImg from '../../assets/privacy/terms-hero.png';
 
 function PrivacyPolicyPage() {
+  // Privacy policy card data structure - each card represents a key privacy aspect
   const privacyCards = [
     {
       id: '01',
@@ -69,6 +73,7 @@ function PrivacyPolicyPage() {
     }
   ];
 
+  // Terms & conditions card data structure - each card represents a key policy aspect
   const termsCards = [
     {
       id: '01',
@@ -121,27 +126,30 @@ function PrivacyPolicyPage() {
     }
   ];
 
+  // Main component render
   return (
     <div className="legal-page-container bg-[#f7f7f7]">
-      {/* Privacy Hero */}
+      {/* Privacy Policy Hero Section */}
       <section className="legal-hero privacy">
-        {/* Back Button Overlay */}
+        {/* Brand navigation button */}
         <div className="absolute top-8 left-8 sm:left-12 lg:left-16 z-20">
           <Link to="/home" className="flex items-center gap-2 px-5 py-2.5 rounded shadow-lg bg-[#ef8a3a] text-white text-sm font-bold hover:bg-[#db7c31] transition-all tracking-wider">
             SOLE VORA
           </Link>
         </div>
 
+        {/* Hero shoe image for visual appeal */}
         <div className="hero-shoe">
            <img src={privacyHeroImg} alt="Privacy Sneakers" />
         </div>
 
+        {/* Hero title */}
         <h1 className="hero-title relative z-10">
           Privacy<br /><b>Policy</b>
         </h1>
       </section>
 
-      {/* Privacy Intro */}
+      {/* Privacy Policy Introduction */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 py-12">
         <p className="max-w-4xl text-[#404040] text-sm sm:text-base leading-8 opacity-80 text-center mx-auto">
           At Solevora, we believe that luxury extends beyond the physical product—it encompasses 
@@ -150,10 +158,11 @@ function PrivacyPolicyPage() {
         </p>
       </section>
 
-      {/* Privacy Cards List */}
+      {/* Privacy Policy Cards Display */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 pb-16 space-y-6">
         {privacyCards.map((card) => (
           <div key={card.id} className="legal-card flex flex-col md:flex-row shadow-sm">
+            {/* Card sidebar with number and icon */}
             <div className="card-sidebar">
               <span className="card-number">{card.id}</span>
               <div className="card-tag-wrapper">
@@ -161,6 +170,7 @@ function PrivacyPolicyPage() {
                 <h3 className="card-tag-text">{card.title}</h3>
               </div>
             </div>
+            {/* Card main content with detailed text */}
             <div className="card-main-content">
               <p>{card.text1}</p>
               <p className="mt-4">{card.text2}</p>
@@ -169,17 +179,19 @@ function PrivacyPolicyPage() {
         ))}
       </section>
 
-      {/* Terms Hero */}
+      {/* Terms & Conditions Hero Section */}
       <section className="legal-hero terms">
+        {/* Hero shoe image with rotation effect */}
         <div className="hero-shoe rotate-[-15deg] top-[45%] left-[50%]">
            <img src={termsHeroImg} alt="Terms Sneakers" />
         </div>
+        {/* Hero title */}
         <h2 className="hero-title relative z-10">
           Terms &<br /><b>Conditions</b>
         </h2>
       </section>
 
-      {/* Terms Intro */}
+      {/* Terms & Conditions Introduction */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 py-12">
         <p className="max-w-4xl text-[#404040] text-sm sm:text-base leading-8 opacity-80 text-center mx-auto">
           Welcome to Solevora. These terms govern your use of our platform and the purchase 
@@ -188,10 +200,11 @@ function PrivacyPolicyPage() {
         </p>
       </section>
 
-      {/* Terms Cards List */}
+      {/* Terms & Conditions Cards Display */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 pb-24 space-y-6">
         {termsCards.map((card) => (
           <div key={card.id} className="legal-card flex flex-col md:flex-row shadow-sm">
+            {/* Card sidebar with number and icon */}
             <div className="card-sidebar">
               <span className="card-number">{card.id}</span>
               <div className="card-tag-wrapper">
@@ -199,6 +212,7 @@ function PrivacyPolicyPage() {
                 <h3 className="card-tag-text">{card.title}</h3>
               </div>
             </div>
+            {/* Card main content with detailed text */}
             <div className="card-main-content">
               <p>{card.text1}</p>
               <p className="mt-4">{card.text2}</p>
@@ -210,4 +224,4 @@ function PrivacyPolicyPage() {
   );
 }
 
-export default PrivacyPolicyPage;
+export default PrivacyPolicyPage; // Export PrivacyPolicyPage component

@@ -1,3 +1,4 @@
+// Importing necessary libraries, components, and styles
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
@@ -10,28 +11,35 @@ const Cart = () => {
   const navigate = useNavigate();
   const { cart, selectedCartTotal, removeFromCart, updateQuantity, toggleItemSelection, toggleAllSelection, lockCheckoutSubtotal } = useCart();
 
+  // Recommended products to display in the cart page
   const recommendedProducts = [
     { id: 101, name: 'Air Max 90', brand: 'Nike', price: 130, image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop' },
     { id: 102, name: 'UltraBoost 23', brand: 'Adidas', price: 180, image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=400&fit=crop' },
     { id: 103, name: '550 Vintage', brand: 'New Balance', price: 180, image: 'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&h=400&fit=crop' }
   ];
 
+  // Filter selected items from the cart
   const selectedItems = cart.filter((item) => item.selected !== false);
   const selectedSubtotal = selectedCartTotal;
 
+  // Calculate shipping cost and total
   const shipping = selectedItems.length ? 15.0 : 0.0;
   const total = selectedSubtotal + shipping;
 
+  // Check if all items are selected
   const allSelected = cart.length > 0 && selectedItems.length === cart.length;
 
+  // Handle selecting or deselecting all items
   const handleToggleAll = (e) => {
     toggleAllSelection(e.target.checked);
   };
 
+  // Handle selecting or deselecting a single item
   const handleToggleItem = (item) => {
     toggleItemSelection(item.id, item.size);
   };
 
+  // Display message if the cart is empty
   if (cart.length === 0) {
     return (
         <div className="cart-page">

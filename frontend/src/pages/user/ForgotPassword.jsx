@@ -1,3 +1,4 @@
+// Importing necessary libraries, components, and styles
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -8,9 +9,11 @@ import "../../styles/Auth.css";
 function ForgotPassword() {
   const navigate = useNavigate();
 
+  // State to manage the email input and feedback message
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
+  // Function to handle the forgot password form submission
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     
@@ -20,16 +23,19 @@ function ForgotPassword() {
     }
 
     try {
+      // Sending the email to the backend API for password reset
       const res = await axios.post("http://localhost:5000/forgot-password", {
         email,
       });
 
       setMessage(res.data.message);
 
+      // Redirecting to the check email page after a short delay
       setTimeout(() => {
         navigate("/check-email");
       }, 1000);
     } catch (error) {
+      // Handling errors and displaying appropriate messages
       if (error.response && error.response.data.message) {
         setMessage(error.response.data.message);
       } else {
@@ -40,7 +46,7 @@ function ForgotPassword() {
 
   return (
     <div className="auth-container">
-      {/* Left Side */}
+      {/* Left Side - Image and Overlay Section */}
       <div className="auth-left-panel">
         <img
           src={forgotImage}
@@ -62,7 +68,7 @@ function ForgotPassword() {
         </div>
       </div>
 
-      {/* Right Side */}
+      {/* Right Side - Forgot Password Form Section */}
       <div className="auth-right-panel">
         <div className="auth-form-wrapper">
           <h2 className="auth-title">Forgot your password?</h2>
@@ -72,6 +78,7 @@ function ForgotPassword() {
           </p>
 
           <form onSubmit={handleForgotPassword}>
+            {/* Email Input Field */}
             <div className="auth-form-group">
               <label className="auth-label">Email Address</label>
               <div className="auth-input-wrapper">
@@ -87,6 +94,7 @@ function ForgotPassword() {
               </div>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               className="auth-submit-btn"
@@ -94,6 +102,7 @@ function ForgotPassword() {
               Send Reset Link →
             </button>
 
+            {/* Feedback Message */}
             {message && (
               <p className={message.toLowerCase().includes("wrong") || message.toLowerCase().includes("error") ? "auth-error" : "text-sm text-center text-blue-600 mt-4"}>
                 {message}
@@ -101,10 +110,12 @@ function ForgotPassword() {
             )}
           </form>
 
+          {/* Link to Return to Login */}
           <Link to="/" className="auth-link-back">
             ← Return to Login
           </Link>
           
+          {/* Support Contact Information */}
           <div style={{marginTop: "3rem", textAlign: "center"}}>
             <p style={{fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "#94a3b8", fontWeight: "600"}}>
               Need Help? <span style={{color: "#f97316", cursor: "pointer"}}>Contact Support</span>
@@ -116,4 +127,4 @@ function ForgotPassword() {
   );
 }
 
-export default ForgotPassword;
+export default ForgotPassword;

@@ -1,3 +1,4 @@
+// Importing necessary libraries and styles
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/user/OrderConfirmation.css';
@@ -7,7 +8,7 @@ const OrderConfirmation = () => {
   const location = useLocation();
   const { orderId, items, paymentMethod } = location.state || {};
 
-  // Compute dynamic estimated delivery (5-7 business days from now)
+  // Function to compute the estimated delivery date range (5-7 business days from now)
   const getDeliveryEstimate = () => {
     const now = new Date();
     const start = new Date(now);
@@ -18,6 +19,7 @@ const OrderConfirmation = () => {
     return `${fmt(start)} – ${fmt(end)}`;
   };
 
+  // If no order data is available, display a fallback message
   if (!orderId) {
     return (
       <div className="oc-page" style={{ textAlign: 'center', padding: '100px' }}>
@@ -29,12 +31,15 @@ const OrderConfirmation = () => {
     );
   }
 
+  // Extracting ordered items and calculating totals
   const orderedItems = items || [];
   const subtotal = orderedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const total = subtotal;
 
+  // Check if the payment method is Cash on Delivery (COD)
   const isCOD = paymentMethod === 'cod';
 
+  // Retrieve user information from local storage
   const user = (() => {
     try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
   })();
@@ -43,7 +48,7 @@ const OrderConfirmation = () => {
     <div className="oc-page">
       <div className="oc-container">
 
-        {/* Success Header */}
+        {/* Success Header Section */}
         <div className="oc-header">
           <div className="oc-check-circle">
             <span className="material-symbols-outlined oc-check-icon">
@@ -57,7 +62,7 @@ const OrderConfirmation = () => {
             Your order <span className="oc-order-number">#{orderId}</span> has been placed and is being processed.
           </p>
 
-          {/* COD Badge */}
+          {/* Display COD Badge if applicable */}
           {isCOD && (
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -71,13 +76,14 @@ const OrderConfirmation = () => {
           )}
         </div>
 
-        {/* Order Details Card */}
+        {/* Order Details Section */}
         <div className="oc-summary-card">
           <div className="oc-card-header">
             <h2 className="oc-card-title">Order Summary</h2>
             <span className="oc-item-count">{orderedItems.length} ITEM{orderedItems.length !== 1 ? 'S' : ''}</span>
           </div>
 
+          {/* Display ordered items or fallback message */}
           {orderedItems.length > 0 ? (
             <div className="oc-items-list">
               {orderedItems.map((item, idx) => (
@@ -101,6 +107,7 @@ const OrderConfirmation = () => {
             <p style={{ textAlign: 'center', padding: '20px', color: '#aaa' }}>No items to display.</p>
           )}
 
+          {/* Order Breakdown Section */}
           <div className="oc-breakdown-section">
             <div className="oc-estimated-delivery">
               <p className="oc-section-label">ESTIMATED DELIVERY</p>
@@ -126,7 +133,7 @@ const OrderConfirmation = () => {
             </div>
           </div>
 
-          {/* Payment method or email confirmation */}
+          {/* Payment Method or Email Confirmation */}
           <div className="oc-card-footer">
             {isCOD ? (
               <>
@@ -146,7 +153,7 @@ const OrderConfirmation = () => {
           </div>
         </div>
 
-        {/* Bottom Actions */}
+        {/* Bottom Action Buttons */}
         <div className="oc-actions">
           <button className="oc-track-btn" onClick={() => navigate('/profile/orders')}>
             TRACK ORDER

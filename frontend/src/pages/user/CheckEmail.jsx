@@ -1,3 +1,4 @@
+// Importing necessary libraries, components, and styles
 import { Link } from "react-router-dom";
 import { HiOutlineMailOpen } from "react-icons/hi";
 import checkImage from "../../assets/check-email.png";
@@ -6,7 +7,7 @@ import "../../styles/Auth.css";
 function CheckEmail() {
   return (
     <div className="auth-container">
-      {/* Left Side */}
+      {/* Left Side - Image and Overlay Section */}
       <div className="auth-left-panel">
         <img
           src={checkImage}
@@ -27,13 +28,15 @@ function CheckEmail() {
         </div>
       </div>
 
-        {/* Right Side */}
-        <div className="w-full md:w-[62%] bg-[#f5f5f5] flex items-center justify-center px-6 md:px-20 py-14">
-          <div className="w-full max-w-md">
-            <div className="w-20 h-20 rounded-full bg-[#fdf0e9] flex items-center justify-center">
-              <HiOutlineMailOpen className="text-4xl text-orange-500" />
-            </div>
+      {/* Right Side - Email Confirmation Section */}
+      <div className="w-full md:w-[62%] bg-[#f5f5f5] flex items-center justify-center px-6 md:px-20 py-14">
+        <div className="w-full max-w-md">
+          {/* Email Icon */}
+          <div className="w-20 h-20 rounded-full bg-[#fdf0e9] flex items-center justify-center">
+            <HiOutlineMailOpen className="text-4xl text-orange-500" />
+          </div>
 
+          {/* Title and Subtitle */}
           <h2 className="auth-title">
             Check your email
           </h2>
@@ -44,19 +47,21 @@ function CheckEmail() {
             password.
           </p>
 
-            <Link
-              to="/"
-              className="flex items-center justify-center w-full h-16 text-xl font-semibold text-white transition bg-orange-500 mt-14 rounded-2xl hover:bg-orange-600"
-            >
-              Back to Login →
-            </Link>
+          {/* Back to Login Button */}
+          <Link
+            to="/"
+            className="flex items-center justify-center w-full h-16 text-xl font-semibold text-white transition bg-orange-500 mt-14 rounded-2xl hover:bg-orange-600"
+          >
+            Back to Login →
+          </Link>
 
-            <p className="mt-8 text-base text-[#6a5d57]">
-              Didn&apos;t receive the email?{" "}
-              <span style={{fontWeight: "600", color: "#f97316", cursor: "pointer"}}>
-                Resend Email
-              </span>
-            </p>
+          {/* Resend Email Option */}
+          <p className="mt-8 text-base text-[#6a5d57]">
+            Didn&apos;t receive the email?{" "}
+            <span style={{fontWeight: "600", color: "#f97316", cursor: "pointer"}}>
+              Resend Email
+            </span>
+          </p>
         </div>
       </div>
     </div>

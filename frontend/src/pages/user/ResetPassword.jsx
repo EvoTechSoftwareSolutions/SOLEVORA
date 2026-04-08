@@ -1,3 +1,6 @@
+// ResetPassword Component - Handles password reset functionality with token validation
+// Allows users to set a new password using a reset token from email
+// Includes password strength validation and security requirements display
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -7,12 +10,14 @@ import "./../../styles/Auth.css";
 
 function ResetPassword() {
   const navigate = useNavigate();
-  const { token } = useParams();
+  const { token } = useParams(); // Reset token from URL parameter
 
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
+  // Form state management
+  const [newPassword, setNewPassword] = useState(""); // New password input
+  const [confirmPassword, setConfirmPassword] = useState(""); // Password confirmation
+  const [message, setMessage] = useState(""); // Status/error messages
 
+  // Invalid token state - prevents access without proper reset token
   if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f4f4f4]">
@@ -21,11 +26,14 @@ function ResetPassword() {
     );
   }
 
-  const hasMinLength = newPassword.length >= 8;
+  // Password validation criteria
+  const hasMinLength = newPassword.length >= 8; // Minimum 8 characters
   const hasSpecialAndNumber =
-    /[0-9]/.test(newPassword) && /[^A-Za-z0-9]/.test(newPassword);
+    /[0-9]/.test(newPassword) && /[^A-Za-z0-9]/.test(newPassword); // Contains number and special character
 
+  // Handle password reset submission
   const handleResetPassword = async () => {
+    // Form validation
     if (!newPassword || !confirmPassword) {
       setMessage("Please fill all fields");
       return;
@@ -37,6 +45,7 @@ function ResetPassword() {
     }
 
     try {
+      // Send password reset request to backend
       const res = await axios.post(
         `http://localhost:5000/reset-password/${token}`,
         { newPassword }
@@ -44,10 +53,12 @@ function ResetPassword() {
 
       setMessage(res.data.message);
 
+      // Redirect to success page after 1 second
       setTimeout(() => {
         navigate("/reset-success");
       }, 1000);
     } catch (error) {
+      // Error handling
       if (error.response && error.response.data.message) {
         setMessage(error.response.data.message);
       } else {
@@ -56,19 +67,23 @@ function ResetPassword() {
     }
   };
 
+  // Main component render
   return (
     <div className="min-h-screen bg-[#f4f4f4]">
       <div className="flex flex-col min-h-screen md:flex-row">
-        {/* Left Side */}
+        {/* Left promotional panel */}
         <div className="relative w-full md:w-1/2 h-[420px] md:h-screen">
+          {/* Background image */}
           <img
             src={resetImage}
             alt="Reset Password"
             className="object-cover w-full h-full"
           />
 
+          {/* Gradient overlay */}
           <div className="absolute inset-0 bg-black/35"></div>
 
+          {/* Promotional content */}
           <div className="absolute z-10 text-white left-8 md:left-14 bottom-24">
             <h1 className="text-4xl font-bold leading-tight md:text-6xl">
               Redefining the
@@ -82,6 +97,7 @@ function ResetPassword() {
             </p>
           </div>
 
+          {/* Decorative progress indicators */}
           <div className="absolute z-10 flex items-center gap-4 -translate-x-1/2 bottom-12 left-1/2">
             <div className="w-20 h-1 bg-orange-500 rounded-full"></div>
             <div className="w-10 h-1 rounded-full bg-gray-500/60"></div>
@@ -90,18 +106,21 @@ function ResetPassword() {
         </div>
 
 
-      {/* Right Side */}
-      <div className="auth-right-panel">
-        <div className="auth-form-wrapper">
-          <h2 className="auth-title">
-            Set a new<br />password
-          </h2>
-          <p className="auth-subtitle">
-            Your new password must be different from previous passwords
-            to ensure maximum security.
-          </p>
+        {/* Right form panel */}
+        <div className="auth-right-panel">
+          <div className="auth-form-wrapper">
+            {/* Form header */}
+            <h2 className="auth-title">
+              Set a new<br />password
+            </h2>
+            {/* Form subtitle */}
+            <p className="auth-subtitle">
+              Your new password must be different from previous passwords
+              to ensure maximum security.
+            </p>
 
 
+            {/* Password reset form */}
             <form
               className="space-y-8 mt-14"
               onSubmit={(e) => {
@@ -109,6 +128,7 @@ function ResetPassword() {
                 handleResetPassword();
               }}
             >
+              {/* New password field */}
               <div>
                 <label className="block text-[12px] uppercase tracking-[0.18em] text-[#a19da2] font-semibold mb-4">
                   New Password
@@ -126,6 +146,7 @@ function ResetPassword() {
                 </div>
               </div>
 
+              {/* Confirm password field */}
               <div>
                 <label className="block text-[12px] uppercase tracking-[0.18em] text-[#a19da2] font-semibold mb-4">
                   Confirm Password
@@ -143,12 +164,14 @@ function ResetPassword() {
                 </div>
               </div>
 
+              {/* Password strength validation display */}
               <div className="rounded-2xl bg-[#ece9e9] px-5 py-5">
                 <p className="text-[12px] uppercase tracking-[0.16em] text-[#9d9ca2] font-semibold flex items-center gap-2">
                   <span>ⓘ</span> Security Check
                 </p>
 
                 <div className="mt-4 space-y-3">
+                  {/* Minimum length validation */}
                   <div className="flex items-center gap-3 text-[#6c6b72] text-lg">
                     {hasMinLength ? (
                       <LuCircleCheck className="text-xl text-green-500" />
@@ -158,6 +181,7 @@ function ResetPassword() {
                     <span>At least 8 characters long</span>
                   </div>
 
+                  {/* Special character and number validation */}
                   <div className="flex items-center gap-3 text-[#6c6b72] text-lg">
                     {hasSpecialAndNumber ? (
                       <LuCircleCheck className="text-xl text-green-500" />
@@ -169,6 +193,7 @@ function ResetPassword() {
                 </div>
               </div>
 
+              {/* Submit button */}
               <button
                 type="submit"
                 className="w-full h-16 rounded-full bg-orange-500 text-white text-2xl font-semibold hover:bg-orange-600 transition shadow-[0_10px_20px_rgba(255,102,0,0.15)]"
@@ -176,11 +201,13 @@ function ResetPassword() {
                 Reset Password →
               </button>
 
+              {/* Status message display */}
               {message && (
                 <p className="mt-4 text-sm text-center text-blue-600">{message}</p>
               )}
             </form>
 
+            {/* Back to login link */}
             <div className="text-center mt-14">
               <Link
                 to="/"
@@ -197,4 +224,4 @@ function ResetPassword() {
   );
 }
 
-export default ResetPassword;
+export default ResetPassword; // Export ResetPassword component

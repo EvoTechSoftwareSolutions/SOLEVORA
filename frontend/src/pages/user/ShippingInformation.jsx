@@ -1,3 +1,7 @@
+// ShippingInformation Component - First step of checkout process
+// Collects shipping address and contact information from users
+// Pre-fills data for logged-in users and validates form fields
+// Displays order summary with promo code functionality
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
@@ -6,6 +10,8 @@ import '../../styles/user/ShippingInformation.css';
 
 const ShippingInformation = () => {
   const navigate = useNavigate();
+  
+  // Cart context - provides access to cart items and checkout data
   const {
     selectedCart: cart,
     selectedCartTotal,
@@ -16,22 +22,26 @@ const ShippingInformation = () => {
     checkoutData,
     updateCheckoutData
   } = useCart();
-  const [isToastOpen, setIsToastOpen] = useState(false);
-  const [promoCode, setPromoCode] = useState(checkoutPromo?.code || '');
-  const [promoApplied, setPromoApplied] = useState(!!checkoutPromo?.applied);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState({ title: '', body: '' });
   
-const showMessage = (title, body) => {
-  setModalContent({ title, body });
-  setIsToastOpen(true);
+  // Component state management
+  const [isToastOpen, setIsToastOpen] = useState(false); // Toast notification visibility
+  const [promoCode, setPromoCode] = useState(checkoutPromo?.code || ''); // Promo code input
+  const [promoApplied, setPromoApplied] = useState(!!checkoutPromo?.applied); // Whether promo is applied
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
+  const [modalContent, setModalContent] = useState({ title: '', body: '' }); // Modal message content
+  
+  // Utility function to display toast notifications
+  const showMessage = (title, body) => {
+    setModalContent({ title, body });
+    setIsToastOpen(true);
 
-  setTimeout(() => {
-    setIsToastOpen(false);
-  }, 2500); // auto hide after 2.5s
-};
+    // Auto-hide toast after 2.5 seconds
+    setTimeout(() => {
+      setIsToastOpen(false);
+    }, 2500);
+  };
 
-  // Pre-fill from logged in user
+  // Initialize form data with pre-filled values for logged-in users
   const [formData, setFormData] = useState(() => {
     const userStr = localStorage.getItem("user");
     if (userStr) {
@@ -47,20 +57,23 @@ const showMessage = (title, body) => {
         country: user.country || checkoutData.country || 'United States',
         userId: user.id
       };
-
     }
+    // Default values for guest users
     return { ...checkoutData, country: checkoutData.country || 'United States' };
   });
 
-  const grossTotal = (lockedSubtotal ?? selectedCartTotal);
-  const promoDiscount = promoApplied ? grossTotal * 0.1 : 0; // 10% discount for example
-  const total = grossTotal - promoDiscount;
+  // Price calculations
+  const grossTotal = (lockedSubtotal ?? selectedCartTotal); // Use locked subtotal if available
+  const promoDiscount = promoApplied ? grossTotal * 0.1 : 0; // 10% discount for SAVE10 promo
+  const total = grossTotal - promoDiscount; // Total after discount (shipping is free at this stage)
 
+  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Apply promo code validation and discount
   const handleApplyPromo = () => {
     if (promoCode.trim().toLowerCase() === 'save10') {
       setPromoApplied(true);
@@ -69,17 +82,20 @@ const showMessage = (title, body) => {
     else showMessage('Invalid Promo', 'The code you entered is invalid. Try "SAVE10" for a discount.');
   };
 
+  // Handle continue to shipping method
   const handleContinue = () => {
+    // Validate required fields
     if (!formData.fullName || !formData.email || !formData.streetAddress) {
         showMessage('Required Fields', 'Please fill in all shipping fields before continuing.');
         return;
     }
-    // Freeze the subtotal at the start of checkout so totals remain stable across steps
+    // Lock subtotal to prevent changes during checkout process
     lockCheckoutSubtotal(grossTotal);
     updateCheckoutData(formData);
     navigate('/shipping-method');
   };
 
+  // Empty cart state - prevents access to shipping page with no items
   if (cart.length === 0) {
     return (
         <div className="si-page">
@@ -94,11 +110,12 @@ const showMessage = (title, body) => {
     );
   }
 
+  // Main component render
   return (
     <div className="si-page">
       <div className="si-container">
 
-        {/* ── Breadcrumb ── */}
+        {/* Breadcrumb navigation */}
         <nav className="si-breadcrumb">
           <Link to="/">Home</Link>
           <span className="si-bc-sep">/</span>
@@ -109,10 +126,10 @@ const showMessage = (title, body) => {
           <span className="si-bc-current">Shipping Information</span>
         </nav>
 
-        {/* ── Step Progress ── */}
+        {/* Checkout progress stepper */}
         <div className="si-stepper-wrap">
           <div className="si-stepper">
-            {/* Step 1 */}
+            {/* Step 1 - Active */}
             <div className="si-step-item">
               <div className="si-circle si-circle-active">1</div>
               <span className="si-step-lbl si-lbl-active">Shipping</span>
@@ -121,14 +138,14 @@ const showMessage = (title, body) => {
             <div className="si-connector">
               <div className="si-connector-fill"></div>
             </div>
-            {/* Step 2 */}
+            {/* Step 2 - Idle */}
             <div className="si-step-item">
               <div className="si-circle si-circle-idle">2</div>
               <span className="si-step-lbl si-lbl-idle">Method</span>
             </div>
             {/* Connector 2 */}
             <div className="si-connector si-connector-empty"></div>
-            {/* Step 3 */}
+            {/* Step 3 - Idle */}
             <div className="si-step-item">
               <div className="si-circle si-circle-idle">3</div>
               <span className="si-step-lbl si-lbl-idle">Payment</span>
@@ -137,19 +154,20 @@ const showMessage = (title, body) => {
           <p className="si-step-desc">Step 1 of 3: Enter your delivery information</p>
         </div>
 
-        {/* ── Two-column Layout ── */}
+        {/* Main content grid - shipping form and order summary */}
         <div className="si-grid">
 
-          {/* ─── LEFT: Shipping Form ─── */}
+          {/* Shipping form column */}
           <div className="si-form-card">
-            {/* Card heading */}
+            {/* Form header with truck icon */}
             <div className="si-form-heading">
               <span className="si-truck-icon">🚚</span>
               <h2 className="si-form-title">Shipping Information</h2>
             </div>
 
+            {/* Shipping information form */}
             <div className="si-form">
-              {/* Full Name */}
+              {/* Full name field */}
               <div className="si-field">
                 <label className="si-label">Full Name</label>
                 <input
@@ -162,7 +180,7 @@ const showMessage = (title, body) => {
                 />
               </div>
 
-              {/* Email + Phone */}
+              {/* Email and phone fields in row */}
               <div className="si-row-2">
                 <div className="si-field">
                   <label className="si-label">Email Address</label>
@@ -188,7 +206,7 @@ const showMessage = (title, body) => {
                 </div>
               </div>
 
-              {/* Street Address */}
+              {/* Street address field */}
               <div className="si-field">
                 <label className="si-label">Street Address</label>
                 <input
@@ -201,7 +219,7 @@ const showMessage = (title, body) => {
                 />
               </div>
 
-              {/* City + Postal Code */}
+              {/* City and postal code fields in row */}
               <div className="si-row-2">
                 <div className="si-field">
                   <label className="si-label">City</label>
@@ -227,7 +245,7 @@ const showMessage = (title, body) => {
                 </div>
               </div>
 
-              {/* Country */}
+              {/* Country field */}
               <div className="si-field">
                 <label className="si-label">Country</label>
                 <input
@@ -240,12 +258,13 @@ const showMessage = (title, body) => {
                   required
                 />
               </div>
+              {/* Toast notification display */}
 {isToastOpen && (
   <div className="toast">
     {modalContent.body}
   </div>
 )}
-              {/* Continue to Shipping Method Button */}
+              {/* Continue button */}
               <div className="si-continue-btn-container">
                 <button 
                   type="button" 
@@ -259,10 +278,11 @@ const showMessage = (title, body) => {
             </div>
           </div>
 
-          {/* ─── RIGHT: Order Summary ─── */}
+          {/* Order summary sidebar */}
           <div className="si-summary-card">
             <h3 className="si-summary-title">Order Summary</h3>
 
+            {/* Cart items display */}
             <div className="si-items-scroll">
               {cart.map(item => (
                 <div key={`${item.id}-${item.size}`} className="si-item-card">
@@ -280,7 +300,7 @@ const showMessage = (title, body) => {
               ))}
             </div>
 
-            {/* Promo Code */}
+            {/* Promo code input section */}
             <div className="si-promo">
               <input
                 type="text"
@@ -294,7 +314,7 @@ const showMessage = (title, body) => {
               </button>
             </div>
 
-            {/* Price Breakdown */}
+            {/* Order total breakdown */}
             <div className="si-totals">
               <div className="si-total-row">
                 <span className="si-total-key">Gross Total</span>
@@ -308,20 +328,14 @@ const showMessage = (title, body) => {
                 <span className="si-total-key">Shipping</span>
                 <span className="si-free">Free</span>
               </div>
-              {/* Bold Total */}
+              {/* Final total amount */}
               <div className="si-total-final">
                 <span className="si-final-label">Total</span>
                 <span className="si-final-amount">${total.toFixed(2)}</span>
               </div>
             </div>
 
-            {/* Place Order */}
-            {/* <button className="si-place-order-btn" onClick={handleContinue}>
-              <span className="material-symbols-outlined">local_shipping</span>
-              Continue
-            </button> */}
-
-            {/* Terms */}
+            {/* Terms and conditions */}
             <p className="si-terms">
               By placing your order, you agree to Solevora's{' '}
               <a href="/terms">Terms of Service</a> and{' '}
@@ -331,7 +345,7 @@ const showMessage = (title, body) => {
 
         </div>
 
-        {/* Modal for Messages */}
+        {/* Modal for displaying messages */}
         <Modal 
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)}
@@ -348,4 +362,4 @@ const showMessage = (title, body) => {
   );
 };
 
-export default ShippingInformation;
+export default ShippingInformation; // Export ShippingInformation component

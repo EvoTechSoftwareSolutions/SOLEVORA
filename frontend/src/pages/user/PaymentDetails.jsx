@@ -1,3 +1,6 @@
+// PaymentDetails Component - Handles payment processing and order completion
+// Allows users to select payment methods (Credit Card, PayPal, Apple Pay, COD)
+// Integrates with PayHere for credit card payments and supports promo codes
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
@@ -6,7 +9,10 @@ import Modal from '../../components/ui/Modal';
 import '../../styles/user/PaymentDetails.css';
 
 const PaymentDetails = () => {
+    // Navigation hook for redirecting after successful payment
     const navigate = useNavigate();
+    
+    // Cart context - provides access to cart items, totals, and checkout data
     const {
         selectedCart: cart,
         selectedCartTotal,
@@ -19,42 +25,48 @@ const PaymentDetails = () => {
         removeFromCart
     } = useCart();
 
-    const [paymentMethod, setPaymentMethod] = useState('creditcard');
-    const [promoCode, setPromoCode] = useState(checkoutPromo?.code || '');
-    const [promoApplied, setPromoApplied] = useState(!!checkoutPromo?.applied);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalContent, setModalContent] = useState({ title: '', body: '' });
+    // State management for payment processing
+    const [paymentMethod, setPaymentMethod] = useState('creditcard'); // Selected payment method
+    const [promoCode, setPromoCode] = useState(checkoutPromo?.code || ''); // Promo code input
+    const [promoApplied, setPromoApplied] = useState(!!checkoutPromo?.applied); // Whether promo is applied
+    const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
+    const [modalContent, setModalContent] = useState({ title: '', body: '' }); // Modal message content
 
+    // Utility function to display modal messages
     const showMessage = (title, body) => {
         setModalContent({ title, body });
         setIsModalOpen(true);
     };
 
+    // Utility function to retrieve logged-in user from localStorage
     const getLoggedInUser = () => {
         const userStr = localStorage.getItem("user");
         if (userStr) return JSON.parse(userStr);
         return null;
     };
 
-    const user = getLoggedInUser();
+    const user = getLoggedInUser(); // Current logged-in user or null
     
-    // Constants from ShippingMethod.jsx
+    // Shipping method configurations - must match ShippingMethod.jsx
     const shippingMethods = [
         { id: 'standard', name: 'Standard Shipping', price: 0 },
         { id: 'express', name: 'Express Shipping', price: 15.00 },
         { id: 'nextday', name: 'Next Day Delivery', price: 25.00 },
     ];
 
-    const grossTotal = (lockedSubtotal ?? selectedCartTotal);
-    const promoDiscount = promoApplied ? grossTotal * 0.1 : 0;
+    // Price calculations
+    const grossTotal = (lockedSubtotal ?? selectedCartTotal); // Use locked subtotal if available
+    const promoDiscount = promoApplied ? grossTotal * 0.1 : 0; // 10% discount for SAVE10 promo
     
-    // Get shipping charge based on selected method
+    // Get shipping charge based on selected method from checkout data
     const selectedShippingMethod = checkoutData.shippingMethod || 'Standard Shipping';
     const shippingMethodObj = shippingMethods.find(m => m.name === selectedShippingMethod) || shippingMethods[0];
     const shippingCharge = shippingMethodObj.price;
 
+    // Final order total after discounts and shipping
     const total = grossTotal - promoDiscount + shippingCharge;
 
+    // Apply promo code validation and discount
     const handleApplyPromo = () => {
         if (promoCode.trim().toLowerCase() === 'save10') {
             setPromoApplied(true);
@@ -63,9 +75,11 @@ const PaymentDetails = () => {
         else showMessage('Invalid Promo', 'The code you entered is invalid. Try "SAVE10" for a discount.');
     };
 
+    // Main order placement handler - routes to appropriate payment method
     const handlePlaceOrder = async () => {
-        // Keep subtotal stable through payment
+        // Lock subtotal to prevent changes during payment process
         lockCheckoutSubtotal(grossTotal);
+        
         if (paymentMethod === 'cod') {
             await handleCOD();
         } else if (paymentMethod === 'creditcard') {
@@ -75,8 +89,10 @@ const PaymentDetails = () => {
         }
     };
 
+    // Handle Cash on Delivery (COD) orders
     const handleCOD = async () => {
         try {
+            // Prepare order payload for COD orders
             const orderPayload = {
                 total_amount: total,
                 status: 'pending',
@@ -92,11 +108,15 @@ const PaymentDetails = () => {
                 }))
             };
 
+            // Create order in backend
             const response = await axios.post('http://localhost:5000/api/orders', orderPayload);
             const orderData = response.data;
             const currentItems = [...cart];
-            // Clear only the checked out items
+            
+            // Remove checked out items from cart
             currentItems.forEach(item => removeFromCart(item.id, item.size));
+            
+            // Navigate to order confirmation
             navigate('/order-confirmation', { state: { orderId: orderData.id, items: currentItems, paymentMethod: 'cod' } });
         } catch (error) {
             console.error('Error placing COD order:', error);
@@ -185,6 +205,7 @@ const PaymentDetails = () => {
         }
     };
 
+    // Empty cart state - prevents access to payment page with no items
     if (cart.length === 0) {
         return (
             <div className="pd-page">
@@ -199,9 +220,11 @@ const PaymentDetails = () => {
         );
     }
 
+    // Main component render
     return (
         <div className="pd-page">
             <div className="pd-container">
+                {/* Breadcrumb navigation */}
                 <nav className="pd-breadcrumb">
                     <Link to="/">Home</Link>
                     <span className="pd-bc-sep">/</span>
@@ -212,6 +235,7 @@ const PaymentDetails = () => {
                     <span className="pd-bc-current">Payment</span>
                 </nav>
 
+                {/* Checkout progress stepper */}
                 <div className="pd-stepper-wrap">
                     <div className="pd-stepper">
                         <div className="pd-step-item">
@@ -231,6 +255,7 @@ const PaymentDetails = () => {
                     </div>
                 </div>
 
+                {/* Main content grid - payment form and order summary */}
                 <div className="pd-grid">
                     <div className="pd-content-col">
                         <h1 className="pd-page-title">Payment Details</h1>
@@ -238,6 +263,7 @@ const PaymentDetails = () => {
 
                         <h3 className="pd-section-title">Select Payment Method</h3>
                         
+                        {/* Payment method selection grid */}
                         <div className="pd-methods-grid">
                             <div 
                                 className={`pd-method-card ${paymentMethod === 'creditcard' ? 'active' : ''}`} 
@@ -269,9 +295,10 @@ const PaymentDetails = () => {
                             </div>
                         </div>
 
-                        {/* Payment Info Card */}
+                        {/* Payment method information display */}
                         <div className="pd-form-card" style={{ padding: '30px', textAlign: 'center' }}>
                             {paymentMethod === 'creditcard' ? (
+                                // Credit card payment info with PayHere integration
                                 <>
                                     <div style={{ marginBottom: '20px' }}>
                                         <img src="https://www.payhere.lk/downloads/images/payhere_square_logo.png" alt="PayHere" style={{ width: '100px', margin: '0 auto' }} />
@@ -283,6 +310,7 @@ const PaymentDetails = () => {
                                     </div>
                                 </>
                             ) : paymentMethod === 'cod' ? (
+                                // Cash on delivery payment info
                                 <div style={{ padding: '10px 0' }}>
                                     <span className="material-symbols-outlined" style={{ fontSize: '52px', color: '#f66d3b', display: 'block', marginBottom: '16px' }}>local_shipping</span>
                                     <h3 style={{ fontWeight: '700', fontSize: '18px', marginBottom: '10px', color: '#111' }}>Pay When You Receive</h3>
@@ -301,10 +329,12 @@ const PaymentDetails = () => {
                                     </div>
                                 </div>
                             ) : (
+                                // Placeholder for other payment methods
                                 <p className="text-gray-500 py-10">Details for {paymentMethod.replace('card', ' card')} will be shown here.</p>
                             )}
                         </div>
 
+                        {/* Navigation actions */}
                         <div className="pd-nav-actions">
                             <Link to="/shipping" className="pd-back-link">
                                 <span className="material-symbols-outlined">arrow_back</span>
@@ -313,10 +343,11 @@ const PaymentDetails = () => {
                         </div>
                     </div>
 
+                    {/* Order summary sidebar */}
                     <div className="pd-summary-card">
                         <h3 className="pd-summary-title">Order Summary</h3>
                         
-                        {/* Horizontal scroll item cards */}
+                        {/* Cart items display */}
                         <div className="pd-items-scroll">
                             {cart.map(item => (
                                 <div key={`${item.id}-${item.size}`} className="pd-item-card">
@@ -334,7 +365,7 @@ const PaymentDetails = () => {
                             ))}
                         </div>
 
-                        {/* Promo Code */}
+                        {/* Promo code input section */}
                         <div className="pd-promo">
                             <input
                                 type="text"
@@ -348,7 +379,7 @@ const PaymentDetails = () => {
                             </button>
                         </div>
 
-                        {/* Price Breakdown */}
+                        {/* Order total breakdown */}
                         <div className="pd-totals">
                             <div className="pd-total-row">
                                 <span className="pd-total-key">Gross Total</span>
@@ -364,20 +395,20 @@ const PaymentDetails = () => {
                                     {shippingCharge === 0 ? 'Free' : `$${shippingCharge.toFixed(2)}`}
                                 </span>
                             </div>
-                            {/* Bold Total */}
+                            {/* Final total amount */}
                             <div className="pd-total-final">
                                 <span className="pd-final-label">Total</span>
                                 <span className="pd-final-amount">${total.toFixed(2)}</span>
                             </div>
                         </div>
 
-                        {/* Place Order */}
+                        {/* Place order button */}
                         <button className="pd-place-order-btn" onClick={handlePlaceOrder}>
                             <span className="material-symbols-outlined">shopping_bag</span>
                             {paymentMethod === 'cod' ? 'Place Order' : 'Pay Now'}
                         </button>
 
-                        {/* Terms */}
+                        {/* Terms and conditions */}
                         <p className="pd-terms">
                             By placing your order, you agree to Solevora's{' '}
                             <Link to="/terms">Terms of Service</Link> and{' '}
@@ -386,6 +417,7 @@ const PaymentDetails = () => {
                     </div>
                 </div>
 
+                {/* Modal for displaying messages */}
                 <Modal 
                     isOpen={isModalOpen} 
                     onClose={() => setIsModalOpen(false)}
@@ -401,4 +433,4 @@ const PaymentDetails = () => {
     );
 };
 
-export default PaymentDetails;
+export default PaymentDetails; // Export PaymentDetails component

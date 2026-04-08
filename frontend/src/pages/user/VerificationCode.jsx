@@ -1,3 +1,7 @@
+// VerificationCode Component - 6-digit verification code input interface
+// Handles phone number verification with auto-focus and timer functionality
+// Features security banner, resend code option, and keyboard navigation
+// Used for two-factor authentication during checkout process
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/user/VerificationCode.css';
@@ -5,9 +9,12 @@ import '../../styles/user/VerificationCode.css';
 const VerificationCode = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [code, setCode] = useState(['', '', '', '', '', '']);
-  const [timer, setTimer] = useState(30);
+  
+  // Component state management
+  const [code, setCode] = useState(['', '', '', '', '', '']); // 6-digit code array
+  const [timer, setTimer] = useState(30); // Countdown timer for resend
 
+  // Countdown timer effect
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer(timer - 1), 1000);
@@ -15,6 +22,7 @@ const VerificationCode = () => {
     }
   }, [timer]);
 
+  // Handle input changes with auto-focus functionality
   const handleInputChange = (e, index) => {
     const value = e.target.value;
     if (value.length <= 1) {
@@ -22,7 +30,7 @@ const VerificationCode = () => {
       newCode[index] = value;
       setCode(newCode);
 
-      // Auto focus next input
+      // Auto focus next input when digit is entered
       if (value !== '' && index < 5) {
         const nextInput = document.getElementById(`code-input-${index + 1}`);
         if (nextInput) nextInput.focus();
@@ -30,6 +38,7 @@ const VerificationCode = () => {
     }
   };
 
+  // Handle keyboard navigation with backspace
   const handleKeyDown = (e, index) => {
     if (e.key === 'Backspace' && code[index] === '' && index > 0) {
       const prevInput = document.getElementById(`code-input-${index - 1}`);
@@ -37,6 +46,7 @@ const VerificationCode = () => {
     }
   };
 
+  // Handle verification code submission
   const handleVerify = () => {
     const fullCode = code.join('');
     if (fullCode.length === 6) {
@@ -46,30 +56,32 @@ const VerificationCode = () => {
     }
   };
 
+  // Format time display for countdown timer
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Main component render
   return (
     <div className="vc-page">
       <div className="vc-container">
         
-        {/* Stopwatch Icon */}
+        {/* Timer icon */}
         <div className="vc-icon-wrap">
           <div className="vc-icon-bg">
             <span className="material-symbols-outlined vc-clock">timer</span>
           </div>
         </div>
 
-        {/* Header */}
+        {/* Page header */}
         <h1 className="vc-title">Verification Code</h1>
         <p className="vc-subtitle">
           We have sent a 6-digit code to <span className="vc-phone">+1 (555) 000-0000</span>
         </p>
 
-        {/* Input Boxes */}
+        {/* 6-digit code input boxes */}
         <div className="vc-inputs">
           {code.map((digit, index) => (
             <input
@@ -86,13 +98,13 @@ const VerificationCode = () => {
           ))}
         </div>
 
-        {/* Action Button */}
+        {/* Verify button */}
         <button className="vc-verify-btn" onClick={handleVerify}>
           Verify & Proceed
           <span className="material-symbols-outlined">arrow_forward</span>
         </button>
 
-        {/* Resend Info */}
+        {/* Resend code section with timer */}
         <div className="vc-resend-row">
           <span className="vc-gray-text">Didn't receive code?</span>
           <button 
@@ -106,7 +118,7 @@ const VerificationCode = () => {
           <span className="vc-timer">{formatTime(timer)}s</span>
         </div>
 
-        {/* Back Link */}
+        {/* Back to payment link */}
         <div className="vc-back-action">
           <Link to="/payment" className="vc-back-link">
             <span className="material-symbols-outlined">arrow_back</span>
@@ -114,9 +126,10 @@ const VerificationCode = () => {
           </Link>
         </div>
 
-        {/* Security Banner */}
+        {/* Security banner with trust indicators */}
         <div className="vc-security-banner">
           <div className="vc-banner-content">
+             {/* Security icons */}
              <div className="vc-banner-icons">
                <span className="material-symbols-outlined vc-banner-icon">check_circle</span>
                <span className="material-symbols-outlined vc-banner-icon">lock</span>
@@ -129,7 +142,7 @@ const VerificationCode = () => {
              </p>
           </div>
           <div className="vc-banner-visual">
-             {/* Note: This is a placeholder for the shoe image in the banner */}
+             {/* Shoe image placeholder in banner */}
              <div className="vc-shoe-mask"></div>
           </div>
         </div>
@@ -139,4 +152,4 @@ const VerificationCode = () => {
   );
 };
 
-export default VerificationCode;
+export default VerificationCode; // Export VerificationCode component

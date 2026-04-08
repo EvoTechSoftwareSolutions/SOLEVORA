@@ -1,3 +1,4 @@
+// Importing necessary libraries, hooks, and styles
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
@@ -5,14 +6,20 @@ import { useWishlist } from "../../context/WishlistContext";
 import "../../styles/user/Category.css";
 
 const Category = () => {
+  // State to store fetched products and loading status
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Accessing cart and wishlist context functions
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+
+  // Extracting category name from URL query parameters
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const categoryName = queryParams.get("type") || "All";
 
+  // Fetch products based on the selected category
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -32,6 +39,7 @@ const Category = () => {
     fetchProducts();
   }, [categoryName]);
 
+  // Display loading state while products are being fetched
   if (loading) {
     return (
       <div className="loading-state">
@@ -48,6 +56,7 @@ const Category = () => {
   return (
     <div className="category-page">
       <div className="category-container">
+        {/* Header Section */}
         <div className="category-header">
           <h1>
             {categoryName === "All"
@@ -61,12 +70,15 @@ const Category = () => {
           </p>
         </div>
 
+        {/* Product Grid Section */}
         <div className="product-grid">
           {products.map((product) => (
             <div key={product.id} className="product-card">
+              {/* Display badge for limited stock */}
               {product.stock_quantity < 10 && (
                 <span className="badge">Limited Stock</span>
               )}
+              {/* Wishlist Button */}
               <button
                 className={`wishlist-btn ${isInWishlist(product.id) ? "active" : ""}`}
                 title="Add to Wishlist"
@@ -81,10 +93,12 @@ const Category = () => {
                 </span>
               </button>
 
+              {/* Card Image Box */}
               <div className="card-image-box">
                 <img src={product.image_url} alt={product.name} />
               </div>
 
+              {/* Card Details */}
               <div className="card-details">
                 <span className="card-category">
                   {product.category?.name || "Footwear"}

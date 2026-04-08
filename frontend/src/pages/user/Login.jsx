@@ -1,3 +1,4 @@
+// Importing necessary libraries, components, and assets
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -9,14 +10,19 @@ import { LuLock } from "react-icons/lu";
 import { FiSettings } from "react-icons/fi";
 
 function Login() {
+  // State variables for managing user input and feedback messages
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  // Navigation hooks for redirecting users
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Determine the redirect path after login
   const from = location.state?.from || "/home";
-// normal login
+
+  // Function to handle normal login
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -24,6 +30,7 @@ function Login() {
       return;
     }
     try {
+      // Sending login credentials to the backend
       const res = await axios.post("http://localhost:5000/login", { email, password });
       localStorage.setItem("user", JSON.stringify(res.data.user));
       localStorage.setItem("isAuthenticated", "true");
@@ -32,7 +39,8 @@ function Login() {
       setMessage(error.response?.data?.message || "Login failed");
     }
   };
-// fake Google login (demo)
+
+  // Function to handle Google login (demo implementation)
   const handleGoogleLogin = async () => {
     try {
       const res = await axios.post("http://localhost:5000/login", {
@@ -46,7 +54,8 @@ function Login() {
       setMessage(error.response?.data?.message || "Google login failed");
     }
   };
-// fake Apple login (demo)
+
+  // Function to handle Apple login (demo implementation)
   const handleAppleLogin = async () => {
     try {
       const res = await axios.post("http://localhost:5000/login", {
@@ -72,7 +81,7 @@ function Login() {
         <FiSettings size={14} />
       </div>
 
-      {/* Left Panel */}
+      {/* Left Panel - Login Image and Overlay */}
       <div className="relative w-full md:w-1/2 h-64 md:h-screen overflow-hidden bg-secondary">
         <img src={loginImage} alt="Login Shoe" className="w-full h-full object-cover opacity-80" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -83,7 +92,7 @@ function Login() {
         </div>
       </div>
 
-      {/* Right Side */}
+      {/* Right Panel - Login Form */}
       <div className="w-full px-8 py-4 md:w-1/2 md:px-8 flex flex-col justify-center bg-white">
         <h1 className="text-xl font-bold md:text-2xl text-slate-900">
           Welcome Back
@@ -94,6 +103,7 @@ function Login() {
         </p>
 
         <form className="mt-4" onSubmit={handleLogin}>
+          {/* Email Input */}
           <div className="mb-2">
             <label className="block text-[#24324a] text-xs font-semibold mb-1">
               Email Address
@@ -101,7 +111,6 @@ function Login() {
 
             <div className="flex items-center bg-[#f4f4f4] rounded-xl px-3 h-12">
               <HiOutlineMail className="text-[#94a3b8] text-base mr-2" />
-              {/* email input */}
               <input
                 type="email"
                 placeholder="name@example.com"
@@ -112,6 +121,7 @@ function Login() {
             </div>
           </div>
 
+          {/* Password Input */}
           <div className="mb-1">
             <label className="block text-[#24324a] text-xs font-semibold mb-1">
               Password
@@ -129,12 +139,14 @@ function Login() {
             </div>
           </div>
 
+          {/* Forgot Password Link */}
           <div className="mt-1 text-right">
             <Link to="/forgot-password" size="sm" className="text-[10px] font-medium text-orange-500 hover:underline">
               Forgot Password?
             </Link>
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
             className="w-full py-2.5 mt-4 text-base font-semibold text-white transition bg-orange-500 hover:bg-orange-600 rounded-xl"
@@ -142,11 +154,13 @@ function Login() {
             Sign In
           </button>
 
+          {/* Feedback Message */}
           {message && (
             <p className="mt-1 text-[10px] text-center text-red-600">{message}</p>
           )}
         </form>
 
+        {/* Social Login Options */}
         <div className="flex items-center mb-3 mt-4">
           <div className="flex-1 border-t border-gray-300"></div>
           <span className="px-3 text-[10px] text-gray-400">
@@ -175,6 +189,7 @@ function Login() {
           </button>
         </div>
 
+        {/* Sign Up Link */}
         <p className="mt-3 text-center text-xs text-gray-500">
           Don&apos;t have an account?
           <Link to="/register" className="ml-1 text-orange-500 cursor-pointer hover:underline font-semibold">

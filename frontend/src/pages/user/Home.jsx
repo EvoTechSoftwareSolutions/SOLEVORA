@@ -1,3 +1,4 @@
+// Importing necessary libraries, components, and styles
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -39,6 +40,7 @@ import underarmour from "../../assets/image/LogoSvg/underarmour.svg";
 import nike from "../../assets/image/LogoSvg/nike.svg";
 import justdoit from "../../assets/image/LogoSvg/justdoit.svg";
 
+// Predefined categories for the homepage
 const categories = [
   {
     name: "Office",
@@ -103,20 +105,24 @@ const categories = [
 ];
 
 const Home = () => {
-  const [openIndex, setOpenIndex] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [dbCategories, setDbCategories] = useState([]);
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [loading, setLoading] = useState(true);
+  // State variables for managing UI and data
+  const [openIndex, setOpenIndex] = useState(null); // For FAQ toggle
+  const [products, setProducts] = useState([]); // Product list
+  const [dbCategories, setDbCategories] = useState([]); // Categories from database
+  const [activeCategory, setActiveCategory] = useState('All'); // Active category filter
+  const [loading, setLoading] = useState(true); // Loading state
 
+  // Fetch categories from the database on component mount
   useEffect(() => {
     fetchDbCategories();
   }, []);
 
+  // Fetch products whenever the active category changes
   useEffect(() => {
     fetchProducts();
   }, [activeCategory]);
 
+  // Function to fetch categories from the backend
   const fetchDbCategories = async () => {
     try {
       const resp = await axios.get('http://localhost:5000/api/categories');
@@ -126,6 +132,7 @@ const Home = () => {
     }
   };
 
+  // Function to fetch products based on the active category
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -142,17 +149,19 @@ const Home = () => {
     }
   };
 
+  // Function to toggle FAQ visibility
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
+
   return (
     <div className="main-container">
+      {/* Banner Section */}
       <div className="banner">
         <div className="banner-text">
           <h1 className="banner-text">
-            Get More comfortable without{" "}
-            <span className="highlight">Brands</span>
-          </h1>{" "}
+            Get More comfortable without <span className="highlight">Brands</span>
+          </h1>
           <p>
             Discover the latest styles and must-have essentials. Fast shipping,
             easy returns, and secure checkout — shop now and find something you’ll
@@ -168,6 +177,7 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Intro Section */}
       <div className="intro">
         <h1>New Collections</h1>
         <p>
@@ -176,6 +186,7 @@ const Home = () => {
         </p>
       </div>
 
+      {/* Hero Section with Filters and Products */}
       <section className="hero">
         <div className="filter">
           <div className="filter-categories">
@@ -227,6 +238,7 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Categories Section */}
       <section className="categories">
         <div className="intro-section">
           <div className="intro-section__content">
@@ -256,6 +268,7 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Brands Section */}
       <section className="brands">
         <h1>Top Brands</h1>
         <Swiper
@@ -325,6 +338,7 @@ const Home = () => {
         </Swiper>
       </section>
 
+      {/* Why Us Section */}
       <section className="why-us">
         <div className="why-us-intro">
           <h1>Why Shop With Us</h1>
@@ -386,98 +400,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="banner-2">
-        <h1>Own the Street</h1>
-        <p>Explore Men’s Footwear Trends</p>
-        <Link to="/category" className="shop-button-2">
-          Shop Now
-        </Link>
-      </section>
-
-      <section className="faq-containers">
-        <h2>Frequently Asked Questions</h2>
-
-        <div className="search-faq">
-          <FaSearch className="faq-icon" />
-          <input type="text" placeholder="Search..." />
-        </div>
-
-        <div className="faqs">
-          <div className="questions" onClick={() => toggleFAQ(0)}>
-            <h4>Do you offer free shipping?</h4>
-            <FaPlus className={`dropdown ${openIndex === 0 ? "active" : ""}`} />
-          </div>
-
-          <p className={`answer ${openIndex === 0 ? "show" : ""}`}>
-            Yes, we provide free shipping on selected orders. Delivery times may
-            vary depending on your location.
-          </p>
-        </div>
-
-        <div className="faqs">
-          <div className="questions" onClick={() => toggleFAQ(1)}>
-            <h4>Do you provide outside free shipping?</h4>
-            <FaPlus className={`dropdown ${openIndex === 1 ? "active" : ""}`} />
-          </div>
-
-          <p className={`answer ${openIndex === 1 ? "show" : ""}`}>
-            Yes, we provide free shipping on selected orders. Delivery times may
-            vary depending on your location.
-          </p>
-        </div>
-        <div className="faqs">
-          <div className="questions" onClick={() => toggleFAQ(2)}>
-            <h4>How long does delivery take?</h4>
-            <FaPlus className={`dropdown ${openIndex === 2 ? "active" : ""}`} />
-          </div>
-          <p className={`answer ${openIndex === 2 ? "show" : ""}`}>
-            Delivery usually takes 3–7 business days depending on your location.
-          </p>
-        </div>
-
-        <div className="faqs">
-          <div className="questions" onClick={() => toggleFAQ(3)}>
-            <h4>Can I return or exchange products?</h4>
-            <FaPlus className={`dropdown ${openIndex === 3 ? "active" : ""}`} />
-          </div>
-          <p className={`answer ${openIndex === 3 ? "show" : ""}`}>
-            Yes, we offer easy returns and exchanges within 7 days of delivery.
-          </p>
-        </div>
-
-        <div className="faqs">
-          <div className="questions" onClick={() => toggleFAQ(4)}>
-            <h4>Are your products original?</h4>
-            <FaPlus className={`dropdown ${openIndex === 4 ? "active" : ""}`} />
-          </div>
-          <p className={`answer ${openIndex === 4 ? "show" : ""}`}>
-            All our products are 100% authentic and sourced from trusted
-            suppliers.
-          </p>
-        </div>
-
-        <div className="faqs">
-          <div className="questions" onClick={() => toggleFAQ(5)}>
-            <h4>Do you offer discounts or promotions?</h4>
-            <FaPlus className={`dropdown ${openIndex === 5 ? "active" : ""}`} />
-          </div>
-          <p className={`answer ${openIndex === 5 ? "show" : ""}`}>
-            Yes, we regularly offer discounts and seasonal promotions.
-          </p>
-        </div>
-
-        <div className="faqs">
-          <div className="questions" onClick={() => toggleFAQ(6)}>
-            <h4>How can I contact customer support?</h4>
-            <FaPlus className={`dropdown ${openIndex === 6 ? "active" : ""}`} />
-          </div>
-          <p className={`answer ${openIndex === 6 ? "show" : ""}`}>
-            You can contact us via email or phone, and our support team will
-            assist you promptly.
-          </p>
-        </div>
-      </section>
-
+      {/* Promotional Banners */}
       <section className="ads">
         <div className="yellow-banner">
           <div className="banner-details">

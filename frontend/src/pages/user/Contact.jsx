@@ -1,3 +1,4 @@
+// Importing necessary libraries, components, and styles
 import "../../styles/user/Contact.css";
 import axios from "axios";
 import {
@@ -14,6 +15,7 @@ import {
 import { useState } from "react";
 
 const Contact = () => {
+  // State to manage form data
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -21,9 +23,12 @@ const Contact = () => {
     subject: "",
     message: "",
   });
+
+  // State to manage loading status and success message
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
 
+  // Function to handle input changes and update form data
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -31,13 +36,14 @@ const Contact = () => {
     });
   };
 
-  // submit
+  // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
 
     try {
+      // Sending form data to the backend API
       const res = await axios.post(
         "http://localhost:5000/api/contact",
         formData,
@@ -45,7 +51,7 @@ const Contact = () => {
 
       setSuccessMsg(res.data.message || "Message sent successfully!");
 
-      // reset form
+      // Resetting the form after successful submission
       setFormData({
         name: "",
         phone: "",
@@ -54,7 +60,7 @@ const Contact = () => {
         message: "",
       });
 
-      // auto hide message
+      // Auto-hide success message after 3 seconds
       setTimeout(() => setSuccessMsg(""), 3000);
     } catch (err) {
       console.error(err);
@@ -63,8 +69,10 @@ const Contact = () => {
       setLoading(false);
     }
   };
+
   return (
     <div className="main-container">
+      {/* Contact Banner Section */}
       <section className="contact-banner">
         <div className="contact-content">
           <h1>Get in Touch</h1>
@@ -74,12 +82,16 @@ const Contact = () => {
           </p>
         </div>
       </section>
+
+      {/* Success Message Popup */}
       {successMsg && <div className="success-popup">{successMsg}</div>}
+
+      {/* Contact Form Section */}
       <section className="contact-box">
-        {/* Contact Form */}
         <div className="contact-form">
           <h4>Send us a Message</h4>
           <form onSubmit={handleSubmit}>
+            {/* Form Row for Name and Phone */}
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="name"> Name</label>
@@ -104,17 +116,28 @@ const Contact = () => {
                 />
               </div>
             </div>
+
+            {/* Email Input */}
             <div className="form-group">
               <label htmlFor="email">Email</label>
-              <input type="email" id="email" placeholder="Email your Address"  value={formData.email}
+              <input
+                type="email"
+                id="email"
+                placeholder="Email your Address"
+                value={formData.email}
                 onChange={handleChange}
-                required />
+                required
+              />
             </div>
+
+            {/* Subject Dropdown */}
             <div className="form-group">
               <label htmlFor="subject">Subject</label>
-              <select   id="subject"
+              <select
+                id="subject"
                 value={formData.subject}
-                onChange={handleChange}>
+                onChange={handleChange}
+              >
                 <option value="">Select Subject</option>
                 <option value="support">Support</option>
                 <option value="sales">Sales</option>
@@ -122,32 +145,34 @@ const Contact = () => {
               </select>
             </div>
 
+            {/* Message Textarea */}
             <div className="form-group">
               <label htmlFor="message"> Message</label>
               <textarea
                 id="message"
                 placeholder="Tell Something...."
-               value={formData.message}
+                value={formData.message}
                 onChange={handleChange}
-                required></textarea>
+                required
+              ></textarea>
             </div>
 
-             <button
+            {/* Submit Button */}
+            <button
               type="submit"
               className="send-btn"
               disabled={loading}
             >
               <IoPaperPlaneOutline />
-              <span>
-                {loading ? "Sending..." : "Send Message"}
-              </span>
+              <span>{loading ? "Sending..." : "Send Message"}</span>
             </button>
           </form>
         </div>
 
-        {/* Contact Info & Social */}
+        {/* Contact Information Section */}
         <div className="contact-info">
           <div className="contact-grid">
+            {/* Address Information */}
             <div className="contact-items">
               <LuMapPinHouse className="contactUs-icon" />
               <h5>Visit Us</h5>
@@ -155,6 +180,7 @@ const Contact = () => {
               <span>Tech City, TC 12345</span>
             </div>
 
+            {/* Phone Information */}
             <div className="contact-items">
               <IoCallOutline className="contactUs-icon" />
               <h5>Call Us</h5>
@@ -162,6 +188,7 @@ const Contact = () => {
               <span>0768575371</span>
             </div>
 
+            {/* Email Information */}
             <div className="contact-items">
               <CiMail className="contactUs-icon" />
               <h5>Email Us</h5>
@@ -169,6 +196,7 @@ const Contact = () => {
               <span>support@nexstep.com</span>
             </div>
 
+            {/* Business Hours */}
             <div className="contact-items">
               <CiClock1 className="contactUs-icon" />
               <h5>Business Hours</h5>
@@ -177,7 +205,7 @@ const Contact = () => {
             </div>
           </div>
 
-          {/* Social Section */}
+          {/* Social Media Section */}
           <div className="social">
             <h5>Follow Us</h5>
             <p>
@@ -186,26 +214,23 @@ const Contact = () => {
             </p>
             <div className="social-icon-container">
               <span>
-                {" "}
-                <FaFacebookF className="social-media-icon" />{" "}
+                <FaFacebookF className="social-media-icon" />
               </span>
               <span>
-                {" "}
-                <FaInstagram className="social-media-icon" />{" "}
+                <FaInstagram className="social-media-icon" />
               </span>
               <span>
-                {" "}
-                <FaTiktok className="social-media-icon" />{" "}
+                <FaTiktok className="social-media-icon" />
               </span>
               <span>
-                {" "}
-                <FaXTwitter className="social-media-icon" />{" "}
+                <FaXTwitter className="social-media-icon" />
               </span>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Map Section */}
       <div className="map-container">
         <iframe
           src="https://www.google.com/maps?q=Colombo,Sri%20Lanka&output=embed"
@@ -220,4 +245,5 @@ const Contact = () => {
     </div>
   );
 };
+
 export default Contact;
