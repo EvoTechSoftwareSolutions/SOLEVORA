@@ -106,7 +106,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm transition-all animate-fadeIn">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all scale-100">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all scale-100">
                 {/* Modal Header */}
                 <div className="px-6 py-4 flex justify-between items-center border-b border-gray-100">
                     <div>
