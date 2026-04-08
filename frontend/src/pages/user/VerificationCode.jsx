@@ -7,12 +7,13 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/user/VerificationCode.css';
 
 const VerificationCode = () => {
+  // navigation
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Component state management
-  const [code, setCode] = useState(['', '', '', '', '', '']); // 6-digit code array
-  const [timer, setTimer] = useState(30); // Countdown timer for resend
+  // store 6-digit code
+  const [code, setCode] = useState(['', '', '', '', '', '']);
+  // resend timer
+  const [timer, setTimer] = useState(30);
 
   // Countdown timer effect
   useEffect(() => {
@@ -21,8 +22,7 @@ const VerificationCode = () => {
       return () => clearInterval(interval);
     }
   }, [timer]);
-
-  // Handle input changes with auto-focus functionality
+// handle typing in input boxes
   const handleInputChange = (e, index) => {
     const value = e.target.value;
     if (value.length <= 1) {
@@ -37,16 +37,14 @@ const VerificationCode = () => {
       }
     }
   };
-
-  // Handle keyboard navigation with backspace
+// handle backspace navigation
   const handleKeyDown = (e, index) => {
     if (e.key === 'Backspace' && code[index] === '' && index > 0) {
       const prevInput = document.getElementById(`code-input-${index - 1}`);
       if (prevInput) prevInput.focus();
     }
   };
-
-  // Handle verification code submission
+// verify code
   const handleVerify = () => {
     const fullCode = code.join('');
     if (fullCode.length === 6) {
@@ -55,8 +53,7 @@ const VerificationCode = () => {
       alert('Please enter all 6 digits.');
     }
   };
-
-  // Format time display for countdown timer
+// format timer (mm:ss)
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;

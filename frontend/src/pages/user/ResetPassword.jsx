@@ -25,20 +25,18 @@ function ResetPassword() {
       </div>
     );
   }
-
-  // Password validation criteria
-  const hasMinLength = newPassword.length >= 8; // Minimum 8 characters
+  // password validation checks
+  const hasMinLength = newPassword.length >= 8;
   const hasSpecialAndNumber =
-    /[0-9]/.test(newPassword) && /[^A-Za-z0-9]/.test(newPassword); // Contains number and special character
-
-  // Handle password reset submission
+    /[0-9]/.test(newPassword) && /[^A-Za-z0-9]/.test(newPassword);
+// reset password function
   const handleResetPassword = async () => {
     // Form validation
     if (!newPassword || !confirmPassword) {
       setMessage("Please fill all fields");
       return;
     }
-
+// basic validation
     if (newPassword !== confirmPassword) {
       setMessage("Passwords do not match");
       return;
@@ -119,8 +117,7 @@ function ResetPassword() {
               to ensure maximum security.
             </p>
 
-
-            {/* Password reset form */}
+            {/* form */}
             <form
               className="space-y-8 mt-14"
               onSubmit={(e) => {
@@ -192,8 +189,7 @@ function ResetPassword() {
                   </div>
                 </div>
               </div>
-
-              {/* Submit button */}
+            {/* submit */}
               <button
                 type="submit"
                 className="w-full h-16 rounded-full bg-orange-500 text-white text-2xl font-semibold hover:bg-orange-600 transition shadow-[0_10px_20px_rgba(255,102,0,0.15)]"
@@ -224,4 +220,4 @@ function ResetPassword() {
   );
 }
 
-export default ResetPassword; // Export ResetPassword component
+export default ResetPassword;

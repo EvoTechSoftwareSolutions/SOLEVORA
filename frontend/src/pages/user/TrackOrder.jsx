@@ -7,14 +7,12 @@ import axios from 'axios';
 import '../../styles/user/TrackOrder.css';
 
 const TrackOrder = () => {
-    // Component state management
-    const [orderId, setOrderId] = useState(''); // Order ID input
-    const [email, setEmail] = useState(''); // Email input
-    const [loading, setLoading] = useState(false); // Loading state for API calls
-    const [orderInfo, setOrderInfo] = useState(null); // Retrieved order information
-    const [error, setError] = useState(''); // Error message state
-
-    // Handle order tracking form submission
+    const [orderId, setOrderId] = useState('');
+    const [email, setEmail] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [orderInfo, setOrderInfo] = useState(null);
+    const [error, setError] = useState('');
+// handle tracking form
     const handleTrack = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -44,8 +42,7 @@ const TrackOrder = () => {
             setLoading(false);
         }
     };
-
-    // Calculate progress status for visual stepper
+// get progress step index based on status
     const getProgressStatus = (status) => {
         const statuses = ['pending', 'processing', 'shipped', 'delivered'];
         const currentIndex = statuses.indexOf(status.toLowerCase());
@@ -61,8 +58,7 @@ const TrackOrder = () => {
                     <h1>Track Your Order</h1>
                     <p>Enter your order details below to see the latest progress on your shipment.</p>
                 </div>
-
-                {/* Tracking form */}
+           {/* form */}
                 <div className="track-form-card">
                     <form onSubmit={handleTrack} className="track-form">
                         {/* Order number input */}
@@ -95,8 +91,7 @@ const TrackOrder = () => {
                     {/* Error message display */}
                     {error && <div className="track-error"><span className="material-symbols-outlined">error</span> {error}</div>}
                 </div>
-
-                {/* Tracking results display */}
+                {/* results */}
                 {orderInfo && (
                     <div className="tracking-results-card fade-in">
                         {/* Results header with order info and status */}
