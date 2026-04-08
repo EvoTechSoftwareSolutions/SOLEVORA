@@ -122,16 +122,32 @@ function CategoryPage() {
 
   const [products, setProducts] = useState([]);
 
+  // Manual gender map based on current database products
+  const productGenderMap = {
+    1: "Men",     // SoleRunner V1
+    2: "Kids",    // Urban Glide
+    3: "Men",     // Hoop Master 3000
+    4: "Men",     // Speed Demon
+    5: "Women",   // City Walker
+    6: "Men",     // Court King
+    7: "Men",     // Marathon Elite
+    8: "Kids",    // Street Style
+    9: "Kids",    // Jump Force
+    10: "Men",    // Explorer Combat
+    11: "Women",  // Peep Toe Sandals
+  };
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const { data } = await axios.get("http://localhost:5000/api/products");
         const bgColors = [
-          "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]", 
-          "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]", 
+          "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]",
+          "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]",
           "bg-[#dfdfdf]", "bg-[#efe8e0]", "bg-[#dcd0c2]", "bg-[#ffb0b0]"
         ];
         const fallbackImages = [product1, product2, product3, product4, product5, product6, product7, product8, product9];
+
         const formatted = data.map((p, index) => ({
           id: p.id,
           category: p.category?.name || "Uncategorized",
@@ -190,7 +206,11 @@ function CategoryPage() {
     return filtered;
   }, [products, selectedGender, selectedSize, selectedPrice, sortBy]);
 
-  const sizes = ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"];
+  const sizes =
+    selectedGender === "Kids"
+      ? ["1", "2", "3", "4", "5"]
+      : ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"];
+
   const priceRanges = ["All", "$0-$50", "$50-$100", "$100-$150", "$150+"];
 
   return (
@@ -307,7 +327,10 @@ function CategoryPage() {
                 {["All", "Men", "Women", "Kids"].map((gender) => (
                   <button
                     key={gender}
-                    onClick={() => setSelectedGender(gender)}
+                    onClick={() => {
+                      setSelectedGender(gender);
+                      setSelectedSize("");
+                    }}
                     className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${
                       selectedGender === gender
                         ? "bg-[#d57731] text-white"
@@ -345,20 +368,23 @@ function CategoryPage() {
             </div>
 
             <div>
-              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-5">
+              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">
                 Price Range
               </h4>
-              <div className="px-1">
-                <input
-                  type="range"
-                  className="w-full accent-[#d57731] h-1 bg-white outline-none appearance-none rounded-full"
-                />
-                <div className="flex justify-between text-[9px] text-[#777] font-semibold mt-2">
-                  <span>$0</span>
-                  <span>$50</span>
-                  <span>$100</span>
-                  <span>$150+</span>
-                </div>
+              <div className="flex flex-wrap gap-2">
+                {priceRanges.map((range) => (
+                  <button
+                    key={range}
+                    onClick={() => setSelectedPrice(range)}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${
+                      selectedPrice === range
+                        ? "bg-[#d57731] text-white"
+                        : "bg-white text-[#555] hover:bg-[#ffeacc]"
+                    }`}
+                  >
+                    {range}
+                  </button>
+                ))}
               </div>
             </div>
           </aside>
