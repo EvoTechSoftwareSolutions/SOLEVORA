@@ -8,7 +8,7 @@ const TrackOrder = () => {
     const [loading, setLoading] = useState(false);
     const [orderInfo, setOrderInfo] = useState(null);
     const [error, setError] = useState('');
-
+// handle tracking form
     const handleTrack = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -38,7 +38,7 @@ const TrackOrder = () => {
             setLoading(false);
         }
     };
-
+// get progress step index based on status
     const getProgressStatus = (status) => {
         const statuses = ['pending', 'processing', 'shipped', 'delivered'];
         const currentIndex = statuses.indexOf(status.toLowerCase());
@@ -52,7 +52,7 @@ const TrackOrder = () => {
                     <h1>Track Your Order</h1>
                     <p>Enter your order details below to see the latest progress on your shipment.</p>
                 </div>
-
+           {/* form */}
                 <div className="track-form-card">
                     <form onSubmit={handleTrack} className="track-form">
                         <div className="form-group">
@@ -81,7 +81,7 @@ const TrackOrder = () => {
                     </form>
                     {error && <div className="track-error"><span className="material-symbols-outlined">error</span> {error}</div>}
                 </div>
-
+                {/* results */}
                 {orderInfo && (
                     <div className="tracking-results-card fade-in">
                         <div className="results-header">
