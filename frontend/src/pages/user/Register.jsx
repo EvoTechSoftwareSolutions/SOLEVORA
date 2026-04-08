@@ -15,16 +15,16 @@ function Register() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
+// register function
   const handleRegister = async (e) => {
     e.preventDefault();
     setMessage("");
-
+// basic validation
     if (!name || !email || !password || !confirmPassword) {
       setMessage("Please fill all fields");
       return;
     }
-
+// check password match
     if (password !== confirmPassword) {
       setMessage("Passwords do not match");
       return;
@@ -50,7 +50,7 @@ function Register() {
       setIsLoading(false);
     }
   };
-
+// demo Google register
   const handleGoogleRegister = async () => {
     try {
       const res = await axios.post("http://localhost:5000/register", {
@@ -64,7 +64,7 @@ function Register() {
       setMessage("Google registration failed");
     }
   };
-
+// demo Apple register
   const handleAppleRegister = async () => {
     try {
       const res = await axios.post("http://localhost:5000/register", {
