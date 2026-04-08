@@ -1,6 +1,8 @@
 import express from 'express';
 import User from '../models/User.js';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 const router = express.Router();
 
@@ -83,6 +85,42 @@ router.post('/login', async (req, res) => {
     } catch (error) {
         console.error("Login error:", error);
         res.status(500).json({ message: "Login failed" });
+    }
+});
+
+// Forgot Password Route
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ message: "Email not found" });
+        }
+
+        // Generate reset token
+        const rawToken = crypto.randomBytes(32).toString('hex');
+        const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+        // Store reset token
+        user.resetToken = tokenHash;
+        user.resetTokenExpires = expiresAt;
+        await user.save();
+
+        // Generate reset URL
+        const resetUrl = `http://localhost:5173/reset-password?token=${rawToken}&email=${email}`;
+        
+        console.log('Password reset URL:', resetUrl);
+        console.log('Reset token (for testing):', rawToken);
+        
+        res.json({ 
+            message: "Password reset link sent to your email",
+            debugUrl: resetUrl // Include for development
+        });
+    } catch (error) {
+        console.error("Forgot password error:", error);
+        res.status(500).json({ message: "Failed to process password reset request" });
     }
 });
 
