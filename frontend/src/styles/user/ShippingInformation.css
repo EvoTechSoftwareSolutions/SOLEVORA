@@ -456,6 +456,42 @@
   transform: translateY(-1px);
 }
 
+/* Promo button disabled state */
+.si-promo-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Remove promo button variant */
+.si-promo-remove {
+  background: #fef2f2 !important;
+  color: #ef4444 !important;
+}
+.si-promo-remove:hover {
+  background: #fee2e2 !important;
+}
+
+/* Promo applied badge */
+.si-promo-badge {
+  font-size: 12px;
+  color: #065f46;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-top: -12px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+/* Promo input disabled style */
+.si-promo-input:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 /* ================= Price Breakdown Section ================= */
 /* Price breakdown container */
 .si-totals {

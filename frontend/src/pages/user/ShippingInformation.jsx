@@ -25,20 +25,17 @@ const ShippingInformation = () => {
   
   // Component state management
   const [isToastOpen, setIsToastOpen] = useState(false); // Toast notification visibility
-  const [promoCode, setPromoCode] = useState(checkoutPromo?.code || ''); // Promo code input
-  const [promoApplied, setPromoApplied] = useState(!!checkoutPromo?.applied); // Whether promo is applied
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
-  const [modalContent, setModalContent] = useState({ title: '', body: '' }); // Modal message content
-  
-  // Utility function to display toast notifications
+  const [modalContent, setModalContent] = useState({ title: '', body: '' });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [promoCode, setPromoCode] = useState(checkoutPromo?.code || '');
+  const [promoApplied, setPromoApplied] = useState(!!checkoutPromo?.applied);
+  const [promoLoading, setPromoLoading] = useState(false);
+
+  // Utility: show inline toast
   const showMessage = (title, body) => {
     setModalContent({ title, body });
     setIsToastOpen(true);
-
-    // Auto-hide toast after 2.5 seconds
-    setTimeout(() => {
-      setIsToastOpen(false);
-    }, 2500);
+    setTimeout(() => setIsToastOpen(false), 2500);
   };
 
   // Initialize form data with pre-filled values for logged-in users
@@ -58,14 +55,13 @@ const ShippingInformation = () => {
         userId: user.id
       };
     }
-    // Default values for guest users
     return { ...checkoutData, country: checkoutData.country || 'United States' };
   });
 
   // Price calculations
-  const grossTotal = (lockedSubtotal ?? selectedCartTotal); // Use locked subtotal if available
-  const promoDiscount = promoApplied ? grossTotal * 0.1 : 0; // 10% discount for SAVE10 promo
-  const total = grossTotal - promoDiscount; // Total after discount (shipping is free at this stage)
+  const grossTotal = (lockedSubtotal ?? selectedCartTotal);
+  const promoDiscount = promoApplied ? (checkoutPromo?.discountAmount || 0) : 0;
+  const total = grossTotal - promoDiscount;
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -73,13 +69,36 @@ const ShippingInformation = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Apply promo code validation and discount
-  const handleApplyPromo = () => {
-    if (promoCode.trim().toLowerCase() === 'save10') {
-      setPromoApplied(true);
-      setCheckoutPromo({ code: promoCode, applied: true });
+  // Apply promo code — validated against the backend API
+  const handleApplyPromo = async () => {
+    const trimmed = promoCode.trim();
+    if (!trimmed) {
+      showMessage('Empty Code', 'Please enter a promo code first.');
+      return;
     }
-    else showMessage('Invalid Promo', 'The code you entered is invalid. Try "SAVE10" for a discount.');
+    setPromoLoading(true);
+    try {
+      const axios = (await import('axios')).default;
+      const { data } = await axios.post('http://localhost:5000/api/promo/validate', {
+        code: trimmed,
+        orderAmount: grossTotal
+      });
+      setPromoApplied(true);
+      setCheckoutPromo({
+        code: data.code,
+        applied: true,
+        discountAmount: data.discountAmount,
+        discountType: data.discountType,
+        discountValue: data.discountValue
+      });
+      showMessage('Promo Applied! 🎉', data.message);
+    } catch (err) {
+      setPromoApplied(false);
+      setCheckoutPromo({ code: '', applied: false });
+      showMessage('Invalid Promo', err.response?.data?.message || 'Invalid promo code.');
+    } finally {
+      setPromoLoading(false);
+    }
   };
 
   // Handle continue to shipping method
@@ -304,15 +323,27 @@ const ShippingInformation = () => {
             <div className="si-promo">
               <input
                 type="text"
-                placeholder="Promo code"
+                placeholder="Enter promo code"
                 value={promoCode}
-                onChange={e => setPromoCode(e.target.value)}
+                onChange={e => { setPromoCode(e.target.value); if (promoApplied) { setPromoApplied(false); setCheckoutPromo({ code: '', applied: false }); } }}
                 className="si-promo-input"
+                disabled={promoApplied}
               />
-              <button type="button" onClick={handleApplyPromo} className="si-promo-btn">
-                Apply
-              </button>
+              {promoApplied ? (
+                <button type="button" onClick={() => { setPromoApplied(false); setPromoCode(''); setCheckoutPromo({ code: '', applied: false }); }} className="si-promo-btn si-promo-remove">
+                  Remove
+                </button>
+              ) : (
+                <button type="button" onClick={handleApplyPromo} className="si-promo-btn" disabled={promoLoading}>
+                  {promoLoading ? '...' : 'Apply'}
+                </button>
+              )}
             </div>
+            {promoApplied && (
+              <div className="si-promo-badge">
+                ✅ <strong>{checkoutPromo?.code}</strong> — ${promoDiscount.toFixed(2)} off
+              </div>
+            )}
 
             {/* Order total breakdown */}
             <div className="si-totals">
@@ -320,10 +351,12 @@ const ShippingInformation = () => {
                 <span className="si-total-key">Gross Total</span>
                 <span className="si-total-val">${grossTotal.toFixed(2)}</span>
               </div>
-              <div className="si-total-row">
-                <span className="si-total-key">Promo Discount</span>
-                <span className="si-total-val">${promoDiscount.toFixed(2)}</span>
+              {promoApplied && (
+              <div className="si-total-row" style={{ color: '#22c55e' }}>
+                <span className="si-total-key">Promo Discount ({checkoutPromo?.code})</span>
+                <span className="si-total-val">-${promoDiscount.toFixed(2)}</span>
               </div>
+              )}
               <div className="si-total-row">
                 <span className="si-total-key">Shipping</span>
                 <span className="si-free">Free</span>
