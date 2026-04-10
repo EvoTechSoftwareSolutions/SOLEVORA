@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import ScrollToTop from './components/common/ScrollToTop';
 
 /* Import modularized routes */
 import UserRoutes from './routes/UserRoutes';
@@ -25,6 +26,7 @@ import './App.css';
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AdminAuthProvider>
         <WishlistProvider>
           <CartProvider>

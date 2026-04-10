@@ -20,6 +20,7 @@ const VerificationCode = lazy(() => import('../pages/user/VerificationCode'));
 const OrderConfirmation = lazy(() => import('../pages/user/OrderConfirmation'));
 const TrackOrder = lazy(() => import('../pages/user/TrackOrder'));
 const PrivacyPolicyPage = lazy(() => import('../pages/user/PrivacyPolicyPage'));
+const Terms = lazy(() => import('../pages/user/Terms'));
 
 /**
  * Pathless layout + absolute child paths so /home, /about, etc. match in React Router 7.
@@ -44,6 +45,7 @@ const UserRoutes = (
     <Route path="/order-success" element={<OrderConfirmation />} />
     <Route path="/track-order" element={<TrackOrder />} />
     <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+    <Route path="/terms" element={<Terms />} />
   </Route>
 );
 
