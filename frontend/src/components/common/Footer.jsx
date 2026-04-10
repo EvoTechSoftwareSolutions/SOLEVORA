@@ -143,7 +143,7 @@ const [popupType, setPopupType] = useState("success");
           <div className="footer-container legal-bar">
             <div className="legal-links">
               <span className="dot"></span>
-              <Link to="/privacy">Privacy & Policy</Link>
+              <Link to="/privacy-policy">Privacy & Policy</Link>
               <span className="dot"></span>
               <Link to="/terms">Terms & Conditions</Link>
             </div>
