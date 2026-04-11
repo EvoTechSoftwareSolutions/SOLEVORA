@@ -10,6 +10,8 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 40px;
+  align-items: center;
+
 }
 
 /* --- Newsletter Strip --- */
@@ -85,13 +87,23 @@
   max-width: 300px;
 }
 
-.footer-logo img {
-  height: 75px;
-  width: auto;
-  margin-bottom: 20px;
-  display: block;
-  filter: brightness(0) invert(1);
+.footer-logo {
+  display: inline-block;
 }
+
+/* Logo image */
+.footer-logo img {
+  width: 180px;       /* default size */
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+
+}
+
+
+
+
 
 .brand-description {
   color: #94a3b8;
@@ -123,6 +135,7 @@
 .footer-links-grid {
   flex: 2;
   display: flex;
+  padding: 0 30px;
   justify-content: space-between;
 
 }
@@ -318,6 +331,8 @@
     display: flex;
     justify-content: space-between;
     gap: 10px;
+      padding: 0 0px;
+
   }
   
   .link-column {
@@ -338,6 +353,25 @@
 @media (max-width: 480px) {
   .footer-links-grid {
     grid-template-columns: 1fr;
+  }
+
+  .newsletter-form {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #f1f5f9;
+  border-radius: 100px;
+  width: 90%;             
+  max-width: 220px;        
+  padding: 4px;
+  transition: all 0.3s ease;
+}
+
+}
+@media (max-width: 260px) {
+  .footer-links-grid {
+    display: flex;
+    flex-wrap: wrap;
   }
 
   .newsletter-form {
