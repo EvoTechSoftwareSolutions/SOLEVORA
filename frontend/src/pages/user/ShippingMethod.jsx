@@ -27,6 +27,7 @@ const ShippingMethod = () => {
   const [selectedMethod, setSelectedMethod] = useState('standard'); // Selected shipping method
   const [promoCode, setPromoCode] = useState(checkoutPromo?.code || ''); // Promo code input
   const [promoApplied, setPromoApplied] = useState(!!checkoutPromo?.applied); // Whether promo is applied
+  const [promoLoading, setPromoLoading] = useState(false); // Loading state for apply button
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
   const [modalContent, setModalContent] = useState({ title: '', body: '' }); // Modal message content
 
@@ -34,11 +35,7 @@ const ShippingMethod = () => {
   const showMessage = (title, body) => {
     setModalContent({ title, body });
     setIsToastOpen(true);
-
-    // Auto-hide toast after 2.5 seconds
-    setTimeout(() => {
-      setIsToastOpen(false);
-    }, 2500);
+    setTimeout(() => setIsToastOpen(false), 2500);
   };
 
   // Available shipping methods with pricing and delivery times
@@ -50,18 +47,41 @@ const ShippingMethod = () => {
 
   // Price calculations
   const grossTotal = (lockedSubtotal ?? selectedCartTotal); // Use locked subtotal if available
-  const promoDiscount = promoApplied ? grossTotal * 0.1 : 0; // 10% discount for SAVE10 promo
+  const promoDiscount = promoApplied ? (checkoutPromo?.discountAmount || 0) : 0;
   const currentShippingObj = shippingMethods.find(m => m.id === selectedMethod); // Find selected method
   const currentShipping = currentShippingObj?.price || 0; // Get shipping cost
   const total = grossTotal - promoDiscount + currentShipping; // Final total with shipping
 
-  // Apply promo code validation and discount
-  const handleApplyPromo = () => {
-    if (promoCode.trim().toLowerCase() === 'save10') {
-      setPromoApplied(true);
-      setCheckoutPromo({ code: promoCode, applied: true });
+  // Apply promo code — validated against the backend API
+  const handleApplyPromo = async () => {
+    const trimmed = promoCode.trim();
+    if (!trimmed) {
+      showMessage('Empty Code', 'Please enter a promo code first.');
+      return;
     }
-    else showMessage('Invalid Promo', 'The code you entered is invalid. Try "SAVE10" for a discount.');
+    setPromoLoading(true);
+    try {
+      const axios = (await import('axios')).default;
+      const { data } = await axios.post('http://localhost:5000/api/promo/validate', {
+        code: trimmed,
+        orderAmount: grossTotal
+      });
+      setPromoApplied(true);
+      setCheckoutPromo({
+        code: data.code,
+        applied: true,
+        discountAmount: data.discountAmount,
+        discountType: data.discountType,
+        discountValue: data.discountValue
+      });
+      showMessage('Promo Applied! 🎉', data.message);
+    } catch (err) {
+      setPromoApplied(false);
+      setCheckoutPromo({ code: '', applied: false });
+      showMessage('Invalid Promo', err.response?.data?.message || 'Invalid promo code.');
+    } finally {
+      setPromoLoading(false);
+    }
   };
 
   // Handle continue to payment step
@@ -207,15 +227,27 @@ const ShippingMethod = () => {
             <div className="sm-promo">
               <input
                 type="text"
-                placeholder="Promo code"
+                placeholder="Enter promo code"
                 value={promoCode}
-                onChange={e => setPromoCode(e.target.value)}
+                onChange={e => { setPromoCode(e.target.value); if (promoApplied) { setPromoApplied(false); setCheckoutPromo({ code: '', applied: false }); } }}
                 className="sm-promo-input"
+                disabled={promoApplied}
               />
-              <button type="button" onClick={handleApplyPromo} className="sm-promo-btn">
-                Apply
-              </button>
+              {promoApplied ? (
+                <button type="button" onClick={() => { setPromoApplied(false); setPromoCode(''); setCheckoutPromo({ code: '', applied: false }); }} className="sm-promo-btn sm-promo-remove">
+                  Remove
+                </button>
+              ) : (
+                <button type="button" onClick={handleApplyPromo} className="sm-promo-btn" disabled={promoLoading}>
+                  {promoLoading ? '...' : 'Apply'}
+                </button>
+              )}
             </div>
+            {promoApplied && (
+              <div className="sm-promo-badge">
+                ✅ <strong>{checkoutPromo?.code}</strong> — ${promoDiscount.toFixed(2)} off
+              </div>
+            )}
 
             {/* Order total breakdown */}
             <div className="sm-totals">
@@ -223,10 +255,12 @@ const ShippingMethod = () => {
                 <span className="sm-total-key">Gross Total</span>
                 <span className="sm-total-val">${grossTotal.toFixed(2)}</span>
               </div>
-              <div className="sm-total-row">
-                <span className="sm-total-key">Promo Discount</span>
-                <span className="sm-total-val">${promoDiscount.toFixed(2)}</span>
+              {promoApplied && (
+              <div className="sm-total-row" style={{ color: '#22c55e' }}>
+                <span className="sm-total-key">Promo Discount ({checkoutPromo?.code})</span>
+                <span className="sm-total-val">-${promoDiscount.toFixed(2)}</span>
               </div>
+              )}
               <div className="sm-total-row">
                 <span className="sm-total-key">Shipping</span>
                 <span className="sm-free">

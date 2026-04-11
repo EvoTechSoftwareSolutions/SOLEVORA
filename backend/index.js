@@ -12,6 +12,7 @@ import User from './models/User.js';
 import Address from './models/Address.js';
 import Wishlist from './models/Wishlist.js';
 import Review from './models/Review.js';
+import PromoCode from './models/PromoCode.js';
 
 // Import Routes
 import productRoutes from './routes/productRoutes.js';
@@ -25,6 +26,7 @@ import categoryRoutes from './routes/categoryRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import newsLetter from './routes/newsLetter.js';
 import contactRoute from './routes/contactRoute.js';
+import promoRoutes from './routes/promoRoutes.js';
 
 dotenv.config();
 
@@ -50,6 +52,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use("/api/newsletter", newsLetter);
 app.use("/api/contact", contactRoute);
+app.use("/api/promo", promoRoutes);
 
 
 // The frontend calls these endpoints at the root (e.g. /register, not /api/register)

@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
+import Address from '../models/Address.js';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
@@ -313,6 +314,51 @@ router.put('/user/:id', async (req, res) => {
         if (usageReports !== undefined) user.usageReports = usageReports;
 
         await user.save();
+
+        // Sync with Address table (Shipping Information)
+        if (streetAddress || city || postalCode || country) {
+            const cityStateZip = [city, postalCode].filter(Boolean).join(', ');
+            
+            // Try to find a default address first, then any address, or create new
+            let address = await Address.findOne({ 
+                where: { userId: user.id, isDefault: true } 
+            });
+
+            if (!address) {
+                address = await Address.findOne({ where: { userId: user.id } });
+            }
+
+            if (address) {
+                // If we are about to set this as default, unset others
+                await Address.update({ isDefault: false }, { where: { userId: user.id } });
+
+                // Update existing address
+                await address.update({
+                    name: name || user.name,
+                    street: streetAddress || address.street,
+                    cityStateZip: cityStateZip || address.cityStateZip,
+                    country: country || address.country,
+                    phone: phone || user.phone,
+                    title: location || address.title,
+                    isDefault: true 
+                });
+            } else if (streetAddress && city) {
+                // Unset others before creating a new default
+                await Address.update({ isDefault: false }, { where: { userId: user.id } });
+
+                // Create a new address only if we have at least street and city
+                await Address.create({
+                    userId: user.id,
+                    title: location || 'Home',
+                    name: name || user.name,
+                    street: streetAddress,
+                    cityStateZip: cityStateZip,
+                    country: country || 'Unknown',
+                    phone: phone || user.phone,
+                    isDefault: true
+                });
+            }
+        }
 
         res.json({
             message: "Profile updated successfully",
