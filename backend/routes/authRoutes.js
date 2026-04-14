@@ -3,19 +3,9 @@ import User from '../models/User.js';
 import Address from '../models/Address.js';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
+import { sendEmail } from '../utils/emailService.js';
 
 const router = express.Router();
-
-// Gmail transporter
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        // Prefer env vars; fall back to existing credentials for local dev.
-        user: process.env.GMAIL_USER || 'prasadkumarasinghe725@gmail.com',
-        pass: process.env.GMAIL_PASS || 'cagjsncvfzgyejcm',
-    },
-});
 
 // Register Route
 router.post('/register', async (req, res) => {
@@ -120,17 +110,20 @@ router.post('/forgot-password', async (req, res) => {
 
         const resetLink = `http://localhost:5173/reset-password/${rawToken}`;
 
-        await transporter.sendMail({
-            from: process.env.GMAIL_USER || 'prasadkumarasinghe725@gmail.com',
+        await sendEmail({
             to: email,
             subject: 'Password Reset Link',
             html: `
-                <h2>Password Reset</h2>
-                <p>Click below to reset your password:</p>
-                <a href="${resetLink}" style="display:inline-block;padding:12px 20px;background:#f97316;color:white;text-decoration:none;border-radius:8px;">
-                    Reset Password
-                </a>
-                <p>This link expires in 15 minutes.</p>
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+                    <h2 style="color: #1a1a2e;">Password Reset</h2>
+                    <p>Click below to reset your password for your SoleVora account:</p>
+                    <div style="margin: 30px 0;">
+                        <a href="${resetLink}" style="display:inline-block;padding:14px 25px;background:#f97316;color:white;text-decoration:none;border-radius:8px;font-weight:bold;">
+                            Reset Password
+                        </a>
+                    </div>
+                    <p style="font-size: 13px; color: #666;">This link expires in 15 minutes. If you didn't request this, please ignore this email.</p>
+                </div>
             `,
         });
 

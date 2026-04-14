@@ -56,7 +56,7 @@ const PaymentDetails = () => {
 
     // Price calculations
     const grossTotal = (lockedSubtotal ?? selectedCartTotal); // Use locked subtotal if available
-    const promoDiscount = promoApplied ? grossTotal * 0.1 : 0; // 10% discount for SAVE10 promo
+    const promoDiscount = promoApplied ? (checkoutPromo?.discountAmount || 0) : 0; // Dynamic discount from API
     
     // Get shipping charge based on selected method from checkout data
     const selectedShippingMethod = checkoutData.shippingMethod || 'Standard Shipping';
@@ -66,13 +66,39 @@ const PaymentDetails = () => {
     // Final order total after discounts and shipping
     const total = grossTotal - promoDiscount + shippingCharge;
 
-    // Apply promo code validation and discount
-    const handleApplyPromo = () => {
-        if (promoCode.trim().toLowerCase() === 'save10') {
-            setPromoApplied(true);
-            setCheckoutPromo({ code: promoCode, applied: true });
+    const [promoLoading, setPromoLoading] = useState(false);
+
+    // Apply promo code validation and discount via API
+    const handleApplyPromo = async () => {
+        const trimmed = promoCode.trim();
+        if (!trimmed) return;
+
+        setPromoLoading(true);
+        try {
+            const { data } = await axios.post('http://localhost:5000/api/promo/validate', {
+                code: trimmed,
+                orderAmount: grossTotal
+            });
+
+            if (data.valid) {
+                setPromoApplied(true);
+                // Store full promo info if needed, or just the state
+                setCheckoutPromo({ 
+                    code: data.promo.code, 
+                    applied: true, 
+                    discountType: data.promo.discountType,
+                    discountValue: data.promo.discountValue,
+                    discountAmount: data.discountAmount
+                });
+            } else {
+                showMessage('Invalid Promo', data.message || 'The code you entered is invalid.');
+            }
+        } catch (error) {
+            console.error('Promo validation error:', error);
+            showMessage('Error', 'Could not validate promo code. Please try again.');
+        } finally {
+            setPromoLoading(false);
         }
-        else showMessage('Invalid Promo', 'The code you entered is invalid. Try "SAVE10" for a discount.');
     };
 
     // Main order placement handler - routes to appropriate payment method
@@ -100,6 +126,7 @@ const PaymentDetails = () => {
                 contact_number: checkoutData.phone || 'N/A',
                 email: checkoutData.email || user?.email || 'guest@example.com',
                 userId: user?.id || null,
+                payment_method: 'cod',
                 items: cart.map(item => ({
                     productId: item.id,
                     quantity: item.quantity,
@@ -133,6 +160,7 @@ const PaymentDetails = () => {
                 contact_number: checkoutData.phone || 'N/A',
                 email: checkoutData.email || user?.email || 'guest@example.com',
                 userId: user?.id || null,
+                payment_method: 'online',
                 items: cart.map(item => ({
                     productId: item.id,
                     quantity: item.quantity,

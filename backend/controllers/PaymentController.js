@@ -1,5 +1,8 @@
 import crypto from 'crypto';
 import Order from '../models/Order.js';
+import OrderItem from '../models/OrderItem.js';
+import Product from '../models/Product.js';
+import { sendOrderConfirmationEmail } from '../utils/emailService.js';
 
 export const generatePaymentHash = async (req, res) => {
     try {
@@ -62,6 +65,14 @@ export const handlePaymentNotification = async (req, res) => {
                 // Success
                 await Order.update({ status: 'processing', payment_status: 'paid' }, { where: { id: order_id } });
                 console.log(`Payment successful: Order ${order_id} marked as PROCESSING.`);
+
+                // Send Confirmation Email
+                const order = await Order.findByPk(order_id, {
+                    include: [{ model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }]
+                });
+                if (order && order.email) {
+                    await sendOrderConfirmationEmail(order, order.items);
+                }
             } else if (status_code === '0') {
                 // Pending
                 console.log(`Payment pending for Order ${order_id}.`);

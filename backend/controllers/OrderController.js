@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import OrderItem from '../models/OrderItem.js';
 import Product from '../models/Product.js';
+import { sendOrderConfirmationEmail } from '../utils/emailService.js';
 
 export const createOrder = async (req, res) => {
     try {
@@ -37,6 +38,16 @@ export const createOrder = async (req, res) => {
                     by: item.quantity,
                     where: { id: item.productId }
                 });
+            }
+            
+            // Send email if it's COD (Order is "placed" immediately)
+            if (payment_method === 'cod') {
+                const fullOrder = await Order.findByPk(order.id, {
+                    include: [{ model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }]
+                });
+                if (fullOrder && fullOrder.email) {
+                    await sendOrderConfirmationEmail(fullOrder, fullOrder.items);
+                }
             }
         }
         
@@ -129,7 +140,15 @@ export const updateOrderStatus = async (req, res) => {
 
         await Order.update(updateData, { where: { id } });
         
-        const updatedOrder = await Order.findByPk(id);
+        const updatedOrder = await Order.findByPk(id, {
+            include: [{ model: OrderItem, as: 'items', include: [{ model: Product, as: 'product' }] }]
+        });
+
+        // Trigger email if status just changed to paid (for online payment fallback)
+        if (status === 'paid' && updatedOrder && updatedOrder.email) {
+            await sendOrderConfirmationEmail(updatedOrder, updatedOrder.items);
+        }
+
         res.status(200).json({ message: 'Order updated successfully', order: updatedOrder });
     } catch (error) {
         res.status(500).json({ message: error.message });

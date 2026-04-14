@@ -1,12 +1,99 @@
 // Importing necessary libraries and styles
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import '../../styles/user/OrderConfirmation.css';
 
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { orderId, items, paymentMethod } = location.state || {};
+
+  // Function to generate and download PDF receipt
+  const handleDownloadReceipt = () => {
+    alert("Preparing your receipt PDF...");
+    try {
+      console.log("Starting PDF generation...");
+      const doc = new jsPDF();
+      const orderedItems = items || [];
+      
+      // Safety calculation for subtotal
+      const safeSubtotal = orderedItems.reduce((acc, item) => {
+        const price = parseFloat(item.price) || 0;
+        const qty = parseInt(item.quantity) || 1;
+        return acc + (price * qty);
+      }, 0);
+      
+      // Add Branding / Header
+      doc.setFillColor(26, 26, 46); // Dark blue theme
+      doc.rect(0, 0, 210, 40, 'F');
+      doc.setTextColor(249, 115, 22); // Orange logo color
+      doc.setFontSize(28);
+      doc.text('SOLEVORA', 105, 22, { align: 'center' });
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text('OFFICIAL ORDER RECEIPT', 105, 32, { align: 'center' });
+
+      // Order Info
+      doc.setTextColor(33, 33, 33);
+      doc.setFontSize(10);
+      doc.text(`Order Number: #${orderId || 'N/A'}`, 15, 55);
+      doc.text(`Date: ${new Date().toLocaleDateString()}`, 15, 62);
+      doc.text(`Payment Method: ${paymentMethod?.toUpperCase() || 'N/A'}`, 15, 69);
+
+      // Customer Info (if available)
+      if (user) {
+          doc.text(`Customer Name: ${user.name || 'Valued Customer'}`, 130, 55);
+          doc.text(`Customer Email: ${user.email || 'N/A'}`, 130, 62);
+      }
+
+      // Table of Items
+      const tableData = orderedItems.map(item => [
+        item.name || 'Product',
+        item.size || 'N/A',
+        (item.quantity || 1).toString(),
+        `$${parseFloat(item.price || 0).toFixed(2)}`,
+        `$${(parseFloat(item.price || 0) * (item.quantity || 1)).toFixed(2)}`
+      ]);
+
+      // Use autoTable function directly
+      autoTable(doc, {
+        startY: 80,
+        head: [['Product Name', 'Size', 'Qty', 'Unit Price', 'Subtotal']],
+        body: tableData,
+        headStyles: { fillColor: [249, 115, 22], textColor: [255, 255, 255] },
+        margin: { left: 15, right: 15 },
+        theme: 'grid'
+      });
+
+      // Totals
+      let finalY = 150;
+      if (doc.lastAutoTable && doc.lastAutoTable.finalY) {
+        finalY = doc.lastAutoTable.finalY + 15;
+      } else if (doc.previousAutoTable && doc.previousAutoTable.finalY) {
+        finalY = doc.previousAutoTable.finalY + 15;
+      }
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Grand Total: $${safeSubtotal.toFixed(2)}`, 195, finalY, { align: 'right' });
+
+      // Footer
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(120, 120, 120);
+      doc.text('Thank you for choosing SoleVora! We hope you love your new gear.', 105, finalY + 25, { align: 'center' });
+      doc.text('Contact Support: support@solevora.com', 105, finalY + 32, { align: 'center' });
+
+      // Save PDF
+      console.log("Saving PDF...");
+      doc.save(`SoleVora_Receipt_${orderId || 'Order'}.pdf`);
+      console.log("PDF download triggered.");
+    } catch (error) {
+      console.error("Receipt Download Error:", error);
+      alert("Error generating receipt: " + error.message);
+    }
+  };
 
   // Function to compute the estimated delivery date range (5-7 business days from now)
   const getDeliveryEstimate = () => {
@@ -157,6 +244,23 @@ const OrderConfirmation = () => {
         <div className="oc-actions">
           <button className="oc-track-btn" onClick={() => navigate('/profile/orders')}>
             TRACK ORDER
+          </button>
+          <button className="oc-download-btn" onClick={handleDownloadReceipt} style={{
+              backgroundColor: '#1a1a2e',
+              color: 'white',
+              border: 'none',
+              padding: '14px 25px',
+              borderRadius: '12px',
+              fontWeight: '700',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '14px',
+              transition: 'all 0.3s ease'
+          }}>
+            <span className="material-symbols-outlined">download</span>
+            DOWNLOAD RECEIPT
           </button>
           <button className="oc-continue-btn" onClick={() => navigate('/category')}>
             CONTINUE SHOPPING

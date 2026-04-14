@@ -17,6 +17,10 @@ const OrderItem = sequelize.define('OrderItem', {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
+    size: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     orderId: {
         type: DataTypes.BIGINT,
         references: {
