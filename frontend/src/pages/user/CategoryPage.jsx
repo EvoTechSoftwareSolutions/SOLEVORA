@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import {
@@ -40,9 +40,11 @@ import heritageImage from "../../assets/category/heritage-shoe.png";
 import SuccessPopup from "../../components/common/SuccessPoppup";
 
 function CategoryPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedGender, setSelectedGender] = useState("All");
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get("type") || "All");
   const [sortBy, setSortBy] = useState("featured");
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
@@ -50,6 +52,25 @@ function CategoryPage() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+
+  // Update selectedCategory if URL param changes
+  useEffect(() => {
+    const type = searchParams.get("type");
+    if (type) setSelectedCategory(type);
+  }, [searchParams]);
+
+  const handleCategoryClick = (categoryName) => {
+    const newCategory = selectedCategory === categoryName ? "All" : categoryName;
+    setSelectedCategory(newCategory);
+    
+    // Update URL param
+    if (newCategory === "All") {
+      searchParams.delete("type");
+    } else {
+      searchParams.set("type", newCategory);
+    }
+    setSearchParams(searchParams);
+  };
 
   // Get logged-in user
   const user = (() => {
@@ -197,6 +218,11 @@ function CategoryPage() {
   const displayedProducts = useMemo(() => {
     let filtered = [...products];
 
+    // Category filtering
+    if (selectedCategory !== "All") {
+      filtered = filtered.filter((item) => item.category === selectedCategory);
+    }
+
     // Gender filtering: include "All" gender products in every filter
     if (selectedGender !== "All") {
       filtered = filtered.filter((item) => 
@@ -235,7 +261,7 @@ function CategoryPage() {
     }
 
     return filtered;
-  }, [products, selectedGender, selectedSize, selectedPrice, sortBy]);
+  }, [products, selectedCategory, selectedGender, selectedSize, selectedPrice, sortBy]);
 
   // Dynamic size options based on actual products
   const sizes = useMemo(() => {
@@ -257,6 +283,15 @@ function CategoryPage() {
   }, [products]);
 
   const priceRanges = ["All", "$0-$50", "$50-$100", "$100-$150", "$150+"];
+
+  // Dynamic counts for categories
+  const categoryCounts = useMemo(() => {
+    const counts = {};
+    products.forEach(p => {
+      counts[p.category] = (counts[p.category] || 0) + 1;
+    });
+    return counts;
+  }, [products]);
 
   return (
     <div className="bg-[#f6f6f6] min-h-screen">
@@ -317,7 +352,12 @@ function CategoryPage() {
           {categories.map((item) => (
             <div
               key={item.id}
-              className="transition duration-300 cursor-pointer group"
+              onClick={() => handleCategoryClick(item.title)}
+              className={`transition duration-300 cursor-pointer group p-3 rounded-2xl border-2 ${
+                selectedCategory === item.title 
+                ? "border-[#df8b4a] bg-[#fffaf5]" 
+                : "border-transparent hover:border-gray-100"
+              }`}
             >
               <div className="relative overflow-hidden shadow-sm rounded-xl">
                 <img
@@ -326,7 +366,7 @@ function CategoryPage() {
                   className="w-full h-[140px] sm:h-[160px] lg:h-[180px] object-cover group-hover:scale-105 transition duration-500"
                 />
                 <span className="absolute top-3 right-3 bg-white text-[10px] sm:text-xs px-3 py-1 rounded-full text-[#333] shadow-sm">
-                  {item.count}
+                  {categoryCounts[item.title] || 0} Items
                 </span>
               </div>
 
@@ -346,7 +386,7 @@ function CategoryPage() {
         <div className="flex flex-col gap-4 px-4 py-5 sm:px-8 lg:px-16 sm:flex-row sm:items-center sm:justify-between bg-[#fbf2e1]">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-[#1f1f1f]">
-              All Shoes
+              {selectedCategory === "All" ? "All Shoes" : `${selectedCategory} Collection`}
             </h2>
             <p className="text-[#888] text-xs">{displayedProducts.length} products</p>
           </div>
@@ -371,6 +411,7 @@ function CategoryPage() {
               <span>Filters</span>
             </div>
 
+            {/* Category Filter in Sidebar */}
             <div className="mb-8">
               <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">
                 Gender
