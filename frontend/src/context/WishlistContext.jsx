@@ -65,23 +65,19 @@ export const WishlistProvider = ({ children }) => {
 
     const addToWishlist = async (product) => {
         const uid = getUserId();
-        if (uid) {
-            try {
-                await axios.post('http://localhost:5000/api/wishlist', {
-                    userId: uid,
-                    productId: product.id
-                });
-                fetchWishlist();
-            } catch (err) {
-                console.error('Failed to add to wishlist');
-            }
-        } else {
-            setWishlist((prev) => {
-                if (prev.find(item => item.id === product.id)) return prev;
-                const newWishlist = [...prev, product];
-                localStorage.setItem('solevora_wishlist', JSON.stringify(newWishlist));
-                return newWishlist;
+        if (!uid) {
+            showToast("Please login to add items to your wishlist.", "error");
+            return;
+        }
+        
+        try {
+            await axios.post('http://localhost:5000/api/wishlist', {
+                userId: uid,
+                productId: product.id
             });
+            fetchWishlist();
+        } catch (err) {
+            console.error('Failed to add to wishlist');
         }
         showToast(`${product.name} added to your wishlist!`);
     };

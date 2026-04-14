@@ -7,6 +7,8 @@ import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import '../../styles/user/ProductDetail.css';
 
+import SuccessPopup from '../../components/common/SuccessPoppup';
+
 function ProductDetail() {
     // Route parameter for product ID
     const { id } = useParams();
@@ -21,6 +23,8 @@ function ProductDetail() {
     const [selectedSize, setSelectedSize] = useState('9.0'); // Selected shoe size
     const [activeTab, setActiveTab] = useState('description'); // Active content tab
     const [mainImage, setMainImage] = useState(''); // Currently displayed product image
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupMessage, setPopupMessage] = useState("");
     
     // Review system state
     const [reviews, setReviews] = useState([]); // Product reviews array
@@ -129,6 +133,13 @@ function ProductDetail() {
     // Main component render
     return (
         <div className="product-detail-page">
+            {showPopup && (
+                <SuccessPopup
+                    message={popupMessage}
+                    onClose={() => setShowPopup(false)}
+                    type="notice"
+                />
+            )}
             <div className="container">
                 {/* Breadcrumb navigation */}
                 <div className="breadcrumbs">
@@ -222,6 +233,11 @@ function ProductDetail() {
                         {/* Add to cart and wishlist actions */}
                         <div className="buy-actions">
                             <button className="add-cart-btn" onClick={() => {
+                                if (!user) {
+                                  setPopupMessage("Please login to add items to your cart.");
+                                  setShowPopup(true);
+                                  return;
+                                }
                                 addToCart(product, selectedSize);
                             }}>
                                 <span className="material-symbols-outlined">shopping_bag</span>
@@ -230,6 +246,11 @@ function ProductDetail() {
                             <button 
                                 className={`wish-btn ${isInWishlist(product.id) ? 'active' : ''}`} 
                                 onClick={() => {
+                                    if (!user) {
+                                      setPopupMessage("Please login to add items to your wishlist.");
+                                      setShowPopup(true);
+                                      return;
+                                    }
                                     if (isInWishlist(product.id)) {
                                         removeFromWishlist(product.id);
                                     } else {

@@ -37,17 +37,34 @@ import product9 from "../../assets/category/product-9.png";
 // Bottom banner
 import heritageImage from "../../assets/category/heritage-shoe.png";
 
+import SuccessPopup from "../../components/common/SuccessPoppup";
+
 function CategoryPage() {
   const [selectedGender, setSelectedGender] = useState("All");
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("All");
   const [sortBy, setSortBy] = useState("featured");
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
 
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
+  // Get logged-in user
+  const user = (() => {
+    try {
+      const u = localStorage.getItem('user');
+      return u ? JSON.parse(u) : null;
+    } catch { return null; }
+  })();
+
   const handleWishlistToggle = (product) => {
+    if (!user) {
+      setPopupMessage("Please login to add items to your wishlist.");
+      setShowPopup(true);
+      return;
+    }
     if (isInWishlist(product.id)) {
       removeFromWishlist(product.id);
     } else {
@@ -56,6 +73,11 @@ function CategoryPage() {
   };
 
   const handleAddToCart = (product) => {
+    if (!user) {
+      setPopupMessage("Please login to add items to your cart.");
+      setShowPopup(true);
+      return;
+    }
     // Use a default size — user can pick proper size on the detail page
     const defaultSize = product.sizes?.[0] || "One Size";
     addToCart({ ...product, image_url: product.image }, defaultSize);
@@ -238,6 +260,13 @@ function CategoryPage() {
 
   return (
     <div className="bg-[#f6f6f6] min-h-screen">
+      {showPopup && (
+        <SuccessPopup
+          message={popupMessage}
+          onClose={() => setShowPopup(false)}
+          type="notice"
+        />
+      )}
 
 
       {/* Hero Section */}

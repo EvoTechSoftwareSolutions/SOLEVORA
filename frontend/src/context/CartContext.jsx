@@ -3,6 +3,18 @@ import Toast from '../components/ui/Toast';
 // create cart context
 const CartContext = createContext();
 
+// helper to get user id from localStorage
+const getUserId = () => {
+    try {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) return null;
+        const id = JSON.parse(userStr).id;
+        return id == null ? null : id;
+    } catch {
+        return null;
+    }
+};
+
 export const CartProvider = ({ children }) => {
     // Load local storage if available
     const [cart, setCart] = useState(() => {
@@ -45,6 +57,10 @@ export const CartProvider = ({ children }) => {
     };
 // add product to cart
     const addToCart = (product, size) => {
+        if (!getUserId()) {
+            showToast("Please login to add items to your cart.", "error");
+            return;
+        }
         setCart((prevCart) => {
             const existingItem = prevCart.find(item => item.id === product.id && item.size === size);
             if (existingItem) {
