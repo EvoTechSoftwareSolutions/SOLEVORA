@@ -206,9 +206,9 @@ function ProductDetail() {
                             <span className="old-price">$240.00</span>
                         </div>
 
-                        {/* Product description */}
+                        {/* Product description teaser */}
                         <p className="product-info-text">
-                            Engineered for elite athletes and style enthusiasts alike. The Solevora Elite features a breathable mesh upper and our signature carbon-fiber energy return system.
+                            {product.description || "No description available for this premium footwear."}
                         </p>
 
                         {/* Size selection interface */}
@@ -293,11 +293,9 @@ function ProductDetail() {
                                 // Description tab content
                                 <div className="pane-grid">
                                     <div className="pane-content">
-                                        <h2>Unmatched Comfort and Speed</h2>
+                                        <h2>About the {product.name}</h2>
                                         <p>
-                                            The Solevora Elite Sneaker represents the pinnacle of footwear engineering. 
-                                            Designed for high-intensity training and daily wear, it combines a responsive 
-                                            foam midsole with a structural TPU frame for ultimate stability.
+                                            {product.description || "Detailed information about this exclusive pair is coming soon. Experience the perfect blend of performance technology and premium craftsmanship that defines the Solevora collection."}
                                         </p>
                                         <ul className="bullet-feats">
                                             <li><span className="material-symbols-outlined">check_circle</span><span>Breathable AeroWeave™ mesh upper for thermal regulation.</span></li>
