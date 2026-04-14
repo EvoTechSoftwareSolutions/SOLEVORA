@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo2.png';
 import './Navbar.css';
 import { useCart } from "../../context/CartContext"; 
 import { useWishlist  } from "../../context/WishlistContext"; 

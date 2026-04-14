@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import footerLogo from '../../assets/logo.png';
+import footerLogo from '../../assets/logo2.png';
 import SuccessPopup from "./SuccessPoppup";
 import './Footer.css';
 
@@ -124,7 +124,7 @@ const [popupType, setPopupType] = useState("success");
               <div className="link-column">
                 <h4>Support</h4>
                 <Link to="/contact">Contact Us</Link>
-                <Link to="/faq">FAQs</Link>
+                <Link to="/faqs">FAQs</Link>
                 <Link to="/shipping">Shipping Info</Link>
                 <Link to="/returns">Returns</Link>
                 <Link to="/size-guide">Size Guide</Link>
@@ -136,6 +136,13 @@ const [popupType, setPopupType] = useState("success");
                 <Link to="/press">Press</Link>
                 <Link to="/sustainability">Sustainability</Link>
               </div>
+                <div className="link-column">
+    <h4>My Account</h4>
+    <Link to="/login">Login</Link>
+    <Link to="/register">Register</Link>
+    <Link to="/profile/wishlist" >Wishlist</Link>
+    <Link to="/cart">Shopping Cart</Link>
+  </div>
             </div>
           </div>
 
