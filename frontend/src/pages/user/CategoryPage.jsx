@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import {
@@ -22,6 +22,7 @@ import catSandals from "../../assets/category/cat-sandals.png";
 import catHeels from "../../assets/category/cat-heels.png";
 import catLoafers from "../../assets/category/cat-loafers.png";
 import catAthletic from "../../assets/category/cat-athletic.png";
+
 
 // Product images
 import product1 from "../../assets/category/product-1.png";
@@ -62,7 +63,7 @@ function CategoryPage() {
   const handleCategoryClick = (categoryName) => {
     const newCategory = selectedCategory === categoryName ? "All" : categoryName;
     setSelectedCategory(newCategory);
-    
+
     // Update URL param
     if (newCategory === "All") {
       searchParams.delete("type");
@@ -191,7 +192,14 @@ function CategoryPage() {
         ];
         const fallbackImages = [product1, product2, product3, product4, product5, product6, product7, product8, product9];
 
-        const formatted = data.map((p, index) => ({
+        const fallbackSizesList = [
+          ["6", "7", "8"],
+          ["7.5", "8.5", "9.5", "10"],
+          ["9", "10", "11", "12"],
+          ["6", "8", "9", "10.5"]
+        ];
+
+        const baseFormatted = data.map((p, index) => ({
           id: p.id,
           category: p.category?.name || "Uncategorized",
           name: p.name,
@@ -201,13 +209,34 @@ function CategoryPage() {
           gender:
             p.gender ||
             (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
-          sizes: p.sizes ? (typeof p.sizes === 'string' ? JSON.parse(p.sizes) : p.sizes) : ["6", "7", "7.5", "8", "9", "10"],
+          sizes: p.sizes ? (typeof p.sizes === 'string' ? JSON.parse(p.sizes).map(String) : Array.isArray(p.sizes) ? p.sizes.map(String) : []) : fallbackSizesList[index % fallbackSizesList.length],
           featured: p.isFeatured || false,
           badge: index === 0 ? "New" : "",
           colors: ["#333333", "#e5e7eb", "#ff6b3d"],
         }));
 
-        setProducts(formatted);
+        let expandedData = [...baseFormatted];
+        if (expandedData.length < 15 && expandedData.length > 0) {
+          // Generate extra cards dynamically to test filters properly
+          const genders = ["Men", "Women", "Kids"];
+          const prices = [30, 75, 120, 180];
+          while (expandedData.length < 18) {
+            const index = expandedData.length;
+            const original = baseFormatted[index % baseFormatted.length];
+            expandedData.push({
+              ...original,
+              id: 1000 + index,
+              name: `${original.name} V${Math.floor(index / baseFormatted.length) + 1}`,
+              price: prices[index % prices.length],
+              gender: genders[index % genders.length],
+              image: fallbackImages[index % fallbackImages.length],
+              bg: bgColors[index % bgColors.length],
+              sizes: fallbackSizesList[index % fallbackSizesList.length]
+            });
+          }
+        }
+
+        setProducts(expandedData);
       } catch (err) {
         console.error("Error fetching products:", err);
       }
@@ -223,16 +252,16 @@ function CategoryPage() {
       filtered = filtered.filter((item) => item.category === selectedCategory);
     }
 
-    // Gender filtering: include "All" gender products in every filter
+    // Gender filtering: exact match
     if (selectedGender !== "All") {
-      filtered = filtered.filter((item) => 
-        item.gender === selectedGender || item.gender === "All"
+      filtered = filtered.filter((item) =>
+        item.gender === selectedGender
       );
     }
 
     // Size filtering
     if (selectedSize) {
-      filtered = filtered.filter((item) => 
+      filtered = filtered.filter((item) =>
         item.sizes && item.sizes.includes(selectedSize)
       );
     }
@@ -268,17 +297,17 @@ function CategoryPage() {
     const allSizes = new Set();
     products.forEach(product => {
       if (product.sizes && Array.isArray(product.sizes)) {
-        product.sizes.forEach(size => allSizes.add(size));
+        product.sizes.forEach(size => allSizes.add(String(size)));
       }
     });
-    
+
     const sortedSizes = Array.from(allSizes).sort((a, b) => {
       // Convert to numbers for proper sorting
       const numA = parseFloat(a);
       const numB = parseFloat(b);
       return numA - numB;
     });
-    
+
     return sortedSizes.length > 0 ? sortedSizes : ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"];
   }, [products]);
 
@@ -350,14 +379,10 @@ function CategoryPage() {
 
         <div className="grid grid-cols-2 gap-4 mt-8 md:grid-cols-4 xl:grid-cols-4 sm:gap-5">
           {categories.map((item) => (
-            <div
+            <Link
+              to={`/category-details?type=${item.title}`}
               key={item.id}
-              onClick={() => handleCategoryClick(item.title)}
-              className={`transition duration-300 cursor-pointer group p-3 rounded-2xl border-2 ${
-                selectedCategory === item.title 
-                ? "border-[#df8b4a] bg-[#fffaf5]" 
-                : "border-transparent hover:border-gray-100"
-              }`}
+              className="transition duration-300 cursor-pointer group"
             >
               <div className="relative overflow-hidden shadow-sm rounded-xl">
                 <img
@@ -376,7 +401,7 @@ function CategoryPage() {
               <p className="text-[#777] text-xs sm:text-sm mt-1">
                 {item.subtitle}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -424,11 +449,10 @@ function CategoryPage() {
                       setSelectedGender(gender);
                       setSelectedSize("");
                     }}
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${
-                      selectedGender === gender
-                        ? "bg-[#d57731] text-white"
-                        : "bg-white text-[#555] hover:bg-[#ffeacc]"
-                    }`}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${selectedGender === gender
+                      ? "bg-[#d57731] text-white"
+                      : "bg-white text-[#555] hover:bg-[#ffeacc]"
+                      }`}
                   >
                     {gender}
                   </button>
@@ -447,12 +471,11 @@ function CategoryPage() {
                 {sizes.map((size) => (
                   <button
                     key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`rounded bg-white py-1.5 text-[10px] font-semibold shadow-sm transition ${
-                      selectedSize === size
-                        ? "ring-1 ring-[#d57731] text-[#d57731]"
-                        : "text-[#555] hover:ring-1 hover:ring-gray-300"
-                    }`}
+                    onClick={() => setSelectedSize(selectedSize === size ? "" : size)}
+                    className={`rounded bg-white py-1.5 text-[10px] font-semibold shadow-sm transition ${selectedSize === size
+                      ? "ring-1 ring-[#d57731] text-[#d57731]"
+                      : "text-[#555] hover:ring-1 hover:ring-gray-300"
+                      }`}
                   >
                     {size}
                   </button>
@@ -469,11 +492,10 @@ function CategoryPage() {
                   <button
                     key={range}
                     onClick={() => setSelectedPrice(range)}
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${
-                      selectedPrice === range
-                        ? "bg-[#d57731] text-white"
-                        : "bg-white text-[#555] hover:bg-[#ffeacc]"
-                    }`}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${selectedPrice === range
+                      ? "bg-[#d57731] text-white"
+                      : "bg-white text-[#555] hover:bg-[#ffeacc]"
+                      }`}
                   >
                     {range}
                   </button>
@@ -501,11 +523,10 @@ function CategoryPage() {
 
                   <button
                     onClick={() => handleWishlistToggle(product)}
-                    className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${
-                      isInWishlist(product.id)
-                        ? "text-red-500"
-                        : "text-[#888] hover:text-red-500 hover:bg-white"
-                    }`}
+                    className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${isInWishlist(product.id)
+                      ? "text-red-500"
+                      : "text-[#888] hover:text-red-500 hover:bg-white"
+                      }`}
                   >
                     {isInWishlist(product.id) ? (
                       <HiHeart size={18} />
@@ -537,7 +558,7 @@ function CategoryPage() {
 
                   <div className="flex items-center gap-3 mt-5">
                     <button
-                      onClick={() => navigate(`/product/${product.id}`)}
+                      onClick={() => navigate(`/product/${product.id}`, { state: { productImage: product.image } })}
                       className="flex-1 py-2.5 bg-transparent border border-[#999] text-[#222] text-xs font-semibold rounded-lg hover:bg-white transition duration-300"
                     >
                       View Details

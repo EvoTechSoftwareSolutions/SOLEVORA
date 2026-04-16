@@ -110,7 +110,7 @@ const Category = () => {
                 </div>
 
                 <div className="card-actions">
-                  <Link to={`/product/${product.id}`} className="view-btn">
+                  <Link to={`/product/${product.id}`} state={{ productImage: product.image_url }} className="view-btn">
                     View Details
                   </Link>
                   <button

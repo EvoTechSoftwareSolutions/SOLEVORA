@@ -2,7 +2,7 @@
 // Shows product images, specifications, reviews, and provides cart/wishlist functionality
 // Includes size selection, review submission, and tabbed content display
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import '../../styles/user/ProductDetail.css';
@@ -12,20 +12,26 @@ import SuccessPopup from '../../components/common/SuccessPoppup';
 function ProductDetail() {
     // Route parameter for product ID
     const { id } = useParams();
-    
+    const location = useLocation();
+    const passedImage = location.state?.productImage;
+
     // Cart and wishlist context hooks
     const { addToCart } = useCart();
     const { addToWishlist, isInWishlist, removeFromWishlist } = useWishlist();
-    
+
     // Component state management
     const [product, setProduct] = useState(null); // Product data from API
     const [loading, setLoading] = useState(true); // Loading state for API calls
     const [selectedSize, setSelectedSize] = useState('9.0'); // Selected shoe size
     const [activeTab, setActiveTab] = useState('description'); // Active content tab
-    const [mainImage, setMainImage] = useState(''); // Currently displayed product image
-    const [showPopup, setShowPopup] = useState(false);
-    const [popupMessage, setPopupMessage] = useState("");
-    
+    const [mainImage, setMainImage] = useState(passedImage || ''); // Currently displayed product image
+
+    useEffect(() => {
+        if (passedImage) {
+            setMainImage(passedImage);
+        }
+    }, [passedImage]);
+
     // Review system state
     const [reviews, setReviews] = useState([]); // Product reviews array
     const [submittingReview, setSubmittingReview] = useState(false); // Review submission state
@@ -47,7 +53,9 @@ function ProductDetail() {
                 const data = await response.json();
                 if (response.ok) {
                     setProduct(data);
-                    setMainImage(data.image_url);
+                    if (!passedImage) {
+                        setMainImage(data.image_url);
+                    }
                     // Fetch reviews for this product
                     fetchReviews(id);
                 } else {
@@ -73,13 +81,13 @@ function ProductDetail() {
     // Handle review form submission
     const handleReviewSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Validate user is logged in
         if (!user) {
             setReviewMsg({ text: 'Please sign in to leave a review.', type: 'error' });
             return;
         }
-        
+
         // Validate review comment
         if (!newReview.comment.trim()) {
             setReviewMsg({ text: 'Please write a comment first.', type: 'error' });
@@ -156,7 +164,7 @@ function ProductDetail() {
                     <div className="gallery-section">
                         {/* Main product image display */}
                         <div className="main-viewport">
-                            <img src={mainImage || product.image_url} alt={product.name} />
+                            <img src={mainImage || passedImage || product.image_url} alt={product.name} />
                         </div>
                         {/* Thumbnail strip for image selection */}
                         <div className="thumb-strip">
@@ -203,12 +211,12 @@ function ProductDetail() {
                         {/* Product pricing */}
                         <div className="pricing">
                             <span className="current-price">${product.price}</span>
-                            <span className="old-price">$240.00</span>
+                            <span className="old-price">${(parseFloat(product.price) * 1.2).toFixed(2)}</span>
                         </div>
 
                         {/* Product description teaser */}
                         <p className="product-info-text">
-                            {product.description || "No description available for this premium footwear."}
+                            {product.description || `Engineered for elite athletes and style enthusiasts alike. The ${product.name} features a breathable mesh upper and our signature carbon-fiber energy return system, tailored perfectly for ${product.category?.name || 'everyday'} use.`}
                         </p>
 
                         {/* Size selection interface */}
@@ -218,11 +226,11 @@ function ProductDetail() {
                                 <Link to="/size-chart" className="guide-link">Size Guide</Link>
                             </div>
                             <div className="size-btns">
-                                {['7.0', '8.0', '9.0', '10.0', '11.0', '12.0'].map(size => (
-                                    <button 
+                                {(product.sizes ? (typeof product.sizes === 'string' ? JSON.parse(product.sizes).map(String) : Array.isArray(product.sizes) ? product.sizes.map(String) : ['7.0', '8.0', '9.0', '10.0', '11.0', '12.0']) : ['7.0', '8.0', '9.0', '10.0', '11.0', '12.0']).map(size => (
+                                    <button
                                         key={size}
-                                        className={selectedSize === size ? 'active' : ''} 
-                                        onClick={() => setSelectedSize(size)}
+                                        className={selectedSize === String(size) ? 'active' : ''}
+                                        onClick={() => setSelectedSize(String(size))}
                                     >
                                         {size}
                                     </button>
@@ -234,22 +242,22 @@ function ProductDetail() {
                         <div className="buy-actions">
                             <button className="add-cart-btn" onClick={() => {
                                 if (!user) {
-                                  setPopupMessage("Please login to add items to your cart.");
-                                  setShowPopup(true);
-                                  return;
+                                    setPopupMessage("Please login to add items to your cart.");
+                                    setShowPopup(true);
+                                    return;
                                 }
                                 addToCart(product, selectedSize);
                             }}>
                                 <span className="material-symbols-outlined">shopping_bag</span>
                                 Add to Cart
                             </button>
-                            <button 
-                                className={`wish-btn ${isInWishlist(product.id) ? 'active' : ''}`} 
+                            <button
+                                className={`wish-btn ${isInWishlist(product.id) ? 'active' : ''}`}
                                 onClick={() => {
                                     if (!user) {
-                                      setPopupMessage("Please login to add items to your wishlist.");
-                                      setShowPopup(true);
-                                      return;
+                                        setPopupMessage("Please login to add items to your wishlist.");
+                                        setShowPopup(true);
+                                        return;
                                     }
                                     if (isInWishlist(product.id)) {
                                         removeFromWishlist(product.id);
@@ -293,9 +301,9 @@ function ProductDetail() {
                                 // Description tab content
                                 <div className="pane-grid">
                                     <div className="pane-content">
-                                        <h2>About the {product.name}</h2>
+                                        <h2>{product.name} - Unmatched Comfort and Speed</h2>
                                         <p>
-                                            {product.description || "Detailed information about this exclusive pair is coming soon. Experience the perfect blend of performance technology and premium craftsmanship that defines the Solevora collection."}
+                                            {product.description || `The ${product.name} represents the pinnacle of footwear engineering. Designed for high-intensity training and daily wear, it combines a responsive foam midsole with a structural TPU frame for ultimate stability.`}
                                         </p>
                                         <ul className="bullet-feats">
                                             <li><span className="material-symbols-outlined">check_circle</span><span>Breathable AeroWeave™ mesh upper for thermal regulation.</span></li>
@@ -304,7 +312,7 @@ function ProductDetail() {
                                         </ul>
                                     </div>
                                     <div className="pane-visual">
-                                        <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=600&h=400&auto=format&fit=crop" alt="Sneaker lifestyle" />
+                                        <img src={mainImage || passedImage || product.image_url} alt={product.name} />
                                     </div>
                                 </div>
                             )}
@@ -313,20 +321,20 @@ function ProductDetail() {
                                 // Specifications tab content
                                 <div className="specs-grid">
                                     <div className="spec-item">
-                                        <h5>Material</h5>
-                                        <p>Sustainable Mesh, Recycled Rubber</p>
+                                        <h5>Gender</h5>
+                                        <p>{product.gender || 'Unisex'}</p>
                                     </div>
                                     <div className="spec-item">
-                                        <h5>Heel Drop</h5>
-                                        <p>8mm</p>
+                                        <h5>Stock</h5>
+                                        <p>{product.stock_quantity > 0 ? `${product.stock_quantity} available` : 'Out of stock'}</p>
                                     </div>
                                     <div className="spec-item">
-                                        <h5>Weight</h5>
-                                        <p>250g (Size 9)</p>
+                                        <h5>Category</h5>
+                                        <p>{product.category?.name || 'Lifestyle'}</p>
                                     </div>
                                     <div className="spec-item">
                                         <h5>Best For</h5>
-                                        <p>Road Running, Daily Trainer</p>
+                                        <p>{product.category?.name === 'Running' ? 'Road Running, Daily Trainer' : 'Casual, Everyday Wear'}</p>
                                     </div>
                                 </div>
                             )}
@@ -341,7 +349,7 @@ function ProductDetail() {
                                                 <div key={review.id} className="review-card">
                                                     <div className="r-header">
                                                         <div className="stars">
-                                                            {[1,2,3,4,5].map(s => (
+                                                            {[1, 2, 3, 4, 5].map(s => (
                                                                 <span key={s} className={`material-symbols-outlined ${s <= review.rating ? 'fill' : ''}`}>star</span>
                                                             ))}
                                                         </div>
@@ -373,13 +381,13 @@ function ProductDetail() {
                                                 {reviewMsg.text && (
                                                     <div className={`review-msg ${reviewMsg.type}`}>{reviewMsg.text}</div>
                                                 )}
-                                                
+
                                                 {/* Rating selection */}
                                                 <div className="rating-input">
                                                     <label>Your Rating</label>
                                                     <div className="star-input-group">
-                                                        {[1,2,3,4,5].map(val => (
-                                                            <button 
+                                                        {[1, 2, 3, 4, 5].map(val => (
+                                                            <button
                                                                 key={val}
                                                                 type="button"
                                                                 className={`star-btn ${newReview.rating >= val ? 'active' : ''}`}
@@ -394,7 +402,7 @@ function ProductDetail() {
                                                 {/* Comment input */}
                                                 <div className="comment-input">
                                                     <label>Your Review</label>
-                                                    <textarea 
+                                                    <textarea
                                                         rows="4"
                                                         placeholder="What did you like or dislike?"
                                                         value={newReview.comment}
