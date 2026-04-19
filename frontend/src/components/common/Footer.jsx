@@ -115,11 +115,11 @@ const Footer = () => {
             <div className="footer-links-grid">
               <div className="link-column">
                 <h4>Shop</h4>
-                <Link to="/category">New Arrivals</Link>
-                <Link to="/category">Best Sellers</Link>
-                <Link to="/category">Running</Link>
-                <Link to="/category">Lifestyle</Link>
-                <Link to="/category">Basketball</Link>
+                <Link to="/category-details?type=New Arrivals">New Arrivals</Link>
+                <Link to="/category-details?type=Best Sellers">Best Sellers</Link>
+                <Link to="/category-details?type=Running">Running</Link>
+                <Link to="/category-details?type=Lifestyle">Lifestyle</Link>
+                <Link to="/category-details?type=Basketball">Basketball</Link>
               </div>
               <div className="link-column">
                 <h4>Support</h4>
@@ -127,7 +127,7 @@ const Footer = () => {
                 <Link to="/faqs">FAQs</Link>
 
 
-                <Link to="/size-guide">Size Guide</Link>
+                <Link to="/size-chart">Size Guide</Link>
               </div>
               <div className="link-column">
                 <h4>Company</h4>
