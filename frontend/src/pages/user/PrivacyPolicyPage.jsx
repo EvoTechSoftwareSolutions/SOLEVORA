@@ -142,10 +142,10 @@ function PrivacyPolicyPage() {
   const renderCard = (card) => (
     <div key={card.id} className="legal-card">
       <div className="card-sidebar">
+                  <div className="card-icon-box">{card.icon}</div>
         <span className="card-number">{card.id}</span>
 
         <div className="card-tag-wrapper">
-          <div className="card-icon-box">{card.icon}</div>
           <h3 className="card-tag-text">{card.title}</h3>
         </div>
       </div>
