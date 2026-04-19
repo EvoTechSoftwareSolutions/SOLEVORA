@@ -141,7 +141,13 @@
 .card-sidebar {
   background: #fafafa;
   padding: 25px;
+  text-align: center;
   border-right: 1px solid var(--border);
+}
+.card-tag-wrapper{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .card-number {
