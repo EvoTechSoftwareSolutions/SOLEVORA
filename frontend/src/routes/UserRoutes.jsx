@@ -11,6 +11,7 @@ const About = lazy(() => import('../pages/user/AboutUs'));
 const Contact = lazy(() => import('../pages/user/Contact'));
 const ProductDetail = lazy(() => import('../pages/user/ProductDetail'));
 const Category = lazy(() => import('../pages/user/CategoryPage'));
+const CategoryDetails = lazy(() => import('../pages/user/CategoryDetails'));
 const Cart = lazy(() => import('../pages/user/Cart'));
 const ShippingInformation = lazy(() => import('../pages/user/ShippingInformation'));
 const SizeChart = lazy(() => import('../pages/user/SizeChart'));
@@ -38,6 +39,7 @@ const UserRoutes = (
     <Route path="/product/:id" element={<ProductDetail />} />
     <Route path="/category" element={<Category />} />
     <Route path="/categorypage" element={<Category />} />
+    <Route path="/category-details" element={<CategoryDetails />} />
     <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
     <Route path="/shipping" element={<ProtectedRoute><ShippingInformation /></ProtectedRoute>} />
     <Route path="/size-chart" element={<SizeChart />} />

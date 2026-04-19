@@ -66,7 +66,8 @@ const initDb = async () => {
         console.log('Connection to MySQL has been established successfully.');
         
         // Sync models with database (creates tables if they don't exist, skips if already exist)
-        //await sequelize.sync({ alter: true }); 
+        // Disabled alter: true to prevent MySQL 'Too many keys specified' error on repeated restarts.
+        await sequelize.sync();
         console.log('Database synced successfully.');
     } catch (error) {
         console.error('Unable to connect to the database:', error);

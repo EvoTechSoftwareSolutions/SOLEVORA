@@ -25,6 +25,8 @@ function ProductDetail() {
     const [selectedSize, setSelectedSize] = useState('9.0'); // Selected shoe size
     const [activeTab, setActiveTab] = useState('description'); // Active content tab
     const [mainImage, setMainImage] = useState(passedImage || ''); // Currently displayed product image
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupMessage, setPopupMessage] = useState("");
 
     useEffect(() => {
         if (passedImage) {
@@ -139,6 +141,27 @@ function ProductDetail() {
     }
 
     // Main component render
+    
+    // Safely parse sizes to avoid JSON.parse crashing the React render tree
+    let displaySizes = ['7.0', '8.0', '9.0', '10.0', '11.0', '12.0'];
+    if (product && product.sizes) {
+        if (Array.isArray(product.sizes)) {
+            displaySizes = product.sizes.map(String);
+        } else if (typeof product.sizes === 'string') {
+            try {
+                const parsed = JSON.parse(product.sizes);
+                if (Array.isArray(parsed)) displaySizes = parsed.map(String);
+                else displaySizes = [String(parsed)];
+            } catch (e) {
+                if (product.sizes.includes(',')) {
+                    displaySizes = product.sizes.split(',').map(s => s.trim());
+                } else {
+                    displaySizes = [product.sizes];
+                }
+            }
+        }
+    }
+
     return (
         <div className="product-detail-page">
             {showPopup && (
@@ -226,7 +249,7 @@ function ProductDetail() {
                                 <Link to="/size-chart" className="guide-link">Size Guide</Link>
                             </div>
                             <div className="size-btns">
-                                {(product.sizes ? (typeof product.sizes === 'string' ? JSON.parse(product.sizes).map(String) : Array.isArray(product.sizes) ? product.sizes.map(String) : ['7.0', '8.0', '9.0', '10.0', '11.0', '12.0']) : ['7.0', '8.0', '9.0', '10.0', '11.0', '12.0']).map(size => (
+                                {displaySizes.map(size => (
                                     <button
                                         key={size}
                                         className={selectedSize === String(size) ? 'active' : ''}
