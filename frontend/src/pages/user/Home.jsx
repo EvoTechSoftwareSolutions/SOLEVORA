@@ -111,7 +111,7 @@ const Home = () => {
   const [dbCategories, setDbCategories] = useState([]); // Categories from database
   const [activeCategory, setActiveCategory] = useState('All'); // Active category filter
   const [loading, setLoading] = useState(true); // Loading state
-
+const [searchTerm, setSearchTerm] = useState("");
   // Fetch categories from the database on component mount
   useEffect(() => {
     fetchDbCategories();
@@ -153,6 +153,10 @@ const Home = () => {
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
+
+  const filteredProducts = products.filter((item) =>
+  item.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   return (
     <div className="main-container">
@@ -215,7 +219,9 @@ const Home = () => {
             <HiOutlineAdjustmentsHorizontal className="filter-icon" />
             <div className="search-box">
               <FaSearch className="search-icon" />
-              <input type="text" placeholder="Search products..." />
+              <input type="text" placeholder="Search products..."  value={searchTerm}
+                 onChange={(e) => setSearchTerm(e.target.value)} />
+              
             </div>
           </div>
         </div>
@@ -223,9 +229,9 @@ const Home = () => {
         <div className="hero-cards">
           {loading ? (
             <div style={{ textAlign: 'center', width: '100%', padding: '40px' }}>Loading products...</div>
-          ) : products.length === 0 ? (
+          ) : filteredProducts.length === 0 ? (
             <div style={{ colSpan: '4', textAlign: 'center', width: '100%', padding: '40px' }}>No products found in this category.</div>
-          ) : products.slice(0, 3).map((item) => (
+          ) : filteredProducts.slice(0, 3).map((item) => (
             <Card
               key={item.id}
               image={item.image_url}
