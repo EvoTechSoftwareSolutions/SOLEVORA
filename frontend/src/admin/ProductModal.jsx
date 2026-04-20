@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 
 const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
     // categories for dropdown
@@ -22,6 +22,12 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [uploading, setUploading] = useState({
+        image_url: false,
+        image_url_2: false,
+        image_url_3: false,
+        image_url_4: false
+    });
 
     const isEdit = !!product;
 // run only when modal opens
@@ -78,6 +84,43 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    // handle image upload to Cloudinary via backend
+    const handleFileUpload = async (e, fieldName) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Check file size (5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+            setError('File size too large (max 5MB)');
+            return;
+        }
+
+        setUploading(prev => ({ ...prev, [fieldName]: true }));
+        setError('');
+
+        const uploadData = new FormData();
+        uploadData.append('image', file);
+
+        try {
+            const response = await axios.post('http://localhost:5000/api/upload', uploadData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            if (response.data && response.data.url) {
+                setFormData(prev => ({ ...prev, [fieldName]: response.data.url }));
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            setError(error.response?.data?.message || 'Failed to upload image. Please try again.');
+        } finally {
+            setUploading(prev => ({ ...prev, [fieldName]: false }));
+            // Clear input
+            e.target.value = '';
+        }
     };
 // submit form (create or update product)
     const handleSubmit = async (e) => {
@@ -238,28 +281,81 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                         {/* Image URL */}
                         <div>
                             <label className="block text-xs font-semibold text-gray-700 mb-1.5">Main Image URL</label>
-                            <input 
-                                type="text"
-                                name="image_url"
-                                value={formData.image_url}
-                                onChange={handleChange}
-                                placeholder="https://unsplash.com/..."
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
-                            />
+                            <div className="relative group">
+                                <input 
+                                    type="text"
+                                    name="image_url"
+                                    value={formData.image_url}
+                                    onChange={handleChange}
+                                    placeholder="https://unsplash.com/..."
+                                    className="w-full pl-3 pr-10 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
+                                />
+                                <label className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-[#f66d3b] transition-colors">
+                                    {uploading.image_url ? (
+                                        <div className="w-4 h-4 border-2 border-[#f66d3b] border-t-transparent rounded-full animate-spin"></div>
+                                    ) : (
+                                        <>
+                                            <ArrowUpTrayIcon className="w-4 h-4" />
+                                            <input 
+                                                type="file" 
+                                                className="hidden" 
+                                                accept="image/*"
+                                                onChange={(e) => handleFileUpload(e, 'image_url')} 
+                                            />
+                                        </>
+                                    )}
+                                </label>
+                            </div>
                         </div>
 
                         {/* Additional Image URLs */}
                         <div>
                             <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL 2</label>
-                            <input type="text" name="image_url_2" value={formData.image_url_2} onChange={handleChange} placeholder="Optional secondary image URL" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
+                            <div className="relative group">
+                                <input type="text" name="image_url_2" value={formData.image_url_2} onChange={handleChange} placeholder="Optional secondary image URL" className="w-full pl-3 pr-10 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
+                                <label className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-[#f66d3b] transition-colors">
+                                    {uploading.image_url_2 ? (
+                                        <div className="w-4 h-4 border-2 border-[#f66d3b] border-t-transparent rounded-full animate-spin"></div>
+                                    ) : (
+                                        <>
+                                            <ArrowUpTrayIcon className="w-4 h-4" />
+                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'image_url_2')} />
+                                        </>
+                                    )}
+                                </label>
+                            </div>
                         </div>
                         <div>
                             <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL 3</label>
-                            <input type="text" name="image_url_3" value={formData.image_url_3} onChange={handleChange} placeholder="Optional third image URL" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
+                            <div className="relative group">
+                                <input type="text" name="image_url_3" value={formData.image_url_3} onChange={handleChange} placeholder="Optional third image URL" className="w-full pl-3 pr-10 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
+                                <label className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-[#f66d3b] transition-colors">
+                                    {uploading.image_url_3 ? (
+                                        <div className="w-4 h-4 border-2 border-[#f66d3b] border-t-transparent rounded-full animate-spin"></div>
+                                    ) : (
+                                        <>
+                                            <ArrowUpTrayIcon className="w-4 h-4" />
+                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'image_url_3')} />
+                                        </>
+                                    )}
+                                </label>
+                            </div>
                         </div>
                         <div>
                             <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL 4</label>
-                            <input type="text" name="image_url_4" value={formData.image_url_4} onChange={handleChange} placeholder="Optional fourth image URL" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
+                            <div className="relative group">
+                                <input type="text" name="image_url_4" value={formData.image_url_4} onChange={handleChange} placeholder="Optional fourth image URL" className="w-full pl-3 pr-10 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
+                                <label className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-[#f66d3b] transition-colors">
+                                    {uploading.image_url_4 ? (
+                                        <div className="w-4 h-4 border-2 border-[#f66d3b] border-t-transparent rounded-full animate-spin"></div>
+                                    ) : (
+                                        <>
+                                            <ArrowUpTrayIcon className="w-4 h-4" />
+                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'image_url_4')} />
+                                        </>
+                                    )}
+                                </label>
+                            </div>
                         </div>
 
                         {/* Description */}

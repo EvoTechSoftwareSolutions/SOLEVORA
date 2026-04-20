@@ -217,28 +217,7 @@ function CategoryPage() {
           colors: ["#333333", "#e5e7eb", "#ff6b3d"],
         }));
 
-        let expandedData = [...baseFormatted];
-        if (expandedData.length < 15 && expandedData.length > 0) {
-          // Generate extra cards dynamically to test filters properly
-          const genders = ["Men", "Women", "Kids"];
-          const prices = [30, 75, 120, 180];
-          while (expandedData.length < 18) {
-            const index = expandedData.length;
-            const original = baseFormatted[index % baseFormatted.length];
-            expandedData.push({
-              ...original,
-              id: 1000 + index,
-              name: `${original.name} V${Math.floor(index / baseFormatted.length) + 1}`,
-              price: prices[index % prices.length],
-              gender: genders[index % genders.length],
-              image: fallbackImages[index % fallbackImages.length],
-              bg: bgColors[index % bgColors.length],
-              sizes: fallbackSizesList[index % fallbackSizesList.length]
-            });
-          }
-        }
-
-        setProducts(expandedData);
+        setProducts(baseFormatted);
       } catch (err) {
         console.error("Error fetching products:", err);
       }

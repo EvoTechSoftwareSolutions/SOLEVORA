@@ -164,6 +164,53 @@ function ProductDetail() {
         }
     }
 
+    // Helper to get unique features based on product category or name
+    const getProductFeatures = () => {
+        const cat = product.category?.name?.toLowerCase() || '';
+        const name = product.name?.toLowerCase() || '';
+
+        // Default features
+        let features = [
+            'Breathable AeroWeave™ mesh upper for thermal regulation.',
+            'Dynamic Cushioning System for 30% more energy return.',
+            'Precision-engineered fit for all-day comfort.'
+        ];
+
+        if (cat.includes('running') || name.includes('run')) {
+            features = [
+                'Carbon-fiber energy transition plate for maximum propulsion.',
+                'Reflective elements for safety during low-light sessions.',
+                'Ultra-lightweight construction to minimize fatigue.'
+            ];
+        } else if (cat.includes('basketball') || name.includes('hoop')) {
+            features = [
+                'Multi-directional traction pattern for elite court control.',
+                'Reinforced high-top collar for tactical ankle stability.',
+                'Impact-reactive foam for explosive vertical jumps.'
+            ];
+        } else if (cat.includes('boots') || cat.includes('combat') || name.includes('explorer')) {
+            features = [
+                'Military-grade ballistic nylon for superior durability.',
+                'Water-repellent NanoTech™ coating for all-weather use.',
+                'Self-cleaning tread pattern prevents mud buildup.'
+            ];
+        } else if (cat.includes('sandals') || cat.includes('casual') || name.includes('peep')) {
+            features = [
+                'Anatomically contoured footbed for natural arch support.',
+                'Soft-touch premium inner lining prevents skin irritation.',
+                'Flex-Groove sole technology for natural foot movement.'
+            ];
+        } else if (name.includes('glide') || name.includes('walker')) {
+            features = [
+                'Cloud-foam midsole for a "walking on air" experience.',
+                'Easy-slip heel construction for effortless transitions.',
+                'Anti-microbial finish for long-lasting freshness.'
+            ];
+        }
+
+        return features;
+    };
+
     return (
         <div className="product-detail-page">
             {showPopup && (
@@ -341,9 +388,12 @@ function ProductDetail() {
                                             {product.description || `The ${product.name} represents the pinnacle of footwear engineering. Designed for high-intensity training and daily wear, it combines a responsive foam midsole with a structural TPU frame for ultimate stability.`}
                                         </p>
                                         <ul className="bullet-feats">
-                                            <li><span className="material-symbols-outlined">check_circle</span><span>Breathable AeroWeave™ mesh upper for thermal regulation.</span></li>
-                                            <li><span className="material-symbols-outlined">check_circle</span><span>Dynamic Cushioning System for 30% more energy return.</span></li>
-                                            <li><span className="material-symbols-outlined">check_circle</span><span>Grippy All-Terrain outsole for superior traction on any surface.</span></li>
+                                            {getProductFeatures().map((feat, idx) => (
+                                                <li key={idx}>
+                                                    <span className="material-symbols-outlined">check_circle</span>
+                                                    <span>{feat}</span>
+                                                </li>
+                                            ))}
                                         </ul>
                                     </div>
                                     <div className="pane-visual">
@@ -368,8 +418,21 @@ function ProductDetail() {
                                         <p>{product.category?.name || 'Lifestyle'}</p>
                                     </div>
                                     <div className="spec-item">
+                                        <h5>Material</h5>
+                                        <p>{product.category?.name === 'Running' ? 'Engineered Mesh & Synthetic' : (product.category?.name === 'Boots' ? 'Ballistic Nylon & Leather' : 'Premium Leather & Textile')}</p>
+                                    </div>
+                                    <div className="spec-item">
+                                        <h5>Weight</h5>
+                                        <p>{product.category?.name === 'Running' ? '240g (Size 9)' : (product.category?.name === 'Boots' ? '580g (Size 9)' : '310g (Size 9)')}</p>
+                                    </div>
+                                    <div className="spec-item">
                                         <h5>Best For</h5>
-                                        <p>{product.category?.name === 'Running' ? 'Road Running, Daily Trainer' : 'Casual, Everyday Wear'}</p>
+                                        <p>
+                                            {product.category?.name === 'Running' ? 'High-Intensity Training & Marathons' : 
+                                             product.category?.name === 'Basketball' ? 'Competitive Court Play' :
+                                             product.category?.name === 'Boots' ? 'Outdoor Exploration & Tactical Use' :
+                                             'Daily Lifestyle & Urban Fashion'}
+                                        </p>
                                     </div>
                                 </div>
                             )}
@@ -462,5 +525,6 @@ function ProductDetail() {
         </div>
     );
 }
-
 export default ProductDetail; // Export ProductDetail component
+
+
