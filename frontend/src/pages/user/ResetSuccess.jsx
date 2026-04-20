@@ -1,11 +1,14 @@
 // ResetSuccess Component - Password reset success confirmation page
 // Displays success message after successful password reset
 // Provides navigation back to login page with visual confirmation
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { LuCircleCheckBig } from "react-icons/lu";
 import successImage from "../../assets/reset-success.png";
 
 function ResetSuccess() {
+  const location = useLocation();
+  const role = location.state?.role || "user";
+  const loginPath = ["admin", "store_manager"].includes(role) ? "/admin-login" : "/";
   return (
     <div className="min-h-screen bg-[#f4f4f4]">
       <div className="flex flex-col min-h-screen md:flex-row">
@@ -57,7 +60,7 @@ function ResetSuccess() {
 
             {/* Back to login button */}
             <Link
-              to="/"
+              to={loginPath}
               className="mt-12 w-full h-16 rounded-2xl bg-orange-500 text-white text-xl font-semibold hover:bg-orange-600 transition flex items-center justify-center shadow-[0_10px_20px_rgba(255,102,0,0.15)]"
             >
               Back to Login →

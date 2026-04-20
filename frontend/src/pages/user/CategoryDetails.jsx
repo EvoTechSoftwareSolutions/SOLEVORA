@@ -132,10 +132,10 @@ function CategoryDetails() {
             {displayedProducts.map((product) => (
               <div
                 key={product.id}
-                className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
+                className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 h-fit"
               >
                 {/* Image Section */}
-                <div className={`relative w-full aspect-[4/3] ${product.bg} flex items-center justify-center p-6`}>
+                <div className={`relative w-full aspect-[3/2] ${product.bg} flex items-center justify-center p-4`}>
                   {product.badge && (
                     <span className="absolute top-4 left-4 bg-black/90 text-white text-[10px] font-bold px-3 py-1.5 rounded-full z-10 shadow-sm uppercase tracking-wider backdrop-blur-md">
                       {product.badge}
@@ -165,7 +165,7 @@ function CategoryDetails() {
                 </div>
 
                 {/* Info Section */}
-                <div className="p-6">
+                <div className="p-4">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <p className="text-[#a0a0a0] text-[10px] font-bold uppercase tracking-wider mb-1">

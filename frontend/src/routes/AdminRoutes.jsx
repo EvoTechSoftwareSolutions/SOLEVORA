@@ -5,6 +5,7 @@ import AdminRoute from '../admin/AdminRoute';
 // Layout
 const AdminLayout  = lazy(() => import('../admin/AdminLayout'));
 const AdminLogin   = lazy(() => import('../admin/AdminLogin'));
+const AdminForgotPassword = lazy(() => import('../admin/AdminForgotPassword'));
 
 // Pages – accessible by both admin and store_manager
 const Dashboard          = lazy(() => import('../admin/Dashboard'));
@@ -22,6 +23,7 @@ const PromoCodes  = lazy(() => import('../admin/PromoCodes'));
 const AdminRoutes = [
     /* Stand-alone admin login page (no layout shell) */
     <Route key="admin-login" path="/admin-login" element={<AdminLogin />} />,
+    <Route key="admin-forgot" path="/admin-forgot-password" element={<AdminForgotPassword />} />,
 
     /* Protected admin shell */
     <Route

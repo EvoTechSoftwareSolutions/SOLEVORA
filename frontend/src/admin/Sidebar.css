@@ -4,7 +4,13 @@
     background-color: #fcecd6;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+}
+
+.app-sidebar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 /* logo area at top */
 .app-sidebar-logo {

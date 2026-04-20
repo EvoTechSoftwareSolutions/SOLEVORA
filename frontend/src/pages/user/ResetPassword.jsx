@@ -1,7 +1,7 @@
 // ResetPassword Component - Handles password reset functionality with token validation
 // Allows users to set a new password using a reset token from email
 // Includes password strength validation and security requirements display
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { LuEye, LuCircleCheck, LuCircle } from "react-icons/lu";
@@ -10,14 +10,26 @@ import "./../../styles/Auth.css";
 
 function ResetPassword() {
   const navigate = useNavigate();
-  const { token } = useParams(); // Reset token from URL parameter
+  const { token } = useParams();
 
-  // Form state management
-  const [newPassword, setNewPassword] = useState(""); // New password input
-  const [confirmPassword, setConfirmPassword] = useState(""); // Password confirmation
-  const [message, setMessage] = useState(""); // Status/error messages
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [userRole, setUserRole] = useState("user");
 
-  // Invalid token state - prevents access without proper reset token
+  useEffect(() => {
+    if (!token) return;
+    const verifyToken = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/verify-reset-token/${token}`);
+        if (res.data.role) setUserRole(res.data.role);
+      } catch (err) {
+        console.error("Token verification error:", err);
+      }
+    };
+    verifyToken();
+  }, [token]);
+
   if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f4f4f4]">
@@ -25,6 +37,7 @@ function ResetPassword() {
       </div>
     );
   }
+
   // password validation checks
   const hasMinLength = newPassword.length >= 8;
   const hasSpecialAndNumber =
@@ -53,7 +66,7 @@ function ResetPassword() {
 
       // Redirect to success page after 1 second
       setTimeout(() => {
-        navigate("/reset-success");
+        navigate("/reset-success", { state: { role: userRole } });
       }, 1000);
     } catch (error) {
       // Error handling
@@ -203,10 +216,10 @@ function ResetPassword() {
               )}
             </form>
 
-            {/* Back to login link */}
             <div className="text-center mt-14">
+              {/* Intelligent link back to correct portal */}
               <Link
-                to="/"
+                to={["admin", "store_manager"].includes(userRole) ? "/admin-login" : "/"}
                 className="text-[#635d63] text-xl hover:text-orange-500 transition"
               >
                 ← Return to Login

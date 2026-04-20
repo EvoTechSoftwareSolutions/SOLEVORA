@@ -249,7 +249,7 @@ function CategoryPage() {
 
     // Category filtering
     if (selectedCategory !== "All") {
-      filtered = filtered.filter((item) => item.category === selectedCategory);
+      filtered = filtered.filter((item) => item.category.toLowerCase() === selectedCategory.toLowerCase());
     }
 
     // Gender filtering: exact match
@@ -358,7 +358,10 @@ function CategoryPage() {
             uncompromising comfort. Step into the new season.
           </p>
 
-          <button className="mt-5 px-6 py-3 rounded-full bg-[#dd8e4a] hover:bg-[#c97e40] transition duration-300 text-sm sm:text-base font-medium shadow-lg">
+          <button 
+            onClick={() => document.getElementById('product-grid-section')?.scrollIntoView({ behavior: 'smooth' })}
+            className="mt-5 px-6 py-3 rounded-full bg-[#dd8e4a] hover:bg-[#c97e40] transition duration-300 text-sm sm:text-base font-medium shadow-lg"
+          >
             Shop the Collection →
           </button>
         </div>
@@ -379,9 +382,12 @@ function CategoryPage() {
 
         <div className="grid grid-cols-2 gap-4 mt-8 md:grid-cols-4 xl:grid-cols-4 sm:gap-5">
           {categories.map((item) => (
-            <Link
-              to={`/category-details?type=${item.title}`}
+            <div
               key={item.id}
+              onClick={() => {
+                handleCategoryClick(item.title);
+                document.getElementById('product-grid-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
               className="transition duration-300 cursor-pointer group"
             >
               <div className="relative overflow-hidden shadow-sm rounded-xl">
@@ -401,13 +407,13 @@ function CategoryPage() {
               <p className="text-[#777] text-xs sm:text-sm mt-1">
                 {item.subtitle}
               </p>
-            </Link>
+            </div>
           ))}
         </div>
       </section>
 
       {/* Product Section */}
-      <section className="bg-[#faecd9]">
+      <section id="product-grid-section" className="bg-[#faecd9]">
         <div className="flex flex-col gap-4 px-4 py-5 sm:px-8 lg:px-16 sm:flex-row sm:items-center sm:justify-between bg-[#fbf2e1]">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-[#1f1f1f]">
@@ -436,7 +442,26 @@ function CategoryPage() {
               <span>Filters</span>
             </div>
 
-            {/* Category Filter in Sidebar */}
+            <div className="mb-8">
+              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">
+                Category
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {["All", ...categories.map(c => c.title)].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => handleCategoryClick(cat)}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${selectedCategory === cat
+                      ? "bg-[#d57731] text-white"
+                      : "bg-white text-[#555] hover:bg-[#ffeacc]"
+                      }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="mb-8">
               <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">
                 Gender
@@ -509,11 +534,11 @@ function CategoryPage() {
             {displayedProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-[#f2f2f2] rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-md transition duration-300"
+                className="bg-[#f2f2f2] rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-md transition duration-300 h-fit"
               >
                 {/* Top Image Box */}
                 <div
-                  className={`relative w-full aspect-square ${product.bg} flex items-center justify-center p-6`}
+                  className={`relative w-full aspect-[3/2] ${product.bg} flex items-center justify-center p-4`}
                 >
                   {product.badge && (
                     <span className="absolute top-4 left-4 bg-[#ff6b3d] text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
@@ -543,7 +568,7 @@ function CategoryPage() {
                 </div>
 
                 {/* Info Bottom Row */}
-                <div className="px-5 pt-4 pb-5 flex flex-col">
+                <div className="px-4 pt-2 pb-3 flex flex-col">
                   <p className="text-[#ff5c45] text-[10px] font-bold uppercase tracking-wider mb-1">
                     {product.category}
                   </p>
@@ -556,7 +581,7 @@ function CategoryPage() {
                     ${product.price.toFixed(2)}
                   </p>
 
-                  <div className="flex items-center gap-3 mt-5">
+                  <div className="flex items-center gap-3 mt-4">
                     <button
                       onClick={() => navigate(`/product/${product.id}`, { state: { productImage: product.image } })}
                       className="flex-1 py-2.5 bg-transparent border border-[#999] text-[#222] text-xs font-semibold rounded-lg hover:bg-white transition duration-300"

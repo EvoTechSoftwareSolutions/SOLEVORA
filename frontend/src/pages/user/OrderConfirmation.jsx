@@ -3,16 +3,22 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import SuccessPopup from '../../components/common/SuccessPoppup';
 import '../../styles/user/OrderConfirmation.css';
 
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { orderId, items, paymentMethod } = location.state || {};
+  const [showPopup, setShowPopup] = React.useState(false);
+  const [popupMessage, setPopupMessage] = React.useState("");
+  const [popupType, setPopupType] = React.useState("success");
 
   // Function to generate and download PDF receipt
   const handleDownloadReceipt = () => {
-    alert("Preparing your receipt PDF...");
+    setPopupMessage("Your digital receipt is being prepared. It will download automatically in a few seconds.");
+    setPopupType("success");
+    setShowPopup(true);
     try {
       console.log("Starting PDF generation...");
       const doc = new jsPDF();
@@ -91,7 +97,9 @@ const OrderConfirmation = () => {
       console.log("PDF download triggered.");
     } catch (error) {
       console.error("Receipt Download Error:", error);
-      alert("Error generating receipt: " + error.message);
+      setPopupMessage("We encountered a problem while generating your receipt: " + error.message);
+      setPopupType("notice");
+      setShowPopup(true);
     }
   };
 
@@ -134,6 +142,13 @@ const OrderConfirmation = () => {
   return (
     <div className="oc-page">
       <div className="oc-container">
+        {showPopup && (
+          <SuccessPopup
+            message={popupMessage}
+            onClose={() => setShowPopup(false)}
+            type={popupType}
+          />
+        )}
 
         {/* Success Header Section */}
         <div className="oc-header">

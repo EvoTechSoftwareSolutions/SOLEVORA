@@ -149,7 +149,7 @@ router.get('/verify-reset-token/:token', async (req, res) => {
             return res.status(400).json({ message: "Invalid or expired token" });
         }
 
-        res.json({ message: "Token valid" });
+        res.json({ message: "Token valid", role: user.role });
     } catch (error) {
         console.error("Verify token error:", error);
         res.status(500).json({ message: "Token verification failed" });

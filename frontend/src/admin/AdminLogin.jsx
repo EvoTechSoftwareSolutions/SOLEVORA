@@ -88,6 +88,14 @@ const AdminLogin = () => {
                                 autoComplete="current-password"
                             />
                         </div>
+                        <div style={{ textAlign: 'right', marginTop: '6px' }}>
+                            <span 
+                                onClick={() => navigate('/admin-forgot-password')} 
+                                style={{ fontSize: '12px', color: '#f66d3b', cursor: 'pointer', fontWeight: '500' }}
+                            >
+                                Forgot Password?
+                            </span>
+                        </div>
                     </div>
 
                     {error && <div className="al-error">{error}</div>}
