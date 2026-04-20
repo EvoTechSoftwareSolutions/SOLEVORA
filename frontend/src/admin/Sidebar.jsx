@@ -153,7 +153,7 @@ const Sidebar = () => {
                 </Link>
             </div>
 
-            {/* SYSTEM section — Settings only for admin */}
+            {/* SYSTEM section — Settings only for admin, Security for all */}
             <div className="app-system-label">SYSTEM</div>
             <div className="app-nav-items app-system-items">
                 {isAdmin && (
@@ -168,6 +168,17 @@ const Sidebar = () => {
                     </Link>
                 )}
 
+                {/* Security — visible to all roles */}
+                <Link to="/admin/security" style={{ textDecoration: 'none' }}>
+                    <div className={`app-nav-item ${isTabActive('/admin/security')}`}>
+                        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Security
+                    </div>
+                </Link>
+
                 {/* Logout */}
                 <div className="app-nav-item app-nav-logout" onClick={handleLogout}>
                     <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
@@ -178,6 +189,7 @@ const Sidebar = () => {
                     Logout
                 </div>
             </div>
+
         </div>
     );
 };
