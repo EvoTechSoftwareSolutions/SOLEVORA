@@ -10,6 +10,45 @@
   font-family: 'Inter', sans-serif;
 }
 
+/* Modal Specific Styles */
+.sc-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.sc-modal-container {
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+}
+
+.sc-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #999;
+  cursor: pointer;
+  z-index: 10;
+  line-height: 1;
+}
+
+.sc-modal-close:hover {
+  color: #333;
+}
+
 /* ================= Hero Section ================= */
 /* Hero section with title and subtitle */
 .sc-hero {

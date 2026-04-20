@@ -14,7 +14,6 @@ const Category = lazy(() => import('../pages/user/CategoryPage'));
 const CategoryDetails = lazy(() => import('../pages/user/CategoryDetails'));
 const Cart = lazy(() => import('../pages/user/Cart'));
 const ShippingInformation = lazy(() => import('../pages/user/ShippingInformation'));
-const SizeChart = lazy(() => import('../pages/user/SizeChart'));
 const ShippingMethod = lazy(() => import('../pages/user/ShippingMethod'));
 const PaymentDetails = lazy(() => import('../pages/user/PaymentDetails'));
 const VerificationCode = lazy(() => import('../pages/user/VerificationCode'));
@@ -42,7 +41,6 @@ const UserRoutes = (
     <Route path="/category-details" element={<CategoryDetails />} />
     <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
     <Route path="/shipping" element={<ProtectedRoute><ShippingInformation /></ProtectedRoute>} />
-    <Route path="/size-chart" element={<SizeChart />} />
     <Route path="/shipping-method" element={<ShippingMethod />} />
     <Route path="/payment" element={<PaymentDetails />} />
     <Route path="/verify-code" element={<VerificationCode />} />

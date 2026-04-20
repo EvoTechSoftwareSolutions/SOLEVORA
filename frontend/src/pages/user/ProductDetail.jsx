@@ -8,6 +8,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import '../../styles/user/ProductDetail.css';
 
 import SuccessPopup from '../../components/common/SuccessPoppup';
+import SizeChartModal from '../../components/user/SizeChartModal';
 
 function ProductDetail() {
     // Route parameter for product ID
@@ -27,6 +28,7 @@ function ProductDetail() {
     const [mainImage, setMainImage] = useState(passedImage || ''); // Currently displayed product image
     const [showPopup, setShowPopup] = useState(false);
     const [popupMessage, setPopupMessage] = useState("");
+    const [showSizeChart, setShowSizeChart] = useState(false);
 
     useEffect(() => {
         if (passedImage) {
@@ -171,6 +173,10 @@ function ProductDetail() {
                     type="notice"
                 />
             )}
+            <SizeChartModal 
+                isOpen={showSizeChart} 
+                onClose={() => setShowSizeChart(false)} 
+            />
             <div className="container">
                 {/* Breadcrumb navigation */}
                 <div className="breadcrumbs">
@@ -246,7 +252,13 @@ function ProductDetail() {
                         <div className="size-selector">
                             <div className="selector-title">
                                 <span>SELECT SIZE (US)</span>
-                                <Link to="/size-chart" className="guide-link">Size Guide</Link>
+                                <button 
+                                    onClick={() => setShowSizeChart(true)} 
+                                    className="guide-link"
+                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit', color: 'inherit', textDecoration: 'underline' }}
+                                >
+                                    Size Guide
+                                </button>
                             </div>
                             <div className="size-btns">
                                 {displaySizes.map(size => (

@@ -39,6 +39,7 @@ import product9 from "../../assets/category/product-9.png";
 import heritageImage from "../../assets/category/heritage-shoe.png";
 
 import SuccessPopup from "../../components/common/SuccessPoppup";
+import SizeChartModal from "../../components/user/SizeChartModal";
 
 function CategoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -49,6 +50,7 @@ function CategoryPage() {
   const [sortBy, setSortBy] = useState("featured");
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const [showSizeChart, setShowSizeChart] = useState(false);
 
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -331,6 +333,10 @@ function CategoryPage() {
           type="notice"
         />
       )}
+      <SizeChartModal 
+        isOpen={showSizeChart} 
+        onClose={() => setShowSizeChart(false)} 
+      />
 
 
       {/* Hero Section */}
@@ -490,6 +496,12 @@ function CategoryPage() {
                 <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider">
                   Shoe Size
                 </h4>
+                <button 
+                  onClick={() => setShowSizeChart(true)}
+                  className="text-[10px] font-bold text-[#d57731] hover:underline"
+                >
+                  Size Guide
+                </button>
               </div>
 
               <div className="grid grid-cols-4 gap-1.5">

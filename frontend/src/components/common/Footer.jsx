@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import footerLogo from '../../assets/logo2.png';
 import SuccessPopup from "./SuccessPoppup";
+import SizeChartModal from "../user/SizeChartModal";
 import './Footer.css';
 
 const Footer = () => {
@@ -11,6 +12,7 @@ const Footer = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [popupType, setPopupType] = useState("success");
+  const [showSizeChart, setShowSizeChart] = useState(false);
   const handleSubscribe = async () => {
     if (!email) {
       setMessage("Please enter your email");
@@ -47,6 +49,10 @@ const Footer = () => {
           onClose={() => setShowPopup(false)}
         />
       )}
+      <SizeChartModal 
+        isOpen={showSizeChart} 
+        onClose={() => setShowSizeChart(false)} 
+      />
       <footer className="footer-area">
         {/* Newsletter Strip */}
         <div className="footer-newsletter">
@@ -127,7 +133,12 @@ const Footer = () => {
                 <Link to="/faqs">FAQs</Link>
 
 
-                <Link to="/size-chart">Size Guide</Link>
+                <button 
+                  onClick={() => setShowSizeChart(true)}
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit', color: 'inherit', textAlign: 'left' }}
+                >
+                  Size Guide
+                </button>
               </div>
               <div className="link-column">
                 <h4>Company</h4>
