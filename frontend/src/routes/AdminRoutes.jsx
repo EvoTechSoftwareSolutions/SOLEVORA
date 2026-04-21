@@ -15,6 +15,7 @@ const CustomerManagement = lazy(() => import('../admin/CustomerManagement'));
 const Analytics          = lazy(() => import('../admin/Analytics'));
 const Messages           = lazy(() => import('../admin/Messages'));
 const NewsletterManagement = lazy(() => import('../admin/NewsletterManagement'));
+const InventoryReport      = lazy(() => import('../admin/InventoryReport'));
 
 // Pages – admin only
 const Settings    = lazy(() => import('../admin/Settings'));
@@ -44,6 +45,7 @@ const AdminRoutes = [
         <Route path="messages"      element={<Messages />} />
         <Route path="newsletter"    element={<NewsletterManagement />} />
         <Route path="promo-codes"   element={<PromoCodes />} />
+        <Route path="inventory-report" element={<InventoryReport />} />
         <Route path="security"      element={<SecurityPage />} />
 
         {/* Admin-only: settings page */}

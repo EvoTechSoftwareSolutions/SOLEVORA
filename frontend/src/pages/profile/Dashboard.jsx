@@ -129,7 +129,7 @@ const Dashboard = () => {
                         <p>Total Spent</p>
                         <span className="material-symbols-outlined pdb-icon-color">account_balance_wallet</span>
                     </div>
-                    <h3 className="pdb-stat-value">${totalSpent.toFixed(2)}</h3>
+                    <h3 className="pdb-stat-value">Rs. {totalSpent.toLocaleString()}</h3>
                     <p className="pdb-stat-subtitle">Across {orders.length} orders</p>
                 </div>
             </div>
@@ -164,7 +164,7 @@ const Dashboard = () => {
                                         <p>Placed on {formatDate(order.createdAt)}</p>
                                     </div>
                                     <div className="pdb-mini-order-meta">
-                                        <span className="pdb-mini-price">${parseFloat(order.total_amount).toFixed(2)}</span>
+                                        <span className="pdb-mini-price">Rs. {parseFloat(order.total_amount).toLocaleString()}</span>
                                         <span className={`pdb-mini-status ${getStatusClass(order.status)}`}>
                                             {order.status.toUpperCase()}
                                         </span>
@@ -191,7 +191,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="pdb-wishlist-info">
                                     <h4>{item.name}</h4>
-                                    <p>${item.price}</p>
+                                    <p>Rs. {parseFloat(item.price).toLocaleString()}</p>
                                 </div>
                             </div>
                         ))}

@@ -151,7 +151,7 @@ const OrdersManagement = () => {
                                         <span className="td-items-count">{order.items?.length > 3 ? `+${order.items.length - 3}` : ''}</span>
                                     </div>
                                 </td>
-                                <td><span className="td-total">${parseFloat(order.total_amount).toFixed(2)}</span></td>
+                                <td><span className="td-total">Rs. {parseFloat(order.total_amount).toLocaleString()}</span></td>
                                 <td>
                                     <span className={`status-badge ${order.status.toLowerCase()}`}>
                                         {order.status.toUpperCase()}
@@ -204,7 +204,7 @@ const OrdersManagement = () => {
                                 <div className="details-section">
                                     <h3>Order Summary</h3>
                                     <div className="details-card-inner">
-                                        <div className="detail-row"><span className="detail-label">Subtotal:</span> <span className="detail-value">${parseFloat(selectedOrder.total_amount).toFixed(2)}</span></div>
+                                        <div className="detail-row"><span className="detail-label">Subtotal:</span> <span className="detail-value">Rs. {parseFloat(selectedOrder.total_amount).toLocaleString()}</span></div>
                                         <div className="detail-row"><span className="detail-label">Date:</span> <span className="detail-value">{new Date(selectedOrder.createdAt).toLocaleString()}</span></div>
                                         <div className="detail-row"><span className="detail-label">Current Status:</span> 
                                             <span className={`status-badge ${selectedOrder.status.toLowerCase()}`}>{selectedOrder.status.toUpperCase()}</span>
@@ -220,10 +220,10 @@ const OrdersManagement = () => {
                                         <img src={item.product?.image_url} alt="" className="modal-item-img" />
                                         <div className="modal-item-info">
                                             <div className="item-name-tag">{item.product?.name}</div>
-                                            <div className="item-meta-tag">Size: {item.size} | Qty: {item.quantity} | Price: ${parseFloat(item.price_at_purchase).toFixed(2)}</div>
+                                            <div className="item-meta-tag">Size: {item.size} | Qty: {item.quantity} | Price: Rs. {parseFloat(item.price_at_purchase).toLocaleString()}</div>
                                         </div>
                                         <div className="item-total-price" style={{ fontWeight: '700' }}>
-                                            ${(item.quantity * item.price_at_purchase).toFixed(2)}
+                                            Rs. {(item.quantity * item.price_at_purchase).toLocaleString()}
                                         </div>
                                     </div>
                                 ))}

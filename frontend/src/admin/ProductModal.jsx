@@ -218,9 +218,8 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                             </select>
                         </div>
 
-                        {/* Price */}
                         <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Price ($)</label>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Price (Rs.)</label>
                             <input 
                                 type="number"
                                 step="0.01"

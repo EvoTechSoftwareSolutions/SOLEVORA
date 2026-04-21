@@ -251,10 +251,10 @@ function CategoryPage() {
     if (selectedPrice !== "All") {
       filtered = filtered.filter((item) => {
         const price = parseFloat(item.price) || 0;
-        if (selectedPrice === "$0-$50") return price >= 0 && price <= 50;
-        if (selectedPrice === "$50-$100") return price > 50 && price <= 100;
-        if (selectedPrice === "$100-$150") return price > 100 && price <= 150;
-        if (selectedPrice === "$150+") return price > 150;
+        if (selectedPrice === "Rs.0-Rs.15000") return price >= 0 && price <= 15000;
+        if (selectedPrice === "Rs.15000-Rs.30000") return price > 15000 && price <= 30000;
+        if (selectedPrice === "Rs.30000-Rs.45000") return price > 30000 && price <= 45000;
+        if (selectedPrice === "Rs.45000+") return price > 45000;
         return true;
       });
     }
@@ -292,7 +292,7 @@ function CategoryPage() {
     return sortedSizes.length > 0 ? sortedSizes : ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"];
   }, [products]);
 
-  const priceRanges = ["All", "$0-$50", "$50-$100", "$100-$150", "$150+"];
+  const priceRanges = ["All", "Rs.0-Rs.15000", "Rs.15000-Rs.30000", "Rs.30000-Rs.45000", "Rs.45000+"];
 
   // Dynamic counts for categories
   const categoryCounts = useMemo(() => {
@@ -569,7 +569,7 @@ function CategoryPage() {
                   </h3>
 
                   <p className="mt-1 text-[20px] font-bold text-[#111]">
-                    ${product.price.toFixed(2)}
+                    Rs. {product.price.toLocaleString()}
                   </p>
 
                   <div className="flex items-center gap-3 mt-4">

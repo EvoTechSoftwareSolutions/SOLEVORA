@@ -46,7 +46,7 @@ export const sendOrderConfirmationEmail = async (order, items) => {
                 <small>Size: ${item.size || 'N/A'}</small>
             </td>
             <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$${Number(item.price_at_purchase || 0).toFixed(2)}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">Rs. ${Number(item.price_at_purchase || 0).toLocaleString()}</td>
         </tr>
     `).join('');
 
@@ -79,7 +79,7 @@ export const sendOrderConfirmationEmail = async (order, items) => {
                     
                     <div style="margin-top: 15px; text-align: right;">
                         <p style="margin: 5px 0; font-size: 14px; opacity: 0.8;">Shipping: Free</p>
-                        <p style="margin: 5px 0; font-size: 18px; font-weight: 700; color: #1a1a2e;">Total: $${Number(order.total_amount).toFixed(2)}</p>
+                        <p style="margin: 5px 0; font-size: 18px; font-weight: 700; color: #1a1a2e;">Total: Rs. ${Number(order.total_amount).toLocaleString()}</p>
                     </div>
                 </div>
 

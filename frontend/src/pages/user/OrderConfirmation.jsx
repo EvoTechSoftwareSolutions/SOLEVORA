@@ -59,8 +59,8 @@ const OrderConfirmation = () => {
         item.name || 'Product',
         item.size || 'N/A',
         (item.quantity || 1).toString(),
-        `$${parseFloat(item.price || 0).toFixed(2)}`,
-        `$${(parseFloat(item.price || 0) * (item.quantity || 1)).toFixed(2)}`
+        `Rs. ${parseFloat(item.price || 0).toLocaleString()}`,
+        `Rs. ${(parseFloat(item.price || 0) * (item.quantity || 1)).toLocaleString()}`
       ]);
 
       // Use autoTable function directly
@@ -82,7 +82,7 @@ const OrderConfirmation = () => {
       }
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text(`Grand Total: $${safeSubtotal.toFixed(2)}`, 195, finalY, { align: 'right' });
+      doc.text(`Grand Total: Rs. ${safeSubtotal.toLocaleString()}`, 195, finalY, { align: 'right' });
 
       // Footer
       doc.setFontSize(9);
@@ -200,7 +200,7 @@ const OrderConfirmation = () => {
                     <p className="oc-item-variant">Size: {item.size} &nbsp;|&nbsp; Qty: {item.quantity}</p>
                   </div>
                   <div className="oc-item-price">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    Rs. {(item.price * item.quantity).toLocaleString()}
                   </div>
                 </div>
               ))}
@@ -222,7 +222,7 @@ const OrderConfirmation = () => {
             <div className="oc-totals">
               <div className="oc-total-row">
                 <span className="oc-total-key">Subtotal</span>
-                <span className="oc-total-val">${subtotal.toFixed(2)}</span>
+                <span className="oc-total-val">Rs. {subtotal.toLocaleString()}</span>
               </div>
               <div className="oc-total-row">
                 <span className="oc-total-key">Shipping</span>
@@ -230,7 +230,7 @@ const OrderConfirmation = () => {
               </div>
               <div className="oc-grand-total">
                 <span className="oc-grand-label">{isCOD ? 'Amount Due on Delivery' : 'Total'}</span>
-                <span className="oc-grand-amount">${total.toFixed(2)}</span>
+                <span className="oc-grand-amount">Rs. {total.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -241,7 +241,7 @@ const OrderConfirmation = () => {
               <>
                 <span className="material-symbols-outlined oc-info-icon">info</span>
                 <p className="oc-footer-text">
-                  Please keep <span className="oc-bold">${total.toFixed(2)}</span> ready to pay the delivery agent upon receipt.
+                  Please keep <span className="oc-bold">Rs. {total.toLocaleString()}</span> ready to pay the delivery agent upon receipt.
                 </p>
               </>
             ) : (

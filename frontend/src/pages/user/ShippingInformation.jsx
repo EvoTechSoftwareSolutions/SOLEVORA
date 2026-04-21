@@ -51,11 +51,11 @@ const ShippingInformation = () => {
         streetAddress: user.streetAddress || user.location || checkoutData.streetAddress,
         city: user.city || checkoutData.city,
         postalCode: user.postalCode || checkoutData.postalCode,
-        country: user.country || checkoutData.country || 'United States',
+        country: user.country || checkoutData.country || 'Sri Lanka',
         userId: user.id
       };
     }
-    return { ...checkoutData, country: checkoutData.country || 'United States' };
+    return { ...checkoutData, country: checkoutData.country || 'Sri Lanka' };
   });
 
   // Price calculations
@@ -270,7 +270,7 @@ const ShippingInformation = () => {
                 <input
                   type="text"
                   name="country"
-                  placeholder="United States"
+                  placeholder="Sri Lanka"
                   value={formData.country}
                   onChange={handleInputChange}
                   className="si-input"
@@ -313,7 +313,7 @@ const ShippingInformation = () => {
                   <p className="si-item-variant">Size: {item.size}</p>
                   <div className="si-item-footer">
                     <span className="si-item-qty-lbl">Qty: {item.quantity}</span>
-                    <span className="si-item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="si-item-price">Rs. {(item.price * item.quantity).toLocaleString()}</span>
                   </div>
                 </div>
               ))}
@@ -341,7 +341,7 @@ const ShippingInformation = () => {
             </div>
             {promoApplied && (
               <div className="si-promo-badge">
-                ✅ <strong>{checkoutPromo?.code}</strong> — ${promoDiscount.toFixed(2)} off
+                ✅ <strong>{checkoutPromo?.code}</strong> — Rs. {promoDiscount.toLocaleString()} off
               </div>
             )}
 
@@ -349,12 +349,12 @@ const ShippingInformation = () => {
             <div className="si-totals">
               <div className="si-total-row">
                 <span className="si-total-key">Gross Total</span>
-                <span className="si-total-val">${grossTotal.toFixed(2)}</span>
+                <span className="si-total-val">Rs. {grossTotal.toLocaleString()}</span>
               </div>
               {promoApplied && (
               <div className="si-total-row" style={{ color: '#22c55e' }}>
                 <span className="si-total-key">Promo Discount ({checkoutPromo?.code})</span>
-                <span className="si-total-val">-${promoDiscount.toFixed(2)}</span>
+                <span className="oc-total-val">-Rs. {promoDiscount.toLocaleString()}</span>
               </div>
               )}
               <div className="si-total-row">
@@ -364,7 +364,7 @@ const ShippingInformation = () => {
               {/* Final total amount */}
               <div className="si-total-final">
                 <span className="si-final-label">Total</span>
-                <span className="si-final-amount">${total.toFixed(2)}</span>
+                <span className="si-final-amount">Rs. {total.toLocaleString()}</span>
               </div>
             </div>
 

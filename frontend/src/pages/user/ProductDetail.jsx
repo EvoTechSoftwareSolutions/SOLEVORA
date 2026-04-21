@@ -286,8 +286,8 @@ function ProductDetail() {
 
                         {/* Product pricing */}
                         <div className="pricing">
-                            <span className="current-price">${product.price}</span>
-                            <span className="old-price">${(parseFloat(product.price) * 1.2).toFixed(2)}</span>
+                            <span className="current-price">Rs. {parseFloat(product.price).toLocaleString()}</span>
+                            <span className="old-price">Rs. {(parseFloat(product.price) * 1.2).toLocaleString()}</span>
                         </div>
 
                         {/* Product description teaser */}

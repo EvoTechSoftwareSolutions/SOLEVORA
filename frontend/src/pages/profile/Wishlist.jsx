@@ -66,7 +66,7 @@ const Wishlist = () => {
                             <div className="wl-card-info">
                                 <div className="wl-info-header">
                                     <h3>{item.name}</h3>
-                                    <p className="wl-price">${item.price}</p>
+                                    <p className="wl-price">Rs. {parseFloat(item.price).toLocaleString()}</p>
                                 </div>
                                 <p className="wl-color-text">Brand: {item.brand || 'SoleVora'}</p>
 

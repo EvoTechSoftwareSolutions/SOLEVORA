@@ -26,7 +26,7 @@ const Analytics = () => {
         {
             name: 'Air Max Velocity',
             units: '1,240',
-            revenue: '$186,000',
+            revenue: 'Rs. 186,000',
             growth: '+18%',
             img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&h=100&fit=crop',
             positive: true
@@ -34,7 +34,7 @@ const Analytics = () => {
         {
             name: 'Cloud Walker Pro',
             units: '980',
-            revenue: '$142,100',
+            revenue: 'Rs. 142,100',
             growth: '+12%',
             img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=100&h=100&fit=crop',
             positive: true
@@ -57,7 +57,7 @@ const Analytics = () => {
                         </div>
                     </div>
                     <div className="metric-title-top">Total Revenue</div>
-                    <div className="metric-value-top">${stats.totalRevenue.toLocaleString()}</div>
+                    <div className="metric-value-top">Rs. {stats.totalRevenue.toLocaleString()}</div>
                 </div>
                 {/* total orders */}
                 <div className="metric-card-top card-blue-a">

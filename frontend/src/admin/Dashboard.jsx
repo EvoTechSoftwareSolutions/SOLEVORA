@@ -30,28 +30,28 @@ const Dashboard = () => {
         {
             name: 'Zenith Runner X',
             sales: '420',
-            value: '$79,380',
+            value: 'Rs. 79,380',
             img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&h=100&fit=crop',
             barWidth: '85%'
         },
         {
             name: 'Urban Glide Pro',
             sales: '315',
-            value: '$45,832',
+            value: 'Rs. 45,832',
             img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=100&h=100&fit=crop',
             barWidth: '60%'
         },
         {
             name: 'Mountain Peak XT',
             sales: '280',
-            value: '$58,800',
+            value: 'Rs. 58,800',
             img: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=100&h=100&fit=crop',
             barWidth: '70%'
         },
         {
             name: 'Classic Suede',
             sales: '190',
-            value: '$24,700',
+            value: 'Rs. 24,700',
             img: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=100&h=100&fit=crop',
             barWidth: '40%'
         }
@@ -86,7 +86,7 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="metric-title-top">Total Revenue</div>
-                    <div className="metric-value-top">${stats.totalRevenue.toLocaleString()}</div>
+                    <div className="metric-value-top">Rs. {stats.totalRevenue.toLocaleString()}</div>
                 </div>
 
                 <div className="metric-card-top card-blue-c">
@@ -172,7 +172,7 @@ const Dashboard = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="td-amount">${parseFloat(order.total_amount).toFixed(2)}</td>
+                                    <td className="td-amount">Rs. {parseFloat(order.total_amount).toLocaleString()}</td>
                                     <td>
                                         <div className={`status-pill status-${order.status.toLowerCase()}`}>
                                             {order.status.toUpperCase()}
@@ -206,7 +206,9 @@ const Dashboard = () => {
                             </div>
                         ))}
                     </div>
-                    <button className="inventory-btn">Inventory Report</button>
+                    <Link to="/admin/inventory-report">
+                        <button className="inventory-btn">Inventory Report</button>
+                    </Link>
                 </div>
             </div>
         </div>

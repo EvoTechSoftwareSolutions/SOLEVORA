@@ -189,7 +189,7 @@ const ProductsManagement = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td><div className="td-price">${parseFloat(prod.price).toFixed(2)}</div></td>
+                                        <td><div className="td-price">Rs. {parseFloat(prod.price).toLocaleString()}</div></td>
                                         <td>
                                             <div className={`status-badge ${badgeClass}`}>
                                                 <span className="status-dot"></span>

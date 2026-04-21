@@ -50,8 +50,8 @@ const PaymentDetails = () => {
     // Shipping method configurations - must match ShippingMethod.jsx
     const shippingMethods = [
         { id: 'standard', name: 'Standard Shipping', price: 0 },
-        { id: 'express', name: 'Express Shipping', price: 15.00 },
-        { id: 'nextday', name: 'Next Day Delivery', price: 25.00 },
+        { id: 'express', name: 'Express Shipping', price: 650.00 },
+        { id: 'nextday', name: 'Next Day Delivery', price: 1200.00 },
     ];
 
     // Price calculations
@@ -175,7 +175,7 @@ const PaymentDetails = () => {
             const hashResponse = await axios.post('http://localhost:5000/api/payment/hash', {
                 order_id: orderData.id,
                 amount: total,
-                currency: 'USD'
+                currency: 'LKR'
             });
 
             const { hash, merchant_id } = hashResponse.data;
@@ -191,7 +191,7 @@ const PaymentDetails = () => {
                 order_id: orderData.id.toString(),
                 items: "SoleVora Order #" + orderData.id,
                 amount: total.toFixed(2),
-                currency: "USD",
+                currency: "LKR",
                 hash: hash,
                 first_name: checkoutData.firstName || (user?.name ? user.name.split(' ')[0] : "Guest"),
                 last_name: checkoutData.lastName || (user?.name ? user.name.split(' ')[1] : "User"),
@@ -349,7 +349,7 @@ const PaymentDetails = () => {
                                         <p style={{ fontSize: '13px', color: '#444', marginBottom: '6px' }}><strong>📍 Delivery Address:</strong></p>
                                         <p style={{ fontSize: '13px', color: '#666' }}>{checkoutData.streetAddress || 'N/A'}, {checkoutData.city || 'N/A'}</p>
                                         <p style={{ fontSize: '13px', color: '#444', marginTop: '10px', marginBottom: '6px' }}><strong>💰 Amount Due on Delivery:</strong></p>
-                                        <p style={{ fontSize: '20px', fontWeight: '800', color: '#f66d3b' }}>${total.toFixed(2)}</p>
+                                        <p style={{ fontSize: '20px', fontWeight: '800', color: '#f66d3b' }}>Rs. {total.toLocaleString()}</p>
                                     </div>
                                     <div className="flex items-center justify-center gap-2 text-green-600 font-semibold text-sm" style={{ marginTop: '16px' }}>
                                         <span className="material-symbols-outlined">check_circle</span>
@@ -387,7 +387,7 @@ const PaymentDetails = () => {
                                     <p className="pd-item-variant">Size: {item.size}</p>
                                     <div className="pd-item-footer">
                                         <span className="pd-item-qty-lbl">Qty: {item.quantity}</span>
-                                        <span className="pd-item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                                        <span className="pd-item-price">Rs. {(item.price * item.quantity).toLocaleString()}</span>
                                     </div>
                                 </div>
                             ))}
@@ -411,22 +411,22 @@ const PaymentDetails = () => {
                         <div className="pd-totals">
                             <div className="pd-total-row">
                                 <span className="pd-total-key">Gross Total</span>
-                                <span className="pd-total-val">${grossTotal.toFixed(2)}</span>
+                                <span className="pd-total-val">Rs. {grossTotal.toLocaleString()}</span>
                             </div>
                             <div className="pd-total-row">
                                 <span className="pd-total-key">Promo Discount</span>
-                                <span className="pd-total-val">-${promoDiscount.toFixed(2)}</span>
+                                <span className="pd-total-val">-Rs. {promoDiscount.toLocaleString()}</span>
                             </div>
                             <div className="pd-total-row">
                                 <span className="pd-total-key">Shipping</span>
                                 <span className="pd-free">
-                                    {shippingCharge === 0 ? 'Free' : `$${shippingCharge.toFixed(2)}`}
+                                    {shippingCharge === 0 ? 'Free' : `Rs. ${shippingCharge.toLocaleString()}`}
                                 </span>
                             </div>
                             {/* Final total amount */}
                             <div className="pd-total-final">
                                 <span className="pd-final-label">Total</span>
-                                <span className="pd-final-amount">${total.toFixed(2)}</span>
+                                <span className="pd-final-amount">Rs. {total.toLocaleString()}</span>
                             </div>
                         </div>
 

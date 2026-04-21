@@ -30,7 +30,7 @@ const Card = ({ image, title, description, price, link }) => {
 
         {/* Price + Button */}
         <div className="card-price">
-          {price && <p>${price}</p>}
+          {price && <p>Rs. {parseFloat(price).toLocaleString()}</p>}
           {link && (
             <Link to={link} className="card-button">
               View Details

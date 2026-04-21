@@ -184,7 +184,7 @@ const MyOrders = () => {
                  </a>
                )}
                <div className="mo-tc-total">
-                 Total Paid: <strong>${parseFloat(activeTrackingOrder.total_amount).toFixed(2)}</strong>
+                 Total Paid: <strong>Rs. {parseFloat(activeTrackingOrder.total_amount).toLocaleString()}</strong>
                </div>
             </div>
           </div>
@@ -274,7 +274,7 @@ const MyOrders = () => {
                     </div>
                   ) : 'No items'}
                 </td>
-                <td>${parseFloat(order.total_amount).toFixed(2)}</td>
+                <td>Rs. {parseFloat(order.total_amount).toLocaleString()}</td>
                 <td><span className={`mo-badge ${order.status.toLowerCase()}`}>{order.status.toUpperCase()}</span></td>
                 <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                 <td>

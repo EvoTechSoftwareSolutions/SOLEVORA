@@ -135,7 +135,7 @@ const TrackOrder = () => {
                                             <p>Size: {item.size} | Qty: {item.quantity}</p>
                                         </div>
                                         <div className="item-price">
-                                            ${((item.price_at_purchase || item.product?.price || 0) * item.quantity).toFixed(2)}
+                                            Rs. {((item.price_at_purchase || item.product?.price || 0) * item.quantity).toLocaleString()}
                                         </div>
                                     </div>
                                 ))}
@@ -158,7 +158,7 @@ const TrackOrder = () => {
                             </div>
                             <div>
                                 <h4>Total Paid</h4>
-                                <p className="total-amount">${parseFloat(orderInfo.total_amount).toFixed(2)}</p>
+                                <p className="total-amount">Rs. {parseFloat(orderInfo.total_amount).toLocaleString()}</p>
                                 {/* External tracking link */}
                                 {orderInfo.tracking_number && (
                                     <a 

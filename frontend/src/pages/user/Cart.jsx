@@ -13,9 +13,9 @@ const Cart = () => {
 
   // Recommended products to display in the cart page
   const recommendedProducts = [
-    { id: 101, name: 'Air Max 90', brand: 'Nike', price: 130, image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop' },
-    { id: 102, name: 'UltraBoost 23', brand: 'Adidas', price: 180, image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=400&fit=crop' },
-    { id: 103, name: '550 Vintage', brand: 'New Balance', price: 180, image: 'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&h=400&fit=crop' }
+    { id: 101, name: 'Air Max 90', brand: 'Nike', price: 39000, image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop' },
+    { id: 102, name: 'UltraBoost 23', brand: 'Adidas', price: 54000, image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=400&fit=crop' },
+    { id: 103, name: '550 Vintage', brand: 'New Balance', price: 54000, image: 'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&h=400&fit=crop' }
   ];
 
   // Filter selected items from the cart
@@ -103,7 +103,7 @@ const Cart = () => {
                     </div>
                   </div>
                   <div className="item-price">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    Rs. {(item.price * item.quantity).toLocaleString()}
                   </div>
                 </div>
                 <button className="item-remove" onClick={() => removeFromCart(item.id, item.size)}>
@@ -130,7 +130,7 @@ const Cart = () => {
             <h3>Order Summary</h3>
             <div className="summary-row">
               <span className="label">Subtotal</span>
-              <span className="value">${selectedSubtotal.toFixed(2)}</span>
+              <span className="value">Rs. {selectedSubtotal.toLocaleString()}</span>
             </div>
             <div className="summary-row">
               <span className="label">Shipping</span>
@@ -138,7 +138,7 @@ const Cart = () => {
             </div>
             <div className="summary-total">
               <span className="label">Total</span>
-              <span className="value">${total.toFixed(2)}</span>
+              <span className="value">Rs. {total.toLocaleString()}</span>
             </div>
 
             <button
@@ -201,7 +201,7 @@ const Cart = () => {
                             <div className="rec-info">
                                 <span className="rec-brand">{product.brand}</span>
                                 <h4>{product.name}</h4>
-                                <p className="rec-price">${product.price}</p>
+                                <p className="rec-price">Rs. {product.price.toLocaleString()}</p>
                                 <div className="rec-footer">
                                     <button className="view-btn">
                                         <span className="material-symbols-outlined">shopping_bag</span>

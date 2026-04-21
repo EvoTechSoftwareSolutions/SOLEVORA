@@ -41,8 +41,8 @@ const ShippingMethod = () => {
   // Available shipping methods with pricing and delivery times
   const shippingMethods = [
     { id: 'standard', name: 'Standard Shipping', time: '3-5 business days', price: 0 },
-    { id: 'express', name: 'Express Shipping', time: '1-2 business days', price: 15.00 },
-    { id: 'nextday', name: 'Next Day Delivery', time: 'Delivery by tomorrow', price: 25.00 },
+    { id: 'express', name: 'Express Shipping', time: '1-2 business days', price: 650.00 },
+    { id: 'nextday', name: 'Next Day Delivery', time: 'Delivery by tomorrow', price: 1200.00 },
   ];
 
   // Price calculations
@@ -186,7 +186,7 @@ const ShippingMethod = () => {
                   </div>
                   {/* Price display */}
                   <div className="sm-method-price">
-                    {method.price === 0 ? 'Free' : `$${method.price.toFixed(2)}`}
+                    {method.price === 0 ? 'Free' : `Rs. ${method.price.toLocaleString()}`}
                   </div>
                 </div>
               ))}
@@ -217,7 +217,7 @@ const ShippingMethod = () => {
                   <p className="sm-item-variant">Size: {item.size}</p>
                   <div className="sm-item-footer">
                     <span className="sm-item-qty-lbl">Qty: {item.quantity}</span>
-                    <span className="sm-item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="sm-item-price">Rs. {(item.price * item.quantity).toLocaleString()}</span>
                   </div>
                 </div>
               ))}
@@ -245,7 +245,7 @@ const ShippingMethod = () => {
             </div>
             {promoApplied && (
               <div className="sm-promo-badge">
-                ✅ <strong>{checkoutPromo?.code}</strong> — ${promoDiscount.toFixed(2)} off
+                ✅ <strong>{checkoutPromo?.code}</strong> — Rs. {promoDiscount.toLocaleString()} off
               </div>
             )}
 
@@ -253,24 +253,24 @@ const ShippingMethod = () => {
             <div className="sm-totals">
               <div className="sm-total-row">
                 <span className="sm-total-key">Gross Total</span>
-                <span className="sm-total-val">${grossTotal.toFixed(2)}</span>
+                <span className="sm-total-val">Rs. {grossTotal.toLocaleString()}</span>
               </div>
               {promoApplied && (
               <div className="sm-total-row" style={{ color: '#22c55e' }}>
                 <span className="sm-total-key">Promo Discount ({checkoutPromo?.code})</span>
-                <span className="sm-total-val">-${promoDiscount.toFixed(2)}</span>
+                <span className="sm-total-val">-Rs. {promoDiscount.toLocaleString()}</span>
               </div>
               )}
               <div className="sm-total-row">
                 <span className="sm-total-key">Shipping</span>
                 <span className="sm-free">
-                  {currentShipping === 0 ? 'Free' : `$${currentShipping.toFixed(2)}`}
+                  {currentShipping === 0 ? 'Free' : `Rs. ${currentShipping.toLocaleString()}`}
                 </span>
               </div>
               {/* Final total amount */}
               <div className="sm-total-final">
                 <span className="sm-final-label">Total</span>
-                <span className="sm-final-amount">${total.toFixed(2)}</span>
+                <span className="sm-final-amount">Rs. {total.toLocaleString()}</span>
               </div>
             </div>
 
