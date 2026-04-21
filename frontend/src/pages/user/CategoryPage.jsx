@@ -251,10 +251,11 @@ function CategoryPage() {
     if (selectedPrice !== "All") {
       filtered = filtered.filter((item) => {
         const price = parseFloat(item.price) || 0;
-        if (selectedPrice === "Rs.0-Rs.15000") return price >= 0 && price <= 15000;
-        if (selectedPrice === "Rs.15000-Rs.30000") return price > 15000 && price <= 30000;
-        if (selectedPrice === "Rs.30000-Rs.45000") return price > 30000 && price <= 45000;
-        if (selectedPrice === "Rs.45000+") return price > 45000;
+        if (selectedPrice === "Under Rs.3000") return price < 3000;
+        if (selectedPrice === "Rs.3000 - Rs.5000") return price >= 3000 && price <= 5000;
+        if (selectedPrice === "Rs.5000 - Rs.10000") return price > 5000 && price <= 10000;
+        if (selectedPrice === "Rs.10000 - Rs.20000") return price > 10000 && price <= 20000;
+        if (selectedPrice === "Rs.20000+") return price > 20000;
         return true;
       });
     }
@@ -292,7 +293,7 @@ function CategoryPage() {
     return sortedSizes.length > 0 ? sortedSizes : ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"];
   }, [products]);
 
-  const priceRanges = ["All", "Rs.0-Rs.15000", "Rs.15000-Rs.30000", "Rs.30000-Rs.45000", "Rs.45000+"];
+  const priceRanges = ["All", "Under Rs.3000", "Rs.3000 - Rs.5000", "Rs.5000 - Rs.10000", "Rs.10000 - Rs.20000", "Rs.20000+"];
 
   // Dynamic counts for categories
   const categoryCounts = useMemo(() => {
