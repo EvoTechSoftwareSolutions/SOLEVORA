@@ -82,12 +82,12 @@ const PaymentDetails = () => {
 
             if (data.valid) {
                 setPromoApplied(true);
-                // Store full promo info if needed, or just the state
+                setPromoCode(data.code);
                 setCheckoutPromo({ 
-                    code: data.promo.code, 
+                    code: data.code, 
                     applied: true, 
-                    discountType: data.promo.discountType,
-                    discountValue: data.promo.discountValue,
+                    discountType: data.discountType,
+                    discountValue: data.discountValue,
                     discountAmount: data.discountAmount
                 });
             } else {
@@ -132,7 +132,8 @@ const PaymentDetails = () => {
                     quantity: item.quantity,
                     price: item.price,
                     size: item.size
-                }))
+                })),
+                promo_code: promoApplied ? promoCode : null
             };
 
             // Create order in backend
@@ -166,7 +167,8 @@ const PaymentDetails = () => {
                     quantity: item.quantity,
                     price: item.price,
                     size: item.size
-                }))
+                })),
+                promo_code: promoApplied ? promoCode : null
             };
 
             const response = await axios.post('http://localhost:5000/api/orders', orderPayload);

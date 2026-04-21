@@ -1,12 +1,25 @@
 import Order from '../models/Order.js';
 import OrderItem from '../models/OrderItem.js';
 import Product from '../models/Product.js';
+import PromoCode from '../models/PromoCode.js';
 import { sendOrderConfirmationEmail } from '../utils/emailService.js';
 
 export const createOrder = async (req, res) => {
     try {
-        const { total_amount, shipping_address, contact_number, email, userId, items, payment_method } = req.body;
+        const { total_amount, shipping_address, contact_number, email, userId, items, payment_method, promo_code } = req.body;
         const normalizedEmail = email ? email.trim().toLowerCase() : null;
+
+        // 1. Handle Promo Code usage increment if provided
+        if (promo_code) {
+            const promo = await PromoCode.findOne({ where: { code: promo_code.trim().toUpperCase() } });
+            if (promo) {
+                // Double check if it still has uses left (in case it reached limit between validate and order)
+                if (promo.maxUses !== null && promo.usedCount >= promo.maxUses) {
+                    return res.status(400).json({ message: 'This promo code has reached its usage limit' });
+                }
+                await promo.increment('usedCount', { by: 1 });
+            }
+        }
 
         // Payment status for COD is always pending initially. For online, should probably be handled by payment controller.
         const initialPaymentStatus = payment_method === 'cod' ? 'pending' : 'pending';
