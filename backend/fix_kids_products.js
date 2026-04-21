@@ -19,15 +19,22 @@ const sequelize = new Sequelize(
   }
 );
 
-async function checkTable() {
+async function fixKids() {
   try {
-    const [results] = await sequelize.query("DESCRIBE addresses");
-    console.log(JSON.stringify(results, null, 2));
+    console.log("Updating products for Kids category...");
+    
+    // Set some products to Kids
+    await sequelize.query("UPDATE products SET gender = 'Kids' WHERE id IN (2, 8, 9)");
+    
+    // Fix names
+    await sequelize.query("UPDATE products SET name = 'Jump Force' WHERE id = 9");
+    
+    console.log("Products updated successfully!");
     process.exit(0);
   } catch (error) {
-    console.error(error);
+    console.error("Update failed:", error);
     process.exit(1);
   }
 }
 
-checkTable();
+fixKids();

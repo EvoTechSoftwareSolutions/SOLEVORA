@@ -233,10 +233,10 @@ function CategoryPage() {
       filtered = filtered.filter((item) => item.category.toLowerCase() === selectedCategory.toLowerCase());
     }
 
-    // Gender filtering: exact match
+    // Gender filtering: match exact gender OR include "All" (Unisex) products
     if (selectedGender !== "All") {
       filtered = filtered.filter((item) =>
-        item.gender === selectedGender
+        item.gender === selectedGender || item.gender === "All"
       );
     }
 

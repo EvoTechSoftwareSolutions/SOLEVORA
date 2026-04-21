@@ -191,6 +191,50 @@
   gap: 16px;
 }
 
+/* Saved Addresses List */
+.si-saved-addresses {
+  margin-bottom: 8px;
+}
+
+.si-address-pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.si-address-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #fff;
+  border: 1.5px solid #ede5de;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a3f38;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.si-address-pill:hover {
+  border-color: #e07b39;
+  background: #fff8f4;
+}
+
+.si-address-pill.active {
+  background: #e07b39;
+  color: #fff;
+  border-color: #e07b39;
+  box-shadow: 0 4px 10px rgba(224, 123, 57, 0.25);
+}
+
+.si-address-pill .material-symbols-outlined {
+  font-size: 18px;
+}
+
 /* Two-column row for fields */
 .si-row-2 {
   display: grid;

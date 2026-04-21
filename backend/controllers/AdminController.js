@@ -2,6 +2,9 @@ import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
 import OrderItem from '../models/OrderItem.js';
+import Address from '../models/Address.js';
+import Review from '../models/Review.js';
+import Wishlist from '../models/Wishlist.js';
 import sequelize from '../config/db.js';
 import { Op } from 'sequelize';
 
@@ -87,9 +90,32 @@ export const deleteProduct = async (req, res) => {
 export const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
+        
+        // 1. Find all orders for this user to delete their items first
+        const userOrders = await Order.findAll({ where: { userId: id } });
+        const orderIds = userOrders.map(o => o.id);
+        
+        // 2. Perform cascading deletes manually to satisfy strict foreign key constraints
+        await Promise.all([
+            // Delete items belonging to the user's orders
+            OrderItem.destroy({ where: { orderId: { [Op.in]: orderIds } } }),
+            // Delete user's addresses
+            Address.destroy({ where: { userId: id } }),
+            // Delete user's reviews
+            Review.destroy({ where: { userId: id } }),
+            // Delete user's wishlist
+            Wishlist.destroy({ where: { userId: id } })
+        ]);
+
+        // 3. Delete the orders themselves
+        await Order.destroy({ where: { userId: id } });
+
+        // 4. Finally delete the user
         await User.destroy({ where: { id } });
-        res.status(200).json({ message: 'User deleted' });
+
+        res.status(200).json({ message: 'User and all associated records (orders, reviews, addresses) removed.' });
     } catch (error) {
+        console.error('Error during safe user deletion:', error);
         res.status(500).json({ message: error.message });
     }
 };

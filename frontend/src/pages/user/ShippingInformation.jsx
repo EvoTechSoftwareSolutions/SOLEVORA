@@ -2,8 +2,9 @@
 // Collects shipping address and contact information from users
 // Pre-fills data for logged-in users and validates form fields
 // Displays order summary with promo code functionality
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useCart } from '../../context/CartContext';
 import Modal from '../../components/ui/Modal';
 import '../../styles/user/ShippingInformation.css';
@@ -30,6 +31,8 @@ const ShippingInformation = () => {
   const [promoCode, setPromoCode] = useState(checkoutPromo?.code || '');
   const [promoApplied, setPromoApplied] = useState(!!checkoutPromo?.applied);
   const [promoLoading, setPromoLoading] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [addressLoading, setAddressLoading] = useState(false);
 
   // Utility: show inline toast
   const showMessage = (title, body) => {
@@ -45,18 +48,55 @@ const ShippingInformation = () => {
       const user = JSON.parse(userStr);
       return {
         ...checkoutData,
-        fullName: user.name || checkoutData.fullName,
-        email: user.email || checkoutData.email,
-        phone: user.phone || checkoutData.phone,
-        streetAddress: user.streetAddress || user.location || checkoutData.streetAddress,
-        city: user.city || checkoutData.city,
-        postalCode: user.postalCode || checkoutData.postalCode,
+        fullName: user.name || checkoutData.fullName || '',
+        email: user.email || checkoutData.email || '',
+        phone: user.phone || checkoutData.phone || '',
+        streetAddress: user.streetAddress || user.location || checkoutData.streetAddress || '',
+        city: user.city || checkoutData.city || '',
+        postalCode: user.postalCode || checkoutData.postalCode || '',
         country: user.country || checkoutData.country || 'Sri Lanka',
         userId: user.id
       };
     }
     return { ...checkoutData, country: checkoutData.country || 'Sri Lanka' };
   });
+
+  // Fetch saved addresses for logged in users
+  useEffect(() => {
+    const fetchSavedAddresses = async () => {
+      if (formData.userId) {
+        setAddressLoading(true);
+        try {
+          const { data } = await axios.get(`http://localhost:5000/api/addresses/${formData.userId}`);
+          setSavedAddresses(data);
+          
+          // Auto-fill with default address if form is empty
+          const defaultAddr = data.find(a => a.isDefault);
+          if (defaultAddr && !formData.streetAddress) {
+            applySavedAddress(defaultAddr);
+          }
+        } catch (error) {
+          console.error("Failed to fetch addresses:", error);
+        } finally {
+          setAddressLoading(false);
+        }
+      }
+    };
+    fetchSavedAddresses();
+  }, [formData.userId]);
+
+  const applySavedAddress = (addr) => {
+    // Basic heuristics to split cityStateZip if needed, but for now we just put the whole thing in City
+    setFormData(prev => ({
+      ...prev,
+      fullName: addr.name || prev.fullName,
+      phone: addr.phone || prev.phone,
+      streetAddress: addr.street || prev.streetAddress,
+      city: addr.city || prev.city,
+      postalCode: addr.postalCode || prev.postalCode,
+      country: addr.country || prev.country
+    }));
+  };
 
   // Price calculations
   const grossTotal = (lockedSubtotal ?? selectedCartTotal);
@@ -186,6 +226,25 @@ const ShippingInformation = () => {
 
             {/* Shipping information form */}
             <div className="si-form">
+              {/* Saved Addresses Selection */}
+              {savedAddresses.length > 0 && (
+                <div className="si-saved-addresses">
+                  <label className="si-label">Use Saved Address</label>
+                  <div className="si-address-pills">
+                    {savedAddresses.map(addr => (
+                      <button 
+                        key={addr.id} 
+                        type="button" 
+                        onClick={() => applySavedAddress(addr)}
+                        className={`si-address-pill ${formData.streetAddress === addr.street ? 'active' : ''}`}
+                      >
+                        <span className="material-symbols-outlined">{addr.icon || 'home'}</span>
+                        {addr.title}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {/* Full name field */}
               <div className="si-field">
                 <label className="si-label">Full Name</label>

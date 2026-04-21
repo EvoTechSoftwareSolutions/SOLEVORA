@@ -23,7 +23,11 @@ const Address = sequelize.define('Address', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    cityStateZip: {
+    city: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    postalCode: {
         type: DataTypes.STRING,
         allowNull: false
     },

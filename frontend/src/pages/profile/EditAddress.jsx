@@ -12,7 +12,8 @@ const EditAddress = () => {
         title: '',
         name: '',
         street: '',
-        cityStateZip: '',
+        city: '',
+        postalCode: '',
         country: '',
         phone: '',
         isDefault: false
@@ -124,12 +125,24 @@ const EditAddress = () => {
                     </div>
 
                     <div className="aa-input-group">
-                        <label>City, State, Zip</label>
+                        <label>City</label>
                         <input 
                             type="text" 
-                            name="cityStateZip" 
-                            placeholder="New York, NY 10001" 
-                            value={formData.cityStateZip} 
+                            name="city" 
+                            placeholder="Colombo" 
+                            value={formData.city} 
+                            onChange={handleChange} 
+                            required 
+                        />
+                    </div>
+
+                    <div className="aa-input-group">
+                        <label>Postal Code</label>
+                        <input 
+                            type="text" 
+                            name="postalCode" 
+                            placeholder="00100" 
+                            value={formData.postalCode} 
                             onChange={handleChange} 
                             required 
                         />

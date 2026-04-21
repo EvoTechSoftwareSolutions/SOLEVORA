@@ -27,13 +27,13 @@ router.get('/details/:id', async (req, res) => {
 // Create Address
 router.post('/', async (req, res) => {
     try {
-        const { userId, title, name, street, cityStateZip, country, phone, icon, isDefault } = req.body;
+        const { userId, title, name, street, city, postalCode, country, phone, icon, isDefault } = req.body;
         
         if (isDefault) {
             await Address.update({ isDefault: false }, { where: { userId } });
         }
 
-        const address = await Address.create({ userId, title, name, street, cityStateZip, country, phone, icon, isDefault });
+        const address = await Address.create({ userId, title, name, street, city, postalCode, country, phone, icon, isDefault });
         res.json({ message: "Address added successfully", address });
     } catch (error) {
         res.status(500).json({ message: "Failed to add address" });
@@ -43,7 +43,7 @@ router.post('/', async (req, res) => {
 // Update Address
 router.put('/:id', async (req, res) => {
     try {
-        const { title, name, street, cityStateZip, country, phone, icon, isDefault } = req.body;
+        const { title, name, street, city, postalCode, country, phone, icon, isDefault } = req.body;
         const address = await Address.findByPk(req.params.id);
         
         if (!address) return res.status(404).json({ message: "Address not found" });
@@ -52,7 +52,7 @@ router.put('/:id', async (req, res) => {
              await Address.update({ isDefault: false }, { where: { userId: address.userId } });
         }
 
-        Object.assign(address, { title, name, street, cityStateZip, country, phone, icon, isDefault });
+        Object.assign(address, { title, name, street, city, postalCode, country, phone, icon, isDefault });
         await address.save();
         res.json({ message: "Address updated successfully", address });
     } catch (error) {

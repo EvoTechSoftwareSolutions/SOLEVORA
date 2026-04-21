@@ -25,7 +25,7 @@ router.delete('/products/:id',      requireStoreAccess, deleteProduct);
 router.delete('/orders/:id',        requireStoreAccess, deleteOrder);
 
 // ── Admin Only: user/customer management and system settings ─────────────────
-router.delete('/customers/:id',     requireAdmin, deleteUser);
+router.delete('/customers/:id',     requireStoreAccess, deleteUser);
 
 // System Settings (admin only)
 router.get('/settings',             requireAdmin, getSystemSettings);
