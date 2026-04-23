@@ -8,19 +8,7 @@ const Dashboard = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 // get dashboard stats from backend
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/api/admin/stats');
-                setStats(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching admin stats:', error);
-                setLoading(false);
-            }
-        };
-        fetchStats();
-    }, []);
+
 // simple loading UI
     if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading dashboard...</div>;
     // fallback if no orders

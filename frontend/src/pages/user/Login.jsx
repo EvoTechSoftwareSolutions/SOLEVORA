@@ -31,7 +31,7 @@ function Login() {
     }
     try {
       // Sending login credentials to the backend
-      const res = await axios.post("http://localhost:5000/login", { email, password });
+      const res = await axios.post("http://localhost:5001/api/user/login", { email, password });
       localStorage.setItem("user", JSON.stringify(res.data.user));
       localStorage.setItem("isAuthenticated", "true");
       navigate(from, { replace: true });
@@ -43,7 +43,7 @@ function Login() {
   // Function to handle Google login (demo implementation)
   const handleGoogleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/login", {
+      const res = await axios.post("http://localhost:50001/login", {
         email: "googleuser@gmail.com",
         password: "social_login",
       });

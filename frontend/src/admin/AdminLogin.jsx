@@ -21,7 +21,7 @@ const AdminLogin = () => {
         setLoading(true);
         try {
             // Send login request to backend
-            const res = await axios.post('http://localhost:5000/admin-login', { email, password });
+            const res = await axios.post('http://localhost:5001/api/user/login', { email, password });
             login(res.data.user);
             navigate('/admin', { replace: true });
         } catch (err) {

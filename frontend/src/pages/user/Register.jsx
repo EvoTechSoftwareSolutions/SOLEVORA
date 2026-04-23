@@ -39,7 +39,7 @@ function Register() {
     setIsLoading(true);
     try {
       // Send registration request to backend
-      const res = await axios.post("http://localhost:5000/register", {
+      const res = await axios.post("http://localhost:5001/api/user/register", {
         name,
         email,
         password,

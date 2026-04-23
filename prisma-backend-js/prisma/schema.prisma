@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  name     String @db.VarChar(100)
+  email    String @unique @db.VarChar(150)
+  password String @db.VarChar(255)
+
+  role Role @default(customer)
+
+  phone String? @db.VarChar(20)
+
+  location      String? @db.VarChar(255)
+  streetAddress String? @db.VarChar(255)
+  city          String? @db.VarChar(100)
+  postalCode    String? @db.VarChar(20)
+  country       String? @db.VarChar(100)
+
+  newsletter        Boolean   @default(true)
+  pushNotifications Boolean   @default(true)
+  usageReports      Boolean   @default(false)
+  status            Int       @default(1)
+  lastLogin         DateTime?
+  orders Order[]
+  resetToken        String?
+  resetTokenExpires DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  admin
+  store_manager
+  customer
+}
+
+// for logout
+
+model BlacklistedToken {
+  id        Int      @id @default(autoincrement())
+  token     String
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String?
+  price         Decimal  @db.Decimal(10,2) // selling price
+  discountPrice Decimal? @db.Decimal(10,2)
+  slug          String   @unique
+  gender        Gender   @default(ALL)
+
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  images ProductImage[]
+  stocks ProductStock[]   // ✅ FIFO relation
+  orderItems OrderItem[]
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Gender {
+  MEN
+  WOMEN
+  KIDS
+  ALL
+}
+
+model ProductStock {
+  id        Int      @id @default(autoincrement())
+
+  productId Int
+  size      String
+
+  costPrice Decimal  @db.Decimal(10,2)
+  quantity  Int
+
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductImage {
+  id        Int @id @default(autoincrement())
+  url       String
+  productId Int
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id          Int     @id @default(autoincrement())
+  name        String
+  slug        String  @unique
+  description String?
+  image       String?
+
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+//order management
+
+model Order {
+  id Int @id @default(autoincrement())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  customerName  String?
+  email         String?
+  contactNumber String?
+
+  shippingAddress String?
+
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus @default(PENDING)
+
+  status OrderStatus @default(PENDING)
+
+  trackingNumber    String?
+  carrier           String?
+  estimatedDelivery DateTime?
+  actualDelivery    DateTime?
+
+  totalAmount Decimal @db.Decimal(10,2)
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PaymentMethod {
+  COD
+  ONLINE
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+
+  orderId Int
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId Int
+  product Product @relation(fields: [productId], references: [id])
+
+  productName String
+  size String
+
+  quantity Int
+
+  sellingPrice Decimal @db.Decimal(10,2)
+  costPrice Decimal @db.Decimal(10,2) // FIFO price snapshot
+
+  createdAt DateTime @default(now())
+}
