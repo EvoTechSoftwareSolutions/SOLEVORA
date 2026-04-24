@@ -1,3 +1,4 @@
+
 import { useMemo, useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
@@ -40,6 +41,16 @@ import heritageImage from "../../assets/category/heritage-shoe.png";
 
 import SuccessPopup from "../../components/common/SuccessPoppup";
 import SizeChartModal from "../../components/user/SizeChartModal";
+
+
+const BASE_URL = 'http://localhost:5001';
+
+const getImg = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    if (url.startsWith('/')) return `${BASE_URL}${url}`;
+    return `${BASE_URL}/${url.replace(/\\/g, '/')}`;
+};
 
 function CategoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -183,10 +194,17 @@ function CategoryPage() {
     11: "Women",  // Peep Toe Sandals
   };
 
+  const getProductImage = (item) => {
+    const first = item.images?.[0]?.url;
+    if (!first) return FALLBACK_IMG;
+    if (first.startsWith('http')) return first;
+    if (first.startsWith('/')) return `${BASE_URL}${first}`;        // ← add this line
+    return `${BASE_URL}/${first.replace(/\\/g, '/')}`;
+};
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5000/api/products");
+        const { data } = await axios.get("http://localhost:5001/api/products");
         const bgColors = [
           "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]",
           "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]",
@@ -201,12 +219,13 @@ function CategoryPage() {
           ["6", "8", "9", "10.5"]
         ];
 
-        const baseFormatted = data.map((p, index) => ({
+        const baseFormatted = data.data.map((p, index) => ({
           id: p.id,
           category: p.category?.name || "Uncategorized",
           name: p.name,
+          description:p.description,
           price: parseFloat(p.price) || 0,
-          image: p.image_url || fallbackImages[index % fallbackImages.length],
+          image: getImg(p.images?.[0]?.url) || fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
           gender:
             p.gender ||
@@ -377,7 +396,7 @@ function CategoryPage() {
               className="transition duration-300 cursor-pointer group"
             >
               <div className="relative overflow-hidden shadow-sm rounded-xl">
-                <img
+       <img
                   src={item.image}
                   alt={item.title}
                   className="w-full h-[140px] sm:h-[160px] lg:h-[180px] object-cover group-hover:scale-105 transition duration-500"
@@ -564,9 +583,13 @@ function CategoryPage() {
                   <p className="text-[#ff5c45] text-[10px] font-bold uppercase tracking-wider mb-1">
                     {product.category}
                   </p>
+                  
 
                   <h3 className="text-[17px] font-semibold text-[#222] truncate">
                     {product.name}
+                  </h3>
+                   <h3 className="text-[12px] font-semibold text-gray-600 truncate">
+                    {product.description}
                   </h3>
 
                   <p className="mt-1 text-[20px] font-bold text-[#111]">

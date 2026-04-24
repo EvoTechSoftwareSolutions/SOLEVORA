@@ -7,6 +7,7 @@ import './Sidebar.css';
 
 const Sidebar = () => {
     // current route info
+    const { permissions } = useAdminAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const { isAdmin, logout } = useAdminAuth();
@@ -48,17 +49,19 @@ const Sidebar = () => {
             </div>
            {/* main navigation */}
             <div className="app-nav-items">
-                <Link to="/admin" style={{ textDecoration: 'none' }}>
-                    <div className={`app-nav-item ${isTabActive('/admin')}`}>
-                        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="14" width="7" height="7"></rect>
-                            <rect x="3" y="14" width="7" height="7"></rect>
-                        </svg>
-                        Dashboard
-                    </div>
-                </Link>
+             {permissions.canManageProducts && (
+    <Link to="/admin" style={{ textDecoration: 'none' }}>
+        <div className={`app-nav-item ${isTabActive('/admin')}`}>
+            <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            Dashboard
+        </div>
+    </Link>
+)}
             {/* products */}
                 <Link to="/admin/products" style={{ textDecoration: 'none' }}>
                     <div className={`app-nav-item ${isTabActive('/admin/products')}`}>

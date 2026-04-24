@@ -7,7 +7,13 @@ const Card = ({ image, title, description, price, link }) => {
   return (
     <div className="card">
       <div className="card-image">
-        <img src={image} alt={title} />
+    <img
+  src={image}
+  alt={title}
+  onError={(e) => {
+    if (e.target.src !== FALLBACK_IMG) e.target.src = FALLBACK_IMG;
+  }}
+/>
       </div>
 
       <div className="card-content">

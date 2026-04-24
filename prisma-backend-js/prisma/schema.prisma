@@ -30,6 +30,7 @@ model User {
   status            Int       @default(1)
   lastLogin         DateTime?
   orders Order[]
+  wishlist  Wishlist[]
   resetToken        String?
   resetTokenExpires DateTime?
 
@@ -62,10 +63,11 @@ model Product {
 
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
-
+  
   images ProductImage[]
-  stocks ProductStock[]   // ✅ FIFO relation
+  stocks ProductStock[]   //  FIFO relation
   orderItems OrderItem[]
+  wishlist  Wishlist[]
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -187,4 +189,17 @@ model OrderItem {
   costPrice Decimal @db.Decimal(10,2) // FIFO price snapshot
 
   createdAt DateTime @default(now())
+}
+
+//prisma
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId]) 
 }

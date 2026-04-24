@@ -1,7 +1,7 @@
 import prisma from "../prisma/client.js";
 
 //
-// ✅ CREATE PRODUCT
+// CREATE PRODUCT
 
 export const createProduct = async (req, res) => {
   try {
@@ -16,9 +16,16 @@ export const createProduct = async (req, res) => {
       stocks
     } = req.body;
 
+    // FIX 1: files from multer
     const files = req.files || [];
 
-    const parsedStocks = JSON.parse(stocks || "[]");
+    // FIX 2: safe JSON parse
+    let parsedStocks = [];
+    try {
+      parsedStocks = JSON.parse(stocks || "[]");
+    } catch (err) {
+      parsedStocks = [];
+    }
 
     const product = await prisma.product.create({
       data: {
@@ -30,27 +37,26 @@ export const createProduct = async (req, res) => {
         categoryId: Number(categoryId),
         gender,
 
-        //  IMAGES
+        // IMAGES FIX
         images: {
           create: files.map(file => ({
-            url: file.path
+            url: `/uploads/${file.filename}`
           }))
         },
 
-        // STOCKS (THIS WAS MISSING)
+        // STOCKS FIX
         stocks: {
           create: parsedStocks.map(s => ({
             size: s.size,
-            costPrice: parseFloat(s.costPrice),
+            costPrice: Number(s.costPrice),
             quantity: Number(s.quantity)
           }))
         }
       },
-
       include: {
         category: true,
         images: true,
-        stocks: true   //  IMPORTANT
+        stocks: true
       }
     });
 
@@ -68,7 +74,7 @@ export const createProduct = async (req, res) => {
 };
 
 
-// ✅ GET PRODUCTS
+// GET PRODUCTS
 export const getProducts = async (req, res) => {
   try {
     const products = await prisma.product.findMany({

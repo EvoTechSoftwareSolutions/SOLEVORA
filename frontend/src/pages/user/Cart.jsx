@@ -7,6 +7,17 @@ import { Pagination, Scrollbar, A11y, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import '../../styles/user/Cart.css';
 
+
+const BASE_URL = 'http://localhost:5001';
+
+const getImg = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    if (url.startsWith('/')) return `${BASE_URL}${url}`;
+    return `${BASE_URL}/${url.replace(/\\/g, '/')}`;
+};
+
+
 const Cart = () => {
   const navigate = useNavigate();
   const { cart, selectedCartTotal, removeFromCart, updateQuantity, toggleItemSelection, toggleAllSelection, lockCheckoutSubtotal } = useCart();

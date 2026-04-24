@@ -71,7 +71,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
 // get categories from backend
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/categories');
+            const response = await axios.get('http://localhost:5001/api/categories');
             setCategories(response.data);
             if (response.data.length > 0 && !formData.categoryId && !isEdit) {
                 setFormData(prev => ({ ...prev, categoryId: response.data[0].id }));

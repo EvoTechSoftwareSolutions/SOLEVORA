@@ -8,6 +8,7 @@ import categoryRoutes from "./routes/category.routes.js";
 import productRoutes from "./routes/product.routes.js";
 import stockRoutes from "./routes/stock.routes.js";
 import orderRoutes from "./routes/order.route.js";
+import wishlist from "./routes/wishlist.routes.js"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,5 +32,6 @@ app.use("/api/products", productRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/stocks", stockRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/wishlist", wishlist);
 
 export default app;

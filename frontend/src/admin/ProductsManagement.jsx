@@ -25,19 +25,21 @@ const ProductsManagement = () => {
     const getTotalStock = (prod) =>
         (prod.stocks || []).reduce((acc, s) => acc + (parseInt(s.quantity) || 0), 0);
 
-    const getImageUrl = (prod) => {
-        const first = prod.images?.[0]?.url;
-        if (!first) return FALLBACK_IMG;
-        if (first.startsWith('http')) return first;
-        return `${BASE_URL}/${first.replace(/\\/g, '/')}`;
-    };
+const getImageUrl = (prod) => {
+    const first = prod.images?.[0]?.url;
+    if (!first) return FALLBACK_IMG;
+    if (first.startsWith('http')) return first;
+    if (first.startsWith('/')) return `${BASE_URL}${first}`;   
+    return `${BASE_URL}/${first.replace(/\\/g, '/')}`;
+};;
 
     /** Any single image URL resolved to absolute */
-    const resolveUrl = (url) => {
-        if (!url) return FALLBACK_IMG;
-        if (url.startsWith('http')) return url;
-        return `${BASE_URL}/${url.replace(/\\/g, '/')}`;
-    };
+   const resolveUrl = (url) => {
+    if (!url) return FALLBACK_IMG;
+    if (url.startsWith('http')) return url;
+    if (url.startsWith('/')) return `${BASE_URL}${url}`;
+    return `${BASE_URL}/${url.replace(/\\/g, '/')}`;
+};
 
     /** Status derived from total stock */
     const getStatus = (totalStock) => {

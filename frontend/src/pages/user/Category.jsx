@@ -25,10 +25,10 @@ const Category = () => {
       setLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:5000/api/products?category=${categoryName}`,
+          `http://localhost:5001/api/products?category=${categoryName}`,
         );
         const data = await response.json();
-        setProducts(data);
+        setProducts(data.data);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {

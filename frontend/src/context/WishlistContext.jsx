@@ -29,8 +29,8 @@ export const WishlistProvider = ({ children }) => {
         if (id) {
             localStorage.removeItem('solevora_wishlist');
             try {
-                const res = await axios.get(`http://localhost:5000/api/wishlist/${id}`);
-                setWishlist(res.data);
+                const res = await axios.get(`http://localhost:5001/api/wishlist/${id}`);
+                setWishlist(res.data.data);
             } catch (err) {
                 console.error('Failed to fetch wishlist');
             }
@@ -71,7 +71,7 @@ export const WishlistProvider = ({ children }) => {
         }
         
         try {
-            await axios.post('http://localhost:5000/api/wishlist', {
+            await axios.post('http://localhost:5001/api/wishlist', {
                 userId: uid,
                 productId: product.id
             });
@@ -86,7 +86,7 @@ export const WishlistProvider = ({ children }) => {
         const uid = getUserId();
         if (uid) {
             try {
-                await axios.delete(`http://localhost:5000/api/wishlist/${uid}/${productId}`);
+                await axios.delete(`http://localhost:5001/api/wishlist/${uid}/${productId}`);
                 fetchWishlist();
             } catch (err) {
                 console.error('Failed to remove from wishlist');
@@ -101,9 +101,10 @@ export const WishlistProvider = ({ children }) => {
         showToast(`Item removed from your wishlist.`);
     };
 
-    const isInWishlist = (productId) => {
-        return wishlist.some(item => item.id == productId);
-    };
+  const isInWishlist = (productId) => {
+    if (!Array.isArray(wishlist)) return false;
+    return wishlist.some(item => item.productId == productId);
+};
 
     const clearWishlist = () => {
         setWishlist([]);

@@ -6,8 +6,11 @@ import './AdminLayout.css';
 // This acts as the master "shell" for the whole admin area
 const AdminLayout = () => {
     const { adminUser, roleName } = useAdminAuth();
-
+console.log('role value:', adminUser?.role);
     // Generate initials for avatar fallback
+      if (!adminUser) {
+        return <Navigate to="/admin-login" replace />;
+    }
     const initials = adminUser?.name
         ? adminUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
         : 'AD';
@@ -31,7 +34,7 @@ const AdminLayout = () => {
                         <div className="admin-user-info">
                             <div className="admin-user-text">
                                 <div className="admin-user-name">{adminUser?.name || 'Admin'}</div>
-                                <div className={`admin-user-role ${adminUser?.role === 'admin' ? 'role-admin' : 'role-manager'}`}>
+                                <div className={`admin-user-role ${adminUser?.role === 'admin' ? 'admin' : 'store_manager'}`}>
                                     {roleName || 'Staff'}
                                 </div>
                             </div>
