@@ -9,6 +9,7 @@ import productRoutes from "./routes/product.routes.js";
 import stockRoutes from "./routes/stock.routes.js";
 import orderRoutes from "./routes/order.route.js";
 import wishlist from "./routes/wishlist.routes.js"
+import cart from "./routes/cart.route.js"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,5 +34,6 @@ app.use("/api/category", categoryRoutes);
 app.use("/api/stocks", stockRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/wishlist", wishlist);
+app.use("/api/cart", cart);
 
 export default app;

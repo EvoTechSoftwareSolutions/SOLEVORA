@@ -68,6 +68,7 @@ model Product {
   stocks ProductStock[]   //  FIFO relation
   orderItems OrderItem[]
   wishlist  Wishlist[]
+  card  Cart[]
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -191,7 +192,7 @@ model OrderItem {
   createdAt DateTime @default(now())
 }
 
-//prisma
+//whislist
 model Wishlist {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -202,4 +203,18 @@ model Wishlist {
   product   Product  @relation(fields: [productId], references: [id])
 
   @@unique([userId, productId]) 
+}
+
+//cart
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  size      String
+  quantity  Int      @default(1)
+
+  product   Product  @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

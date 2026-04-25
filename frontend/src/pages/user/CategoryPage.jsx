@@ -1,4 +1,3 @@
-
 import { useMemo, useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
@@ -11,10 +10,7 @@ import {
   HiOutlineAdjustments,
 } from "react-icons/hi";
 
-// Hero
 import heroImage from "../../assets/category/hero-shoe.png";
-
-// Category images
 import catSneakers from "../../assets/category/cat-sneakers.png";
 import catRunning from "../../assets/category/cat-running.png";
 import catFormal from "../../assets/category/cat-formal.png";
@@ -23,9 +19,6 @@ import catSandals from "../../assets/category/cat-sandals.png";
 import catHeels from "../../assets/category/cat-heels.png";
 import catLoafers from "../../assets/category/cat-loafers.png";
 import catAthletic from "../../assets/category/cat-athletic.png";
-
-
-// Product images
 import product1 from "../../assets/category/product-1.png";
 import product2 from "../../assets/category/product-2.png";
 import product3 from "../../assets/category/product-3.png";
@@ -35,21 +28,29 @@ import product6 from "../../assets/category/product-6.png";
 import product7 from "../../assets/category/product-7.png";
 import product8 from "../../assets/category/product-8.png";
 import product9 from "../../assets/category/product-9.png";
-
-// Bottom banner
 import heritageImage from "../../assets/category/heritage-shoe.png";
 
 import SuccessPopup from "../../components/common/SuccessPoppup";
 import SizeChartModal from "../../components/user/SizeChartModal";
 
-
-const BASE_URL = 'http://localhost:5001';
-
+// ✅ shared image helper
+const BASE_URL = "http://localhost:5001";
 const getImg = (url) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    if (url.startsWith('/')) return `${BASE_URL}${url}`;
-    return `${BASE_URL}/${url.replace(/\\/g, '/')}`;
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  if (url.startsWith("/")) return `${BASE_URL}${url}`;
+  return `${BASE_URL}/${url.replace(/\\/g, "/")}`;
+};
+
+const FALLBACK =
+  `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' ` +
+  `width='80' height='80' viewBox='0 0 80 80'%3E` +
+  `%3Crect width='80' height='80' fill='%23f3f4f6'/%3E` +
+  `%3Cpath d='M20 55l14-18 10 12 8-10 14 16H20z' fill='%23d1d5db'/%3E` +
+  `%3Ccircle cx='52' cy='28' r='7' fill='%23d1d5db'/%3E%3C/svg%3E`;
+
+const handleImgError = (e) => {
+  if (e.target.src !== FALLBACK) e.target.src = FALLBACK;
 };
 
 function CategoryPage() {
@@ -62,12 +63,12 @@ function CategoryPage() {
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [showSizeChart, setShowSizeChart] = useState(false);
+  const [products, setProducts] = useState([]);
 
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  // Update selectedCategory if URL param changes
   useEffect(() => {
     const type = searchParams.get("type");
     if (type) setSelectedCategory(type);
@@ -76,166 +77,66 @@ function CategoryPage() {
   const handleCategoryClick = (categoryName) => {
     const newCategory = selectedCategory === categoryName ? "All" : categoryName;
     setSelectedCategory(newCategory);
-
-    // Update URL param
-    if (newCategory === "All") {
-      searchParams.delete("type");
-    } else {
-      searchParams.set("type", newCategory);
-    }
+    if (newCategory === "All") searchParams.delete("type");
+    else searchParams.set("type", newCategory);
     setSearchParams(searchParams);
   };
 
-  // Get logged-in user
   const user = (() => {
     try {
-      const u = localStorage.getItem('user');
+      const u = localStorage.getItem("user");
       return u ? JSON.parse(u) : null;
     } catch { return null; }
   })();
 
   const handleWishlistToggle = (product) => {
-    if (!user) {
-      setPopupMessage("Please login to add items to your wishlist.");
-      setShowPopup(true);
-      return;
-    }
-    if (isInWishlist(product.id)) {
-      removeFromWishlist(product.id);
-    } else {
-      addToWishlist(product);
-    }
+    if (!user) { setPopupMessage("Please login to add items to your wishlist."); setShowPopup(true); return; }
+    if (isInWishlist(product.id)) removeFromWishlist(product.id);
+    else addToWishlist(product);
   };
 
+  // ✅ addToCart now only needs product.id and size — CartContext handles the rest
   const handleAddToCart = (product) => {
-    if (!user) {
-      setPopupMessage("Please login to add items to your cart.");
-      setShowPopup(true);
-      return;
-    }
-    // Use a default size — user can pick proper size on the detail page
+    if (!user) { setPopupMessage("Please login to add items to your cart."); setShowPopup(true); return; }
     const defaultSize = product.sizes?.[0] || "One Size";
-    addToCart({ ...product, image_url: product.image }, defaultSize);
+    addToCart({ id: product.id, name: product.name, price: product.price }, defaultSize);
   };
 
   const categories = [
-    {
-      id: 1,
-      title: "Sneakers",
-      subtitle: "Classic modern kicks",
-      image: catSneakers,
-      count: "56 Items",
-    },
-    {
-      id: 2,
-      title: "Running",
-      subtitle: "Built for performance",
-      image: catRunning,
-      count: "16 Items",
-    },
-    {
-      id: 3,
-      title: "Formal",
-      subtitle: "Refined modern wear",
-      image: catFormal,
-      count: "21 Items",
-    },
-    {
-      id: 4,
-      title: "Boots",
-      subtitle: "Rugged & stylish",
-      image: catBoots,
-      count: "8 Items",
-    },
-    {
-      id: 5,
-      title: "Sandals",
-      subtitle: "Summer essentials",
-      image: catSandals,
-      count: "12 Items",
-    },
-    {
-      id: 6,
-      title: "Heels",
-      subtitle: "Step up in style",
-      image: catHeels,
-      count: "9 Items",
-    },
-    {
-      id: 7,
-      title: "Loafers",
-      subtitle: "Effortless comfort",
-      image: catLoafers,
-      count: "15 Items",
-    },
-    {
-      id: 8,
-      title: "Athletic",
-      subtitle: "Train harder",
-      image: catAthletic,
-      count: "11 Items",
-    },
+    { id: 1, title: "Sneakers", subtitle: "Classic modern kicks", image: catSneakers },
+    { id: 2, title: "Running", subtitle: "Built for performance", image: catRunning },
+    { id: 3, title: "Formal", subtitle: "Refined modern wear", image: catFormal },
+    { id: 4, title: "Boots", subtitle: "Rugged & stylish", image: catBoots },
+    { id: 5, title: "Sandals", subtitle: "Summer essentials", image: catSandals },
+    { id: 6, title: "Heels", subtitle: "Step up in style", image: catHeels },
+    { id: 7, title: "Loafers", subtitle: "Effortless comfort", image: catLoafers },
+    { id: 8, title: "Athletic", subtitle: "Train harder", image: catAthletic },
   ];
 
-  const [products, setProducts] = useState([]);
+  const fallbackImages = [product1, product2, product3, product4, product5, product6, product7, product8, product9];
+  const bgColors = ["bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]", "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]", "bg-[#dfdfdf]", "bg-[#efe8e0]", "bg-[#dcd0c2]", "bg-[#ffb0b0]"];
+  const fallbackSizesList = [["6", "7", "8"], ["7.5", "8.5", "9.5", "10"], ["9", "10", "11", "12"], ["6", "8", "9", "10.5"]];
 
-  // Manual gender map based on current database products
-  const productGenderMap = {
-    1: "Men",     // SoleRunner V1
-    2: "Kids",    // Urban Glide
-    3: "Men",     // Hoop Master 3000
-    4: "Men",     // Speed Demon
-    5: "Women",   // City Walker
-    6: "Men",     // Court King
-    7: "Men",     // Marathon Elite
-    8: "Kids",    // Street Style
-    9: "Kids",    // Jump Force
-    10: "Men",    // Explorer Combat
-    11: "Women",  // Peep Toe Sandals
-  };
-
-  const getProductImage = (item) => {
-    const first = item.images?.[0]?.url;
-    if (!first) return FALLBACK_IMG;
-    if (first.startsWith('http')) return first;
-    if (first.startsWith('/')) return `${BASE_URL}${first}`;        // ← add this line
-    return `${BASE_URL}/${first.replace(/\\/g, '/')}`;
-};
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5001/api/products");
-        const bgColors = [
-          "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]",
-          "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]",
-          "bg-[#dfdfdf]", "bg-[#efe8e0]", "bg-[#dcd0c2]", "bg-[#ffb0b0]"
-        ];
-        const fallbackImages = [product1, product2, product3, product4, product5, product6, product7, product8, product9];
-
-        const fallbackSizesList = [
-          ["6", "7", "8"],
-          ["7.5", "8.5", "9.5", "10"],
-          ["9", "10", "11", "12"],
-          ["6", "8", "9", "10.5"]
-        ];
-
+        const { data } = await axios.get(`${BASE_URL}/api/products`);
         const baseFormatted = data.data.map((p, index) => ({
           id: p.id,
           category: p.category?.name || "Uncategorized",
           name: p.name,
-          description:p.description,
+          description: p.description,
           price: parseFloat(p.price) || 0,
+          // ✅ correct: plain JS call, uses getImg helper
           image: getImg(p.images?.[0]?.url) || fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
-          gender:
-            p.gender ||
-            (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
-          sizes: p.sizes ? (typeof p.sizes === 'string' ? JSON.parse(p.sizes).map(String) : Array.isArray(p.sizes) ? p.sizes.map(String) : []) : fallbackSizesList[index % fallbackSizesList.length],
+          gender: p.gender || (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
+          sizes: p.stocks?.length > 0
+            ? p.stocks.map((s) => String(s.size))
+            : fallbackSizesList[index % fallbackSizesList.length],
           featured: p.isFeatured || false,
           badge: index === 0 ? "New" : "",
-          colors: ["#333333", "#e5e7eb", "#ff6b3d"],
         }));
-
         setProducts(baseFormatted);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -246,27 +147,15 @@ function CategoryPage() {
 
   const displayedProducts = useMemo(() => {
     let filtered = [...products];
-
-    // Category filtering
     if (selectedCategory !== "All") {
       filtered = filtered.filter((item) => item.category.toLowerCase() === selectedCategory.toLowerCase());
     }
-
-    // Gender filtering: match exact gender OR include "All" (Unisex) products
     if (selectedGender !== "All") {
-      filtered = filtered.filter((item) =>
-        item.gender === selectedGender || item.gender === "All"
-      );
+      filtered = filtered.filter((item) => item.gender === selectedGender || item.gender === "All");
     }
-
-    // Size filtering
     if (selectedSize) {
-      filtered = filtered.filter((item) =>
-        item.sizes && item.sizes.includes(selectedSize)
-      );
+      filtered = filtered.filter((item) => item.sizes && item.sizes.includes(selectedSize));
     }
-
-    // Price filtering
     if (selectedPrice !== "All") {
       filtered = filtered.filter((item) => {
         const price = parseFloat(item.price) || 0;
@@ -278,146 +167,78 @@ function CategoryPage() {
         return true;
       });
     }
-
-    // Sorting
-    if (sortBy === "low-high") {
-      filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-    } else if (sortBy === "high-low") {
-      filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
-    } else if (sortBy === "newest") {
-      filtered.sort((a, b) => b.id - a.id);
-    } else {
-      filtered.sort((a, b) => Number(b.featured) - Number(a.featured));
-    }
-
+    if (sortBy === "low-high") filtered.sort((a, b) => a.price - b.price);
+    else if (sortBy === "high-low") filtered.sort((a, b) => b.price - a.price);
+    else if (sortBy === "newest") filtered.sort((a, b) => b.id - a.id);
+    else filtered.sort((a, b) => Number(b.featured) - Number(a.featured));
     return filtered;
   }, [products, selectedCategory, selectedGender, selectedSize, selectedPrice, sortBy]);
 
-  // Dynamic size options based on actual products
   const sizes = useMemo(() => {
     const allSizes = new Set();
-    products.forEach(product => {
-      if (product.sizes && Array.isArray(product.sizes)) {
-        product.sizes.forEach(size => allSizes.add(String(size)));
-      }
-    });
-
-    const sortedSizes = Array.from(allSizes).sort((a, b) => {
-      // Convert to numbers for proper sorting
-      const numA = parseFloat(a);
-      const numB = parseFloat(b);
-      return numA - numB;
-    });
-
-    return sortedSizes.length > 0 ? sortedSizes : ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12", "13"];
+    products.forEach((p) => p.sizes?.forEach((s) => allSizes.add(String(s))));
+    const sorted = Array.from(allSizes).sort((a, b) => parseFloat(a) - parseFloat(b));
+    return sorted.length > 0 ? sorted : ["6", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10", "10.5", "11", "12"];
   }, [products]);
 
   const priceRanges = ["All", "Under Rs.3000", "Rs.3000 - Rs.5000", "Rs.5000 - Rs.10000", "Rs.10000 - Rs.20000", "Rs.20000+"];
 
-  // Dynamic counts for categories
   const categoryCounts = useMemo(() => {
     const counts = {};
-    products.forEach(p => {
-      counts[p.category] = (counts[p.category] || 0) + 1;
-    });
+    products.forEach((p) => { counts[p.category] = (counts[p.category] || 0) + 1; });
     return counts;
   }, [products]);
 
   return (
     <div className="bg-[#f6f6f6] min-h-screen">
-      {showPopup && (
-        <SuccessPopup
-          message={popupMessage}
-          onClose={() => setShowPopup(false)}
-          type="notice"
-        />
-      )}
-      <SizeChartModal 
-        isOpen={showSizeChart} 
-        onClose={() => setShowSizeChart(false)} 
-      />
+      {showPopup && <SuccessPopup message={popupMessage} onClose={() => setShowPopup(false)} type="notice" />}
+      <SizeChartModal isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />
 
-
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="relative h-[340px] sm:h-[420px] lg:h-[520px] overflow-hidden">
-        <img
-          src={heroImage}
-          alt="Spring Collection"
-          className="object-cover w-full h-full"
-        />
+        <img src={heroImage} alt="Spring Collection" className="object-cover w-full h-full" />
         <div className="absolute inset-0 bg-black/35" />
-
         <div className="absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 lg:left-16 text-white max-w-[520px]">
-          <span className="inline-block bg-white/15 text-[10px] sm:text-xs px-3 py-1 rounded-full mb-4">
-            New Season
-          </span>
-
+          <span className="inline-block bg-white/15 text-[10px] sm:text-xs px-3 py-1 rounded-full mb-4">New Season</span>
           <h1 className="text-3xl font-bold leading-tight sm:text-5xl lg:text-6xl">
-            Spring Collection
-            <br />
-            <span className="text-[#f3b126]">2026</span>
+            Spring Collection<br /><span className="text-[#f3b126]">2026</span>
           </h1>
-
           <p className="mt-4 text-sm sm:text-base text-white/90 max-w-[430px] leading-7">
-            Discover our latest arrivals designed for effortless style and
-            uncompromising comfort. Step into the new season.
+            Discover our latest arrivals designed for effortless style and uncompromising comfort.
           </p>
-
-          <button 
-            onClick={() => document.getElementById('product-grid-section')?.scrollIntoView({ behavior: 'smooth' })}
-            className="mt-5 px-6 py-3 rounded-full bg-[#dd8e4a] hover:bg-[#c97e40] transition duration-300 text-sm sm:text-base font-medium shadow-lg"
-          >
+          <button onClick={() => document.getElementById("product-grid-section")?.scrollIntoView({ behavior: "smooth" })}
+            className="mt-5 px-6 py-3 rounded-full bg-[#dd8e4a] hover:bg-[#c97e40] transition duration-300 text-sm sm:text-base font-medium shadow-lg">
             Shop the Collection →
           </button>
         </div>
       </section>
 
-      {/* Category Section */}
+      {/* Categories */}
       <section className="px-4 bg-white sm:px-8 lg:px-16 py-14">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#222]">
-            Shop by Category
-          </h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#222]">Shop by Category</h2>
           <div className="w-12 h-[3px] rounded-full bg-[#df8b4a] mx-auto mt-3 mb-4" />
-          <p className="text-[#666] text-sm sm:text-base leading-7">
-            Explore our curated collections designed for every occasion,
-            from high-performance athletic wear to refined evening elegance.
-          </p>
+          <p className="text-[#666] text-sm sm:text-base leading-7">Explore our curated collections designed for every occasion.</p>
         </div>
-
         <div className="grid grid-cols-2 gap-4 mt-8 md:grid-cols-4 xl:grid-cols-4 sm:gap-5">
           {categories.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => {
-                handleCategoryClick(item.title);
-                document.getElementById('product-grid-section')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="transition duration-300 cursor-pointer group"
-            >
+            <div key={item.id}
+              onClick={() => { handleCategoryClick(item.title); document.getElementById("product-grid-section")?.scrollIntoView({ behavior: "smooth" }); }}
+              className="transition duration-300 cursor-pointer group">
               <div className="relative overflow-hidden shadow-sm rounded-xl">
-       <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-[140px] sm:h-[160px] lg:h-[180px] object-cover group-hover:scale-105 transition duration-500"
-                />
+                <img src={item.image} alt={item.title} className="w-full h-[140px] sm:h-[160px] lg:h-[180px] object-cover group-hover:scale-105 transition duration-500" />
                 <span className="absolute top-3 right-3 bg-white text-[10px] sm:text-xs px-3 py-1 rounded-full text-[#333] shadow-sm">
                   {categoryCounts[item.title] || 0} Items
                 </span>
               </div>
-
-              <h3 className="mt-3 text-sm sm:text-lg font-semibold text-[#222] group-hover:text-[#e58a45] transition">
-                {item.title}
-              </h3>
-              <p className="text-[#777] text-xs sm:text-sm mt-1">
-                {item.subtitle}
-              </p>
+              <h3 className="mt-3 text-sm sm:text-lg font-semibold text-[#222] group-hover:text-[#e58a45] transition">{item.title}</h3>
+              <p className="text-[#777] text-xs sm:text-sm mt-1">{item.subtitle}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Product Section */}
+      {/* Products */}
       <section id="product-grid-section" className="bg-[#faecd9]">
         <div className="flex flex-col gap-4 px-4 py-5 sm:px-8 lg:px-16 sm:flex-row sm:items-center sm:justify-between bg-[#fbf2e1]">
           <div>
@@ -426,12 +247,8 @@ function CategoryPage() {
             </h2>
             <p className="text-[#888] text-xs">{displayedProducts.length} products</p>
           </div>
-
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="bg-transparent border border-transparent rounded-lg px-2 py-1 text-xs text-[#555] font-semibold outline-none cursor-pointer"
-          >
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
+            className="bg-transparent border border-transparent rounded-lg px-2 py-1 text-xs text-[#555] font-semibold outline-none cursor-pointer">
             <option value="featured">Sort by: Featured</option>
             <option value="low-high">Price: Low to High</option>
             <option value="high-low">Price: High to Low</option>
@@ -443,96 +260,50 @@ function CategoryPage() {
           {/* Sidebar */}
           <aside className="lg:sticky lg:top-24 self-start bg-[#fbddba] rounded-[20px] p-6 h-fit shadow-sm">
             <div className="flex items-center gap-2 mb-5 lg:hidden font-semibold text-[#222]">
-              <HiOutlineAdjustments />
-              <span>Filters</span>
+              <HiOutlineAdjustments /><span>Filters</span>
             </div>
-
             <div className="mb-8">
-              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">
-                Category
-              </h4>
+              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">Category</h4>
               <div className="flex flex-wrap gap-2">
-                {["All", ...categories.map(c => c.title)].map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => handleCategoryClick(cat)}
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${selectedCategory === cat
-                      ? "bg-[#d57731] text-white"
-                      : "bg-white text-[#555] hover:bg-[#ffeacc]"
-                      }`}
-                  >
+                {["All", ...categories.map((c) => c.title)].map((cat) => (
+                  <button key={cat} onClick={() => handleCategoryClick(cat)}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${selectedCategory === cat ? "bg-[#d57731] text-white" : "bg-white text-[#555] hover:bg-[#ffeacc]"}`}>
                     {cat}
                   </button>
                 ))}
               </div>
             </div>
-
             <div className="mb-8">
-              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">
-                Gender
-              </h4>
+              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">Gender</h4>
               <div className="flex flex-wrap gap-2">
                 {["All", "Men", "Women", "Kids"].map((gender) => (
-                  <button
-                    key={gender}
-                    onClick={() => {
-                      setSelectedGender(gender);
-                      setSelectedSize("");
-                    }}
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${selectedGender === gender
-                      ? "bg-[#d57731] text-white"
-                      : "bg-white text-[#555] hover:bg-[#ffeacc]"
-                      }`}
-                  >
+                  <button key={gender} onClick={() => { setSelectedGender(gender); setSelectedSize(""); }}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${selectedGender === gender ? "bg-[#d57731] text-white" : "bg-white text-[#555] hover:bg-[#ffeacc]"}`}>
                     {gender}
                   </button>
                 ))}
               </div>
             </div>
-
             <div className="mb-8">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider">
-                  Shoe Size
-                </h4>
-                <button 
-                  onClick={() => setShowSizeChart(true)}
-                  className="text-[10px] font-bold text-[#d57731] hover:underline"
-                >
-                  Size Guide
-                </button>
+                <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider">Shoe Size</h4>
+                <button onClick={() => setShowSizeChart(true)} className="text-[10px] font-bold text-[#d57731] hover:underline">Size Guide</button>
               </div>
-
               <div className="grid grid-cols-4 gap-1.5">
                 {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(selectedSize === size ? "" : size)}
-                    className={`rounded bg-white py-1.5 text-[10px] font-semibold shadow-sm transition ${selectedSize === size
-                      ? "ring-1 ring-[#d57731] text-[#d57731]"
-                      : "text-[#555] hover:ring-1 hover:ring-gray-300"
-                      }`}
-                  >
+                  <button key={size} onClick={() => setSelectedSize(selectedSize === size ? "" : size)}
+                    className={`rounded bg-white py-1.5 text-[10px] font-semibold shadow-sm transition ${selectedSize === size ? "ring-1 ring-[#d57731] text-[#d57731]" : "text-[#555] hover:ring-1 hover:ring-gray-300"}`}>
                     {size}
                   </button>
                 ))}
               </div>
             </div>
-
             <div>
-              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">
-                Price Range
-              </h4>
+              <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">Price Range</h4>
               <div className="flex flex-wrap gap-2">
                 {priceRanges.map((range) => (
-                  <button
-                    key={range}
-                    onClick={() => setSelectedPrice(range)}
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${selectedPrice === range
-                      ? "bg-[#d57731] text-white"
-                      : "bg-white text-[#555] hover:bg-[#ffeacc]"
-                      }`}
-                  >
+                  <button key={range} onClick={() => setSelectedPrice(range)}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition ${selectedPrice === range ? "bg-[#d57731] text-white" : "bg-white text-[#555] hover:bg-[#ffeacc]"}`}>
                     {range}
                   </button>
                 ))}
@@ -543,86 +314,44 @@ function CategoryPage() {
           {/* Product Cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {displayedProducts.map((product) => (
-              <div
-                key={product.id}
-                className="bg-[#f2f2f2] rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-md transition duration-300 h-fit"
-              >
-                {/* Top Image Box */}
-                <div
-                  className={`relative w-full aspect-[3/2] ${product.bg} flex items-center justify-center p-4`}
-                >
+              <div key={product.id} className="bg-[#f2f2f2] rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-md transition duration-300 h-fit">
+                <div className={`relative w-full aspect-[3/2] ${product.bg} flex items-center justify-center p-4`}>
                   {product.badge && (
                     <span className="absolute top-4 left-4 bg-[#ff6b3d] text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
                       {product.badge}
                     </span>
                   )}
-
-                  <button
-                    onClick={() => handleWishlistToggle(product)}
-                    className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${isInWishlist(product.id)
-                      ? "text-red-500"
-                      : "text-[#888] hover:text-red-500 hover:bg-white"
-                      }`}
-                  >
-                    {isInWishlist(product.id) ? (
-                      <HiHeart size={18} />
-                    ) : (
-                      <HiOutlineHeart size={18} />
-                    )}
+                  <button onClick={() => handleWishlistToggle(product)}
+                    className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${isInWishlist(product.id) ? "text-red-500" : "text-[#888] hover:text-red-500 hover:bg-white"}`}>
+                    {isInWishlist(product.id) ? <HiHeart size={18} /> : <HiOutlineHeart size={18} />}
                   </button>
-
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="object-contain w-full h-full drop-shadow-2xl hover:scale-105 transition duration-500"
-                  />
+                  {/* ✅ product.image built from getImg(p.images[0].url) */}
+                  <img src={product.image} alt={product.name} onError={handleImgError}
+                    className="object-contain w-full h-full drop-shadow-2xl hover:scale-105 transition duration-500" />
                 </div>
 
-                {/* Info Bottom Row */}
                 <div className="px-4 pt-2 pb-3 flex flex-col">
-                  <p className="text-[#ff5c45] text-[10px] font-bold uppercase tracking-wider mb-1">
-                    {product.category}
-                  </p>
-                  
-
-                  <h3 className="text-[17px] font-semibold text-[#222] truncate">
-                    {product.name}
-                  </h3>
-                   <h3 className="text-[12px] font-semibold text-gray-600 truncate">
-                    {product.description}
-                  </h3>
-
-                  <p className="mt-1 text-[20px] font-bold text-[#111]">
-                    Rs. {product.price.toLocaleString()}
-                  </p>
-
+                  <p className="text-[#ff5c45] text-[10px] font-bold uppercase tracking-wider mb-1">{product.category}</p>
+                  <h3 className="text-[17px] font-semibold text-[#222] truncate">{product.name}</h3>
+                  <h3 className="text-[12px] font-semibold text-gray-600 truncate">{product.description}</h3>
+                  <p className="mt-1 text-[20px] font-bold text-[#111]">Rs. {product.price.toLocaleString()}</p>
                   <div className="flex items-center gap-3 mt-4">
-                    <button
-                      onClick={() => navigate(`/product/${product.id}`, { state: { productImage: product.image } })}
-                      className="flex-1 py-2.5 bg-transparent border border-[#999] text-[#222] text-xs font-semibold rounded-lg hover:bg-white transition duration-300"
-                    >
+                    <button onClick={() => navigate(`/product/${product.id}`, { state: { productImage: product.image } })}
+                      className="flex-1 py-2.5 bg-transparent border border-[#999] text-[#222] text-xs font-semibold rounded-lg hover:bg-white transition duration-300">
                       View Details
                     </button>
-
-                    <button
-                      onClick={() => handleAddToCart(product)}
-                      className="shrink-0 w-10 h-10 rounded-lg bg-[#111] text-white flex items-center justify-center hover:bg-[#333] transition duration-300 shadow-md"
-                    >
+                    <button onClick={() => handleAddToCart(product)}
+                      className="shrink-0 w-10 h-10 rounded-lg bg-[#111] text-white flex items-center justify-center hover:bg-[#333] transition duration-300 shadow-md">
                       <HiOutlineShoppingCart size={18} />
                     </button>
                   </div>
                 </div>
               </div>
             ))}
-
             {displayedProducts.length === 0 && (
               <div className="text-center col-span-full py-14">
-                <h3 className="text-2xl font-semibold text-[#333]">
-                  No products found
-                </h3>
-                <p className="text-[#666] mt-2">
-                  Try changing the filter options.
-                </p>
+                <h3 className="text-2xl font-semibold text-[#333]">No products found</h3>
+                <p className="text-[#666] mt-2">Try changing the filter options.</p>
               </div>
             )}
           </div>
@@ -633,32 +362,13 @@ function CategoryPage() {
       <section className="px-4 sm:px-8 lg:px-16 py-14 bg-[#f6f6f6]">
         <div className="rounded-[28px] overflow-hidden bg-[#e8ddd6] grid grid-cols-1 md:grid-cols-2 shadow-sm">
           <div className="bg-[#e7cfcf] flex items-center justify-center p-6">
-            <img
-              src={heritageImage}
-              alt="Heritage Collection"
-              className="w-full max-w-[340px] object-contain hover:scale-105 transition duration-500"
-            />
+            <img src={heritageImage} alt="Heritage Collection" className="w-full max-w-[340px] object-contain hover:scale-105 transition duration-500" />
           </div>
-
           <div className="flex flex-col justify-center p-8 sm:p-12">
-            <span className="text-[#df8b4a] text-xs uppercase tracking-wide">
-              Limited Edition
-            </span>
-
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#1f1f1f] mt-3 leading-tight">
-              The Heritage
-              <br />
-              Collection
-            </h2>
-
-            <p className="text-[#666] mt-4 leading-8 max-w-md">
-              Discover our most enduring line yet. Handcrafted with full grain
-              leather and designed to age beautifully over time.
-            </p>
-
-            <button className="mt-6 w-fit px-6 py-3 rounded-full border border-[#222] text-[#222] hover:bg-white transition duration-300">
-              Explore Heritage →
-            </button>
+            <span className="text-[#df8b4a] text-xs uppercase tracking-wide">Limited Edition</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1f1f1f] mt-3 leading-tight">The Heritage<br />Collection</h2>
+            <p className="text-[#666] mt-4 leading-8 max-w-md">Discover our most enduring line yet. Handcrafted with full grain leather and designed to age beautifully over time.</p>
+            <button className="mt-6 w-fit px-6 py-3 rounded-full border border-[#222] text-[#222] hover:bg-white transition duration-300">Explore Heritage →</button>
           </div>
         </div>
       </section>

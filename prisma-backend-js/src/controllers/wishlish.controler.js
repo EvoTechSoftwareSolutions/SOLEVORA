@@ -75,7 +75,15 @@ export const removeFromWishlist = async (req, res) => {
 
 export const getWishlist = async (req, res) => {
   try {
-    const userId = Number(req.params.userId);
+    const userId = Number(req.params.uid);
+
+    // 🔥 validation
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID"
+      });
+    }
 
     const wishlist = await prisma.wishlist.findMany({
       where: { userId },
@@ -89,15 +97,26 @@ export const getWishlist = async (req, res) => {
       }
     });
 
+    if (!wishlist.length) {
+      return res.json({
+        success: true,
+        data: [],
+        message: "Wishlist is empty"
+      });
+    }
+
     res.json({
       success: true,
       data: wishlist
     });
 
   } catch (error) {
+    console.error("Wishlist error:", error);
+
     res.status(500).json({
       success: false,
-      error: error.message
+      message: "Failed to fetch wishlist",
+      error: error.message 
     });
   }
 };

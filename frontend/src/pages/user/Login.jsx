@@ -14,7 +14,6 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-
   // Navigation hooks for redirecting users
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,22 +22,36 @@ function Login() {
   const from = location.state?.from || "/home";
 
   // Function to handle normal login
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    if (!email || !password) {
-      setMessage("Please enter email and password");
-      return;
-    }
-    try {
-      // Sending login credentials to the backend
-      const res = await axios.post("http://localhost:5001/api/user/login", { email, password });
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      localStorage.setItem("isAuthenticated", "true");
-      navigate(from, { replace: true });
-    } catch (error) {
-      setMessage(error.response?.data?.message || "Login failed");
-    }
-  };
+const handleLogin = async (e) => {
+  e.preventDefault();
+
+  if (!email || !password) {
+    setMessage("Please enter email and password");
+    return;
+  }
+
+  try {
+    const res = await axios.post(
+      "http://localhost:5001/api/user/login",
+      { email, password }
+    );
+
+
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+
+
+    const token = res.data.token; 
+
+    localStorage.setItem("auth_token", res.data.token);
+
+    localStorage.setItem("isAuthenticated", "true");
+    window.dispatchEvent(new Event("authChange"));
+    navigate(from, { replace: true });
+
+  } catch (error) {
+    setMessage(error.response?.data?.message || "Login failed");
+  }
+};
 
   // Function to handle Google login (demo implementation)
   const handleGoogleLogin = async () => {

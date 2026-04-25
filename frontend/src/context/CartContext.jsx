@@ -1,176 +1,205 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import Toast from '../components/ui/Toast';
-// create cart context
+import React, { createContext, useState, useContext, useEffect } from "react";
+import axios from "axios";
+import Toast from "../components/ui/Toast";
+
 const CartContext = createContext();
 
-// helper to get user id from localStorage
+const API = "http://localhost:5001/api/cart";
+
+const getToken = () => localStorage.getItem("auth_token");
+
 const getUserId = () => {
-    try {
-        const userStr = localStorage.getItem('user');
-        if (!userStr) return null;
-        const id = JSON.parse(userStr).id;
-        return id == null ? null : id;
-    } catch {
-        return null;
-    }
+  try {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user).id : null;
+  } catch {
+    return null;
+  }
+};
+
+const getImg = (url) => {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  if (url.startsWith("/")) return `http://localhost:5001${url}`;
+  return `http://localhost:5001/${url.replace(/\\/g, "/")}`;
 };
 
 export const CartProvider = ({ children }) => {
-    // Load local storage if available
-    const [cart, setCart] = useState(() => {
-        const localData = localStorage.getItem('solevora_cart');
-        return localData ? JSON.parse(localData) : [];
+  const [cart, setCart] = useState([]);
+  const [toast, setToast] = useState(null);
+  const [ready, setReady] = useState(false);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type, id: Date.now() });
+  };
+
+  //  FETCH CART 
+  const fetchCart = async () => {
+    const userId = getUserId();
+    const token = getToken();
+
+    if (!token || !userId) {
+      setCart([]);
+      return;
+    }
+
+    try {
+      const res = await axios.get(`${API}/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const formatted = (res.data.data || []).map((item) => {
+        // ✅ get image from product.images array 
+        const rawUrl =
+          item.product?.images?.[0]?.url ||
+          item.product?.image ||
+          "";
+
+        return {
+          id: item.id,
+          productId: item.productId,
+          size: item.size,
+          quantity: item.quantity,
+          name: item.product?.name || "Product",
+          price: Number(item.product?.price || 0),
+          image_url: rawUrl ? getImg(rawUrl) : "",
+        };
+      });
+
+      setCart(formatted);
+    } catch (err) {
+      console.error("Fetch cart error:", err.response?.data || err.message);
+    }
+  };
+
+  // Load cart on mount
+  useEffect(() => {
+    const token = getToken();
+    if (token) {
+      fetchCart().finally(() => setReady(true));
+    } else {
+      setCart([]);
+      setReady(true);
+    }
+  }, []);
+
+  // Re-fetch cart on login/logout
+  useEffect(() => {
+    const handleAuthChange = () => {
+      fetchCart();
+    };
+    window.addEventListener("authChange", handleAuthChange);
+    return () => window.removeEventListener("authChange", handleAuthChange);
+  }, []);
+
+  // ADD TO CART 
+  const addToCart = async (product, size) => {
+    const token = getToken();
+    const userId = getUserId();
+
+    if (!token || !userId) {
+      showToast("Please login first", "error");
+      return;
+    }
+
+    try {
+      await axios.post(
+        API,
+        { userId, productId: product.id, size },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      showToast(`${product.name} added to cart!`);
+      fetchCart();
+    } catch (err) {
+      console.error("Add cart error:", err.response?.data || err.message);
+      showToast("Failed to add to cart", "error");
+    }
+  };
+
+  // REMOVE 
+const removeFromCart = async (cartId) => {
+  const token = getToken();
+  if (!token) return;
+
+  setCart((prev) => prev.filter((i) => i.id !== cartId));
+
+  try {
+    await axios.delete(`${API}/${cartId}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
+    showToast("Item removed");
+  } catch (err) {
+    console.error("Remove error:", err.message);
+    fetchCart(); 
+    showToast("Failed to remove item", "error");
+  }
+};
 
-    const [toast, setToast] = useState(null);
-
-    useEffect(() => {
-        localStorage.setItem('solevora_cart', JSON.stringify(cart));
-    }, [cart]);
-
-    const [lockedSubtotal, setLockedSubtotal] = useState(() => {
-        const raw = localStorage.getItem('solevora_checkout_lockedSubtotal');
-        const n = raw == null ? null : Number(raw);
-        return Number.isFinite(n) ? n : null;
-    });
-
-    const [checkoutPromo, setCheckoutPromo] = useState(() => {
-        try {
-            const raw = localStorage.getItem('solevora_checkout_promo');
-            return raw ? JSON.parse(raw) : { code: '', applied: false };
-        } catch {
-            return { code: '', applied: false };
-        }
-    });
-
-    useEffect(() => {
-        if (lockedSubtotal == null) localStorage.removeItem('solevora_checkout_lockedSubtotal');
-        else localStorage.setItem('solevora_checkout_lockedSubtotal', String(lockedSubtotal));
-    }, [lockedSubtotal]);
-
-    useEffect(() => {
-        localStorage.setItem('solevora_checkout_promo', JSON.stringify(checkoutPromo));
-    }, [checkoutPromo]);
-
-    const showToast = (message, type = 'success') => {
-        setToast({ message, type, id: Date.now() });
-    };
-// add product to cart
-    const addToCart = (product, size) => {
-        if (!getUserId()) {
-            showToast("Please login to add items to your cart.", "error");
-            return;
-        }
-        setCart((prevCart) => {
-            const existingItem = prevCart.find(item => item.id === product.id && item.size === size);
-            if (existingItem) {
-                return prevCart.map(item => 
-                    (item.id === product.id && item.size === size)
-                    ? { ...item, quantity: item.quantity + 1, selected: true }
-                    : item
-                );
-            }
-            return [...prevCart, { ...product, size, quantity: 1, selected: true }];
-        });
-        showToast(`${product.name} (Size: ${size}) added to your cart!`);
-    };
-
-    // handle removeFromCart, updateQuantity, clearCart 
-    const removeFromCart = (productId, size) => {
-        setCart(prevCart => prevCart.filter(item => !(item.id === productId && item.size === size)));
-    };
-        // update quantity
-    const updateQuantity = (productId, size, quantity) => {
-        if (quantity < 1) return;
-        setCart(prevCart => 
-            prevCart.map(item => 
-                (item.id === productId && item.size === size)
-                ? { ...item, quantity }
-                : item
-            )
-        );
-    };
-// select/unselect single item
-    const toggleItemSelection = (productId, size) => {
-        setCart(prevCart => 
-            prevCart.map(item => 
-                (item.id === productId && item.size === size)
-                ? { ...item, selected: item.selected === false ? true : false }
-                : item
-            )
-        );
-    };
-// select/unselect all items
-    const toggleAllSelection = (isSelected) => {
-        setCart(prevCart => prevCart.map(item => ({ ...item, selected: isSelected })));
-    };
-
-    const lockCheckoutSubtotal = (subtotal) => {
-        const next = Number(subtotal);
-        if (!Number.isFinite(next)) return;
-        setLockedSubtotal(next);
-    };
-
-    const clearCheckoutLock = () => {
-        setLockedSubtotal(null);
-        setCheckoutPromo({ code: '', applied: false });
-    };
-// checkout form data
-    const [checkoutData, setCheckoutData] = useState({
-        fullName: '',
-        email: '',
-        phone: '',
-        streetAddress: '',
-        city: '',
-        postalCode: '',
-        shippingMethod: 'Economy (Free)',
-        userId: null
-    });
-
-    const updateCheckoutData = (newData) => {
-        setCheckoutData(prev => ({ ...prev, ...newData }));
-    };
-// clear cart after order
-    const clearCart = () => {
-        setCart([]);
-        clearCheckoutLock();
-        setCheckoutData({
-            fullName: '',
-            email: '',
-            phone: '',
-            streetAddress: '',
-            city: '',
-            postalCode: '',
-            shippingMethod: 'Economy (Free)'
-        });
-    };
-// total price (all items)
-    const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-    const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
-
-    const selectedCart = cart.filter(item => item.selected !== false);
-    const selectedCartTotal = selectedCart.reduce((total, item) => total + item.price * item.quantity, 0);
-
-    return (
-        <CartContext.Provider value={{ 
-            cart, addToCart, removeFromCart, updateQuantity, clearCart, 
-            toggleItemSelection, toggleAllSelection,
-            cartTotal, cartCount, selectedCart, selectedCartTotal,
-            lockedSubtotal, lockCheckoutSubtotal, clearCheckoutLock,
-            checkoutPromo, setCheckoutPromo,
-            checkoutData, updateCheckoutData, showToast
-        }}>
-            {children}
-            {toast && (
-                <Toast 
-                    key={toast.id}
-                    message={toast.message} 
-                    type={toast.type} 
-                    onClose={() => setToast(null)} 
-                />
-            )}
-        </CartContext.Provider>
+  //  UPDATE QTY
+  const updateQuantity = async (cartId, quantity) => {
+    if (quantity < 1) return;
+    const token = getToken();
+    setCart((prev) =>
+      prev.map((i) => (i.id === cartId ? { ...i, quantity } : i))
     );
+    try {
+      await axios.put(
+        `${API}/${cartId}`,
+        { quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (err) {
+      console.error(err.message);
+      fetchCart(); // revert on error
+    }
+  };
+
+  //  CLEAR CART
+  const clearCart = async () => {
+  const userId = getUserId();
+  const token = getToken();
+
+  try {
+    await axios.delete(`${API}/clear/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    setCart([]);
+  } catch (err) {
+    console.error("Clear cart error:", err);
+  }
+};
+
+  // TOTALS 
+  const cartCount = cart.reduce((a, b) => a + b.quantity, 0);
+  const cartTotal = cart.reduce((a, b) => a + b.quantity * b.price, 0);
+
+  return (
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        fetchCart,
+        cartCount,
+        cartTotal,
+        showToast,
+        ready,
+      }}
+    >
+      {children}
+      {toast && (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+    </CartContext.Provider>
+  );
 };
 
 export const useCart = () => useContext(CartContext);

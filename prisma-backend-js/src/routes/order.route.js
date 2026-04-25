@@ -12,7 +12,7 @@ import { requireRole } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", authMiddleware, createOrder);
+router.post("/", createOrder);
 
 router.get(
   "/",

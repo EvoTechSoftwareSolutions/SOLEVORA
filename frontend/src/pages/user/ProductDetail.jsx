@@ -9,13 +9,13 @@ import "../../styles/user/ProductDetail.css";
 
 import SuccessPopup from "../../components/common/SuccessPoppup";
 import SizeChartModal from "../../components/user/SizeChartModal";
- const BASE_URL = 'http://localhost:5001';
+const BASE_URL = "http://localhost:5001";
 
 const getImg = (url) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    if (url.startsWith('/')) return `${BASE_URL}${url}`;
-    return `${BASE_URL}/${url.replace(/\\/g, '/')}`;
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  if (url.startsWith("/")) return `${BASE_URL}${url}`;
+  return `${BASE_URL}/${url.replace(/\\/g, "/")}`;
 };
 function ProductDetail() {
   // Route parameter for product ID
@@ -274,13 +274,23 @@ function ProductDetail() {
           <div className="gallery-section">
             {/* Main product image display */}
             <div className="main-viewport">
-              <img src={mainImage || product.image_url} alt={product.name} />
+              <img src={mainImage} alt={product.name} />
             </div>
-            {/* Thumbnail strip for image selection */}
+
             <div className="thumb-strip">
-              {(product.images || []).map((img, idx) => (
-                <img key={idx} src={getImg(img.url)} alt={`view ${idx}`} />
-              ))}
+              {(product.images || []).map((img, idx) => {
+                const url = getImg(img.url);
+                return (
+                  <div
+                    key={idx}
+                    className={`thumb-box ${mainImage === url ? "active" : ""}`}
+                    onClick={() => setMainImage(url)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <img src={url} alt={`view ${idx}`} />
+                  </div>
+                );
+              })}
             </div>
           </div>
 
