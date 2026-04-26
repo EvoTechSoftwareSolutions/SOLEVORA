@@ -102,6 +102,11 @@ function CategoryPage() {
       setShowPopup(true);
       return;
     }
+    if (product.stock_quantity <= 0) {
+      setPopupMessage("Sorry, this item is currently out of stock.");
+      setShowPopup(true);
+      return;
+    }
     // Use a default size — user can pick proper size on the detail page
     const defaultSize = product.sizes?.[0] || "One Size";
     addToCart({ ...product, image_url: product.image }, defaultSize);
@@ -212,6 +217,7 @@ function CategoryPage() {
             p.gender ||
             (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
           sizes: p.sizes ? (typeof p.sizes === 'string' ? JSON.parse(p.sizes).map(String) : Array.isArray(p.sizes) ? p.sizes.map(String) : []) : fallbackSizesList[index % fallbackSizesList.length],
+          stock_quantity: p.stock_quantity,
           featured: p.isFeatured || false,
           badge: index === 0 ? "New" : "",
           colors: ["#333333", "#e5e7eb", "#ff6b3d"],
@@ -532,13 +538,19 @@ function CategoryPage() {
                 <div
                   className={`relative w-full aspect-[3/2] ${product.bg} flex items-center justify-center p-4`}
                 >
-                  {product.badge && (
-                    <span className="absolute top-4 left-4 bg-[#ff6b3d] text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
-                      {product.badge}
-                    </span>
-                  )}
+                    {product.badge && (
+                      <span className="absolute top-4 left-4 bg-[#ff6b3d] text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
+                        {product.badge}
+                      </span>
+                    )}
 
-                  <button
+                    {product.stock_quantity <= 0 && (
+                      <span className="absolute top-4 left-4 bg-gray-800 text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
+                        Out of Stock
+                      </span>
+                    )}
+
+                    <button
                     onClick={() => handleWishlistToggle(product)}
                     className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${isInWishlist(product.id)
                       ? "text-red-500"
@@ -555,7 +567,7 @@ function CategoryPage() {
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="object-contain w-full h-full drop-shadow-2xl hover:scale-105 transition duration-500"
+                    className={`object-contain w-full h-full drop-shadow-2xl hover:scale-105 transition duration-500 ${product.stock_quantity <= 0 ? 'opacity-40 grayscale' : ''}`}
                   />
                 </div>
 
@@ -583,7 +595,8 @@ function CategoryPage() {
 
                     <button
                       onClick={() => handleAddToCart(product)}
-                      className="shrink-0 w-10 h-10 rounded-lg bg-[#111] text-white flex items-center justify-center hover:bg-[#333] transition duration-300 shadow-md"
+                      disabled={product.stock_quantity <= 0}
+                      className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition duration-300 shadow-md ${product.stock_quantity <= 0 ? 'bg-gray-300 cursor-not-allowed text-gray-500' : 'bg-[#111] hover:bg-[#333] text-white'}`}
                     >
                       <HiOutlineShoppingCart size={18} />
                     </button>

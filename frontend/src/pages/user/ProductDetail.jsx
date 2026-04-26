@@ -239,8 +239,26 @@ function ProductDetail() {
                     {/* Product image gallery */}
                     <div className="gallery-section">
                         {/* Main product image display */}
-                        <div className="main-viewport">
-                            <img src={mainImage || passedImage || product.image_url} alt={product.name} />
+                        <div className="main-viewport" style={{ position: 'relative' }}>
+                            {product.stock_quantity <= 0 && (
+                                <div className="sold-out-overlay" style={{
+                                    position: 'absolute',
+                                    top: '20px',
+                                    left: '20px',
+                                    backgroundColor: '#111',
+                                    color: 'white',
+                                    padding: '5px 15px',
+                                    borderRadius: '50px',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    zIndex: 10
+                                }}>SOLD OUT</div>
+                            )}
+                            <img 
+                                src={mainImage || passedImage || product.image_url} 
+                                alt={product.name} 
+                                style={product.stock_quantity <= 0 ? { opacity: 0.6, filter: 'grayscale(0.5)' } : {}}
+                            />
                         </div>
                         {/* Thumbnail strip for image selection */}
                         <div className="thumb-strip">
@@ -322,16 +340,26 @@ function ProductDetail() {
 
                         {/* Add to cart and wishlist actions */}
                         <div className="buy-actions">
-                            <button className="add-cart-btn" onClick={() => {
-                                if (!user) {
-                                    setPopupMessage("Please login to add items to your cart.");
-                                    setShowPopup(true);
-                                    return;
-                                }
-                                addToCart(product, selectedSize);
-                            }}>
-                                <span className="material-symbols-outlined">shopping_bag</span>
-                                Add to Cart
+                            <button 
+                                className={`add-cart-btn ${product.stock_quantity <= 0 ? 'disabled' : ''}`} 
+                                disabled={product.stock_quantity <= 0}
+                                onClick={() => {
+                                    if (!user) {
+                                        setPopupMessage("Please login to add items to your cart.");
+                                        setShowPopup(true);
+                                        return;
+                                    }
+                                    if (product.stock_quantity <= 0) {
+                                        setPopupMessage("Sorry, this item is out of stock.");
+                                        setShowPopup(true);
+                                        return;
+                                    }
+                                    addToCart(product, selectedSize);
+                                }}
+                                style={product.stock_quantity <= 0 ? { backgroundColor: '#ccc', cursor: 'not-allowed', color: '#888' } : { color: 'white' }}
+                            >
+                                <span className="material-symbols-outlined" style={{ color: 'inherit' }}>{product.stock_quantity <= 0 ? 'block' : 'shopping_bag'}</span>
+                                {product.stock_quantity <= 0 ? 'Out of Stock' : 'Add to Cart'}
                             </button>
                             <button
                                 className={`wish-btn ${isInWishlist(product.id) ? 'active' : ''}`}

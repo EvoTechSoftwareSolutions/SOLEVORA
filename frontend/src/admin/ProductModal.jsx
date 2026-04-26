@@ -29,6 +29,11 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         image_url_4: false
     });
 
+    // Stock Batch Update Logic
+    const [incomingStock, setIncomingStock] = useState('');
+    const [incomingPrice, setIncomingPrice] = useState('');
+    const [showStockHelper, setShowStockHelper] = useState(false);
+
     const isEdit = !!product;
 // run only when modal opens
     useEffect(() => {
@@ -138,7 +143,17 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
 
             let response;
             if (isEdit) {
-                response = await axios.put(`http://localhost:5000/api/products/${product.id}`, payload);
+                // If using the Stock Arrival Helper, send specific batch data
+                if (formData.isNewBatch) {
+                    response = await axios.put(`http://localhost:5000/api/products/${product.id}`, {
+                        ...payload,
+                        isNewBatch: true,
+                        added_quantity: formData.added_quantity,
+                        price: formData.price // This is the price of the NEW batch
+                    });
+                } else {
+                    response = await axios.put(`http://localhost:5000/api/products/${product.id}`, payload);
+                }
             } else {
                 response = await axios.post('http://localhost:5000/api/products', payload);
             }
@@ -153,6 +168,38 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const calculateWeightedAverage = () => {
+        const q1 = parseInt(formData.stock_quantity) || 0;
+        const p1 = parseFloat(formData.price) || 0;
+        const q2 = parseInt(incomingStock) || 0;
+        const p2 = parseFloat(incomingPrice) || 0;
+        
+        if (q2 <= 0) return p1;
+        
+        const totalStock = q1 + q2;
+        const averagePrice = ((q1 * p1) + (q2 * p2)) / totalStock;
+        return averagePrice.toFixed(2);
+    };
+
+    const applyStockArrival = () => {
+        if (!incomingStock || !incomingPrice) return;
+        
+        // Instead of calculating average here, we tell the backend it's a new batch
+        setFormData(prev => ({
+            ...prev,
+            isNewBatch: true,
+            added_quantity: parseInt(incomingStock),
+            price: parseFloat(incomingPrice) // The price for the NEW batch
+        }));
+        
+        // Visual feedback
+        alert(`New Batch Prepared: ${incomingStock} units at Rs. ${incomingPrice}. Click 'Update Product' to save.`);
+        
+        setIncomingStock('');
+        setIncomingPrice('');
+        setShowStockHelper(false);
     };
 // don't render if modal is closed
     if (!isOpen) return null;
@@ -233,8 +280,19 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                         </div>
 
                         {/* Stock */}
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Stock Quantity</label>
+                        <div className="relative">
+                            <div className="flex justify-between items-center mb-1.5">
+                                <label className="block text-xs font-semibold text-gray-700">Stock Quantity</label>
+                                {isEdit && (
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShowStockHelper(!showStockHelper)}
+                                        className="text-[10px] text-[#f66d3b] hover:underline font-bold"
+                                    >
+                                        {showStockHelper ? 'Cancel Arrival' : '+ New Stock Arrival'}
+                                    </button>
+                                )}
+                            </div>
                             <input 
                                 type="number"
                                 name="stock_quantity"
@@ -244,6 +302,50 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                                 placeholder="0"
                                 className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
                             />
+                            
+                            {/* Stock Arrival Helper Overlay/Section */}
+                            {showStockHelper && (
+                                <div className="absolute left-0 right-0 top-full mt-2 p-3 bg-orange-50 border border-orange-100 rounded-lg shadow-lg z-10 animate-slideDown">
+                                    <h4 className="text-[11px] font-bold text-orange-800 mb-2 uppercase tracking-wider">Stock Arrival Helper</h4>
+                                    <div className="space-y-2">
+                                        <div>
+                                            <label className="block text-[10px] text-orange-700 mb-1">Incoming Units</label>
+                                            <input 
+                                                type="number"
+                                                value={incomingStock}
+                                                onChange={(e) => setIncomingStock(e.target.value)}
+                                                className="w-full px-2 py-1 text-xs rounded border border-orange-200 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                                                placeholder="e.g. 50"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] text-orange-700 mb-1">Incoming Price (Rs.)</label>
+                                            <input 
+                                                type="number"
+                                                value={incomingPrice}
+                                                onChange={(e) => setIncomingPrice(e.target.value)}
+                                                className="w-full px-2 py-1 text-xs rounded border border-orange-200 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                                                placeholder="e.g. 5000"
+                                            />
+                                        </div>
+                                        {incomingStock && incomingPrice && (
+                                            <div className="bg-white p-2 rounded border border-orange-100 mt-2">
+                                                <p className="text-[10px] font-bold text-orange-800 uppercase tracking-tighter">FIFO Batch Mode</p>
+                                                <p className="text-[10px] text-gray-600 mt-1">
+                                                    Creating a new batch of <strong>{incomingStock}</strong> units at <strong>Rs. {parseFloat(incomingPrice).toLocaleString()}</strong>.
+                                                </p>
+                                            </div>
+                                        )}
+                                        <button 
+                                            type="button"
+                                            onClick={applyStockArrival}
+                                            className="w-full py-1.5 bg-[#f66d3b] text-white text-[11px] font-bold rounded hover:bg-orange-600 transition-colors mt-1"
+                                        >
+                                            Apply Update
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Gender */}

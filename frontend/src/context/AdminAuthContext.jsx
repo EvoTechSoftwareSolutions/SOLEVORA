@@ -7,7 +7,15 @@ export const AdminAuthProvider = ({ children }) => {
     const [adminUser, setAdminUser] = useState(() => {
         try {
             const stored = localStorage.getItem('adminUser');
-            return stored ? JSON.parse(stored) : null;
+            if (stored) {
+                const user = JSON.parse(stored);
+                // Set the header immediately on init to avoid 401 on page refresh
+                if (user?.id) {
+                    axios.defaults.headers.common['x-admin-id'] = user.id;
+                }
+                return user;
+            }
+            return null;
         } catch {
             return null;
         }
