@@ -5,7 +5,7 @@ import { cleanupBlacklistedTokens } from "./utils/cleanupBlacklistedTokens.js";
 
 dotenv.config();
 
-cleanupBlacklistedTokens();
+// cleanupBlacklistedTokens();
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {

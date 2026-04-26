@@ -1,8 +1,6 @@
 import prisma from "../prisma/client.js";
 
-
 // CREATE PRODUCT
-
 export const createProduct = async (req, res) => {
   try {
     const {
@@ -10,70 +8,13 @@ export const createProduct = async (req, res) => {
       slug,
       description,
       price,
-      discountPrice,
       categoryId,
       gender,
-      stocks
+      sizes,
+      sizeRange
     } = req.body;
 
     const files = req.files || [];
-
-    let parsedStocks = [];
-    try {
-      parsedStocks = JSON.parse(stocks || "[]");
-    } catch {
-      parsedStocks = [];
-    }
-
-    //  CHECK EXISTING PRODUCT BY SLUG
-    const existingProduct = await prisma.product.findUnique({
-      where: { slug },
-      include: { stocks: true }
-    });
-
-    // iF PRODUCT EXISTS → UPDATE STOCK
-    if (existingProduct) {
-
-      for (const s of parsedStocks) {
-        const existingStock = await prisma.productStock.findFirst({
-          where: {
-            productId: existingProduct.id,
-            size: s.size,
-            costPrice: Number(s.costPrice)
-          }
-        });
-
-        if (existingStock) {
-          // increment quantity
-          await prisma.productStock.update({
-            where: { id: existingStock.id },
-            data: {
-              quantity: {
-                increment: Number(s.quantity)
-              }
-            }
-          });
-        } else {
-          // create new batch
-          await prisma.productStock.create({
-            data: {
-              productId: existingProduct.id,
-              size: s.size,
-              costPrice: Number(s.costPrice),
-              quantity: Number(s.quantity)
-            }
-          });
-        }
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: "Stock updated (existing product)",
-        data: existingProduct
-      });
-    }
-
-    //  CREATE NEW PRODUCT
 
     const product = await prisma.product.create({
       data: {
@@ -81,45 +22,23 @@ export const createProduct = async (req, res) => {
         slug,
         description,
         price: parseFloat(price),
-        discountPrice: discountPrice ? parseFloat(discountPrice) : null,
-        categoryId: Number(categoryId),
+        categoryId: categoryId ? BigInt(categoryId) : null,
         gender,
-
-        images: {
-          create: files.map(file => ({
-            url: `/uploads/${file.filename}`
-          }))
-        },
-
-        stocks: {
-          create: parsedStocks.map(s => ({
-            size: s.size,
-            costPrice: Number(s.costPrice),
-            quantity: Number(s.quantity)
-          }))
-        }
-      },
-      include: {
-        category: true,
-        images: true,
-        stocks: true
+        sizes,
+        sizeRange,
+        imageUrl: files[0] ? `/uploads/${files[0].filename}` : null,
+        imageUrl2: files[1] ? `/uploads/${files[1].filename}` : null,
+        imageUrl3: files[2] ? `/uploads/${files[2].filename}` : null,
+        imageUrl4: files[3] ? `/uploads/${files[3].filename}` : null,
       }
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Product created",
-      data: product
-    });
+    res.status(201).json(product);
 
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    res.status(500).json({ error: error.message });
   }
 };
-
 
 // GET PRODUCTS
 export const getProducts = async (req, res) => {
@@ -127,99 +46,93 @@ export const getProducts = async (req, res) => {
     const products = await prisma.product.findMany({
       include: {
         category: true,
-        images: true,
         stocks: true
       }
     });
 
+    // Format for frontend (matches the original backend format)
+    const formattedProducts = products.map(p => {
+      const images = [p.imageUrl, p.imageUrl2, p.imageUrl3, p.imageUrl4]
+        .filter(url => url != null)
+        .map(url => ({ url }));
+      
+      return {
+        ...p,
+        id: p.id.toString(),
+        categoryId: p.categoryId?.toString(),
+        images: images.length > 0 ? images : []
+      };
+    });
+
+    // Return the array directly inside a 'data' property to match CategoryPage.jsx: data.data.map
     res.json({
       success: true,
-      data: products
+      data: formattedProducts
     });
 
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
-//
 // GET PRODUCT BY ID
-//
 export const getProductById = async (req, res) => {
   try {
     const product = await prisma.product.findUnique({
-      where: { id: Number(req.params.id) },
+      where: { id: BigInt(req.params.id) },
       include: {
         category: true,
-        images: true,
         stocks: true
       }
     });
 
     if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "there is no product"
-      });
+      return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    res.json({
-      success: true,
-      data: product
-    });
+    const images = [product.imageUrl, product.imageUrl2, product.imageUrl3, product.imageUrl4]
+      .filter(url => url != null)
+      .map(url => ({ url }));
+
+    const formattedProduct = {
+      ...product,
+      id: product.id.toString(),
+      categoryId: product.categoryId?.toString(),
+      images: images.length > 0 ? images : []
+    };
+
+    res.json({ success: true, data: formattedProduct });
 
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
-//
-//  UPDATE PRODUCT
-//
+// UPDATE PRODUCT
 export const updateProduct = async (req, res) => {
   try {
     const updated = await prisma.product.update({
-      where: { id: Number(req.params.id) },
+      where: { id: BigInt(req.params.id) },
       data: req.body
     });
 
-    res.json({
-      success: true,
-      data: updated
-    });
+    res.json(updated);
 
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    res.status(500).json({ error: error.message });
   }
 };
 
-//
-//  DELETE PRODUCT
-//
+// DELETE PRODUCT
 export const deleteProduct = async (req, res) => {
   try {
     await prisma.product.delete({
-      where: { id: Number(req.params.id) }
+      where: { id: BigInt(req.params.id) }
     });
 
-    res.json({
-      success: true,
-      message: "Deleted"
-    });
+    res.json({ success: true, message: "Deleted" });
 
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    res.status(500).json({ error: error.message });
   }
 };

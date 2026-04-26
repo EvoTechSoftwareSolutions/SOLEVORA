@@ -1,6 +1,6 @@
 import prisma from "../prisma/client.js";
 
-//  GET ALL CATEGORIES
+// GET ALL CATEGORIES
 export const getAllCategories = async (req, res) => {
   try {
     const categories = await prisma.category.findMany({
@@ -22,30 +22,15 @@ export const getAllCategories = async (req, res) => {
   }
 };
 
-
-//
-//  CREATE CATEGORY
-//
+// CREATE CATEGORY
 export const createCategory = async (req, res) => {
   try {
-    const { name, slug, description, isActive, sortOrder } = req.body;
+    const { name, description } = req.body;
 
-    if (!name || !slug) {
+    if (!name) {
       return res.status(400).json({
         success: false,
-        message: "Name and slug are required"
-      });
-    }
-
-
-    const existingCategory = await prisma.category.findUnique({
-      where: { slug }
-    });
-
-    if (existingCategory) {
-      return res.status(400).json({
-        success: false,
-        message: "Category already exists"
+        message: "Name is required"
       });
     }
 
@@ -54,11 +39,10 @@ export const createCategory = async (req, res) => {
     const category = await prisma.category.create({
       data: {
         name,
-        slug,
         description: description || null,
-        isActive: isActive === "true",
-        sortOrder: sortOrder ? Number(sortOrder) : 0,
-        image: image ? image.path : null
+        imageUrl: image ? `/uploads/${image.filename}` : null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     });
 
@@ -76,34 +60,18 @@ export const createCategory = async (req, res) => {
   }
 };
 
-
-//
 // UPDATE CATEGORY
-//
 export const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, slug, sortOrder, isActive } = req.body;
-
-    const existing = await prisma.category.findUnique({
-      where: { id: Number(id) }
-    });
-
-    if (!existing) {
-      return res.status(404).json({
-        success: false,
-        message: "Category not found"
-      });
-    }
+    const { name, description } = req.body;
 
     const category = await prisma.category.update({
-      where: { id: Number(id) },
+      where: { id: BigInt(id) },
       data: {
         name,
         description,
-        slug,
-        sortOrder: sortOrder ? Number(sortOrder) : undefined,
-        isActive
+        updatedAt: new Date()
       }
     });
 
@@ -121,27 +89,13 @@ export const updateCategory = async (req, res) => {
   }
 };
 
-
-//
-//  DELETE CATEGORY
-//
+// DELETE CATEGORY
 export const deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.category.findUnique({
-      where: { id: Number(id) }
-    });
-
-    if (!existing) {
-      return res.status(404).json({
-        success: false,
-        message: "Category not found"
-      });
-    }
-
     await prisma.category.delete({
-      where: { id: Number(id) }
+      where: { id: BigInt(id) }
     });
 
     res.status(200).json({

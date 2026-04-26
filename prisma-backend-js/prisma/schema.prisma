@@ -7,214 +7,266 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id Int @id @default(autoincrement())
+model Address {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  title        String   @db.VarChar(255)
+  name         String   @db.VarChar(255)
+  street       String   @db.VarChar(255)
+  cityStateZip String   @db.VarChar(255)
+  country      String   @db.VarChar(255)
+  phone        String?  @db.VarChar(255)
+  isDefault    Boolean? @default(false)
+  icon         String?  @default(dbgenerated("(home)")) @db.VarChar(255)
+  createdAt    DateTime @db.DateTime(0)
+  updatedAt    DateTime @db.DateTime(0)
+  city         String?  @db.VarChar(255)
+  postalCode   String?  @db.VarChar(255)
 
-  name     String @db.VarChar(100)
-  email    String @unique @db.VarChar(150)
-  password String @db.VarChar(255)
-
-  role Role @default(customer)
-
-  phone String? @db.VarChar(20)
-
-  location      String? @db.VarChar(255)
-  streetAddress String? @db.VarChar(255)
-  city          String? @db.VarChar(100)
-  postalCode    String? @db.VarChar(20)
-  country       String? @db.VarChar(100)
-
-  newsletter        Boolean   @default(true)
-  pushNotifications Boolean   @default(true)
-  usageReports      Boolean   @default(false)
-  status            Int       @default(1)
-  lastLogin         DateTime?
-  orders Order[]
-  wishlist  Wishlist[]
-  resetToken        String?
-  resetTokenExpires DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-enum Role {
-  admin
-  store_manager
-  customer
-}
-
-// for logout
-
-model BlacklistedToken {
-  id        Int      @id @default(autoincrement())
-  token     String
-  createdAt DateTime @default(now())
-}
-
-model Product {
-  id            Int      @id @default(autoincrement())
-  name          String
-  description   String?
-  price         Decimal  @db.Decimal(10,2) // selling price
-  discountPrice Decimal? @db.Decimal(10,2)
-  slug          String   @unique
-  gender        Gender   @default(ALL)
-
-  categoryId Int
-  category   Category @relation(fields: [categoryId], references: [id])
-  
-  images ProductImage[]
-  stocks ProductStock[]   //  FIFO relation
-  orderItems OrderItem[]
-  wishlist  Wishlist[]
-  card  Cart[]
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-enum Gender {
-  MEN
-  WOMEN
-  KIDS
-  ALL
-}
-
-model ProductStock {
-  id        Int      @id @default(autoincrement())
-
-  productId Int
-  size      String
-
-  costPrice Decimal  @db.Decimal(10,2)
-  quantity  Int
-
-  createdAt DateTime @default(now())
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-}
-
-model ProductImage {
-  id        Int @id @default(autoincrement())
-  url       String
-  productId Int
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  @@map("addresses")
 }
 
 model Category {
-  id          Int     @id @default(autoincrement())
-  name        String
-  slug        String  @unique
-  description String?
-  image       String?
+  id          BigInt    @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  description String?   @db.Text
+  imageUrl    String?   @map("image_url") @db.VarChar(255)
+  createdAt   DateTime  @db.DateTime(0)
+  updatedAt   DateTime  @db.DateTime(0)
+  products    Product[]
 
-  isActive  Boolean @default(true)
-  sortOrder Int     @default(0)
-
-  products Product[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@map("categories")
 }
 
+model Contact {
+  id        BigInt   @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  phone     String?  @db.VarChar(255)
+  email     String   @db.VarChar(255)
+  subject   String?  @db.VarChar(255)
+  message   String?  @db.Text
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @db.DateTime(0)
+  isRead    Boolean? @default(false)
 
-//order management
-
-model Order {
-  id Int @id @default(autoincrement())
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-
-  customerName  String?
-  email         String?
-  contactNumber String?
-
-  shippingAddress String?
-
-  paymentMethod PaymentMethod
-  paymentStatus PaymentStatus @default(PENDING)
-
-  status OrderStatus @default(PENDING)
-
-  trackingNumber    String?
-  carrier           String?
-  estimatedDelivery DateTime?
-  actualDelivery    DateTime?
-
-  totalAmount Decimal @db.Decimal(10,2)
-
-  items OrderItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@map("contacts")
 }
-
-enum PaymentMethod {
-  COD
-  ONLINE
-}
-
-enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
-}
-
-enum OrderStatus {
-  PENDING
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-}
-
 
 model OrderItem {
-  id Int @id @default(autoincrement())
+  id              BigInt   @id @default(autoincrement())
+  quantity        Int
+  priceAtPurchase Decimal  @map("price_at_purchase") @db.Decimal(10, 2)
+  orderId         BigInt?
+  productId       BigInt?
+  size            String?  @db.VarChar(255)
+  order           Order?   @relation(fields: [orderId], references: [id], onDelete: NoAction, map: "order_items_ibfk_153")
+  product         Product? @relation(fields: [productId], references: [id], onDelete: NoAction, map: "order_items_ibfk_154")
 
-  orderId Int
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  productId Int
-  product Product @relation(fields: [productId], references: [id])
-
-  productName String
-  size String
-
-  quantity Int
-
-  sellingPrice Decimal @db.Decimal(10,2)
-  costPrice Decimal @db.Decimal(10,2) // FIFO price snapshot
-
-  createdAt DateTime @default(now())
+  @@index([orderId], map: "orderId")
+  @@index([productId], map: "productId")
+  @@map("order_items")
 }
 
-//whislist
+model Order {
+  id                BigInt                 @id @default(autoincrement())
+  totalAmount       Decimal                @map("total_amount") @db.Decimal(10, 2)
+  status            OrderStatus?           @default(dbgenerated("(pending)"))
+  shippingAddress   String?                @map("shipping_address") @db.Text
+  contactNumber     String?                @map("contact_number") @db.VarChar(255)
+  email             String?                @db.VarChar(255)
+  createdAt         DateTime               @db.DateTime(0)
+  updatedAt         DateTime               @db.DateTime(0)
+  userId            Int?
+  trackingNumber    String?                @map("tracking_number") @db.VarChar(255)
+  carrier           String?                @db.VarChar(255)
+  paymentMethod     OrderPaymentMethod?    @map("payment_method") @default(dbgenerated("(online)"))
+  paymentStatus     OrderPaymentStatus?    @map("payment_status") @default(dbgenerated("(pending)"))
+  estimatedDelivery DateTime?              @map("estimated_delivery") @db.DateTime(0)
+  actualDelivery    DateTime?              @map("actual_delivery") @db.DateTime(0)
+  items             OrderItem[]
+
+  @@map("orders")
+}
+
+model ProductStock {
+  id               BigInt    @id @default(autoincrement())
+  productId        BigInt
+  quantity         Int       @default(0)
+  originalQuantity Int       @map("original_quantity")
+  costPrice        Decimal?  @map("cost_price") @db.Decimal(10, 2)
+  sellingPrice     Decimal   @map("selling_price") @db.Decimal(10, 2)
+  batchDate        DateTime? @map("batch_date") @db.DateTime(0)
+  createdAt        DateTime  @db.DateTime(0)
+  updatedAt        DateTime  @db.DateTime(0)
+  product          Product   @relation(fields: [productId], references: [id], onDelete: Cascade, map: "product_batches_ibfk_1")
+
+  @@index([productId], map: "productId")
+  @@map("product_batches")
+}
+
+model Product {
+  id            BigInt            @id @default(autoincrement())
+  name          String            @db.VarChar(255)
+  description   String?           @db.Text
+  price         Decimal           @db.Decimal(10, 2)
+  stockQuantity Int?              @default(0) @map("stock_quantity")
+  imageUrl      String?           @map("image_url") @db.VarChar(255)
+  imageUrl2     String?           @map("image_url_2") @db.VarChar(255)
+  imageUrl3     String?           @map("image_url_3") @db.VarChar(255)
+  imageUrl4     String?           @map("image_url_4") @db.VarChar(255)
+  categoryId    BigInt?
+  createdAt     DateTime          @db.DateTime(0)
+  updatedAt     DateTime          @db.DateTime(0)
+  gender        ProductGender?    @default(dbgenerated("(All)"))
+  sizes         String?           @db.Text
+  sizeRange     String?           @map("size_range") @db.VarChar(255)
+  orderItems    OrderItem[]
+  stocks        ProductStock[]
+  category      Category?         @relation(fields: [categoryId], references: [id], onDelete: NoAction, map: "products_ibfk_1")
+  reviews       Review[]
+
+  @@index([categoryId], map: "categoryId")
+  @@map("products")
+}
+
+model PromoCode {
+  id             Int                      @id @default(autoincrement())
+  code           String                   @unique(map: "code") @db.VarChar(255)
+  discountType   PromoCodeDiscountType    @default(dbgenerated("(percentage)"))
+  discountValue  Decimal                  @db.Decimal(10, 2)
+  minOrderAmount Decimal?                 @default(0.00) @db.Decimal(10, 2)
+  maxUses        Int?
+  usedCount      Int?                     @default(0)
+  expiresAt      DateTime?                @db.DateTime(0)
+  isActive       Boolean?                 @default(true)
+  createdAt      DateTime                 @db.DateTime(0)
+  updatedAt      DateTime                 @db.DateTime(0)
+
+  @@map("promo_codes")
+}
+
+model ResetPassword {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @db.VarChar(255)
+  expiresAt DateTime @db.DateTime(0)
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @default(now()) @db.DateTime(0)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_resetpasswords_user")
+
+  @@index([token(length: 191)], map: "idx_resetpasswords_token")
+  @@index([userId], map: "idx_resetpasswords_userId")
+  @@map("resetpasswords")
+}
+
+model Review {
+  id        BigInt   @id @default(autoincrement())
+  rating    Int
+  comment   String   @db.Text
+  userId    Int
+  productId BigInt
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @db.DateTime(0)
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, map: "reviews_ibfk_1")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: NoAction, map: "reviews_ibfk_139")
+
+  @@index([productId], map: "productId")
+  @@index([userId], map: "userId")
+  @@map("reviews")
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique(map: "email") @db.VarChar(255)
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @db.DateTime(0)
+
+  @@map("subscribers")
+}
+
+model User {
+  id                Int              @id @default(autoincrement())
+  name              String           @db.VarChar(100)
+  email             String           @unique(map: "email") @db.VarChar(50)
+  password          String           @db.VarChar(255)
+  createdAt         DateTime         @db.DateTime(0)
+  updatedAt         DateTime         @db.DateTime(0)
+  phone             String?          @db.VarChar(10)
+  location          String?          @db.VarChar(255)
+  newsletter        Boolean?         @default(true)
+  pushNotifications Boolean?         @default(true)
+  usageReports      Boolean?         @default(false)
+  role              UserRole         @default(dbgenerated("(customer)"))
+  lastLogin         DateTime?        @db.DateTime(0)
+  streetAddress     String?          @db.VarChar(255)
+  city              String?          @db.VarChar(100)
+  postalCode        String?          @db.VarChar(7)
+  country           String?          @db.VarChar(75)
+  resetToken        String?          @db.VarChar(255)
+  resetTokenExpires DateTime?        @db.DateTime(0)
+  resetPasswords    ResetPassword[]
+  reviews           Review[]
+
+  @@map("users")
+}
+
 model Wishlist {
   id        Int      @id @default(autoincrement())
   userId    Int
-  productId Int
-  createdAt DateTime @default(now())
+  productId BigInt
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @db.DateTime(0)
 
-  user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
-
-  @@unique([userId, productId]) 
+  @@map("wishlists")
 }
 
-//cart
-model Cart {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  productId Int
-  size      String
-  quantity  Int      @default(1)
+enum OrderStatus {
+  pending
+  paid
+  processing
+  shipped
+  delivered
+  cancelled
 
-  product   Product  @relation(fields: [productId], references: [id])
+  @@map("orders_status")
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum PromoCodeDiscountType {
+  percentage
+  fixed
+
+  @@map("promo_codes_discountType")
+}
+
+enum OrderPaymentMethod {
+  online
+  cod
+
+  @@map("orders_payment_method")
+}
+
+enum UserRole {
+  admin
+  store_manager
+  customer
+
+  @@map("users_role")
+}
+
+enum OrderPaymentStatus {
+  pending
+  paid
+  failed
+
+  @@map("orders_payment_status")
+}
+
+enum ProductGender {
+  Men
+  Women
+  Kids
+  All
+
+  @@map("products_gender")
 }
