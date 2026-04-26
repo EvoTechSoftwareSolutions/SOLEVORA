@@ -23,7 +23,7 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Cart is empty" });
     }
 
-    // ✅ WRAP EVERYTHING IN A TRANSACTION
+    // WRAP EVERYTHING IN A TRANSACTION
     const finalOrder = await prisma.$transaction(async (tx) => {
       
       // 1. Initial Order Creation (inside transaction)

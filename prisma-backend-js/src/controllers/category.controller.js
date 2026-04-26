@@ -1,8 +1,6 @@
 import prisma from "../prisma/client.js";
 
-//
-// ✅ GET ALL CATEGORIES
-//
+//  GET ALL CATEGORIES
 export const getAllCategories = async (req, res) => {
   try {
     const categories = await prisma.category.findMany({
@@ -26,13 +24,12 @@ export const getAllCategories = async (req, res) => {
 
 
 //
-// ✅ CREATE CATEGORY
+//  CREATE CATEGORY
 //
 export const createCategory = async (req, res) => {
   try {
     const { name, slug, description, isActive, sortOrder } = req.body;
 
-    // 🔒 VALIDATION
     if (!name || !slug) {
       return res.status(400).json({
         success: false,
@@ -40,7 +37,7 @@ export const createCategory = async (req, res) => {
       });
     }
 
-    // 🔒 SAFE CHECK
+
     const existingCategory = await prisma.category.findUnique({
       where: { slug }
     });
@@ -81,14 +78,13 @@ export const createCategory = async (req, res) => {
 
 
 //
-// ✅ UPDATE CATEGORY
+// UPDATE CATEGORY
 //
 export const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, description, slug, sortOrder, isActive } = req.body;
 
-    // 🔒 check exists
     const existing = await prisma.category.findUnique({
       where: { id: Number(id) }
     });
@@ -127,7 +123,7 @@ export const updateCategory = async (req, res) => {
 
 
 //
-// ✅ DELETE CATEGORY
+//  DELETE CATEGORY
 //
 export const deleteCategory = async (req, res) => {
   try {

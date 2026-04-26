@@ -49,7 +49,7 @@ export const CartProvider = ({ children }) => {
       });
 
       const formatted = (res.data.data || []).map((item) => {
-        // ✅ get image from product.images array 
+        // get image from product.images array 
         const rawUrl =
           item.product?.images?.[0]?.url ||
           item.product?.image ||

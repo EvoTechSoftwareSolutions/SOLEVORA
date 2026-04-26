@@ -88,7 +88,7 @@ const Cart = () => {
               {cart.map((item) => (
                 <div key={item.id} className="cart-item-card">
                   <div className="item-image">
-                    {/* ✅ image_url comes from CartContext fetchCart */}
+                    {/*  image_url comes from CartContext fetchCart */}
                     <img
                       src={item.image_url || FALLBACK}
                       alt={item.name}
@@ -104,7 +104,7 @@ const Cart = () => {
                   <div className="item-price-qty">
                     <div className="item-quantity">
                       <div className="qty-selector">
-                        {/* ✅ CartContext updateQuantity takes (cartId, quantity) */}
+                        {/* CartContext updateQuantity takes (cartId, quantity) */}
                         <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
                         <span>{item.quantity}</span>
                         <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
@@ -115,7 +115,7 @@ const Cart = () => {
                     </div>
                   </div>
 
-                  {/* ✅ removeFromCart takes cartId only */}
+                  {/*  removeFromCart takes cartId only */}
                   <button className="item-remove" onClick={() => removeFromCart(item.id)}>
                     <span className="material-symbols-outlined">close</span>
                   </button>

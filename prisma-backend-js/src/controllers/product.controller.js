@@ -1,6 +1,6 @@
 import prisma from "../prisma/client.js";
 
-//
+
 // CREATE PRODUCT
 
 export const createProduct = async (req, res) => {
@@ -16,16 +16,64 @@ export const createProduct = async (req, res) => {
       stocks
     } = req.body;
 
-    // FIX 1: files from multer
     const files = req.files || [];
 
-    // FIX 2: safe JSON parse
     let parsedStocks = [];
     try {
       parsedStocks = JSON.parse(stocks || "[]");
-    } catch (err) {
+    } catch {
       parsedStocks = [];
     }
+
+    //  CHECK EXISTING PRODUCT BY SLUG
+    const existingProduct = await prisma.product.findUnique({
+      where: { slug },
+      include: { stocks: true }
+    });
+
+    // iF PRODUCT EXISTS → UPDATE STOCK
+    if (existingProduct) {
+
+      for (const s of parsedStocks) {
+        const existingStock = await prisma.productStock.findFirst({
+          where: {
+            productId: existingProduct.id,
+            size: s.size,
+            costPrice: Number(s.costPrice)
+          }
+        });
+
+        if (existingStock) {
+          // increment quantity
+          await prisma.productStock.update({
+            where: { id: existingStock.id },
+            data: {
+              quantity: {
+                increment: Number(s.quantity)
+              }
+            }
+          });
+        } else {
+          // create new batch
+          await prisma.productStock.create({
+            data: {
+              productId: existingProduct.id,
+              size: s.size,
+              costPrice: Number(s.costPrice),
+              quantity: Number(s.quantity)
+            }
+          });
+        }
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Stock updated (existing product)",
+        data: existingProduct
+      });
+    }
+
+    //  CREATE NEW PRODUCT
 
     const product = await prisma.product.create({
       data: {
@@ -37,14 +85,12 @@ export const createProduct = async (req, res) => {
         categoryId: Number(categoryId),
         gender,
 
-        // IMAGES FIX
         images: {
           create: files.map(file => ({
             url: `/uploads/${file.filename}`
           }))
         },
 
-        // STOCKS FIX
         stocks: {
           create: parsedStocks.map(s => ({
             size: s.size,
@@ -62,6 +108,7 @@ export const createProduct = async (req, res) => {
 
     res.status(201).json({
       success: true,
+      message: "Product created",
       data: product
     });
 
@@ -99,7 +146,7 @@ export const getProducts = async (req, res) => {
 };
 
 //
-// ✅ GET PRODUCT BY ID
+// GET PRODUCT BY ID
 //
 export const getProductById = async (req, res) => {
   try {

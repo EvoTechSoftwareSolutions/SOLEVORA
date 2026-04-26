@@ -1,111 +1,132 @@
 import prisma from "../prisma/client.js";
 
-//  ADD STOCK (FIFO BATCH)
+//
+// ADD STOCK (FIFO BATCH + SLUG SUPPORT)
+//
 export const addStock = async (req, res) => {
   try {
-    const { productId, size, costPrice, quantity } = req.body;
+    const { productId, slug, size, costPrice, quantity } = req.body;
 
-    if (!productId || !size || !costPrice || !quantity) {
+    // VALIDATION
+    if ((!productId && !slug) || !size || !costPrice || !quantity) {
       return res.status(400).json({
         success: false,
-        message: "All fields required"
+        message: "productId or slug, size, costPrice, quantity are required",
       });
     }
 
-    // CHECK IF SAME BATCH EXISTS
-    const existingStock = await prisma.productStock.findFirst({
-      where: {
-        productId: Number(productId),
-        size: size,
-        costPrice: parseFloat(costPrice)
+    // STEP 1: FIND PRODUCT ID
+    let finalProductId = productId;
+
+    if (!finalProductId && slug) {
+      const product = await prisma.product.findUnique({
+        where: { slug },
+      });
+
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: "Product not found with this slug",
+        });
       }
-    });
 
-    let stock;
+      finalProductId = product.id;
+    }
 
-    if (existingStock) {
-      // UPDATE QUANTITY (same batch)
-      stock = await prisma.productStock.update({
-        where: { id: existingStock.id },
-        data: {
-          quantity: {
-            increment: Number(quantity)
-          }
-        }
-      });
+    const parsedCost = parseFloat(costPrice);
+    const parsedQty = Number(quantity);
 
-    } else {
-      //  CREATE NEW BATCH (different cost price)
-      stock = await prisma.productStock.create({
-        data: {
-          productId: Number(productId),
-          size,
-          costPrice: parseFloat(costPrice),
-          quantity: Number(quantity)
-        }
+    if (isNaN(parsedCost) || isNaN(parsedQty)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid costPrice or quantity",
       });
     }
+
+    // STEP 2: UPSERT STOCK (PREVENT DUPLICATE BATCH)
+    const stock = await prisma.productStock.upsert({
+      where: {
+        productId_size_costPrice: {
+          productId: Number(finalProductId),
+          size: size,
+          costPrice: parsedCost,
+        },
+      },
+      update: {
+        quantity: {
+          increment: parsedQty,
+        },
+      },
+      create: {
+        productId: Number(finalProductId),
+        size: size,
+        costPrice: parsedCost,
+        quantity: parsedQty,
+      },
+    });
 
     return res.status(201).json({
       success: true,
-      message: "Stock added successfully",
-      data: stock
+      message: "Stock added/updated successfully",
+      data: stock,
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
-};;
-// ✅ GET STOCK BY PRODUCT
+};
+
+//
+// GET STOCK BY PRODUCT (FIFO ORDER)
+//
 export const getStockByProduct = async (req, res) => {
   try {
     const { productId } = req.params;
 
     const stock = await prisma.productStock.findMany({
       where: {
-        productId: Number(productId)
+        productId: Number(productId),
       },
       orderBy: {
-        createdAt: "asc" // FIFO order
-      }
+        createdAt: "asc", // FIFO
+      },
     });
 
-    res.json({
+    return res.json({
       success: true,
-      data: stock
+      data: stock,
     });
-
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      error: error.message
+      message: error.message,
     });
   }
 };
 
-// ✅ DELETE STOCK BATCH
+//
+// DELETE STOCK BATCH
+//
 export const deleteStock = async (req, res) => {
   try {
     const { id } = req.params;
 
     await prisma.productStock.delete({
       where: {
-        id: Number(id)
-      }
+        id: Number(id),
+      },
     });
 
-    res.json({
+    return res.json({
       success: true,
-      message: "Stock deleted"
+      message: "Stock deleted successfully",
     });
-
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      error: error.message
+      message: error.message,
     });
   }
 };
