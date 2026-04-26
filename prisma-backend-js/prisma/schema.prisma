@@ -1,0 +1,265 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum Role {
+  admin
+  store_manager
+  customer
+}
+
+enum Gender {
+  Men
+  Women
+  Kids
+  All
+}
+
+enum OrderStatus {
+  pending
+  paid
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
+enum PaymentMethod {
+  online
+  cod
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+}
+
+enum DiscountType {
+  percentage
+  fixed
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODELS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model User {
+  id                Int       @id @default(autoincrement())
+  name              String
+  email             String    @unique
+  password          String
+  role              Role      @default(customer)
+  phone             String?
+  location          String?
+  streetAddress     String?
+  city              String?
+  postalCode        String?
+  country           String?
+  newsletter        Boolean   @default(true)
+  pushNotifications Boolean   @default(true)
+  usageReports      Boolean   @default(false)
+  lastLogin         DateTime?
+  resetToken        String?
+  resetTokenExpires DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  orders    Order[]
+  addresses Address[]
+  wishlists Wishlist[]
+  reviews   Review[]
+
+  @@map("users")
+}
+
+model Category {
+  id          BigInt    @id @default(autoincrement())
+  name        String
+  description String?   @db.Text
+  image_url   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id             BigInt   @id @default(autoincrement())
+  name           String
+  description    String?  @db.Text
+  price          Decimal  @db.Decimal(10, 2)
+  stock_quantity Int      @default(0)
+  image_url      String?
+  image_url_2    String?
+  image_url_3    String?
+  image_url_4    String?
+  categoryId     BigInt?
+  gender         Gender   @default(All)
+  sizes          String?  @db.Text
+  size_range     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  category    Category?      @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+  wishlists   Wishlist[]
+  reviews     Review[]
+  batches     ProductBatch[]
+
+  @@map("products")
+}
+
+model ProductBatch {
+  id                BigInt   @id @default(autoincrement())
+  productId         BigInt
+  quantity          Int      @default(0)
+  original_quantity Int
+  cost_price        Decimal? @db.Decimal(10, 2)
+  selling_price     Decimal  @db.Decimal(10, 2)
+  batch_date        DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("product_batches")
+}
+
+model Order {
+  id                BigInt        @id @default(autoincrement())
+  total_amount      Decimal       @db.Decimal(10, 2)
+  status            OrderStatus   @default(pending)
+  shipping_address  String?       @db.Text
+  contact_number    String?
+  email             String?
+  userId            Int?
+  tracking_number   String?
+  carrier           String?
+  estimated_delivery DateTime?
+  actual_delivery   DateTime?
+  payment_method    PaymentMethod @default(online)
+  payment_status    PaymentStatus @default(pending)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  user  User?       @relation(fields: [userId], references: [id])
+  items OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id                BigInt  @id @default(autoincrement())
+  quantity          Int
+  price_at_purchase Decimal @db.Decimal(10, 2)
+  size              String?
+  orderId           BigInt
+  productId         BigInt
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Address {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  title      String
+  name       String
+  street     String?
+  city       String?
+  postalCode String?
+  country    String?
+  phone      String?
+  isDefault  Boolean  @default(false)
+  icon       String   @default("home")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("addresses")
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId BigInt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("wishlists")
+}
+
+model Review {
+  id        BigInt   @id @default(autoincrement())
+  rating    Int
+  comment   String   @db.Text
+  userId    Int
+  productId BigInt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("reviews")
+}
+
+model PromoCode {
+  id            Int          @id @default(autoincrement())
+  code          String       @unique
+  discountType  DiscountType @default(percentage)
+  discountValue Decimal      @db.Decimal(10, 2)
+  minOrderAmount Decimal     @default(0) @db.Decimal(10, 2)
+  maxUses       Int?
+  usedCount     Int          @default(0)
+  expiresAt     DateTime?
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("promo_codes")
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscribers")
+}
+
+model Contact {
+  id        BigInt   @id @default(autoincrement())
+  name      String
+  phone     String?
+  email     String
+  subject   String?
+  message   String?  @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contacts")
+}

@@ -23,6 +23,7 @@ const Dashboard = () => {
     }, []);
 // simple loading UI
     if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading dashboard...</div>;
+    if (!stats) return <div style={{ padding: '50px', textAlign: 'center' }}>Error loading dashboard data. Please try again later.</div>;
     // fallback if no orders
     const recentOrders = stats.recentOrders || [];
 // static top selling products
