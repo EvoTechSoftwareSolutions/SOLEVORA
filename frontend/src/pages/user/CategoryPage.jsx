@@ -97,7 +97,17 @@ function CategoryPage() {
 
   // ✅ addToCart now only needs product.id and size — CartContext handles the rest
   const handleAddToCart = (product) => {
-    if (!user) { setPopupMessage("Please login to add items to your cart."); setShowPopup(true); return; }
+    if (!user) {
+      setPopupMessage("Please login to add items to your cart.");
+      setShowPopup(true);
+      return;
+    }
+    if (product.stock_quantity <= 0) {
+      setPopupMessage("Sorry, this item is currently out of stock.");
+      setShowPopup(true);
+      return;
+    }
+    // Use a default size — user can pick proper size on the detail page
     const defaultSize = product.sizes?.[0] || "One Size";
     addToCart({ id: product.id, name: product.name, price: product.price }, defaultSize);
   };
@@ -130,10 +140,11 @@ function CategoryPage() {
           // ✅ correct: plain JS call, uses getImg helper
           image: getImg(p.images?.[0]?.url) || fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
-          gender: p.gender || (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
-          sizes: p.stocks?.length > 0
-            ? p.stocks.map((s) => String(s.size))
-            : fallbackSizesList[index % fallbackSizesList.length],
+          gender:
+            p.gender ||
+            (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
+          sizes: p.sizes ? (typeof p.sizes === 'string' ? JSON.parse(p.sizes).map(String) : Array.isArray(p.sizes) ? p.sizes.map(String) : []) : fallbackSizesList[index % fallbackSizesList.length],
+          stock_quantity: p.stock_quantity,
           featured: p.isFeatured || false,
           badge: index === 0 ? "New" : "",
         }));
@@ -314,20 +325,45 @@ function CategoryPage() {
           {/* Product Cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {displayedProducts.map((product) => (
-              <div key={product.id} className="bg-[#f2f2f2] rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-md transition duration-300 h-fit">
-                <div className={`relative w-full aspect-[3/2] ${product.bg} flex items-center justify-center p-4`}>
-                  {product.badge && (
-                    <span className="absolute top-4 left-4 bg-[#ff6b3d] text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
-                      {product.badge}
-                    </span>
-                  )}
-                  <button onClick={() => handleWishlistToggle(product)}
-                    className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${isInWishlist(product.id) ? "text-red-500" : "text-[#888] hover:text-red-500 hover:bg-white"}`}>
-                    {isInWishlist(product.id) ? <HiHeart size={18} /> : <HiOutlineHeart size={18} />}
+              <div
+                key={product.id}
+                className="bg-[#f2f2f2] rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-md transition duration-300 h-fit"
+              >
+                {/* Top Image Box */}
+                <div
+                  className={`relative w-full aspect-[3/2] ${product.bg} flex items-center justify-center p-4`}
+                >
+                    {product.badge && (
+                      <span className="absolute top-4 left-4 bg-[#ff6b3d] text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
+                        {product.badge}
+                      </span>
+                    )}
+
+                    {product.stock_quantity <= 0 && (
+                      <span className="absolute top-4 left-4 bg-gray-800 text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
+                        Out of Stock
+                      </span>
+                    )}
+
+                    <button
+                    onClick={() => handleWishlistToggle(product)}
+                    className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${isInWishlist(product.id)
+                      ? "text-red-500"
+                      : "text-[#888] hover:text-red-500 hover:bg-white"
+                      }`}
+                  >
+                    {isInWishlist(product.id) ? (
+                      <HiHeart size={18} />
+                    ) : (
+                      <HiOutlineHeart size={18} />
+                    )}
                   </button>
-                  {/* ✅ product.image built from getImg(p.images[0].url) */}
-                  <img src={product.image} alt={product.name} onError={handleImgError}
-                    className="object-contain w-full h-full drop-shadow-2xl hover:scale-105 transition duration-500" />
+
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className={`object-contain w-full h-full drop-shadow-2xl hover:scale-105 transition duration-500 ${product.stock_quantity <= 0 ? 'opacity-40 grayscale' : ''}`}
+                  />
                 </div>
 
                 <div className="px-4 pt-2 pb-3 flex flex-col">
@@ -340,8 +376,12 @@ function CategoryPage() {
                       className="flex-1 py-2.5 bg-transparent border border-[#999] text-[#222] text-xs font-semibold rounded-lg hover:bg-white transition duration-300">
                       View Details
                     </button>
-                    <button onClick={() => handleAddToCart(product)}
-                      className="shrink-0 w-10 h-10 rounded-lg bg-[#111] text-white flex items-center justify-center hover:bg-[#333] transition duration-300 shadow-md">
+
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      disabled={product.stock_quantity <= 0}
+                      className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition duration-300 shadow-md ${product.stock_quantity <= 0 ? 'bg-gray-300 cursor-not-allowed text-gray-500' : 'bg-[#111] hover:bg-[#333] text-white'}`}
+                    >
                       <HiOutlineShoppingCart size={18} />
                     </button>
                   </div>

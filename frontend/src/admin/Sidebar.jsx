@@ -73,6 +73,16 @@ const Sidebar = () => {
                         Products
                     </div>
                 </Link>
+                {/* stock batches */}
+                <Link to="/admin/batches" style={{ textDecoration: 'none' }}>
+                    <div className={`app-nav-item ${isTabActive('/admin/batches')}`}>
+                        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 2v10m0 0l-4-4m4 4l4-4"></path>
+                            <path d="M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"></path>
+                        </svg>
+                        Stock Batches
+                    </div>
+                </Link>
                {/* orders */}
                 <Link to="/admin/orders" style={{ textDecoration: 'none' }}>
                     <div className={`app-nav-item ${isTabActive('/admin/orders')}`}>

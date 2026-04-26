@@ -6,11 +6,22 @@ axios.defaults.baseURL = "http://localhost:5001/api";
 const AdminAuthContext = createContext(null);
 
 export const AdminAuthProvider = ({ children }) => {
-  // STATE
-  const [adminUser, setAdminUser] = useState(() => {
-    const stored = localStorage.getItem("adminUser");
-    return stored ? JSON.parse(stored) : null;
-  });
+    const [adminUser, setAdminUser] = useState(() => {
+        try {
+            const stored = localStorage.getItem('adminUser');
+            if (stored) {
+                const user = JSON.parse(stored);
+                // Set the header immediately on init to avoid 401 on page refresh
+                if (user?.id) {
+                    axios.defaults.headers.common['x-admin-id'] = user.id;
+                }
+                return user;
+            }
+            return null;
+        } catch {
+            return null;
+        }
+    });
 
   const [token, setToken] = useState(() => {
     return localStorage.getItem("token") || null;

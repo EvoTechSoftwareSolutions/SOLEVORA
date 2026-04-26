@@ -2,6 +2,8 @@ import Order from '../models/Order.js';
 import OrderItem from '../models/OrderItem.js';
 import Product from '../models/Product.js';
 import PromoCode from '../models/PromoCode.js';
+import ProductBatch from '../models/ProductBatch.js';
+import sequelize from '../config/db.js';
 import { sendOrderConfirmationEmail } from '../utils/emailService.js';
 
 export const createOrder = async (req, res) => {
@@ -24,35 +26,79 @@ export const createOrder = async (req, res) => {
         // Payment status for COD is always pending initially. For online, should probably be handled by payment controller.
         const initialPaymentStatus = payment_method === 'cod' ? 'pending' : 'pending';
 
-        const order = await Order.create({ 
-            total_amount, 
-            status: 'pending', 
-            shipping_address, 
-            contact_number, 
-            email: normalizedEmail, 
-            userId,
-            payment_method: payment_method || 'online',
-            payment_status: initialPaymentStatus
-        });
-        
-        if (items && items.length > 0) {
-            const orderItems = items.map(item => ({
-                orderId: order.id,
-                productId: item.productId,
-                quantity: item.quantity,
-                price_at_purchase: item.price,
-                size: item.size
-            }));
-            await OrderItem.bulkCreate(orderItems);
+        const t = await sequelize.transaction();
+        try {
+            const order = await Order.create({ 
+                total_amount, 
+                status: 'pending', 
+                shipping_address, 
+                contact_number, 
+                email: normalizedEmail, 
+                userId,
+                payment_method: payment_method || 'online',
+                payment_status: initialPaymentStatus
+            }, { transaction: t });
+            
+            if (items && items.length > 0) {
+                const orderItems = items.map(item => ({
+                    orderId: order.id,
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    price_at_purchase: item.price,
+                    size: item.size
+                }));
+                await OrderItem.bulkCreate(orderItems, { transaction: t });
 
-            // Update stock quantities
-            for (const item of items) {
-                await Product.decrement('stock_quantity', {
-                    by: item.quantity,
-                    where: { id: item.productId }
-                });
+                // FIFO Stock Deduction Logic
+                for (const item of items) {
+                    // Lock the product row to prevent concurrent deduction issues
+                    const product = await Product.findByPk(item.productId, { 
+                        transaction: t,
+                        lock: t.LOCK.UPDATE 
+                    });
+
+                    if (!product || product.stock_quantity < item.quantity) {
+                        throw new Error(`Insufficient stock for ${product ? product.name : 'Unknown Product'}. Available: ${product ? product.stock_quantity : 0}`);
+                    }
+
+                    const batches = await ProductBatch.findAll({
+                        where: { productId: item.productId, quantity: { [sequelize.Sequelize.Op.gt]: 0 } },
+                        order: [['createdAt', 'ASC']],
+                        transaction: t,
+                        lock: t.LOCK.UPDATE
+                    });
+
+                    let remainingToDeduct = item.quantity;
+                    for (const batch of batches) {
+                        if (remainingToDeduct <= 0) break;
+                        const take = Math.min(batch.quantity, remainingToDeduct);
+                        batch.quantity -= take;
+                        remainingToDeduct -= take;
+                        await batch.save({ transaction: t });
+                    }
+
+                    // Safety Check: If we didn't have enough in batches (e.g. legacy data), 
+                    // we still deduct from the main product to keep sync, but we already 
+                    // checked product.stock_quantity >= item.quantity above.
+                    
+                    const oldestBatch = await ProductBatch.findOne({
+                        where: { productId: item.productId, quantity: { [sequelize.Sequelize.Op.gt]: 0 } },
+                        order: [['createdAt', 'ASC']],
+                        transaction: t
+                    });
+
+                    await Product.update({
+                        stock_quantity: Math.max(0, product.stock_quantity - item.quantity),
+                        price: oldestBatch ? oldestBatch.selling_price : product.price
+                    }, {
+                        where: { id: item.productId },
+                        transaction: t
+                    });
+                }
             }
             
+            await t.commit();
+
             // Send email if it's COD (Order is "placed" immediately)
             if (payment_method === 'cod') {
                 const fullOrder = await Order.findByPk(order.id, {
@@ -62,9 +108,12 @@ export const createOrder = async (req, res) => {
                     await sendOrderConfirmationEmail(fullOrder, fullOrder.items);
                 }
             }
+
+            res.status(201).json(order);
+        } catch (error) {
+            await t.rollback();
+            throw error;
         }
-        
-        res.status(201).json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

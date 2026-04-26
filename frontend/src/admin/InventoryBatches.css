@@ -1,0 +1,139 @@
+.inventory-batches-container {
+    padding: 24px;
+    background-color: #f9f9f9;
+    min-height: calc(100vh - 64px);
+    animation: fadeIn 0.4s ease-out;
+}
+
+.inventory-batches-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 24px;
+}
+
+.inventory-batches-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0;
+}
+
+.inventory-batches-header p {
+    font-size: 14px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.batches-table-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.batches-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.batches-table th {
+    background-color: #f8fafc;
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.batches-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.product-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.product-batch-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    background-color: #f0f0f0;
+}
+
+.product-batch-name {
+    font-weight: 600;
+    color: #334155;
+    font-size: 14px;
+}
+
+.batch-status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.batch-status-active {
+    background-color: #ecfdf5;
+    color: #059669;
+}
+
+.batch-status-exhausted {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+.batch-price-tag {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.batch-qty-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.batch-qty-main {
+    font-weight: 700;
+    color: #334155;
+}
+
+.batch-qty-sub {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.batch-date {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.fifo-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #f66d3b;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.fifo-indicator svg {
+    width: 14px;
+    height: 14px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -52,11 +52,13 @@ router.post('/login', async (req, res) => {
 
         const user = await User.findOne({ where: { email } });
         if (!user) {
+            console.log(`Login Failed: User with email ${email} not found.`);
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
+            console.log(`Login Failed: Incorrect password for ${email}.`);
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
@@ -194,11 +196,13 @@ router.post('/admin-login', async (req, res) => {
 
         const user = await User.findOne({ where: { email } });
         if (!user) {
+            console.log(`Admin Login Failed: Admin with email ${email} not found.`);
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
+            console.log(`Admin Login Failed: Incorrect password for admin ${email}.`);
             return res.status(401).json({ message: "Invalid email or password" });
         }
 

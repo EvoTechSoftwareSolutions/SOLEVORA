@@ -151,10 +151,10 @@ function ProductDetail() {
 
   // Loading state display
   if (loading) {
-    return (
-      <div style={{ padding: "100px", textAlign: "center" }}>Loading...</div>
-    );
+    return <div style={{ padding: "100px", textAlign: "center" }}>Loading...</div>;
   }
+
+
 
   // Product not found state
   if (!product) {

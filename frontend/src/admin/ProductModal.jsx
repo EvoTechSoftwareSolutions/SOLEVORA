@@ -17,17 +17,29 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         price: '',
         discountPrice: '',
         categoryId: '',
-        gender: 'ALL',
+        gender: 'All',
+        size_range: '',
+        image_url: '',
+        image_url_2: '',
+        stock_quantity: 0
     });
 
-    // Stock/Size State
+    // Stock/Size State (for when creating new products)
     const [stocks, setStocks] = useState([{ size: '7', costPrice: '', quantity: '' }]);
 
-    // Image State
-    const [images, setImages] = useState([]); // Real file objects
-    const [imagePreviews, setImagePreviews] = useState([]); // Preview URLs
+    // Image Upload State
+    const [images, setImages] = useState([]); 
+    const [imagePreviews, setImagePreviews] = useState([]);
+    const [uploading, setUploading] = useState({ image_url: false, image_url_2: false });
 
-    // 1. Fetch Categories
+    // Stock Arrival Logic (for editing)
+    const [incomingStock, setIncomingStock] = useState('');
+    const [incomingPrice, setIncomingPrice] = useState('');
+    const [showStockHelper, setShowStockHelper] = useState(false);
+
+    const isEdit = !!product;
+
+    // Fetch Categories
     useEffect(() => {
         if (isOpen) {
             const fetchCategories = async () => {
@@ -42,7 +54,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         }
     }, [isOpen]);
 
-    // 2. Pre-fill or Reset Form
+    // Pre-fill or Reset Form
     useEffect(() => {
         if (isOpen) {
             if (product) {
@@ -53,52 +65,34 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                     price: product.price || '',
                     discountPrice: product.discountPrice || '',
                     categoryId: product.categoryId || '',
-                    gender: product.gender || 'ALL',
+                    gender: product.gender || 'All',
+                    size_range: product.size_range || '',
+                    image_url: product.image_url || '',
+                    image_url_2: product.image_url_2 || '',
+                    stock_quantity: product.stock_quantity || 0
                 });
                 setStocks(product.stocks || [{ size: '7', costPrice: '', quantity: '' }]);
                 setImagePreviews(product.images?.map(img => `${BASE_URL}${img.url}`) || []);
             } else {
-                setFormData({ name: '', slug: '', description: '', price: '', discountPrice: '', categoryId: '', gender: 'ALL' });
+                setFormData({
+                    name: '',
+                    slug: '',
+                    description: '',
+                    price: '',
+                    discountPrice: '',
+                    categoryId: '',
+                    gender: 'All',
+                    size_range: '',
+                    image_url: '',
+                    image_url_2: '',
+                    stock_quantity: 0
+                });
                 setStocks([{ size: '7', costPrice: '', quantity: '' }]);
                 setImages([]);
                 setImagePreviews([]);
             }
         }
     }, [isOpen, product]);
-
-    useEffect(() => {
-    if (!formData.slug || product) return; 
-    // skip if editing existing product
-
-    const delayDebounce = setTimeout(async () => {
-        try {
-            const res = await axios.get(`${BASE_URL}/api/products?slug=${formData.slug}`);
-            
-            const found = res.data.data?.[0];
-            if (!found) return;
-
-            // AUTO FILL FORM
-            setFormData({
-                name: found.name || '',
-                slug: found.slug || '',
-                description: found.description || '',
-                price: found.price || '',
-                discountPrice: found.discountPrice || '',
-                categoryId: found.categoryId || '',
-                gender: found.gender || 'ALL',
-            });
-
-            setStocks(found.stocks || []);
-            setImagePreviews(found.images?.map(img => `${BASE_URL}${img.url}`) || []);
-
-        } catch (err) {
-            console.log("Slug not found");
-        }
-    }, 500); // debounce (important)
-
-    return () => clearTimeout(delayDebounce);
-
-}, [formData.slug]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -118,6 +112,40 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         setImagePreviews(previews);
     };
 
+    const handleFileUpload = async (e, field) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(prev => ({ ...prev, [field]: true }));
+        const data = new FormData();
+        data.append('image', file);
+
+        try {
+            const res = await axios.post(`${BASE_URL}/api/upload`, data);
+            setFormData(prev => ({ ...prev, [field]: res.data.url }));
+        } catch (err) {
+            alert('Upload failed');
+        } finally {
+            setUploading(prev => ({ ...prev, [field]: false }));
+        }
+    };
+
+    const applyStockArrival = () => {
+        if (!incomingStock || !incomingPrice) return;
+        
+        setFormData(prev => ({
+            ...prev,
+            isNewBatch: true,
+            added_quantity: parseInt(incomingStock),
+            price: parseFloat(incomingPrice)
+        }));
+        
+        alert(`New Batch Prepared: ${incomingStock} units. Click 'Update Product' to save.`);
+        setIncomingStock('');
+        setIncomingPrice('');
+        setShowStockHelper(false);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -128,9 +156,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
             const data = new FormData();
             
             Object.keys(formData).forEach(key => data.append(key, formData[key]));
-            
             data.append('stocks', JSON.stringify(stocks));
-
             images.forEach(file => data.append('images', file));
 
             const config = {
@@ -140,8 +166,8 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                 },
             };
 
-            if (product) {
-                await axios.put(`${BASE_URL}/api/products/${product.id}`, data, config);
+            if (isEdit) {
+                await axios.put(`${BASE_URL}/api/products/${product.id}`, formData, config);
             } else {
                 await axios.post(`${BASE_URL}/api/products`, data, config);
             }
@@ -168,44 +194,43 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                     {error && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
 
-                    {/* Basic Info */}
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="col-span-2 md:col-span-1">
+                        <div>
                             <label className="block text-sm font-medium mb-1">Product Name</label>
                             <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full border rounded-lg p-2" />
                         </div>
-                        <div className="col-span-2 md:col-span-1">
+                        <div>
                             <label className="block text-sm font-medium mb-1">Slug</label>
                             <input type="text" name="slug" value={formData.slug} onChange={handleChange} required className="w-full border rounded-lg p-2" />
                         </div>
                     </div>
-                       <div className="grid grid-cols-2 gap-4">
-                        <div className="col-span-2 md:col-span-1">
-                            <label className="block text-sm font-medium mb-1">Decription</label>
-                            <input type="text" name="description" value={formData.description} onChange={handleChange} required className="w-full border rounded-lg p-2" />
-                        </div>
-                        <div className="col-span-2 md:col-span-1">
-  <label className="block text-sm font-medium mb-1">Category</label>
 
-  <select
-    name="categoryId"
-    value={formData.categoryId}
-    onChange={handleChange}
-    required
-    className="w-full border rounded-lg p-2"
-  >
-    <option value="">Select Category</option>
-
-    {categories.map((cat) => (
-      <option key={cat.id} value={cat.id}>
-        {cat.name}
-      </option>
-    ))}
-  </select>
-</div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Description</label>
+                        <textarea name="description" value={formData.description} onChange={handleChange} required className="w-full border rounded-lg p-2 h-24" />
                     </div>
 
-                    {/* Pricing */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Category</label>
+                            <select name="categoryId" value={formData.categoryId} onChange={handleChange} required className="w-full border rounded-lg p-2">
+                                <option value="">Select Category</option>
+                                {categories.map(cat => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Gender</label>
+                            <select name="gender" value={formData.gender} onChange={handleChange} required className="w-full border rounded-lg p-2">
+                                <option value="All">All</option>
+                                <option value="Men">Men</option>
+                                <option value="Women">Women</option>
+                                <option value="Kids">Kids</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1">Price (Rs.)</label>
@@ -217,44 +242,67 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                         </div>
                     </div>
 
-                    {/* Stocks Section */}
-                    <div className="border-t pt-4">
-                        <div className="flex justify-between items-center mb-3">
-                            <h3 className="font-bold text-gray-700">Stock & Sizes</h3>
-                            <button type="button" onClick={() => setStocks([...stocks, { size: '', costPrice: '', quantity: '' }])} className="text-sm flex items-center text-blue-600">
-                                <PlusIcon className="w-4 h-4 mr-1" /> Add Size
-                            </button>
-                        </div>
-                        {stocks.map((stock, idx) => (
-                            <div key={idx} className="grid grid-cols-4 gap-2 mb-2 items-end">
-                                <input placeholder="Size" value={stock.size} onChange={(e) => handleStockChange(idx, 'size', e.target.value)} className="border rounded-lg p-2 text-sm" />
-                                <input placeholder="Cost" type="number" value={stock.costPrice} onChange={(e) => handleStockChange(idx, 'costPrice', e.target.value)} className="border rounded-lg p-2 text-sm" />
-                                <input placeholder="Qty" type="number" value={stock.quantity} onChange={(e) => handleStockChange(idx, 'quantity', e.target.value)} className="border rounded-lg p-2 text-sm" />
-                                <button type="button" onClick={() => setStocks(stocks.filter((_, i) => i !== idx))} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">
-                                    <TrashIcon className="w-5 h-5" />
-                                </button>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Stock Quantity</label>
+                            <div className="relative">
+                                <input type="number" name="stock_quantity" value={formData.stock_quantity} onChange={handleChange} required className="w-full border rounded-lg p-2" />
+                                {isEdit && (
+                                    <button type="button" onClick={() => setShowStockHelper(!showStockHelper)} className="absolute right-2 top-2 text-xs text-orange-600 font-bold hover:underline">
+                                        + New Batch
+                                    </button>
+                                )}
                             </div>
-                        ))}
+                            {showStockHelper && (
+                                <div className="mt-2 p-3 bg-orange-50 rounded-lg border border-orange-100 space-y-2">
+                                    <input type="number" placeholder="Incoming Qty" value={incomingStock} onChange={(e) => setIncomingStock(e.target.value)} className="w-full p-1 text-sm border rounded" />
+                                    <input type="number" placeholder="Incoming Price" value={incomingPrice} onChange={(e) => setIncomingPrice(e.target.value)} className="w-full p-1 text-sm border rounded" />
+                                    <button type="button" onClick={applyStockArrival} className="w-full py-1 bg-orange-500 text-white text-xs rounded font-bold">Apply</button>
+                                </div>
+                            )}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Size Range</label>
+                            <input type="text" name="size_range" value={formData.size_range} onChange={handleChange} placeholder="e.g. 6-12" className="w-full border rounded-lg p-2" />
+                        </div>
                     </div>
 
-                    {/* Images */}
-                    <div className="border-t pt-4">
-                        <label className="block text-sm font-medium mb-2">Product Images</label>
-                        <div className="flex flex-wrap gap-2 mb-3">
-                            {imagePreviews.map((src, i) => (
-                                <img key={i} src={src} alt="preview" className="w-20 h-20 object-cover rounded-lg border" />
+                    {!isEdit && (
+                        <div className="border-t pt-4">
+                            <div className="flex justify-between items-center mb-2">
+                                <h3 className="font-bold">Initial Stock per Size</h3>
+                                <button type="button" onClick={() => setStocks([...stocks, { size: '', costPrice: '', quantity: '' }])} className="text-blue-600 text-sm flex items-center">
+                                    <PlusIcon className="w-4 h-4 mr-1" /> Add Size
+                                </button>
+                            </div>
+                            {stocks.map((s, i) => (
+                                <div key={i} className="flex gap-2 mb-2">
+                                    <input placeholder="Size" value={s.size} onChange={(e) => handleStockChange(i, 'size', e.target.value)} className="w-20 border rounded p-1 text-sm" />
+                                    <input placeholder="Cost" type="number" value={s.costPrice} onChange={(e) => handleStockChange(i, 'costPrice', e.target.value)} className="flex-1 border rounded p-1 text-sm" />
+                                    <input placeholder="Qty" type="number" value={s.quantity} onChange={(e) => handleStockChange(i, 'quantity', e.target.value)} className="w-24 border rounded p-1 text-sm" />
+                                    <button type="button" onClick={() => setStocks(stocks.filter((_, idx) => idx !== i))} className="text-red-500"><TrashIcon className="w-5 h-5" /></button>
+                                </div>
                             ))}
-                            <label className="w-20 h-20 flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
+                        </div>
+                    )}
+
+                    <div className="border-t pt-4">
+                        <label className="block text-sm font-medium mb-2">Images</label>
+                        <div className="flex flex-wrap gap-2">
+                            {imagePreviews.map((src, i) => (
+                                <img key={i} src={src} className="w-20 h-20 object-cover rounded border" alt="preview" />
+                            ))}
+                            <label className="w-20 h-20 flex flex-col items-center justify-center border-2 border-dashed rounded cursor-pointer hover:bg-gray-50">
                                 <ArrowUpTrayIcon className="w-6 h-6 text-gray-400" />
                                 <input type="file" multiple className="hidden" onChange={handleImageChange} accept="image/*" />
                             </label>
                         </div>
                     </div>
 
-                    <div className="flex gap-3 pt-4">
+                    <div className="flex gap-3 pt-4 sticky bottom-0 bg-white border-t">
                         <button type="button" onClick={onClose} className="flex-1 py-2 border rounded-lg font-semibold">Cancel</button>
                         <button type="submit" disabled={loading} className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold disabled:bg-blue-300">
-                            {loading ? 'Saving...' : product ? 'Update Product' : 'Create Product'}
+                            {loading ? 'Saving...' : isEdit ? 'Update Product' : 'Create Product'}
                         </button>
                     </div>
                 </form>
