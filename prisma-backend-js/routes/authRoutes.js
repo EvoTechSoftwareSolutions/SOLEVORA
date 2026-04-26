@@ -13,7 +13,8 @@ router.post('/register', async (req, res) => {
         const { name, email, password } = req.body;
 
         if (!name || !name.trim()) return res.status(400).json({ message: 'Name is required' });
-        if (!/[a-zA-Z]/.test(name)) return res.status(400).json({ message: 'Name must contain at least one letter' });
+        if (!/[a-zA-Z]/.test(name)) return res.status(400).json({ message: 'Name must contain at least one letter and cannot be just symbols' });
+
         if (!email || !email.trim()) return res.status(400).json({ message: 'Email is required' });
         if (!password) return res.status(400).json({ message: 'Password is required' });
         
@@ -41,7 +42,8 @@ router.post('/social-register', async (req, res) => {
         const { name, email } = req.body;
 
         if (!name || !name.trim()) return res.status(400).json({ message: 'Name is required' });
-        if (!/[a-zA-Z]/.test(name)) return res.status(400).json({ message: 'Name must contain at least one letter' });
+        if (!/[a-zA-Z]/.test(name)) return res.status(400).json({ message: 'Name must contain at least one letter and cannot be just symbols' });
+
         if (!email || !email.trim()) return res.status(400).json({ message: 'Email is required' });
 
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -67,6 +69,10 @@ router.post('/login', async (req, res) => {
         const { email, password } = req.body;
 
         if (!email || !email.trim()) return res.status(400).json({ message: 'Email is required' });
+        
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) return res.status(400).json({ message: 'Invalid email format' });
+
         if (!password) return res.status(400).json({ message: 'Password is required' });
 
         const user = await prisma.user.findUnique({ where: { email } });
@@ -198,6 +204,10 @@ router.post('/admin-login', async (req, res) => {
         const { email, password } = req.body;
 
         if (!email || !email.trim()) return res.status(400).json({ message: 'Email is required' });
+        
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) return res.status(400).json({ message: 'Invalid email format' });
+
         if (!password) return res.status(400).json({ message: 'Password is required' });
 
         const user = await prisma.user.findUnique({ where: { email } });
