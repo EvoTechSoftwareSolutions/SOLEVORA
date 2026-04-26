@@ -5,6 +5,7 @@ import {
   getProductById,
   updateProduct,
   deleteProduct,
+  getProductsAll,
 } from "../controllers/product.controller.js";
 import upload from "../utils/multer.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -14,7 +15,9 @@ const router = express.Router();
 
 // PUBLIC
 router.get("/", getProducts);
+router.get("/all", getProductsAll);
 router.get("/:id", getProductById);
+
 
 // ADMIN + STORE MANAGER ONLY
 router.post(
@@ -29,6 +32,7 @@ router.put(
   "/:id",
   authMiddleware,
   requireRole("admin", "store_manager"),
+  upload.array("images", 10),
   updateProduct,
 );
 

@@ -8,7 +8,9 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-
+    const [searchTerm, setSearchTerm] = useState("");
+const [suggestions, setSuggestions] = useState([]);
+const [showDropdown, setShowDropdown] = useState(false);
     // Basic Form State
     const [formData, setFormData] = useState({
         name: '',
@@ -24,16 +26,27 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
     const [stocks, setStocks] = useState([{ size: '7', costPrice: '', quantity: '' }]);
 
     // Image State
-    const [images, setImages] = useState([]); // Real file objects
-    const [imagePreviews, setImagePreviews] = useState([]); // Preview URLs
+    const [images, setImages] = useState([]); 
+    const [imagePreviews, setImagePreviews] = useState([]); 
+    const [allProducts, setAllProducts] = useState([]);
 
+useEffect(() => {
+  const fetchAll = async () => {
+    const res = await axios.get(`${BASE_URL}/api/products`);
+    setAllProducts(res.data.data || []);
+  };
+
+  fetchAll();
+}, []);
     // 1. Fetch Categories
     useEffect(() => {
         if (isOpen) {
             const fetchCategories = async () => {
                 try {
                     const { data } = await axios.get(`${BASE_URL}/api/category`);
+                    console.log("API RESPONSE:", data);
                     setCategories(data.data || []);
+                     
                 } catch (err) {
                     console.error('Error fetching categories:', err);
                 }
@@ -66,44 +79,56 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         }
     }, [isOpen, product]);
 
-    useEffect(() => {
-    if (!formData.slug || product) return; 
-    // skip if editing existing product
 
-    const delayDebounce = setTimeout(async () => {
-        try {
-            const res = await axios.get(`${BASE_URL}/api/products?slug=${formData.slug}`);
-            
-            const found = res.data.data?.[0];
-            if (!found) return;
+// for auto complete
+const handleNameChange = (e) => {
+  const value = e.target.value;
 
-            // AUTO FILL FORM
-            setFormData({
-                name: found.name || '',
-                slug: found.slug || '',
-                description: found.description || '',
-                price: found.price || '',
-                discountPrice: found.discountPrice || '',
-                categoryId: found.categoryId || '',
-                gender: found.gender || 'ALL',
-            });
+  setFormData((prev) => ({
+    ...prev,
+    name: value,
+  }));
 
-            setStocks(found.stocks || []);
-            setImagePreviews(found.images?.map(img => `${BASE_URL}${img.url}`) || []);
+  setSearchTerm(value);
 
-        } catch (err) {
-            console.log("Slug not found");
-        }
-    }, 500); // debounce (important)
+  if (value.length > 1) {
+    const filtered = allProducts.filter((p) =>
+      p.name.toLowerCase().includes(value.toLowerCase())
+    );
 
-    return () => clearTimeout(delayDebounce);
+    setSuggestions(filtered);
+    setShowDropdown(true);
+  } else {
+    setShowDropdown(false);
+  }
+};
 
-}, [formData.slug]);
+const handleSelectProduct = (product) => {
+  setFormData({
+    name: product.name,
+    slug: product.slug,
+    description: product.description,
+    price: product.price,
+    discountPrice: product.discountPrice,
+    categoryId: product.categoryId,
+    gender: product.gender,
+  });
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+  setStocks(product.stocks || []);
+  setImagePreviews(
+    product.images?.map((img) => `${BASE_URL}${img.url}`) || []
+  );
+
+  setShowDropdown(false);
+};
+ const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData(prev => ({
+        ...prev,
+        [name]: name === "categoryId" ? Number(value) : value
+    }));
+};
 
     const handleStockChange = (index, field, value) => {
         const updated = [...stocks];
@@ -127,9 +152,13 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
             const token = localStorage.getItem('token');
             const data = new FormData();
             
-            Object.keys(formData).forEach(key => data.append(key, formData[key]));
+    Object.entries(formData).forEach(([key, value]) => {
+  if (value !== undefined && value !== null && value !== '') {
+    data.append(key, value);
+  }
+});
             
-            data.append('stocks', JSON.stringify(stocks));
+            data.append('stocks', JSON.stringify(stocks || []));
 
             images.forEach(file => data.append('images', file));
 
@@ -170,10 +199,34 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
 
                     {/* Basic Info */}
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="col-span-2 md:col-span-1">
-                            <label className="block text-sm font-medium mb-1">Product Name</label>
-                            <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full border rounded-lg p-2" />
-                        </div>
+                        <div className="relative">
+  <label className="block text-sm font-medium mb-1">
+    Product Name
+  </label>
+
+  <input
+    type="text"
+    value={formData.name}
+    onChange={handleNameChange}
+    className="w-full border p-2 rounded"
+    placeholder="Type product name..."
+  />
+
+  {/* DROPDOWN */}
+  {showDropdown && suggestions.length > 0 && (
+    <div className="absolute z-50 bg-white border w-full mt-1 rounded shadow max-h-40 overflow-y-auto">
+      {suggestions.map((item) => (
+        <div
+          key={item.id}
+          onClick={() => handleSelectProduct(item)}
+          className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+        >
+          {item.name}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
                         <div className="col-span-2 md:col-span-1">
                             <label className="block text-sm font-medium mb-1">Slug</label>
                             <input type="text" name="slug" value={formData.slug} onChange={handleChange} required className="w-full border rounded-lg p-2" />
