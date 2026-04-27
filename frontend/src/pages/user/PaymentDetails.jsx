@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import Modal from '../../components/ui/Modal';
 import '../../styles/user/PaymentDetails.css';
+import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
 
 const PaymentDetails = () => {
     // Navigation hook for redirecting after successful payment
@@ -75,7 +76,7 @@ const PaymentDetails = () => {
 
         setPromoLoading(true);
         try {
-            const { data } = await axios.post('http://localhost:5000/api/promo/validate', {
+            const { data } = await axios.post('${API_URL}/promo/validate', {
                 code: trimmed,
                 orderAmount: grossTotal
             });
@@ -137,7 +138,7 @@ const PaymentDetails = () => {
             };
 
             // Create order in backend
-            const response = await axios.post('http://localhost:5000/api/orders', orderPayload);
+            const response = await axios.post('${API_URL}/orders', orderPayload);
             const orderData = response.data;
             const currentItems = [...cart];
             
@@ -171,10 +172,10 @@ const PaymentDetails = () => {
                 promo_code: promoApplied ? promoCode : null
             };
 
-            const response = await axios.post('http://localhost:5000/api/orders', orderPayload);
+            const response = await axios.post('${API_URL}/orders', orderPayload);
             const orderData = response.data;
 
-            const hashResponse = await axios.post('http://localhost:5000/api/payment/hash', {
+            const hashResponse = await axios.post('${API_URL}/payment/hash', {
                 order_id: orderData.id,
                 amount: total,
                 currency: 'LKR'
@@ -189,7 +190,7 @@ const PaymentDetails = () => {
                 cancel_url: window.location.href,
                 // NOTE: localhost cannot be reached by PayHere servers for webhook callbacks.
                 // Use a publicly reachable backend URL in production (or via ngrok during local dev).
-                notify_url: "http://localhost:5000/api/payment/notify",
+                notify_url: "${API_URL}/payment/notify",
                 order_id: orderData.id.toString(),
                 items: "SoleVora Order #" + orderData.id,
                 amount: total.toFixed(2),
@@ -207,7 +208,7 @@ const PaymentDetails = () => {
             window.payhere.onCompleted = function onCompleted(orderId) {
                 console.log("Payment completed. OrderID:" + orderId);
                 // Fallback update for local development where notify_url is not publicly reachable.
-                axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: 'paid' })
+                axios.put(`${API_URL}/orders/${orderId}/status`, { status: 'paid' })
                     .catch((updateErr) => {
                         console.error('Failed to update paid status after PayHere completion:', updateErr);
                     })

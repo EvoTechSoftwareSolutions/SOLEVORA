@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
+import { BASE_URL } from '../config/api';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import './Settings.css';
 
@@ -52,7 +53,7 @@ const SecurityPage = () => {
         setPwErrors({});
         setIsPwSaving(true);
         try {
-            await axios.put(`http://localhost:5000/user/${adminUser.id}/password`, {
+            await axios.put(`${BASE_URL}/user/${adminUser.id}/password`, {
                 currentPassword: pwForm.currentPassword,
                 newPassword: pwForm.newPassword,
             });

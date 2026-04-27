@@ -13,6 +13,7 @@ import {
   IoPaperPlaneOutline,
 } from "../../components/common/icons.jsx";
 import { useState } from "react";
+import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
 
 const Contact = () => {
   // State to manage form data
@@ -45,7 +46,7 @@ const Contact = () => {
     try {
       // Sending form data to the backend API
       const res = await axios.post(
-        "http://localhost:5000/api/contact",
+        "${API_URL}/contact",
         formData,
       );
 

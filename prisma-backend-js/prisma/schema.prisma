@@ -1,0 +1,255 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int        @id @default(autoincrement())
+  name              String
+  email             String     @unique(map: "email")
+  password          String
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  phone             String?
+  location          String?
+  newsletter        Boolean    @default(true)
+  pushNotifications Boolean    @default(true)
+  usageReports      Boolean    @default(false)
+  role              Role       @default(dbgenerated("(customer)"))
+  lastLogin         DateTime?
+  streetAddress     String?
+  city              String?
+  postalCode        String?
+  country           String?
+  resetToken        String?
+  resetTokenExpires DateTime?
+  addresses         Address[]
+  orders            Order[]
+  reviews           Review[]
+  wishlists         Wishlist[]
+
+  @@map("users")
+}
+
+model Category {
+  id          BigInt    @id @default(autoincrement())
+  name        String
+  description String?   @db.Text
+  image_url   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id             BigInt         @id @default(autoincrement())
+  name           String
+  description    String?        @db.Text
+  price          Decimal        @db.Decimal(10, 2)
+  stock_quantity Int            @default(0)
+  image_url      String?
+  image_url_2    String?
+  image_url_3    String?
+  image_url_4    String?
+  categoryId     BigInt?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  gender         Gender         @default(dbgenerated("(All)"))
+  sizes          String?        @db.Text
+  size_range     String?
+  orderItems     OrderItem[]
+  batches        ProductBatch[]
+  category       Category?      @relation(fields: [categoryId], references: [id])
+  reviews        Review[]
+  wishlists      Wishlist[]
+
+  @@index([categoryId], map: "products_categoryId_fkey")
+  @@map("products")
+}
+
+model ProductBatch {
+  id                BigInt   @id @default(autoincrement())
+  productId         BigInt
+  quantity          Int      @default(0)
+  original_quantity Int
+  cost_price        Decimal? @db.Decimal(10, 2)
+  selling_price     Decimal  @db.Decimal(10, 2)
+  batch_date        DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  product           Product  @relation(fields: [productId], references: [id])
+
+  @@index([productId], map: "product_batches_productId_fkey")
+  @@map("product_batches")
+}
+
+model Order {
+  id                 BigInt        @id @default(autoincrement())
+  total_amount       Decimal       @db.Decimal(10, 2)
+  status             OrderStatus   @default(dbgenerated("(pending)"))
+  shipping_address   String?       @db.Text
+  contact_number     String?
+  email              String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  userId             Int?
+  tracking_number    String?
+  carrier            String?
+  payment_method     PaymentMethod @default(dbgenerated("(online)"))
+  payment_status     PaymentStatus @default(dbgenerated("(pending)"))
+  estimated_delivery DateTime?
+  actual_delivery    DateTime?
+  items              OrderItem[]
+  user               User?         @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "orders_userId_fkey")
+  @@map("orders")
+}
+
+model OrderItem {
+  id                BigInt  @id @default(autoincrement())
+  quantity          Int
+  price_at_purchase Decimal @db.Decimal(10, 2)
+  orderId           BigInt
+  productId         BigInt
+  size              String?
+  order             Order   @relation(fields: [orderId], references: [id])
+  product           Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId], map: "order_items_orderId_fkey")
+  @@index([productId], map: "order_items_productId_fkey")
+  @@map("order_items")
+}
+
+model Address {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  title      String
+  name       String
+  street     String?
+  country    String?
+  phone      String?
+  isDefault  Boolean  @default(false)
+  icon       String   @default(dbgenerated("(home)"))
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  city       String?
+  postalCode String?
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "addresses_userId_fkey")
+  @@map("addresses")
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId BigInt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([productId], map: "wishlists_productId_fkey")
+  @@index([userId], map: "wishlists_userId_fkey")
+  @@map("wishlists")
+}
+
+model Review {
+  id        BigInt   @id @default(autoincrement())
+  rating    Int
+  comment   String   @db.Text
+  userId    Int
+  productId BigInt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([productId], map: "reviews_productId_fkey")
+  @@index([userId], map: "reviews_userId_fkey")
+  @@map("reviews")
+}
+
+model PromoCode {
+  id             Int          @id @default(autoincrement())
+  code           String       @unique
+  discountType   DiscountType @default(dbgenerated("(percentage)"))
+  discountValue  Decimal      @db.Decimal(10, 2)
+  minOrderAmount Decimal      @default(0.00) @db.Decimal(10, 2)
+  maxUses        Int?
+  usedCount      Int          @default(0)
+  expiresAt      DateTime?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("promo_codes")
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique(map: "email")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscribers")
+}
+
+model Contact {
+  id        BigInt   @id @default(autoincrement())
+  name      String
+  phone     String?
+  email     String
+  subject   String?
+  message   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isRead    Boolean  @default(false)
+
+  @@map("contacts")
+}
+
+enum Role {
+  admin
+  store_manager
+  customer
+}
+
+enum Gender {
+  Men
+  Women
+  Kids
+  All
+}
+
+enum OrderStatus {
+  pending
+  paid
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
+enum PaymentMethod {
+  online
+  cod
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+}
+
+enum DiscountType {
+  percentage
+  fixed
+}

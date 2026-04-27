@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import Modal from '../../components/ui/Modal';
 import '../../styles/user/ShippingMethod.css';
+import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
 
 const ShippingMethod = () => {
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ const ShippingMethod = () => {
     setPromoLoading(true);
     try {
       const axios = (await import('axios')).default;
-      const { data } = await axios.post('http://localhost:5000/api/promo/validate', {
+      const { data } = await axios.post('${API_URL}/promo/validate', {
         code: trimmed,
         orderAmount: grossTotal
       });

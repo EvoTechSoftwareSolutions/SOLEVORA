@@ -6,6 +6,7 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import '../../styles/user/ProductDetail.css';
+import { API_URL, getImageUrl } from '../../config/api';
 
 import SuccessPopup from '../../components/common/SuccessPoppup';
 import SizeChartModal from '../../components/user/SizeChartModal';
@@ -53,7 +54,7 @@ function ProductDetail() {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/products/${id}`);
+                const response = await fetch(`${API_URL}/products/${id}`);
                 const data = await response.json();
                 if (response.ok) {
                     setProduct(data);
@@ -73,11 +74,26 @@ function ProductDetail() {
         };
 
         fetchProduct();
+
+        // Silent background refresh every 15 seconds
+        const interval = setInterval(() => {
+            // Re-fetch product data silently
+            fetch(`${API_URL}/products/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    setProduct(data);
+                })
+                .catch(err => console.error('Silent product fetch failed', err));
+                
+            // Re-fetch reviews silently
+            fetchReviews(id);
+        }, 15000);
+        return () => clearInterval(interval);
     }, [id]); // Re-run when product ID changes
     // Fetch product reviews from API
     const fetchReviews = async (productId) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/reviews/${productId}`);
+            const res = await fetch(`${API_URL}/reviews/${productId}`);
             const data = await res.json();
             if (res.ok) setReviews(data);
         } catch (err) { console.error('Error loading reviews:', err); }
@@ -100,7 +116,7 @@ function ProductDetail() {
 
         setSubmittingReview(true);
         try {
-            const res = await fetch('http://localhost:5000/api/reviews', {
+            const res = await fetch('${API_URL}/reviews', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -255,7 +271,7 @@ function ProductDetail() {
                                 }}>SOLD OUT</div>
                             )}
                             <img 
-                                src={mainImage || passedImage || product.image_url} 
+                                src={getImageUrl(mainImage || passedImage || product.image_url)} 
                                 alt={product.name} 
                                 style={product.stock_quantity <= 0 ? { opacity: 0.6, filter: 'grayscale(0.5)' } : {}}
                             />
@@ -264,22 +280,22 @@ function ProductDetail() {
                         <div className="thumb-strip">
                             {product.image_url && (
                                 <div className={`thumb-box ${mainImage === product.image_url ? 'active' : ''}`} onClick={() => setMainImage(product.image_url)}>
-                                    <img src={product.image_url} alt="Main view" />
+                                    <img src={getImageUrl(product.image_url)} alt="Main view" />
                                 </div>
                             )}
                             {product.image_url_2 && (
                                 <div className={`thumb-box ${mainImage === product.image_url_2 ? 'active' : ''}`} onClick={() => setMainImage(product.image_url_2)}>
-                                    <img src={product.image_url_2} alt="Side view" />
+                                    <img src={getImageUrl(product.image_url_2)} alt="Side view" />
                                 </div>
                             )}
                             {product.image_url_3 && (
                                 <div className={`thumb-box ${mainImage === product.image_url_3 ? 'active' : ''}`} onClick={() => setMainImage(product.image_url_3)}>
-                                    <img src={product.image_url_3} alt="Alternate view" />
+                                    <img src={getImageUrl(product.image_url_3)} alt="Alternate view" />
                                 </div>
                             )}
                             {product.image_url_4 && (
                                 <div className={`thumb-box ${mainImage === product.image_url_4 ? 'active' : ''}`} onClick={() => setMainImage(product.image_url_4)}>
-                                    <img src={product.image_url_4} alt="Bottom view" />
+                                    <img src={getImageUrl(product.image_url_4)} alt="Bottom view" />
                                 </div>
                             )}
                         </div>

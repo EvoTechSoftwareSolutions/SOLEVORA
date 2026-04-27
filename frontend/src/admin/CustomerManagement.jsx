@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './CustomerManagement.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
 const CustomerManagement = () => {
   const [customers, setCustomers] = useState([]);
@@ -8,7 +9,7 @@ const CustomerManagement = () => {
 // fetch customers from API
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/customers');
+      const response = await axios.get(`${API_URL}/admin/customers`);
       setCustomers(response.data);
       setLoading(false);
     } catch (error) {
@@ -19,12 +20,21 @@ const CustomerManagement = () => {
 
   useEffect(() => {
     fetchCustomers();
+    // Silent background refresh every 15 seconds
+    const interval = setInterval(() => {
+      axios.get(`${API_URL}/admin/customers`)
+        .then(response => {
+          setCustomers(response.data);
+        })
+        .catch(err => console.error('Silent fetch failed', err));
+    }, 15000);
+    return () => clearInterval(interval);
   }, []);
 // delete customer by id
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/admin/customers/${id}`);
+        await axios.delete(`${API_URL}/admin/customers/${id}`);
         fetchCustomers();
       } catch (error) {
         alert('Error deleting customer');

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Analytics.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
 const Analytics = () => {
     const [stats, setStats] = useState(null);
@@ -9,7 +10,7 @@ const Analytics = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/admin/stats');
+                const response = await axios.get(`${API_URL}/admin/stats`);
                 setStats(response.data);
                 setLoading(false);
             } catch (error) {
@@ -18,6 +19,16 @@ const Analytics = () => {
             }
         };
         fetchStats();
+
+        // Silent background refresh every 15 seconds
+        const interval = setInterval(() => {
+            axios.get(`${API_URL}/admin/stats`)
+                .then(response => {
+                    setStats(response.data);
+                })
+                .catch(err => console.error('Silent fetch failed', err));
+        }, 15000);
+        return () => clearInterval(interval);
     }, []);
 
     if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading analytics...</div>;

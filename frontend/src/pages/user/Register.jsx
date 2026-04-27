@@ -9,6 +9,8 @@ import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
 import { HiOutlineMail, HiOutlineUser } from "react-icons/hi";
 import { LuLock } from "react-icons/lu";
+import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
+import Toast from "../../components/ui/Toast";
 
 function Register() {
   // Form state management
@@ -18,7 +20,17 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState(""); // Password confirmation
   const [message, setMessage] = useState(""); // Status/error messages
   const [isLoading, setIsLoading] = useState(false); // Loading state for form submission
+  const [toast, setToast] = useState(null);
   const navigate = useNavigate(); // Navigation hook for redirecting after registration
+
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+
   // Handle user registration form submission
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -26,27 +38,37 @@ function Register() {
     
     // Basic form validation
     if (!name || !email || !password || !confirmPassword) {
-      setMessage("Please fill all fields");
+      setToast({ message: "Please fill all fields", type: "error" });
       return;
+    }
+
+    if (!validateEmail(email)) {
+        setToast({ message: "Please enter a valid email address", type: "error" });
+        return;
+    }
+
+    if (password.length < 8) {
+        setToast({ message: "Password must be at least 8 characters long", type: "error" });
+        return;
     }
     
     // Password confirmation validation
     if (password !== confirmPassword) {
-      setMessage("Passwords do not match");
+      setToast({ message: "Passwords do not match", type: "error" });
       return;
     }
 
     setIsLoading(true);
     try {
       // Send registration request to backend
-      const res = await axios.post("http://localhost:5000/register", {
+      const res = await axios.post(`${BASE_URL}/register`, {
         name,
         email,
         password,
       });
 
       // Success handling
-      setMessage("Registration successful! Redirecting...");
+      setToast({ message: "Registration successful! Redirecting...", type: "success" });
       setName("");
       setEmail("");
       setPassword("");
@@ -55,39 +77,41 @@ function Register() {
       setTimeout(() => navigate("/login"), 2000);
     } catch (error) {
       // Error handling
-      setMessage(error.response?.data?.message || "Registration failed");
+      setToast({ message: error.response?.data?.message || "Registration failed", type: "error" });
     } finally {
       setIsLoading(false);
     }
   };
+
   // Demo Google registration (placeholder for actual OAuth integration)
   const handleGoogleRegister = async () => {
     try {
       // Simulate Google registration with demo data
-      const res = await axios.post("http://localhost:5000/register", {
+      const res = await axios.post(`${BASE_URL}/register`, {
         name: "Google User",
         email: "googleuser@gmail.com",
         password: "social_register",
       });
-      setMessage("Registration successful! Redirecting...");
+      setToast({ message: "Registration successful! Redirecting...", type: "success" });
       setTimeout(() => navigate("/login"), 2000);
     } catch (error) {
-      setMessage("Google registration failed");
+      setToast({ message: "Google registration failed", type: "error" });
     }
   };
+
   // Demo Apple registration (placeholder for actual OAuth integration)
   const handleAppleRegister = async () => {
     try {
       // Simulate Apple registration with demo data
-      const res = await axios.post("http://localhost:5000/register", {
+      const res = await axios.post(`${BASE_URL}/register`, {
         name: "Apple User",
         email: "appleuser@gmail.com",
         password: "social_register",
       });
-      setMessage("Registration successful! Redirecting...");
+      setToast({ message: "Registration successful! Redirecting...", type: "success" });
       setTimeout(() => navigate("/login"), 2000);
     } catch (error) {
-      setMessage("Apple registration failed");
+      setToast({ message: "Apple registration failed", type: "error" });
     }
   };
 
@@ -228,8 +252,16 @@ function Register() {
           </Link>
         </div>
       </div>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
 
-export default Register; // Export Register component
+export default Register;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Messages.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
 const Messages = () => {
     const [messages, setMessages] = useState([]);
@@ -9,7 +10,7 @@ const Messages = () => {
 // fetch messages from API
     const fetchMessages = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/contact');
+            const response = await axios.get(`${API_URL}/contact`);
             setMessages(response.data);
             setLoading(false);
         } catch (error) {
@@ -20,11 +21,20 @@ const Messages = () => {
 
     useEffect(() => {
         fetchMessages();
+        // Silent background refresh every 15 seconds
+        const interval = setInterval(() => {
+            axios.get(`${API_URL}/contact`)
+                .then(response => {
+                    setMessages(response.data);
+                })
+                .catch(err => console.error('Silent fetch failed', err));
+        }, 15000);
+        return () => clearInterval(interval);
     }, []);
 // mark message as read in backend
     const handleMarkAsRead = async (id) => {
         try {
-            await axios.put(`http://localhost:5000/api/contact/${id}/read`);
+            await axios.put(`${API_URL}/contact/${id}/read`);
             setMessages(messages.map(msg => 
                 msg.id === id ? { ...msg, isRead: true } : msg
             ));

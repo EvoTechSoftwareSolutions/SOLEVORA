@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './InventoryBatches.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
 const InventoryBatches = () => {
     const [batches, setBatches] = useState([]);
@@ -9,7 +10,7 @@ const InventoryBatches = () => {
     useEffect(() => {
         const fetchBatches = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/products/batches');
+                const response = await axios.get(`${API_URL}/products/batches`);
                 setBatches(response.data);
             } catch (error) {
                 console.error("Error fetching batches:", error);
@@ -18,6 +19,16 @@ const InventoryBatches = () => {
             }
         };
         fetchBatches();
+
+        // Silent background refresh every 15 seconds
+        const interval = setInterval(() => {
+            axios.get(`${API_URL}/products/batches`)
+                .then(response => {
+                    setBatches(response.data);
+                })
+                .catch(err => console.error('Silent fetch failed', err));
+        }, 15000);
+        return () => clearInterval(interval);
     }, []);
 
     const formatDate = (dateString) => {
@@ -68,7 +79,7 @@ const InventoryBatches = () => {
                                 <td>
                                     <div className="product-info-cell">
                                         <img 
-                                            src={batch.product?.image_url} 
+                                            src={getImageUrl(batch.product?.image_url)} 
                                             alt={batch.product?.name} 
                                             className="product-batch-img"
                                         />

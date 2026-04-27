@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './PromoCodes.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
-const API = 'http://localhost:5000/api/promo';
+const API = `${API_URL}/promo`;
 
 const emptyForm = {
     code: '',
@@ -40,7 +41,18 @@ const PromoCodes = () => {
         }
     };
 
-    useEffect(() => { fetchPromos(); }, []);
+    useEffect(() => {
+        fetchPromos();
+        // Silent background refresh every 15 seconds
+        const interval = setInterval(() => {
+            axios.get(API)
+                .then(response => {
+                    setPromos(response.data);
+                })
+                .catch(err => console.error('Silent fetch failed', err));
+        }, 15000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;

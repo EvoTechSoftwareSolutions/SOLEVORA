@@ -7,6 +7,7 @@ import { HiOutlineHeart, HiHeart, HiOutlineShoppingCart } from "react-icons/hi";
 
 // Background Hero Image
 import heritageImage from "../../assets/category/heritage-shoe.png";
+import { API_URL, getImageUrl } from "../../config/api";
 
 // Product fallbacks
 import product1 from "../../assets/category/product-1.png";
@@ -43,7 +44,7 @@ function CategoryDetails() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const { data } = await axios.get("http://localhost:5000/api/products");
+        const { data } = await axios.get(`${API_URL}/products`);
         const bgColors = [
           "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]",
           "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]"
@@ -56,7 +57,8 @@ function CategoryDetails() {
           category: p.category?.name || "Premium",
           name: p.name,
           price: parseFloat(p.price) || 0,
-          image: p.image_url || fallbackImages[index % fallbackImages.length],
+          image: p.image_url ? getImageUrl(p.image_url) : fallbackImages[index % fallbackImages.length],
+          image_url: p.image_url ? getImageUrl(p.image_url) : fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
           sizes: p.sizes ? (typeof p.sizes === 'string' ? JSON.parse(p.sizes) : p.sizes) : ["6", "7", "8"],
           badge: index % 4 === 0 ? "Bestseller" : "",

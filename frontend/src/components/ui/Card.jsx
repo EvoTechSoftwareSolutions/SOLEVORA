@@ -2,12 +2,13 @@ import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import "../../styles/user/ui/Card.css";
 import { FaStar } from "react-icons/fa";
+import { getImageUrl } from "../../config/api";
 
 const Card = ({ image, title, description, price, link }) => {
   return (
     <div className="card">
       <div className="card-image">
-        <img src={image} alt={title} />
+        <img src={getImageUrl(image)} alt={title} />
       </div>
 
       <div className="card-content">

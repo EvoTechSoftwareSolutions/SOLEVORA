@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './OrdersManagement.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
 const OrdersManagement = () => {
     const [subTab, setSubTab] = useState('All Orders');
@@ -18,7 +19,7 @@ const OrdersManagement = () => {
 // fetch orders from API
     const fetchOrders = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/admin/orders');
+            const response = await axios.get(`${API_URL}/admin/orders`);
             setOrders(response.data);
             setLoading(false);
         } catch (error) {
@@ -29,12 +30,21 @@ const OrdersManagement = () => {
 // load orders when page opens
     useEffect(() => {
         fetchOrders();
+        // Silent background refresh every 15 seconds
+        const interval = setInterval(() => {
+            axios.get(`${API_URL}/admin/orders`)
+                .then(response => {
+                    setOrders(response.data);
+                })
+                .catch(err => console.error('Silent fetch failed', err));
+        }, 15000);
+        return () => clearInterval(interval);
     }, []);
 // delete order
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this order?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/admin/orders/${id}`);
+                await axios.delete(`${API_URL}/admin/orders/${id}`);
                 fetchOrders();
             } catch (error) {
                 alert('Error deleting order');
@@ -55,7 +65,7 @@ const OrdersManagement = () => {
         e.preventDefault();
         setUpdateLoading(true);
         try {
-            await axios.put(`http://localhost:5000/api/orders/${selectedOrder.id}/status`, {
+            await axios.put(`${API_URL}/orders/${selectedOrder.id}/status`, {
                 status,
                 tracking_number: trackingNumber,
                 carrier,
@@ -145,7 +155,7 @@ const OrdersManagement = () => {
                                     <div className="td-items-flex">
                                         <div className="item-img-box">
                                             {order.items?.slice(0, 3).map((item, i) => (
-                                                <img key={i} src={item.product?.image_url} alt="" className="item-img" style={{ marginLeft: i > 0 ? '-10px' : '0' }} />
+                                                <img key={i} src={getImageUrl(item.product?.image_url)} alt="" className="item-img" style={{ marginLeft: i > 0 ? '-10px' : '0' }} />
                                             ))}
                                         </div>
                                         <span className="td-items-count">{order.items?.length > 3 ? `+${order.items.length - 3}` : ''}</span>
@@ -217,7 +227,7 @@ const OrdersManagement = () => {
                                 <h3 style={{ fontSize: '14px', color: '#888', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '15px' }}>Ordered Items</h3>
                                 {selectedOrder.items?.map((item, idx) => (
                                     <div key={idx} className="modal-item-row">
-                                        <img src={item.product?.image_url} alt="" className="modal-item-img" />
+                                        <img src={getImageUrl(item.product?.image_url)} alt="" className="modal-item-img" />
                                         <div className="modal-item-info">
                                             <div className="item-name-tag">{item.product?.name}</div>
                                             <div className="item-meta-tag">Size: {item.size} | Qty: {item.quantity} | Price: Rs. {parseFloat(item.price_at_purchase).toLocaleString()}</div>

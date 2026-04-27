@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './NewsletterManagement.css';
+import './CustomerManagement.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
 const NewsletterManagement = () => {
   const [subscribers, setSubscribers] = useState([]);
@@ -9,7 +11,7 @@ const NewsletterManagement = () => {
 
   const fetchSubscribers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/newsletter/subscribers');
+      const response = await axios.get(`${API_URL}/newsletter/subscribers`);
       setSubscribers(response.data);
       setLoading(false);
     } catch (error) {
@@ -20,12 +22,21 @@ const NewsletterManagement = () => {
 
   useEffect(() => {
     fetchSubscribers();
+    // Silent background refresh every 15 seconds
+    const interval = setInterval(() => {
+      axios.get(`${API_URL}/newsletter/subscribers`)
+        .then(response => {
+          setSubscribers(response.data);
+        })
+        .catch(err => console.error('Silent fetch failed', err));
+    }, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to remove this subscriber?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/newsletter/subscribers/${id}`);
+        await axios.delete(`${API_URL}/newsletter/subscribers/${id}`);
         fetchSubscribers();
       } catch (error) {
         alert('Error deleting subscriber');
@@ -57,13 +68,14 @@ const NewsletterManagement = () => {
       <div className="table-container">
         <div className="table-filters">
           <div className="filters-left">
-            <div className="search-input-box">
-              <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <div className="search-input-box" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '20px', height: '20px' }}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               <input 
                 type="text" 
                 placeholder="Search by email..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ border: 'none', outline: 'none' }}
               />
             </div>
           </div>
@@ -96,7 +108,7 @@ const NewsletterManagement = () => {
                 <td>
                   <div className="td-actions">
                     <button className="action-btn delete-btn" onClick={() => handleDelete(sub.id)} title="Remove Subscriber">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '18px', height: '18px' }}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                   </div>
                 </td>

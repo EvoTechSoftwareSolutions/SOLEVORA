@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
 const Dashboard = () => {
     const [chartFilter, setChartFilter] = useState('Monthly');
@@ -11,7 +12,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/admin/stats');
+                const response = await axios.get(`${API_URL}/admin/stats`);
                 setStats(response.data);
                 setLoading(false);
             } catch (error) {
@@ -20,9 +21,20 @@ const Dashboard = () => {
             }
         };
         fetchStats();
+
+        // Silent background refresh every 15 seconds
+        const interval = setInterval(() => {
+            axios.get(`${API_URL}/admin/stats`)
+                .then(response => {
+                    setStats(response.data);
+                })
+                .catch(err => console.error('Silent stats fetch failed', err));
+        }, 15000);
+        return () => clearInterval(interval);
     }, []);
 // simple loading UI
     if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading dashboard...</div>;
+    if (!stats) return <div style={{ padding: '50px', textAlign: 'center' }}>Error loading dashboard data. Please try again later.</div>;
     // fallback if no orders
     const recentOrders = stats.recentOrders || [];
 // static top selling products
@@ -86,7 +98,7 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="metric-title-top">Total Revenue</div>
-                    <div className="metric-value-top">Rs. {stats.totalRevenue.toLocaleString()}</div>
+                    <div className="metric-value-top">Rs. {(Number(stats.totalRevenue) || 0).toLocaleString()}</div>
                 </div>
 
                 <div className="metric-card-top card-blue-c">
@@ -172,7 +184,7 @@ const Dashboard = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="td-amount">Rs. {parseFloat(order.total_amount).toLocaleString()}</td>
+                                    <td className="td-amount">Rs. {(Number(order.total_amount) || 0).toLocaleString()}</td>
                                     <td>
                                         <div className={`status-pill status-${order.status.toLowerCase()}`}>
                                             {order.status.toUpperCase()}
