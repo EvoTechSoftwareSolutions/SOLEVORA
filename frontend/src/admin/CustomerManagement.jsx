@@ -8,7 +8,7 @@ const CustomerManagement = () => {
 // fetch customers from API
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/customers');
+      const response = await axios.get('http://localhost:5001/api/admin/customers');
       setCustomers(response.data);
       setLoading(false);
     } catch (error) {
@@ -24,7 +24,7 @@ const CustomerManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/admin/customers/${id}`);
+        await axios.delete(`http://localhost:5001/api/admin/customers/${id}`);
         fetchCustomers();
       } catch (error) {
         alert('Error deleting customer');

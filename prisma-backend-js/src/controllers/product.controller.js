@@ -31,9 +31,10 @@ export const createProduct = async (req, res) => {
       include: { stocks: true }
     });
 
-    // iF PRODUCT EXISTS → UPDATE STOCK
+    // iF PRODUCT EXISTS → UPDATE STOCK AND IMAGES
     if (existingProduct) {
 
+      // Update/add stock
       for (const s of parsedStocks) {
         const existingStock = await prisma.productStock.findFirst({
           where: {
@@ -66,10 +67,30 @@ export const createProduct = async (req, res) => {
         }
       }
 
+      // Add new images if provided
+      if (files && files.length > 0) {
+        await prisma.productImage.createMany({
+          data: files.map(file => ({
+            url: `/uploads/${file.filename}`,
+            productId: existingProduct.id
+          }))
+        });
+      }
+
+      // Return updated product with images
+      const updatedProduct = await prisma.product.findUnique({
+        where: { id: existingProduct.id },
+        include: {
+          category: true,
+          images: true,
+          stocks: true
+        }
+      });
+
       return res.status(200).json({
         success: true,
-        message: "Stock updated (existing product)",
-        data: existingProduct
+        message: "Product updated (existing product)",
+        data: updatedProduct
       });
     }
 
@@ -124,20 +145,53 @@ export const createProduct = async (req, res) => {
 // GET PRODUCTS
 export const getProducts = async (req, res) => {
   try {
-    const products = await prisma.product.findMany({
-      where: {
-        isActive: true,
-      },
-      include: {
-        category: true,
-        images: true,
-        stocks: true
-      }
+    // Get basic product info first
+    const products = await prisma.$queryRaw`
+      SELECT p.*, c.name as categoryName, c.slug as categorySlug
+      FROM Product p
+      LEFT JOIN Category c ON p.categoryId = c.id
+      WHERE p.isActive = 1
+      ORDER BY p.createdAt DESC
+    `;
+
+    // Get images for all products
+    const images = await prisma.$queryRaw`
+      SELECT pi.id, pi.url, pi.productId
+      FROM ProductImage pi
+      WHERE pi.productId IN (
+        SELECT id FROM Product WHERE isActive = 1
+      )
+    `;
+
+    // Get stocks for all products
+    const stocks = await prisma.$queryRaw`
+      SELECT ps.id, ps.size, ps.costPrice, ps.quantity, ps.productId
+      FROM ProductStock ps
+      WHERE ps.productId IN (
+        SELECT id FROM Product WHERE isActive = 1
+      )
+    `;
+
+    // Combine data
+    const parsedProducts = products.map(product => {
+      const productImages = images.filter(img => img.productId === product.id);
+      const productStocks = stocks.filter(stock => stock.productId === product.id);
+      
+      return {
+        ...product,
+        images: productImages,
+        stocks: productStocks,
+        category: product.categoryName ? {
+          id: product.categoryId,
+          name: product.categoryName,
+          slug: product.categorySlug
+        } : null
+      };
     });
 
     res.json({
       success: true,
-      data: products
+      data: parsedProducts
     });
 
   } catch (error) {
@@ -147,19 +201,49 @@ export const getProducts = async (req, res) => {
     });
   }
 };
+
 export const getProductsAll = async (req, res) => {
   try {
-    const products = await prisma.product.findMany({
-      include: {
-        category: true,
-        images: true,
-        stocks: true
-      }
+    // Get basic product info first
+    const products = await prisma.$queryRaw`
+      SELECT p.*, c.name as categoryName, c.slug as categorySlug
+      FROM Product p
+      LEFT JOIN Category c ON p.categoryId = c.id
+      ORDER BY p.createdAt DESC
+    `;
+
+    // Get images for all products
+    const images = await prisma.$queryRaw`
+      SELECT pi.id, pi.url, pi.productId
+      FROM ProductImage pi
+    `;
+
+    // Get stocks for all products
+    const stocks = await prisma.$queryRaw`
+      SELECT ps.id, ps.size, ps.costPrice, ps.quantity, ps.productId
+      FROM ProductStock ps
+    `;
+
+    // Combine data
+    const parsedProducts = products.map(product => {
+      const productImages = images.filter(img => img.productId === product.id);
+      const productStocks = stocks.filter(stock => stock.productId === product.id);
+      
+      return {
+        ...product,
+        images: productImages,
+        stocks: productStocks,
+        category: product.categoryName ? {
+          id: product.categoryId,
+          name: product.categoryName,
+          slug: product.categorySlug
+        } : null
+      };
     });
 
     res.json({
       success: true,
-      data: products
+      data: parsedProducts
     });
 
   } catch (error) {
@@ -169,6 +253,7 @@ export const getProductsAll = async (req, res) => {
     });
   }
 };
+
 
 //
 // GET PRODUCT BY ID

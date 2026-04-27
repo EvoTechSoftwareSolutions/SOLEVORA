@@ -41,7 +41,7 @@ const AddAddress = () => {
 
         setLoading(true);
         try {
-            await axios.post('http://localhost:5000/api/addresses', {
+            await axios.post('http://localhost:5001/api/addresses', {
                 ...formData,
                 userId
             });

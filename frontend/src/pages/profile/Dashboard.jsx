@@ -25,7 +25,7 @@ const Dashboard = () => {
             if (!user.email) return;
             setLoading(true);
             try {
-                const response = await axios.get(`http://localhost:5000/api/orders/search?email=${user.email}`);
+                const response = await axios.get(`http://localhost:5001/api/orders/search?email=${user.email}`);
                 setOrders(response.data);
             } catch (error) {
                 console.error('Error fetching orders:', error);

@@ -9,7 +9,7 @@ const Messages = () => {
 // fetch messages from API
     const fetchMessages = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/contact');
+            const response = await axios.get('http://localhost:5001/api/contact');
             setMessages(response.data);
             setLoading(false);
         } catch (error) {
@@ -24,7 +24,7 @@ const Messages = () => {
 // mark message as read in backend
     const handleMarkAsRead = async (id) => {
         try {
-            await axios.put(`http://localhost:5000/api/contact/${id}/read`);
+            await axios.put(`http://localhost:5001/api/contact/${id}/read`);
             setMessages(messages.map(msg => 
                 msg.id === id ? { ...msg, isRead: true } : msg
             ));

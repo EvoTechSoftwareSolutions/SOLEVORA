@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 // REGISTER
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone, location } = req.body;
 
     if (!name || name.trim().length < 3) {
       return res.status(400).json({ message: "Name must be at least 3 characters" });
@@ -30,6 +30,8 @@ export const register = async (req, res) => {
         name,
         email,
         password: hashedPassword,
+        phone,
+        location,
       },
     });
 

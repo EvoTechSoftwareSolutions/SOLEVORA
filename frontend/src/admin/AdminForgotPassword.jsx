@@ -23,7 +23,7 @@ const AdminForgotPassword = () => {
 
         setLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/forgot-password', { email });
+            const res = await axios.post('http://localhost:5001/forgot-password', { email });
             setMessage(res.data.message);
             
             // Redirect to admin login after a bit if success

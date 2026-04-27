@@ -21,7 +21,7 @@ function ResetPassword() {
     if (!token) return;
     const verifyToken = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/verify-reset-token/${token}`);
+        const res = await axios.get(`http://localhost:5001/verify-reset-token/${token}`);
         if (res.data.role) setUserRole(res.data.role);
       } catch (err) {
         console.error("Token verification error:", err);
@@ -58,7 +58,7 @@ function ResetPassword() {
     try {
       // Send password reset request to backend
       const res = await axios.post(
-        `http://localhost:5000/reset-password/${token}`,
+        `http://localhost:5001/reset-password/${token}`,
         { newPassword }
       );
 

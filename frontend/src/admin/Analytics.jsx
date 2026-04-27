@@ -9,7 +9,7 @@ const Analytics = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/admin/stats');
+                const response = await axios.get('http://localhost:5001/api/admin/stats');
                 setStats(response.data);
                 setLoading(false);
             } catch (error) {

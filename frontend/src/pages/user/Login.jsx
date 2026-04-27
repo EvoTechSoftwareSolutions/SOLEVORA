@@ -56,7 +56,7 @@ const handleLogin = async (e) => {
   // Function to handle Google login (demo implementation)
   const handleGoogleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:50001/login", {
+      const res = await axios.post("http://localhost:50011/login", {
         email: "googleuser@gmail.com",
         password: "social_login",
       });
@@ -71,7 +71,7 @@ const handleLogin = async (e) => {
   // Function to handle Apple login (demo implementation)
   const handleAppleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/login", {
+      const res = await axios.post("http://localhost:5001/login", {
         email: "appleuser@gmail.com",
         password: "social_login",
       });

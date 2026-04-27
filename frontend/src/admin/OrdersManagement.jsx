@@ -18,8 +18,8 @@ const OrdersManagement = () => {
 // fetch orders from API
     const fetchOrders = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/admin/orders');
-            setOrders(response.data);
+            const response = await axios.get('http://localhost:5001/api/orders');
+            setOrders(response.data.data);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -34,7 +34,7 @@ const OrdersManagement = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this order?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/admin/orders/${id}`);
+                await axios.delete(`http://localhost:5001/api/orders/${id}`);
                 fetchOrders();
             } catch (error) {
                 alert('Error deleting order');
@@ -55,7 +55,7 @@ const OrdersManagement = () => {
         e.preventDefault();
         setUpdateLoading(true);
         try {
-            await axios.put(`http://localhost:5000/api/orders/${selectedOrder.id}/status`, {
+            await axios.put(`http://localhost:5001/api/orders/${selectedOrder.id}/status`, {
                 status,
                 tracking_number: trackingNumber,
                 carrier,

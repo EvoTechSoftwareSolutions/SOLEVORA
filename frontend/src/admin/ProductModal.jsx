@@ -140,7 +140,12 @@ const handleSelectProduct = (product) => {
         const files = Array.from(e.target.files);
         setImages(files);
         const previews = files.map(file => URL.createObjectURL(file));
-        setImagePreviews(previews);
+        setImagePreviews(prev => [...prev, ...previews]);
+    };
+
+    const handleRemoveImage = (index) => {
+        setImagePreviews(prev => prev.filter((_, i) => i !== index));
+        setImages(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e) => {
@@ -234,9 +239,26 @@ const handleSelectProduct = (product) => {
                     </div>
                        <div className="grid grid-cols-2 gap-4">
                         <div className="col-span-2 md:col-span-1">
-                            <label className="block text-sm font-medium mb-1">Decription</label>
+                            <label className="block text-sm font-medium mb-1">Description</label>
                             <input type="text" name="description" value={formData.description} onChange={handleChange} required className="w-full border rounded-lg p-2" />
                         </div>
+                        <div className="col-span-2 md:col-span-1">
+                            <label className="block text-sm font-medium mb-1">Gender</label>
+                            <select
+                                name="gender"
+                                value={formData.gender}
+                                onChange={handleChange}
+                                required
+                                className="w-full border rounded-lg p-2"
+                            >
+                                <option value="ALL">All</option>
+                                <option value="MEN">Men</option>
+                                <option value="WOMEN">Women</option>
+                                <option value="KIDS">Kids</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
                         <div className="col-span-2 md:col-span-1">
   <label className="block text-sm font-medium mb-1">Category</label>
 
@@ -293,15 +315,26 @@ const handleSelectProduct = (product) => {
                     {/* Images */}
                     <div className="border-t pt-4">
                         <label className="block text-sm font-medium mb-2">Product Images</label>
-                        <div className="flex flex-wrap gap-2 mb-3">
+                        <div className="flex flex-wrap gap-3 mb-3">
                             {imagePreviews.map((src, i) => (
-                                <img key={i} src={src} alt="preview" className="w-20 h-20 object-cover rounded-lg border" />
+                                <div key={i} className="relative group">
+                                    <img src={src} alt={`preview ${i+1}`} className="w-20 h-20 object-cover rounded-lg border" />
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveImage(i)}
+                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <XMarkIcon className="w-3 h-3" />
+                                    </button>
+                                </div>
                             ))}
                             <label className="w-20 h-20 flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
                                 <ArrowUpTrayIcon className="w-6 h-6 text-gray-400" />
+                                <span className="text-xs text-gray-500 mt-1">Add Images</span>
                                 <input type="file" multiple className="hidden" onChange={handleImageChange} accept="image/*" />
                             </label>
                         </div>
+                        <p className="text-xs text-gray-500">Upload multiple images. All images will be displayed.</p>
                     </div>
 
                     <div className="flex gap-3 pt-4">

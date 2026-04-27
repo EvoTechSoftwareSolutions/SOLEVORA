@@ -64,7 +64,7 @@ function Register() {
   const handleGoogleRegister = async () => {
     try {
       // Simulate Google registration with demo data
-      const res = await axios.post("http://localhost:5000/register", {
+      const res = await axios.post("http://localhost:5001/register", {
         name: "Google User",
         email: "googleuser@gmail.com",
         password: "social_register",
@@ -79,7 +79,7 @@ function Register() {
   const handleAppleRegister = async () => {
     try {
       // Simulate Apple registration with demo data
-      const res = await axios.post("http://localhost:5000/register", {
+      const res = await axios.post("http://localhost:5001/register", {
         name: "Apple User",
         email: "appleuser@gmail.com",
         password: "social_register",

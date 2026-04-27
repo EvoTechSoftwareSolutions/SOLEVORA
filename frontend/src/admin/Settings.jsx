@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import './Settings.css';
 
-const API = 'http://localhost:5000/api/admin';
+const API = 'http://localhost:5001/api/admin';
 
 //  API headers with admin id 
 const authHeaders = (adminUser) => ({ 'x-admin-id': adminUser?.id });
@@ -130,7 +130,7 @@ const Settings = () => {
         setPwErrors({});
         setIsPwSaving(true);
         try {
-            await axios.put(`http://localhost:5000/user/${adminUser.id}/password`, {
+            await axios.put(`http://localhost:5001/user/${adminUser.id}/password`, {
                 currentPassword: pwForm.currentPassword,
                 newPassword: pwForm.newPassword,
             });

@@ -18,8 +18,8 @@ const InventoryReport = () => {
             try {
                 setLoading(true);
                 const [prodRes, catRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/products'),
-                    axios.get('http://localhost:5000/api/categories')
+                    axios.get('http://localhost:5001/api/products'),
+                    axios.get('http://localhost:5001/api/categories')
                 ]);
                 
                 setProducts(prodRes.data);
@@ -184,7 +184,7 @@ const InventoryReport = () => {
                                     <td>
                                         <div className="prod-info">
                                             <img 
-                                                src={product.image_url.startsWith('http') ? product.image_url : `http://localhost:5000${product.image_url}`} 
+                                                src={product.image_url.startsWith('http') ? product.image_url : `http://localhost:5001${product.image_url}`} 
                                                 alt={product.name} 
                                                 className="prod-thumb" 
                                             />

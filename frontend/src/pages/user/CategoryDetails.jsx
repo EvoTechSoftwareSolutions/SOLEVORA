@@ -43,7 +43,7 @@ function CategoryDetails() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const { data } = await axios.get("http://localhost:5000/api/products");
+        const { data } = await axios.get("http://localhost:5001/api/products");
         const bgColors = [
           "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]",
           "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]"
@@ -59,6 +59,7 @@ function CategoryDetails() {
           image: p.image_url || fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
           sizes: p.sizes ? (typeof p.sizes === 'string' ? JSON.parse(p.sizes) : p.sizes) : ["6", "7", "8"],
+          slug: p.slug,
           badge: index % 4 === 0 ? "Bestseller" : "",
         }));
 
@@ -182,7 +183,7 @@ function CategoryDetails() {
                   
                   <div className="flex gap-2 mt-4">
                     <button
-                      onClick={() => navigate(`/product/${product.id}`)}
+                      onClick={() => navigate(`/product/${product.slug}`)}
                       className="flex-1 py-2.5 bg-gray-50 border border-gray-200 text-[#333] text-xs font-bold rounded-xl hover:bg-gray-100 hover:border-gray-300 transition duration-300"
                     >
                       Details

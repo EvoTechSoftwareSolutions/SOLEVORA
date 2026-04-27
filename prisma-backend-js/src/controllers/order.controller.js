@@ -283,3 +283,37 @@ export const updateOrderStatus = async (req, res) => {
     });
   }
 };
+// SEARCH ORDERS BY EMAIL (Public)
+export const searchOrders = async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    const orders = await prisma.order.findMany({
+      where: { email },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.status(200).json(orders); // TrackOrder.jsx expects response.data to be the array
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

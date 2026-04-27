@@ -9,7 +9,7 @@ const NewsletterManagement = () => {
 
   const fetchSubscribers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/newsletter/subscribers');
+      const response = await axios.get('http://localhost:5001/api/newsletter/subscribers');
       setSubscribers(response.data);
       setLoading(false);
     } catch (error) {
@@ -25,7 +25,7 @@ const NewsletterManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to remove this subscriber?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/newsletter/subscribers/${id}`);
+        await axios.delete(`http://localhost:5001/api/newsletter/subscribers/${id}`);
         fetchSubscribers();
       } catch (error) {
         alert('Error deleting subscriber');

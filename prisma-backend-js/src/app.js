@@ -10,6 +10,8 @@ import stockRoutes from "./routes/stock.routes.js";
 import orderRoutes from "./routes/order.route.js";
 import wishlist from "./routes/wishlist.routes.js"
 import cart from "./routes/cart.route.js"
+import addressRoutes from "./routes/address.routes.js";
+import reviewRoutes from "./routes/review.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,5 +37,7 @@ app.use("/api/stocks", stockRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/wishlist", wishlist);
 app.use("/api/cart", cart);
+app.use("/api/addresses", addressRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 export default app;

@@ -24,7 +24,7 @@ const Footer = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/newsletter/subscribe", { email });
+      const res = await axios.post("http://localhost:5001/api/newsletter/subscribe", { email });
 
       setMessage(res.data.message || "Thank you for subscribing!");
       setPopupType("success");

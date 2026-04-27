@@ -24,7 +24,7 @@ function ForgotPassword() {
 
     try {
       // Sending the email to the backend API for password reset
-      const res = await axios.post("http://localhost:5000/forgot-password", {
+      const res = await axios.post("http://localhost:5001/forgot-password", {
         email,
       });
 

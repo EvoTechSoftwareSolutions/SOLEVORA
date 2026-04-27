@@ -30,7 +30,7 @@ const MyOrders = () => {
     }
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/orders/user/${user.id}`
+        `http://localhost:5001/api/orders/user/${user.id}`
       );
       setOrders(response.data);
       setLoading(false);
@@ -85,7 +85,7 @@ const MyOrders = () => {
   const handleCancelOrder = async (orderId) => {
     if (window.confirm('Are you sure you want to cancel this order?')) {
       try {
-        await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: 'cancelled' });
+        await axios.put(`http://localhost:5001/api/orders/${orderId}/status`, { status: 'cancelled' });
         alert('Order cancelled successfully');
         fetchOrders();
       } catch (error) {

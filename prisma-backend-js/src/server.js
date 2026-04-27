@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
+dotenv.config();
+
 import app from "./app.js";
 import prisma from "./prisma/client.js";
 import { cleanupBlacklistedTokens } from "./utils/cleanupBlacklistedTokens.js";
-
-dotenv.config();
 
 cleanupBlacklistedTokens();
 const PORT = process.env.PORT || 5000;

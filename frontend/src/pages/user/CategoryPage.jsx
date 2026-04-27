@@ -326,7 +326,6 @@ function CategoryPage() {
                     className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${isInWishlist(product.id) ? "text-red-500" : "text-[#888] hover:text-red-500 hover:bg-white"}`}>
                     {isInWishlist(product.id) ? <HiHeart size={18} /> : <HiOutlineHeart size={18} />}
                   </button>
-                  {/*  product.image built from getImg(p.images[0].url) */}
                   <img src={product.image} alt={product.name} onError={handleImgError}
                     className="object-contain w-full h-full drop-shadow-2xl hover:scale-105 transition duration-500" />
                 </div>
@@ -334,7 +333,7 @@ function CategoryPage() {
                 <div className="px-4 pt-2 pb-3 flex flex-col">
                   <p className="text-[#ff5c45] text-[10px] font-bold uppercase tracking-wider mb-1">{product.category}</p>
                   <h3 className="text-[17px] font-semibold text-[#222] truncate">{product.name}</h3>
-                  <h3 className="text-[12px] font-semibold text-gray-600 truncate">{product.description}</h3>
+                  
                   <p className="mt-1 text-[20px] font-bold text-[#111]">Rs. {product.price.toLocaleString()}</p>
                   <div className="flex items-center gap-3 mt-4">
                     <button onClick={() => navigate(`/product/${product.slug}`, { state: { productImage: product.image } })}

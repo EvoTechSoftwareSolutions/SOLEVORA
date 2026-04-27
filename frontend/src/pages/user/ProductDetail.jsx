@@ -72,7 +72,7 @@ function ProductDetail() {
             setMainImage(getImg(data.data.images?.[0]?.url));
           }
           // Fetch reviews for this product
-          fetchReviews(id);
+          fetchReviews(data.data.id);
         } else {
           console.error("Product not found");
         }
@@ -89,7 +89,7 @@ function ProductDetail() {
 
   const fetchReviews = async (productId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/reviews/${productId}`);
+      const res = await fetch(`http://localhost:5001/api/reviews/${productId}`);
       const data = await res.json();
       if (res.ok) setReviews(data);
     } catch (err) {
@@ -117,13 +117,13 @@ function ProductDetail() {
 
     setSubmittingReview(true);
     try {
-      const res = await fetch("http://localhost:5000/api/reviews", {
+      const res = await fetch("http://localhost:5001/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...newReview,
           userId: user.id,
-          productId: id,
+          productId: product.id,
         }),
       });
       const data = await res.json();

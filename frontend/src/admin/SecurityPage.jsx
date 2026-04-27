@@ -52,7 +52,7 @@ const SecurityPage = () => {
         setPwErrors({});
         setIsPwSaving(true);
         try {
-            await axios.put(`http://localhost:5000/user/${adminUser.id}/password`, {
+            await axios.put(`http://localhost:5001/user/${adminUser.id}/password`, {
                 currentPassword: pwForm.currentPassword,
                 newPassword: pwForm.newPassword,
             });

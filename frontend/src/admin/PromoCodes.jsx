@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './PromoCodes.css';
 
-const API = 'http://localhost:5000/api/promo';
+const API = 'http://localhost:5001/api/promo';
 
 const emptyForm = {
     code: '',

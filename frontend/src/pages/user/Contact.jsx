@@ -45,7 +45,7 @@ const Contact = () => {
     try {
       // Sending form data to the backend API
       const res = await axios.post(
-        "http://localhost:5000/api/contact",
+        "http://localhost:5001/api/contact",
         formData,
       );
 
