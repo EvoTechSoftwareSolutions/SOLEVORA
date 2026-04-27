@@ -6,6 +6,7 @@ import {
   updateProduct,
   deleteProduct,
   getProductsAll,
+  getProductBySlug,
 } from "../controllers/product.controller.js";
 import upload from "../utils/multer.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -16,7 +17,8 @@ const router = express.Router();
 // PUBLIC
 router.get("/", getProducts);
 router.get("/all", getProductsAll);
-router.get("/:id", getProductById);
+router.get("/id/:id", getProductById);
+router.get("/slug/:slug", getProductBySlug);
 
 
 // ADMIN + STORE MANAGER ONLY

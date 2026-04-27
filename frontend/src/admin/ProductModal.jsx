@@ -32,7 +32,7 @@ const [showDropdown, setShowDropdown] = useState(false);
 
 useEffect(() => {
   const fetchAll = async () => {
-    const res = await axios.get(`${BASE_URL}/api/products`);
+    const res = await axios.get(`${BASE_URL}/api/products/all`);
     setAllProducts(res.data.data || []);
   };
 

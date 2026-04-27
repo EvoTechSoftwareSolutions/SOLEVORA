@@ -33,7 +33,7 @@ import heritageImage from "../../assets/category/heritage-shoe.png";
 import SuccessPopup from "../../components/common/SuccessPoppup";
 import SizeChartModal from "../../components/user/SizeChartModal";
 
-// ✅ shared image helper
+// shared image helper
 const BASE_URL = "http://localhost:5001";
 const getImg = (url) => {
   if (!url) return "";
@@ -95,7 +95,7 @@ function CategoryPage() {
     else addToWishlist(product);
   };
 
-  // ✅ addToCart now only needs product.id and size — CartContext handles the rest
+  // addToCart now only needs product.id and size — CartContext handles the rest
   const handleAddToCart = (product) => {
     if (!user) { setPopupMessage("Please login to add items to your cart."); setShowPopup(true); return; }
     const defaultSize = product.sizes?.[0] || "One Size";
@@ -125,9 +125,10 @@ function CategoryPage() {
           id: p.id,
           category: p.category?.name || "Uncategorized",
           name: p.name,
+          slug: p.slug,
           description: p.description,
           price: parseFloat(p.price) || 0,
-          // ✅ correct: plain JS call, uses getImg helper
+          // uses getImg helper
           image: getImg(p.images?.[0]?.url) || fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
           gender: p.gender || (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
@@ -325,7 +326,7 @@ function CategoryPage() {
                     className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${isInWishlist(product.id) ? "text-red-500" : "text-[#888] hover:text-red-500 hover:bg-white"}`}>
                     {isInWishlist(product.id) ? <HiHeart size={18} /> : <HiOutlineHeart size={18} />}
                   </button>
-                  {/* ✅ product.image built from getImg(p.images[0].url) */}
+                  {/*  product.image built from getImg(p.images[0].url) */}
                   <img src={product.image} alt={product.name} onError={handleImgError}
                     className="object-contain w-full h-full drop-shadow-2xl hover:scale-105 transition duration-500" />
                 </div>
@@ -336,7 +337,7 @@ function CategoryPage() {
                   <h3 className="text-[12px] font-semibold text-gray-600 truncate">{product.description}</h3>
                   <p className="mt-1 text-[20px] font-bold text-[#111]">Rs. {product.price.toLocaleString()}</p>
                   <div className="flex items-center gap-3 mt-4">
-                    <button onClick={() => navigate(`/product/${product.id}`, { state: { productImage: product.image } })}
+                    <button onClick={() => navigate(`/product/${product.slug}`, { state: { productImage: product.image } })}
                       className="flex-1 py-2.5 bg-transparent border border-[#999] text-[#222] text-xs font-semibold rounded-lg hover:bg-white transition duration-300">
                       View Details
                     </button>

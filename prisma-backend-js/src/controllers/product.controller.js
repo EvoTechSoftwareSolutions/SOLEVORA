@@ -203,6 +203,37 @@ export const getProductById = async (req, res) => {
     });
   }
 };
+export const getProductBySlug = async (req, res) => {
+  try {
+      const { slug } = req.params;
+    const product = await prisma.product.findUnique({
+      where: { slug: (slug), },
+      include: {
+        category: true,
+        images: true,
+        stocks: true
+      }
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "there is no product"
+      });
+    }
+
+    res.json({
+      success: true,
+      data: product
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
 
 //
 //  UPDATE PRODUCT

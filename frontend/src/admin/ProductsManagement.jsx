@@ -56,7 +56,7 @@ const ProductsManagement = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/products`);
+      const response = await axios.get(`${BASE_URL}/api/products`); // if you change this api u can get products by all you can get all products active and notactive
       setProducts(response.data.data);
     } catch (error) {
       console.error("Error fetching products:", error);

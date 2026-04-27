@@ -19,7 +19,7 @@ const getImg = (url) => {
 };
 function ProductDetail() {
   // Route parameter for product ID
-  const { id } = useParams();
+  const { slug } = useParams();
   const location = useLocation();
   const passedImage = location.state?.productImage;
 
@@ -63,7 +63,7 @@ function ProductDetail() {
     const fetchProduct = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5001/api/products/${id}`,
+          `http://localhost:5001/api/products/slug/${slug}`,
         );
         const data = await response.json();
         if (response.ok) {
@@ -84,8 +84,9 @@ function ProductDetail() {
     };
 
     fetchProduct();
-  }, [id]); // Re-run when product ID changes
-  // Fetch product reviews from API
+  }, [slug]); 
+
+
   const fetchReviews = async (productId) => {
     try {
       const res = await fetch(`http://localhost:5000/api/reviews/${productId}`);
