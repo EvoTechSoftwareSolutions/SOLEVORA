@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import './Settings.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
-const API = 'http://localhost:5000/api/admin';
+const API = `${API_URL}/admin`;
 
 //  API headers with admin id 
 const authHeaders = (adminUser) => ({ 'x-admin-id': adminUser?.id });
@@ -144,7 +145,7 @@ const Settings = () => {
         setPwErrors({});
         setIsPwSaving(true);
         try {
-            await axios.put(`http://localhost:5000/user/${adminUser.id}/password`, {
+            await axios.put(`${BASE_URL}/user/${adminUser.id}/password`, {
                 currentPassword: pwForm.currentPassword,
                 newPassword: pwForm.newPassword,
             });

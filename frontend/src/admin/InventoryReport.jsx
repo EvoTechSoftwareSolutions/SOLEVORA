@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './InventoryReport.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
 const InventoryReport = () => {
     const [products, setProducts] = useState([]);
@@ -18,8 +19,8 @@ const InventoryReport = () => {
             try {
                 setLoading(true);
                 const [prodRes, catRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/products'),
-                    axios.get('http://localhost:5000/api/categories')
+                    axios.get(`${API_URL}/products`),
+                    axios.get(`${API_URL}/categories`)
                 ]);
                 
                 setProducts(prodRes.data);
@@ -38,8 +39,8 @@ const InventoryReport = () => {
         // Silent background refresh every 15 seconds
         const interval = setInterval(() => {
             Promise.all([
-                axios.get('http://localhost:5000/api/products'),
-                axios.get('http://localhost:5000/api/categories')
+                axios.get(`${API_URL}/products`),
+                axios.get(`${API_URL}/categories`)
             ]).then(([prodRes, catRes]) => {
                 setProducts(prodRes.data);
                 setCategories(catRes.data);
@@ -196,7 +197,7 @@ const InventoryReport = () => {
                                     <td>
                                         <div className="prod-info">
                                             <img 
-                                                src={product.image_url.startsWith('http') ? product.image_url : `http://localhost:5000${product.image_url}`} 
+                                                src={getImageUrl(product.image_url)} 
                                                 alt={product.name} 
                                                 className="prod-thumb" 
                                             />

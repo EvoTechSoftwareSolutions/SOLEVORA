@@ -8,6 +8,7 @@ import axios from 'axios';
 import { useCart } from '../../context/CartContext';
 import Modal from '../../components/ui/Modal';
 import '../../styles/user/ShippingInformation.css';
+import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
 
 const ShippingInformation = () => {
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ const ShippingInformation = () => {
       if (formData.userId) {
         setAddressLoading(true);
         try {
-          const { data } = await axios.get(`http://localhost:5000/api/addresses/${formData.userId}`);
+          const { data } = await axios.get(`${API_URL}/addresses/${formData.userId}`);
           setSavedAddresses(data);
           
           // Auto-fill with default address if form is empty
@@ -119,7 +120,7 @@ const ShippingInformation = () => {
     setPromoLoading(true);
     try {
       const axios = (await import('axios')).default;
-      const { data } = await axios.post('http://localhost:5000/api/promo/validate', {
+      const { data } = await axios.post('${API_URL}/promo/validate', {
         code: trimmed,
         orderAmount: grossTotal
       });

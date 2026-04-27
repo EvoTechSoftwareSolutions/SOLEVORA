@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { XMarkIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
+import Toast from '../components/ui/Toast';
 
 const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
     // categories for dropdown
@@ -33,6 +35,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
     const [incomingStock, setIncomingStock] = useState('');
     const [incomingPrice, setIncomingPrice] = useState('');
     const [showStockHelper, setShowStockHelper] = useState(false);
+    const [toast, setToast] = useState(null);
 
     const isEdit = !!product;
 // run only when modal opens
@@ -76,13 +79,15 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
 // get categories from backend
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/categories');
-            setCategories(response.data);
-            if (response.data.length > 0 && !formData.categoryId && !isEdit) {
-                setFormData(prev => ({ ...prev, categoryId: response.data[0].id }));
+            const response = await axios.get(`${API_URL}/categories`);
+            const categoryList = Array.isArray(response.data) ? response.data : [];
+            setCategories(categoryList);
+            if (categoryList.length > 0 && !formData.categoryId && !isEdit) {
+                setFormData(prev => ({ ...prev, categoryId: categoryList[0].id }));
             }
         } catch (error) {
             console.error('Error fetching categories:', error);
+            setCategories([]);
         }
     };
 // handle input changes
@@ -109,7 +114,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         uploadData.append('image', file);
 
         try {
-            const response = await axios.post('http://localhost:5000/api/upload', uploadData, {
+            const response = await axios.post(`${API_URL}/upload`, uploadData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -145,17 +150,17 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
             if (isEdit) {
                 // If using the Stock Arrival Helper, send specific batch data
                 if (formData.isNewBatch) {
-                    response = await axios.put(`http://localhost:5000/api/products/${product.id}`, {
+                    response = await axios.put(`${API_URL}/products/${product.id}`, {
                         ...payload,
                         isNewBatch: true,
                         added_quantity: formData.added_quantity,
                         price: formData.price // This is the price of the NEW batch
                     });
                 } else {
-                    response = await axios.put(`http://localhost:5000/api/products/${product.id}`, payload);
+                    response = await axios.put(`${API_URL}/products/${product.id}`, payload);
                 }
             } else {
-                response = await axios.post('http://localhost:5000/api/products', payload);
+                response = await axios.post(`${API_URL}/products`, payload);
             }
 
             if (response.status === 200 || response.status === 201) {
@@ -195,7 +200,10 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         }));
         
         // Visual feedback
-        alert(`New Batch Prepared: ${incomingStock} units at Rs. ${incomingPrice}. Click 'Update Product' to save.`);
+        setToast({
+            message: `New Batch Prepared: ${incomingStock} units at Rs. ${incomingPrice}.`,
+            type: 'success'
+        });
         
         setIncomingStock('');
         setIncomingPrice('');
@@ -492,6 +500,14 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                         </button>
                     </div>
                 </form>
+
+                {toast && (
+                    <Toast 
+                        message={toast.message} 
+                        type={toast.type} 
+                        onClose={() => setToast(null)} 
+                    />
+                )}
             </div>
         </div>
     );

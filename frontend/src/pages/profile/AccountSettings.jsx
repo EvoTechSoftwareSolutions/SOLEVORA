@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AccountSettings.css';
+import { BASE_URL } from '../../config/api';
 
 const AccountSettings = () => {
     const [profileData, setProfileData] = useState({
@@ -45,7 +46,7 @@ const AccountSettings = () => {
             if (!userId) return;
 
             try {
-                const res = await axios.get(`http://localhost:5000/user/${userId}`);
+                const res = await axios.get(`${BASE_URL}/user/${userId}`);
                 setProfileData({
                     fullName: res.data.name || '',
                     email: res.data.email || '',
@@ -114,7 +115,7 @@ const AccountSettings = () => {
                     payload.newPassword = passwordData.newPassword;
                 }
 
-                res = await axios.put(`http://localhost:5000/user/${userId}`, payload);
+                res = await axios.put(`${BASE_URL}/user/${userId}`, payload);
                 localStorage.setItem("user", JSON.stringify(res.data.user));
                 // Clear password fields on success
                 setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -123,7 +124,7 @@ const AccountSettings = () => {
                     setMessage("Passwords do not match");
                     return;
                 }
-                res = await axios.put(`http://localhost:5000/user/${userId}/password`, {
+                res = await axios.put(`${BASE_URL}/user/${userId}/password`, {
                     currentPassword: passwordData.currentPassword,
                     newPassword: passwordData.newPassword
                 });
@@ -142,7 +143,7 @@ const AccountSettings = () => {
         if (!window.confirm("Are you sure you want to delete your account? This is permanent!")) return;
         const userId = getUserId();
         try {
-            await axios.delete(`http://localhost:5000/user/${userId}`);
+            await axios.delete(`${BASE_URL}/user/${userId}`);
             localStorage.removeItem("user");
             window.location.href = "/";
         } catch (err) {

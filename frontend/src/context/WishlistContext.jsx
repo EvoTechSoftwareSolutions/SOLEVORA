@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Toast from '../components/ui/Toast';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 // create wishlist context
 const WishlistContext = createContext();
 // helper to get user id from localStorage
@@ -29,7 +30,7 @@ export const WishlistProvider = ({ children }) => {
         if (id) {
             localStorage.removeItem('solevora_wishlist');
             try {
-                const res = await axios.get(`http://localhost:5000/api/wishlist/${id}`);
+                const res = await axios.get(`${API_URL}/wishlist/${id}`);
                 setWishlist(res.data);
             } catch (err) {
                 console.error('Failed to fetch wishlist');
@@ -71,7 +72,7 @@ export const WishlistProvider = ({ children }) => {
         }
         
         try {
-            await axios.post('http://localhost:5000/api/wishlist', {
+            await axios.post('${API_URL}/wishlist', {
                 userId: uid,
                 productId: product.id
             });
@@ -86,7 +87,7 @@ export const WishlistProvider = ({ children }) => {
         const uid = getUserId();
         if (uid) {
             try {
-                await axios.delete(`http://localhost:5000/api/wishlist/${uid}/${productId}`);
+                await axios.delete(`${API_URL}/wishlist/${uid}/${productId}`);
                 fetchWishlist();
             } catch (err) {
                 console.error('Failed to remove from wishlist');

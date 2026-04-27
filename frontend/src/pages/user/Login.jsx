@@ -8,12 +8,15 @@ import { FaApple } from "react-icons/fa";
 import { HiOutlineMail } from "react-icons/hi";
 import { LuLock } from "react-icons/lu";
 import { FiSettings } from "react-icons/fi";
+import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
+import Toast from "../../components/ui/Toast";
 
 function Login() {
   // State variables for managing user input and feedback messages
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [toast, setToast] = useState(null);
 
   // Navigation hooks for redirecting users
   const navigate = useNavigate();
@@ -22,6 +25,14 @@ function Login() {
   // Determine the redirect path after login
   const from = location.state?.from || "/home";
 
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+
   // Function to handle normal login
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,21 +40,26 @@ function Login() {
       setMessage("Please enter email and password");
       return;
     }
+
+    if (!validateEmail(email)) {
+        setToast({ message: "Please enter a valid email address", type: "error" });
+        return;
+    }
     try {
       // Sending login credentials to the backend
-      const res = await axios.post("http://localhost:5000/login", { email, password });
+      const res = await axios.post(`${BASE_URL}/login`, { email, password });
       localStorage.setItem("user", JSON.stringify(res.data.user));
       localStorage.setItem("isAuthenticated", "true");
       navigate(from, { replace: true });
     } catch (error) {
-      setMessage(error.response?.data?.message || "Login failed");
+      setToast({ message: error.response?.data?.message || "Login failed", type: "error" });
     }
   };
 
   // Function to handle Google login (demo implementation)
   const handleGoogleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/login", {
+      const res = await axios.post(`${BASE_URL}/login`, {
         email: "googleuser@gmail.com",
         password: "social_login",
       });
@@ -51,14 +67,14 @@ function Login() {
       localStorage.setItem("isAuthenticated", "true");
       navigate(from, { replace: true });
     } catch (error) {
-      setMessage(error.response?.data?.message || "Google login failed");
+      setToast({ message: error.response?.data?.message || "Google login failed", type: "error" });
     }
   };
 
   // Function to handle Apple login (demo implementation)
   const handleAppleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/login", {
+      const res = await axios.post(`${BASE_URL}/login`, {
         email: "appleuser@gmail.com",
         password: "social_login",
       });
@@ -66,7 +82,7 @@ function Login() {
       localStorage.setItem("isAuthenticated", "true");
       navigate(from, { replace: true });
     } catch (error) {
-      setMessage(error.response?.data?.message || "Apple login failed");
+      setToast({ message: error.response?.data?.message || "Apple login failed", type: "error" });
     }
   };
 
@@ -197,6 +213,14 @@ function Login() {
           </Link>
         </p>
       </div>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

@@ -197,3 +197,52 @@ export const deleteProduct = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const deductStockFIFO = async (req, res) => {
+    try {
+        const { productId, size, quantity } = req.body;
+
+        await prisma.$transaction(async (tx) => {
+            let remainingQty = quantity;
+
+            // Fetch all batches for the product and size, ordered by creation date (FIFO)
+            const batches = await tx.productBatch.findMany({
+                where: { productId: BigInt(productId), size, quantity: { gt: 0 } },
+                orderBy: { createdAt: 'asc' }
+            });
+
+            for (const batch of batches) {
+                if (remainingQty <= 0) break;
+
+                const deduct = Math.min(batch.quantity, remainingQty);
+
+                // Deduct from the current batch
+                await tx.productBatch.update({
+                    where: { id: batch.id },
+                    data: { quantity: batch.quantity - deduct }
+                });
+
+                remainingQty -= deduct;
+            }
+
+            if (remainingQty > 0) {
+                throw new Error('Insufficient stock to fulfill the order');
+            }
+
+            // Update total stock quantity in the product table
+            const totalStock = await tx.productBatch.aggregate({
+                where: { productId: BigInt(productId) },
+                _sum: { quantity: true }
+            });
+
+            await tx.product.update({
+                where: { id: BigInt(productId) },
+                data: { stock_quantity: totalStock._sum.quantity || 0 }
+            });
+        });
+
+        res.status(200).json({ message: 'Stock deducted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

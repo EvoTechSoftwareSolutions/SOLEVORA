@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import logo from '../assets/logo.png';
 import './Sidebar.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
 const Sidebar = () => {
     // current route info
@@ -17,7 +18,7 @@ const Sidebar = () => {
     useEffect(() => {
         const fetchUnreadCount = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/contact/unread');
+                const response = await axios.get(`${API_URL}/contact/unread`);
                 setUnreadCount(response.data.count);
             } catch (error) {
                 console.error("Error fetching unread messages count:", error);

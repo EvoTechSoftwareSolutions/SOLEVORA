@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logo from '../assets/logo.png';
 import './AdminLogin.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
 const AdminForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -23,7 +24,7 @@ const AdminForgotPassword = () => {
 
         setLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/forgot-password', { email });
+            const res = await axios.post(`${BASE_URL}/forgot-password`, { email });
             setMessage(res.data.message);
             
             // Redirect to admin login after a bit if success

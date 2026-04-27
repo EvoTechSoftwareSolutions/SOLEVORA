@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import "../../styles/user/Category.css";
+import { API_URL, getImageUrl } from "../../config/api";
 
 const Category = () => {
   // State to store fetched products and loading status
@@ -25,7 +26,7 @@ const Category = () => {
       setLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:5000/api/products?category=${categoryName}`,
+          `${API_URL}/products?category=${categoryName}`,
         );
         const data = await response.json();
         setProducts(data);
@@ -95,7 +96,7 @@ const Category = () => {
 
               {/* Card Image Box */}
               <div className="card-image-box">
-                <img src={product.image_url} alt={product.name} />
+                <img src={getImageUrl(product.image_url)} alt={product.name} />
               </div>
 
               {/* Card Details */}

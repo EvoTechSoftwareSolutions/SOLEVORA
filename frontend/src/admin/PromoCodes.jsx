@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './PromoCodes.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
-const API = 'http://localhost:5000/api/promo';
+const API = `${API_URL}/promo`;
 
 const emptyForm = {
     code: '',

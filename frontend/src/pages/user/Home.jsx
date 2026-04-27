@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "../../styles/user/Home.css";
+import { API_URL, getImageUrl, BASE_URL } from "../../config/api";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -130,8 +131,8 @@ const [searchTerm, setSearchTerm] = useState("");
       // Re-fetch products silently without setting loading(true) to avoid flickering
       const category = activeCategory === "All" ? "" : encodeURIComponent(activeCategory);
       const endpoint = category
-        ? `http://localhost:5000/api/products?category=${category}`
-        : "http://localhost:5000/api/products";
+        ? `${API_URL}/products?category=${category}`
+        : `${API_URL}/products`;
       axios.get(endpoint)
         .then(resp => setProducts(resp.data))
         .catch(err => console.error('Silent product fetch failed', err));
@@ -142,7 +143,7 @@ const [searchTerm, setSearchTerm] = useState("");
   // Function to fetch categories from the backend
   const fetchDbCategories = async () => {
     try {
-      const resp = await axios.get('http://localhost:5000/api/categories');
+      const resp = await axios.get(`${API_URL}/categories`);
       setDbCategories(resp.data);
     } catch (err) {
       console.error('Error fetching categories:', err);
@@ -155,8 +156,8 @@ const [searchTerm, setSearchTerm] = useState("");
     try {
       const category = activeCategory === "All" ? "" : encodeURIComponent(activeCategory);
       const endpoint = category
-        ? `http://localhost:5000/api/products?category=${category}`
-        : "http://localhost:5000/api/products";
+        ? `${API_URL}/products?category=${category}`
+        : `${API_URL}/products`;
       const resp = await axios.get(endpoint);
       setProducts(resp.data);
     } catch (err) {

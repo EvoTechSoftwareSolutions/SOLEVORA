@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './NewsletterManagement.css';
 import './CustomerManagement.css';
+import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
 const NewsletterManagement = () => {
   const [subscribers, setSubscribers] = useState([]);
@@ -10,7 +11,7 @@ const NewsletterManagement = () => {
 
   const fetchSubscribers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/newsletter/subscribers');
+      const response = await axios.get(`${API_URL}/newsletter/subscribers`);
       setSubscribers(response.data);
       setLoading(false);
     } catch (error) {
@@ -23,7 +24,7 @@ const NewsletterManagement = () => {
     fetchSubscribers();
     // Silent background refresh every 15 seconds
     const interval = setInterval(() => {
-      axios.get('http://localhost:5000/api/newsletter/subscribers')
+      axios.get(`${API_URL}/newsletter/subscribers`)
         .then(response => {
           setSubscribers(response.data);
         })
@@ -35,7 +36,7 @@ const NewsletterManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to remove this subscriber?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/newsletter/subscribers/${id}`);
+        await axios.delete(`${API_URL}/newsletter/subscribers/${id}`);
         fetchSubscribers();
       } catch (error) {
         alert('Error deleting subscriber');

@@ -5,7 +5,7 @@ export const uploadImage = async (req, res) => {
         }
 
         const baseUrl = `${req.protocol}://${req.get('host')}`;
-        const fileUrl = `${baseUrl}/uploads/products/${req.file.filename}`;
+        const fileUrl = `/uploads/products/${req.file.filename}`;
 
         res.status(200).json({
             url: fileUrl,

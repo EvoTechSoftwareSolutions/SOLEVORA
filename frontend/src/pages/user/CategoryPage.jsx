@@ -10,6 +10,8 @@ import {
   HiOutlineAdjustments,
 } from "react-icons/hi";
 
+import { API_URL, getImageUrl } from "../../config/api";
+
 // Hero
 import heroImage from "../../assets/category/hero-shoe.png";
 
@@ -109,7 +111,7 @@ function CategoryPage() {
     }
     // Use a default size — user can pick proper size on the detail page
     const defaultSize = product.sizes?.[0] || "One Size";
-    addToCart({ ...product, image_url: product.image }, defaultSize);
+    addToCart({ ...product, image_url: getImageUrl(product.image_url) }, defaultSize);
   };
 
   const categories = [
@@ -191,7 +193,7 @@ function CategoryPage() {
   useEffect(() => {
     const fetchProducts = async (isSilent = false) => {
       try {
-        const { data } = await axios.get("http://localhost:5000/api/products");
+        const { data } = await axios.get(`${API_URL}/products`);
         const bgColors = [
           "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]",
           "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]",
@@ -211,7 +213,8 @@ function CategoryPage() {
           category: p.category?.name || "Uncategorized",
           name: p.name,
           price: parseFloat(p.price) || 0,
-          image: p.image_url || fallbackImages[index % fallbackImages.length],
+          image: p.image_url ? getImageUrl(p.image_url) : fallbackImages[index % fallbackImages.length],
+          image_url: p.image_url ? getImageUrl(p.image_url) : fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
           gender:
             p.gender ||

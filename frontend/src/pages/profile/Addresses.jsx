@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Modal from '../../components/ui/Modal';
 import './Addresses.css';
+import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
 
 const Addresses = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const Addresses = () => {
     const userId = getUserId();
     if (!userId) return;
     try {
-      const res = await axios.get(`http://localhost:5000/api/addresses/${userId}`);
+      const res = await axios.get(`${API_URL}/addresses/${userId}`);
       setAddresses(res.data);
     } catch (error) {
       showStatus("Error", "Failed to fetch addresses. Please check your connection.");
@@ -55,7 +56,7 @@ const Addresses = () => {
   const confirmDelete = async () => {
     if (!addressToDelete) return;
     try {
-      await axios.delete(`http://localhost:5000/api/addresses/${addressToDelete}`);
+      await axios.delete(`${API_URL}/addresses/${addressToDelete}`);
       setIsDeleteModalOpen(false);
       fetchAddresses();
     } catch (error) {
@@ -65,7 +66,7 @@ const Addresses = () => {
 
   const handleSetDefault = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/addresses/${id}`, { isDefault: true });
+      await axios.put(`${API_URL}/addresses/${id}`, { isDefault: true });
       fetchAddresses();
     } catch (error) {
       showStatus("Error", "Failed to update default address.");

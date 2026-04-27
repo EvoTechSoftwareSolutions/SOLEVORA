@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ProductsManagement.css';
+import { getImageUrl, API_URL } from '../config/api';
 import ProductModal from './ProductModal';
+import Toast from '../components/ui/Toast';
 
 const ProductsManagement = () => {
     const [subTab, setSubTab] = useState('All Products');
@@ -9,10 +11,11 @@ const ProductsManagement = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [toast, setToast] = useState(null);
 // fetch products
     const fetchProducts = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/products');
+            const response = await axios.get(`${API_URL}/products`);
             setProducts(response.data);
             setLoading(false);
         } catch (error) {
@@ -25,7 +28,7 @@ const ProductsManagement = () => {
         fetchProducts();
         // Silent background refresh every 15 seconds
         const interval = setInterval(() => {
-            axios.get('http://localhost:5000/api/products')
+            axios.get(`${API_URL}/products`)
                 .then(response => {
                     setProducts(response.data);
                 })
@@ -37,11 +40,12 @@ const ProductsManagement = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
             try {
-                await axios.delete(`http://localhost:5000/api/products/${id}`);
+                await axios.delete(`${API_URL}/products/${id}`);
                 fetchProducts();
+                setToast({ message: 'Product deleted successfully', type: 'success' });
             } catch (error) {
                 console.error('Error deleting product:', error);
-                alert('Error deleting product. Please try again.');
+                setToast({ message: 'Error deleting product', type: 'error' });
             }
         }
     };
@@ -56,8 +60,12 @@ const ProductsManagement = () => {
         setIsModalOpen(true);
     };
 // after save (create/update)
-    const handleProductSaved = () => {
+    const handleProductSaved = (productData) => {
         fetchProducts();
+        setToast({ 
+            message: `Product ${selectedProduct ? 'updated' : 'created'} successfully`, 
+            type: 'success' 
+        });
     };
 // filter products based on tab
     const filteredProducts = products.filter(prod => {
@@ -177,7 +185,7 @@ const ProductsManagement = () => {
                                         <td>
                                             <div className="td-product">
                                                 <div className="product-images">
-                                                    <img src={prod.image_url || 'https://via.placeholder.com/50'} alt={prod.name} className="product-img" />
+                                                    <img src={getImageUrl(prod.image_url) || 'https://via.placeholder.com/50'} alt={prod.name} className="product-img" />
                                                 </div>
                                                 <div>
                                                     <div className="td-product-name">{prod.name}</div>
@@ -283,6 +291,14 @@ const ProductsManagement = () => {
                 onProductSaved={handleProductSaved}
                 product={selectedProduct}
             />
+
+            {toast && (
+                <Toast 
+                    message={toast.message} 
+                    type={toast.type} 
+                    onClose={() => setToast(null)} 
+                />
+            )}
         </div>
     );
 };
