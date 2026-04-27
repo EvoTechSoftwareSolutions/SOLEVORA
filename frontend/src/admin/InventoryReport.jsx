@@ -34,6 +34,18 @@ const InventoryReport = () => {
         };
 
         fetchData();
+
+        // Silent background refresh every 15 seconds
+        const interval = setInterval(() => {
+            Promise.all([
+                axios.get('http://localhost:5000/api/products'),
+                axios.get('http://localhost:5000/api/categories')
+            ]).then(([prodRes, catRes]) => {
+                setProducts(prodRes.data);
+                setCategories(catRes.data);
+            }).catch(err => console.error('Silent refresh failed', err));
+        }, 15000);
+        return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {

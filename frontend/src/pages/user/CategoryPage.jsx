@@ -189,7 +189,7 @@ function CategoryPage() {
   };
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProducts = async (isSilent = false) => {
       try {
         const { data } = await axios.get("http://localhost:5000/api/products");
         const bgColors = [
@@ -229,6 +229,12 @@ function CategoryPage() {
       }
     };
     fetchProducts();
+
+    // Silent background refresh every 15 seconds
+    const interval = setInterval(() => {
+      fetchProducts(true);
+    }, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   const displayedProducts = useMemo(() => {

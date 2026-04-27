@@ -20,6 +20,16 @@ const Dashboard = () => {
             }
         };
         fetchStats();
+
+        // Silent background refresh every 15 seconds
+        const interval = setInterval(() => {
+            axios.get('http://localhost:5000/api/admin/stats')
+                .then(response => {
+                    setStats(response.data);
+                })
+                .catch(err => console.error('Silent stats fetch failed', err));
+        }, 15000);
+        return () => clearInterval(interval);
     }, []);
 // simple loading UI
     if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading dashboard...</div>;

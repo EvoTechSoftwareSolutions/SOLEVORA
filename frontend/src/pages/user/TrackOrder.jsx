@@ -42,6 +42,27 @@ const TrackOrder = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (!orderInfo) return;
+
+        // Silent background refresh every 15 seconds if order is found
+        const interval = setInterval(async () => {
+            try {
+                const response = await axios.get(`http://localhost:5000/api/orders/search?email=${email}`);
+                const cleanId = orderId.replace(/[^0-9]/g, '');
+                const foundOrder = response.data.find(o => o.id.toString() === cleanId);
+                if (foundOrder) {
+                    setOrderInfo(foundOrder);
+                }
+            } catch (err) {
+                console.error("Silent order tracking refresh failed:", err);
+            }
+        }, 15000);
+
+        return () => clearInterval(interval);
+    }, [orderInfo, email, orderId]);
+
 // get progress step index based on status
     const getProgressStatus = (status) => {
         const statuses = ['pending', 'processing', 'shipped', 'delivered'];

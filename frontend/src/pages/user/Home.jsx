@@ -115,11 +115,28 @@ const [searchTerm, setSearchTerm] = useState("");
   // Fetch categories from the database on component mount
   useEffect(() => {
     fetchDbCategories();
+    // Silent background refresh every 15 seconds
+    const interval = setInterval(() => {
+      fetchDbCategories();
+    }, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   // Fetch products whenever the active category changes
   useEffect(() => {
     fetchProducts();
+    // Silent background refresh every 15 seconds
+    const interval = setInterval(() => {
+      // Re-fetch products silently without setting loading(true) to avoid flickering
+      const category = activeCategory === "All" ? "" : encodeURIComponent(activeCategory);
+      const endpoint = category
+        ? `http://localhost:5000/api/products?category=${category}`
+        : "http://localhost:5000/api/products";
+      axios.get(endpoint)
+        .then(resp => setProducts(resp.data))
+        .catch(err => console.error('Silent product fetch failed', err));
+    }, 15000);
+    return () => clearInterval(interval);
   }, [activeCategory]);
 
   // Function to fetch categories from the backend

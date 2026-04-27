@@ -73,6 +73,21 @@ function ProductDetail() {
         };
 
         fetchProduct();
+
+        // Silent background refresh every 15 seconds
+        const interval = setInterval(() => {
+            // Re-fetch product data silently
+            fetch(`http://localhost:5000/api/products/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    setProduct(data);
+                })
+                .catch(err => console.error('Silent product fetch failed', err));
+                
+            // Re-fetch reviews silently
+            fetchReviews(id);
+        }, 15000);
+        return () => clearInterval(interval);
     }, [id]); // Re-run when product ID changes
     // Fetch product reviews from API
     const fetchReviews = async (productId) => {

@@ -50,6 +50,20 @@ const Settings = () => {
             }
         };
         load();
+
+        // Silent background refresh every 15 seconds (only for staff list and settings if not saving)
+        const interval = setInterval(() => {
+            if (!adminUser) return;
+            
+            // We refresh staff list silently
+            axios.get(`${API}/admin-users`, { headers: authHeaders(adminUser) })
+                .then(res => setStaffList(res.data))
+                .catch(err => console.error('Silent staff fetch failed', err));
+                
+            // We refresh settings only if user is not on a form tab or if we want to risk it
+            // For now, let's just refresh staff list to be safe, as settings is a direct form state
+        }, 15000);
+        return () => clearInterval(interval);
     }, [adminUser]);
 
     const showToast = (msg, type = 'success') => {

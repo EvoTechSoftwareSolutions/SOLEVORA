@@ -21,6 +21,15 @@ const NewsletterManagement = () => {
 
   useEffect(() => {
     fetchSubscribers();
+    // Silent background refresh every 15 seconds
+    const interval = setInterval(() => {
+      axios.get('http://localhost:5000/api/newsletter/subscribers')
+        .then(response => {
+          setSubscribers(response.data);
+        })
+        .catch(err => console.error('Silent fetch failed', err));
+    }, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleDelete = async (id) => {
