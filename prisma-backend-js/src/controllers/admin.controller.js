@@ -1,4 +1,6 @@
 import prisma from "../prisma/client.js";
+import bcrypt from "bcrypt";
+
 
 export const getAdminStats = async (req, res) => {
   try {
@@ -110,14 +112,10 @@ export const getNewsletterSubscribers = async (req, res) => {
 export const getAllCustomers = async (req, res) => {
   try {
     const customers = await prisma.user.findMany({
-      where: {
-        role: 'customer'
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
+      where: { role: 'customer' },
+      orderBy: { createdAt: 'desc' }
     });
-    res.json(customers);
+    res.json({ success: true, data: customers });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -142,7 +140,7 @@ export const getAllPromos = async (req, res) => {
     const promos = await prisma.promocode.findMany({
       orderBy: { createdAt: 'desc' }
     });
-    res.json(promos);
+    res.json({ success: true, data: promos });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -151,18 +149,22 @@ export const getAllPromos = async (req, res) => {
 export const createPromo = async (req, res) => {
   try {
     const { code, discountType, discountValue, minOrderAmount, maxUses, expiresAt, isActive } = req.body;
+    
+    const existing = await prisma.promocode.findUnique({ where: { code: code.toUpperCase() } });
+    if (existing) return res.status(400).json({ success: false, message: "Promo code already exists" });
+
     const promo = await prisma.promocode.create({
       data: {
         code: code.toUpperCase(),
         discountType,
         discountValue,
-        minOrderAmount,
-        maxUses,
+        minOrderAmount: minOrderAmount || 0,
+        maxUses: maxUses || null,
         expiresAt: expiresAt ? new Date(expiresAt) : null,
-        isActive
+        isActive: isActive !== undefined ? isActive : true
       }
     });
-    res.status(201).json(promo);
+    res.status(201).json({ success: true, data: promo });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -172,10 +174,11 @@ export const updatePromo = async (req, res) => {
   try {
     const { id } = req.params;
     const { code, discountType, discountValue, minOrderAmount, maxUses, expiresAt, isActive } = req.body;
+    
     const promo = await prisma.promocode.update({
       where: { id: Number(id) },
       data: {
-        code: code.toUpperCase(),
+        code: code ? code.toUpperCase() : undefined,
         discountType,
         discountValue,
         minOrderAmount,
@@ -184,7 +187,7 @@ export const updatePromo = async (req, res) => {
         isActive
       }
     });
-    res.json(promo);
+    res.json({ success: true, data: promo });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -308,7 +311,6 @@ export const getAdminUsers = async (req, res) => {
   }
 };
 
-import bcrypt from "bcrypt";
 
 export const createAdminUser = async (req, res) => {
   try {
