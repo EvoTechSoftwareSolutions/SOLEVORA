@@ -5,7 +5,7 @@ export const getAllCategories = async (req, res) => {
   try {
     const categories = await prisma.category.findMany({
       include: {
-        products: true
+        product: true
       }
     });
 

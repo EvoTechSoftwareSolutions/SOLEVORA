@@ -106,6 +106,7 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("LOGIN_ERROR:", error);
     res.status(500).json({ message: "Login failed" });
   }
 };
@@ -349,7 +350,7 @@ export const logout = async (req, res) => {
       return res.status(400).json({ message: "No token provided" });
     }
 
-    await prisma.blacklistedToken.create({
+    await prisma.blacklistedtoken.create({
       data: { token },
     });
 

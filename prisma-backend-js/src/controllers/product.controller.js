@@ -28,7 +28,7 @@ export const createProduct = async (req, res) => {
     //  CHECK EXISTING PRODUCT BY SLUG
     const existingProduct = await prisma.product.findUnique({
       where: { slug },
-      include: { stocks: true }
+      include: { productstock: true }
     });
 
     // iF PRODUCT EXISTS → UPDATE STOCK AND IMAGES
@@ -36,7 +36,7 @@ export const createProduct = async (req, res) => {
 
       // Update/add stock
       for (const s of parsedStocks) {
-        const existingStock = await prisma.productStock.findFirst({
+        const existingStock = await prisma.productstock.findFirst({
           where: {
             productId: existingProduct.id,
             size: s.size,
@@ -46,7 +46,7 @@ export const createProduct = async (req, res) => {
 
         if (existingStock) {
           // increment quantity
-          await prisma.productStock.update({
+          await prisma.productstock.update({
             where: { id: existingStock.id },
             data: {
               quantity: {
@@ -56,7 +56,7 @@ export const createProduct = async (req, res) => {
           });
         } else {
           // create new batch
-          await prisma.productStock.create({
+          await prisma.productstock.create({
             data: {
               productId: existingProduct.id,
               size: s.size,
@@ -69,7 +69,7 @@ export const createProduct = async (req, res) => {
 
       // Add new images if provided
       if (files && files.length > 0) {
-        await prisma.productImage.createMany({
+        await prisma.productimage.createMany({
           data: files.map(file => ({
             url: `/uploads/${file.filename}`,
             productId: existingProduct.id
@@ -82,8 +82,8 @@ export const createProduct = async (req, res) => {
         where: { id: existingProduct.id },
         include: {
           category: true,
-          images: true,
-          stocks: true
+          productimage: true,
+          productstock: true
         }
       });
 
@@ -106,13 +106,13 @@ export const createProduct = async (req, res) => {
         categoryId: Number(categoryId),
         gender,
 
-        images: {
+        productimage: {
           create: files.map(file => ({
             url: `/uploads/${file.filename}`
           }))
         },
 
-        stocks: {
+        productstock: {
           create: parsedStocks.map(s => ({
             size: s.size,
             costPrice: Number(s.costPrice),
@@ -122,8 +122,8 @@ export const createProduct = async (req, res) => {
       },
       include: {
         category: true,
-        images: true,
-        stocks: true
+        productimage: true,
+        productstock: true
       }
     });
 
@@ -145,56 +145,69 @@ export const createProduct = async (req, res) => {
 // GET PRODUCTS
 export const getProducts = async (req, res) => {
   try {
-    // Get basic product info first
-    const products = await prisma.$queryRaw`
-      SELECT p.*, c.name as categoryName, c.slug as categorySlug
-      FROM Product p
-      LEFT JOIN Category c ON p.categoryId = c.id
-      WHERE p.isActive = 1
-      ORDER BY p.createdAt DESC
-    `;
+    const { category, gender, size, minPrice, maxPrice, sortBy } = req.query;
 
-    // Get images for all products
-    const images = await prisma.$queryRaw`
-      SELECT pi.id, pi.url, pi.productId
-      FROM ProductImage pi
-      WHERE pi.productId IN (
-        SELECT id FROM Product WHERE isActive = 1
-      )
-    `;
+    const where = {
+      isActive: true,
+    };
 
-    // Get stocks for all products
-    const stocks = await prisma.$queryRaw`
-      SELECT ps.id, ps.size, ps.costPrice, ps.quantity, ps.productId
-      FROM ProductStock ps
-      WHERE ps.productId IN (
-        SELECT id FROM Product WHERE isActive = 1
-      )
-    `;
-
-    // Combine data
-    const parsedProducts = products.map(product => {
-      const productImages = images.filter(img => img.productId === product.id);
-      const productStocks = stocks.filter(stock => stock.productId === product.id);
-      
-      return {
-        ...product,
-        images: productImages,
-        stocks: productStocks,
-        category: product.categoryName ? {
-          id: product.categoryId,
-          name: product.categoryName,
-          slug: product.categorySlug
-        } : null
+    if (category && category !== "All") {
+      where.category = {
+        name: category
       };
+    }
+
+    if (gender && gender !== "All") {
+      where.gender = {
+        in: [gender.toUpperCase(), "ALL"]
+      };
+    }
+
+    if (size) {
+      where.productstock = {
+        some: {
+          size: String(size)
+        }
+      };
+    }
+
+    if (minPrice || maxPrice) {
+      where.price = {};
+      if (minPrice) where.price.gte = parseFloat(minPrice);
+      if (maxPrice) where.price.lte = parseFloat(maxPrice);
+    }
+
+    let orderBy = { createdAt: 'desc' };
+    if (sortBy === 'low-high') orderBy = { price: 'asc' };
+    else if (sortBy === 'high-low') orderBy = { price: 'desc' };
+    else if (sortBy === 'newest') orderBy = { createdAt: 'desc' };
+    else if (sortBy === 'featured') orderBy = { createdAt: 'desc' }; // Default or specific logic
+
+    const products = await prisma.product.findMany({
+      where,
+      include: {
+        category: true,
+        productimage: true,
+        productstock: true,
+      },
+      orderBy,
     });
+
+    // Map to match frontend expectations (images, stocks)
+    const mappedProducts = products.map(p => ({
+      ...p,
+      images: p.productimage,
+      stocks: p.productstock,
+      category: p.category
+    }));
 
     res.json({
       success: true,
-      data: parsedProducts
+      data: mappedProducts
     });
 
   } catch (error) {
+    console.error("GET_PRODUCTS_ERROR:", error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -204,46 +217,28 @@ export const getProducts = async (req, res) => {
 
 export const getProductsAll = async (req, res) => {
   try {
-    // Get basic product info first
-    const products = await prisma.$queryRaw`
-      SELECT p.*, c.name as categoryName, c.slug as categorySlug
-      FROM Product p
-      LEFT JOIN Category c ON p.categoryId = c.id
-      ORDER BY p.createdAt DESC
-    `;
-
-    // Get images for all products
-    const images = await prisma.$queryRaw`
-      SELECT pi.id, pi.url, pi.productId
-      FROM ProductImage pi
-    `;
-
-    // Get stocks for all products
-    const stocks = await prisma.$queryRaw`
-      SELECT ps.id, ps.size, ps.costPrice, ps.quantity, ps.productId
-      FROM ProductStock ps
-    `;
-
-    // Combine data
-    const parsedProducts = products.map(product => {
-      const productImages = images.filter(img => img.productId === product.id);
-      const productStocks = stocks.filter(stock => stock.productId === product.id);
-      
-      return {
-        ...product,
-        images: productImages,
-        stocks: productStocks,
-        category: product.categoryName ? {
-          id: product.categoryId,
-          name: product.categoryName,
-          slug: product.categorySlug
-        } : null
-      };
+    const products = await prisma.product.findMany({
+      include: {
+        category: true,
+        productimage: true,
+        productstock: true,
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
     });
+
+    // Map to match frontend expectations
+    const mappedProducts = products.map(p => ({
+      ...p,
+      images: p.productimage,
+      stocks: p.productstock,
+      category: p.category
+    }));
 
     res.json({
       success: true,
-      data: parsedProducts
+      data: mappedProducts
     });
 
   } catch (error) {
@@ -264,8 +259,8 @@ export const getProductById = async (req, res) => {
       where: { id: Number(req.params.id) },
       include: {
         category: true,
-        images: true,
-        stocks: true
+        productimage: true,
+        productstock: true
       }
     });
 
@@ -276,9 +271,15 @@ export const getProductById = async (req, res) => {
       });
     }
 
+    const mappedProduct = {
+      ...product,
+      images: product.productimage,
+      stocks: product.productstock
+    };
+
     res.json({
       success: true,
-      data: product
+      data: mappedProduct
     });
 
   } catch (error) {
@@ -295,8 +296,8 @@ export const getProductBySlug = async (req, res) => {
       where: { slug: (slug), },
       include: {
         category: true,
-        images: true,
-        stocks: true
+        productimage: true,
+        productstock: true
       }
     });
 
@@ -307,9 +308,15 @@ export const getProductBySlug = async (req, res) => {
       });
     }
 
+    const mappedProduct = {
+      ...product,
+      images: product.productimage,
+      stocks: product.productstock
+    };
+
     res.json({
       success: true,
-      data: product
+      data: mappedProduct
     });
 
   } catch (error) {
@@ -362,7 +369,7 @@ export const updateProduct = async (req, res) => {
       // Handle Stocks (Update existing or Create new)
       if (parsedStocks.length > 0) {
         for (const s of parsedStocks) {
-          const existingStock = await tx.productStock.findFirst({
+          const existingStock = await tx.productstock.findFirst({
             where: {
               productId: product.id,
               size: s.size,
@@ -371,12 +378,12 @@ export const updateProduct = async (req, res) => {
           });
 
           if (existingStock) {
-            await tx.productStock.update({
+            await tx.productstock.update({
               where: { id: existingStock.id },
               data: { quantity: Number(s.quantity) },
             });
           } else {
-            await tx.productStock.create({
+            await tx.productstock.create({
               data: {
                 productId: product.id,
                 size: s.size,
@@ -390,7 +397,7 @@ export const updateProduct = async (req, res) => {
 
       // Add new images if any
       if (files.length > 0) {
-        await tx.productImage.createMany({
+        await tx.productimage.createMany({
           data: files.map((file) => ({
             productId: product.id,
             url: `/uploads/${file.filename}`,
@@ -400,7 +407,7 @@ export const updateProduct = async (req, res) => {
 
       return await tx.product.findUnique({
         where: { id: product.id },
-        include: { stocks: true, images: true },
+        include: { productstock: true, productimage: true },
       });
     });
 

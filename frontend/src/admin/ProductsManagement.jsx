@@ -3,7 +3,7 @@ import axios from "axios";
 import "./ProductsManagement.css";
 import ProductModal from "./ProductModal";
 
-const BASE_URL = "http://localhost:5001";
+import { API_URL, getImageUrl as resolveUrl } from "../config/api";
 
 const FALLBACK_IMG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'%3E%3Crect width='50' height='50' fill='%23f3f4f6'/%3E%3Cpath d='M15 35l8-10 6 7 4-5 8 8H15z' fill='%23d1d5db'/%3E%3Ccircle cx='32' cy='20' r='4' fill='%23d1d5db'/%3E%3C/svg%3E`;
 
@@ -27,20 +27,9 @@ const ProductsManagement = () => {
       0,
     );
 
-  const getImageUrl = (prod) => {
+  const getImageUrlLocal = (prod) => {
     const first = prod.images?.[0]?.url;
-    if (!first) return FALLBACK_IMG;
-    if (first.startsWith("http")) return first;
-    if (first.startsWith("/")) return `${BASE_URL}${first}`;
-    return `${BASE_URL}/${first.replace(/\\/g, "/")}`;
-  };
-
-  /** Any single image URL resolved to absolute */
-  const resolveUrl = (url) => {
-    if (!url) return FALLBACK_IMG;
-    if (url.startsWith("http")) return url;
-    if (url.startsWith("/")) return `${BASE_URL}${url}`;
-    return `${BASE_URL}/${url.replace(/\\/g, "/")}`;
+    return resolveUrl(first) || FALLBACK_IMG;
   };
 
   /** Status derived from total stock */
@@ -56,7 +45,7 @@ const ProductsManagement = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/products`); // if you change this api u can get products by all you can get all products active and notactive
+      const response = await axios.get(`${API_URL}/products`);
       setProducts(response.data.data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -72,7 +61,7 @@ const ProductsManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        await axios.delete(`${BASE_URL}/api/products/${id}`);
+        await axios.delete(`${API_URL}/products/${id}`);
         fetchProducts();
       } catch (error) {
         console.error("Error deleting product:", error);
@@ -254,7 +243,7 @@ const ProductsManagement = () => {
                         <div className="td-product">
                           <div className="product-images">
                             <img
-                              src={getImageUrl(prod)}
+                              src={getImageUrlLocal(prod)}
                               alt={prod.name}
                               className="product-img"
                               onError={handleImgError}
@@ -380,7 +369,7 @@ const ProductsManagement = () => {
                       {/* ── Price ── */}
                       <td>
                         <div className="td-price">
-                          {parseFloat(prod.price).toLocaleString()}/-
+                          Rs. {parseFloat(prod.price).toLocaleString()}/-
                         </div>
                       </td>
 

@@ -18,7 +18,7 @@ export const authMiddleware = async (req, res, next) => {
     }
 
     // CHECK BLACKLIST
-    const blacklisted = await prisma.blacklistedToken.findFirst({
+    const blacklisted = await prisma.blacklistedtoken.findFirst({
       where: { token },
     });
 

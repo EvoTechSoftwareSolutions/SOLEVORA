@@ -250,7 +250,6 @@ const getProductImage = (item) => {
               key={item.id}
               image={getProductImage(item)}
               title={item.name}
-              description={item.description}
               price={item.price}
               link={`/product/${item.slug}`}
             />

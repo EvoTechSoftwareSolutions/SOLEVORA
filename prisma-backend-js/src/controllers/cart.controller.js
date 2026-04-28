@@ -59,7 +59,7 @@ export const getCart = async (req, res) => {
       include: {
         product: {
           include: {
-            images: true,
+            productimage: true,
             category: true
           }
         }

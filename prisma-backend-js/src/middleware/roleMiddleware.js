@@ -1,4 +1,5 @@
-export const requireRole = (allowedRoles) => {
+export const requireRole = (...roles) => {
+  const allowedRoles = roles.flat();
   return (req, res, next) => {
     try {
       const userRole = req.user?.role;

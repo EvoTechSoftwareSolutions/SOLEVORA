@@ -90,7 +90,7 @@ export const getWishlist = async (req, res) => {
       include: {
         product: {
           include: {
-            images: true,
+            productimage: true,
             category: true
           }
         }

@@ -53,12 +53,11 @@ export const createOrder = async (req, res) => {
         });
 
         if (!product) {
-          // This "throw" will now ROLLBACK the order creation automatically
           throw new Error(`Product not found: ${item.productId}`);
         }
 
         // 3. Check and Deduct Stock (using tx)
-        const stocks = await tx.productStock.findMany({
+        const stocks = await tx.productstock.findMany({
           where: { productId: item.productId, size: item.size, quantity: { gt: 0 } },
           orderBy: { createdAt: "asc" }
         });
@@ -75,7 +74,7 @@ export const createOrder = async (req, res) => {
           if (remainingQty <= 0) break;
           const deduct = Math.min(stock.quantity, remainingQty);
           
-          await tx.productStock.update({
+          await tx.productstock.update({
             where: { id: stock.id },
             data: { quantity: stock.quantity - deduct }
           });
@@ -88,7 +87,7 @@ export const createOrder = async (req, res) => {
         total += itemTotal;
 
         // 4. Create Order Items
-        await tx.orderItem.create({
+        await tx.orderitem.create({
           data: {
             orderId: order.id,
             productId: item.productId,
@@ -134,7 +133,7 @@ export const getAllOrders = async (req, res) => {
     const orders = await prisma.order.findMany({
       include: {
         user: true,
-        items: {
+        orderitem: {
           include: {
             product: true,
           },
@@ -145,9 +144,25 @@ export const getAllOrders = async (req, res) => {
       },
     });
 
+    const mappedOrders = orders.map(order => ({
+      ...order,
+      total_amount: order.totalAmount,
+      contact_number: order.contactNumber,
+      payment_method: order.paymentMethod,
+      payment_status: order.paymentStatus,
+      shipping_address: order.shippingAddress,
+      tracking_number: order.trackingNumber,
+      carrier: order.carrier,
+      estimated_delivery: order.estimatedDelivery,
+      items: order.orderitem.map(item => ({
+        ...item,
+        price_at_purchase: item.sellingPrice
+      }))
+    }));
+
     res.status(200).json({
       success: true,
-      data: orders,
+      data: mappedOrders,
     });
   } catch (error) {
     res.status(500).json({
@@ -173,7 +188,7 @@ export const getAllOrdersByUserID = async (req, res) => {
       },
       include: {
         user: true,
-        items: {
+        orderitem: {
           include: {
             product: true
           }
@@ -184,9 +199,25 @@ export const getAllOrdersByUserID = async (req, res) => {
       }
     });
 
+    const mappedOrders = orders.map(order => ({
+      ...order,
+      total_amount: order.totalAmount,
+      contact_number: order.contactNumber,
+      payment_method: order.paymentMethod,
+      payment_status: order.paymentStatus,
+      shipping_address: order.shippingAddress,
+      tracking_number: order.trackingNumber,
+      carrier: order.carrier,
+      estimated_delivery: order.estimatedDelivery,
+      items: order.orderitem.map(item => ({
+        ...item,
+        price_at_purchase: item.sellingPrice
+      }))
+    }));
+
     res.status(200).json({
       success: true,
-      data: orders
+      data: mappedOrders
     });
 
   } catch (error) {
@@ -208,7 +239,7 @@ export const getOrderById = async (req, res) => {
       },
       include: {
         user: true,
-        items: {
+        orderitem: {
           include: {
             product: true,
           },
@@ -223,9 +254,25 @@ export const getOrderById = async (req, res) => {
       });
     }
 
+    const mappedOrder = {
+      ...order,
+      total_amount: order.totalAmount,
+      contact_number: order.contactNumber,
+      payment_method: order.paymentMethod,
+      payment_status: order.paymentStatus,
+      shipping_address: order.shippingAddress,
+      tracking_number: order.trackingNumber,
+      carrier: order.carrier,
+      estimated_delivery: order.estimatedDelivery,
+      items: order.orderitem.map(item => ({
+        ...item,
+        price_at_purchase: item.sellingPrice
+      }))
+    };
+
     res.status(200).json({
       success: true,
-      data: order,
+      data: mappedOrder,
     });
   } catch (error) {
     res.status(500).json({
@@ -262,7 +309,7 @@ export const updateOrderStatus = async (req, res) => {
       },
       include: {
         user: true,
-        items: {
+        orderitem: {
           include: {
             product: true
           }
@@ -270,10 +317,26 @@ export const updateOrderStatus = async (req, res) => {
       }
     });
 
+    const mappedOrder = {
+      ...updatedOrder,
+      total_amount: updatedOrder.totalAmount,
+      contact_number: updatedOrder.contactNumber,
+      payment_method: updatedOrder.paymentMethod,
+      payment_status: updatedOrder.paymentStatus,
+      shipping_address: updatedOrder.shippingAddress,
+      tracking_number: updatedOrder.trackingNumber,
+      carrier: updatedOrder.carrier,
+      estimated_delivery: updatedOrder.estimatedDelivery,
+      items: updatedOrder.orderitem.map(item => ({
+        ...item,
+        price_at_purchase: item.sellingPrice
+      }))
+    };
+
     res.json({
       success: true,
       message: "Order updated successfully",
-      data: updatedOrder
+      data: mappedOrder
     });
 
   } catch (error) {
@@ -298,7 +361,7 @@ export const searchOrders = async (req, res) => {
     const orders = await prisma.order.findMany({
       where: { email },
       include: {
-        items: {
+        orderitem: {
           include: {
             product: true,
           },
@@ -309,7 +372,23 @@ export const searchOrders = async (req, res) => {
       },
     });
 
-    res.status(200).json(orders); // TrackOrder.jsx expects response.data to be the array
+    const mappedOrders = orders.map(order => ({
+      ...order,
+      total_amount: order.totalAmount,
+      contact_number: order.contactNumber,
+      payment_method: order.paymentMethod,
+      payment_status: order.paymentStatus,
+      shipping_address: order.shippingAddress,
+      tracking_number: order.trackingNumber,
+      carrier: order.carrier,
+      estimated_delivery: order.estimatedDelivery,
+      items: order.orderitem.map(item => ({
+        ...item,
+        price_at_purchase: item.sellingPrice
+      }))
+    }));
+
+    res.status(200).json(mappedOrders); // TrackOrder.jsx expects response.data to be the array
   } catch (error) {
     res.status(500).json({
       success: false,

@@ -120,7 +120,21 @@ function CategoryPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axios.get(`${BASE_URL}/api/products`);
+        const params = new URLSearchParams();
+        if (selectedCategory && selectedCategory !== "All") params.append("category", selectedCategory);
+        if (selectedGender && selectedGender !== "All") params.append("gender", selectedGender);
+        if (selectedSize) params.append("size", selectedSize);
+        if (sortBy) params.append("sortBy", sortBy);
+        
+        if (selectedPrice !== "All") {
+          if (selectedPrice === "Under Rs.3000") params.append("maxPrice", "3000");
+          else if (selectedPrice === "Rs.3000 - Rs.5000") { params.append("minPrice", "3000"); params.append("maxPrice", "5000"); }
+          else if (selectedPrice === "Rs.5000 - Rs.10000") { params.append("minPrice", "5000"); params.append("maxPrice", "10000"); }
+          else if (selectedPrice === "Rs.10000 - Rs.20000") { params.append("minPrice", "10000"); params.append("maxPrice", "20000"); }
+          else if (selectedPrice === "Rs.20000+") params.append("minPrice", "20000");
+        }
+
+        const { data } = await axios.get(`${BASE_URL}/api/products?${params.toString()}`);
         const baseFormatted = data.data.map((p, index) => ({
           id: p.id,
           category: p.category?.name || "Uncategorized",
@@ -128,7 +142,6 @@ function CategoryPage() {
           slug: p.slug,
           description: p.description,
           price: parseFloat(p.price) || 0,
-          // uses getImg helper
           image: getImg(p.images?.[0]?.url) || fallbackImages[index % fallbackImages.length],
           bg: bgColors[index % bgColors.length],
           gender: p.gender || (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
@@ -144,36 +157,11 @@ function CategoryPage() {
       }
     };
     fetchProducts();
-  }, []);
+  }, [selectedCategory, selectedGender, selectedSize, selectedPrice, sortBy]);
 
   const displayedProducts = useMemo(() => {
-    let filtered = [...products];
-    if (selectedCategory !== "All") {
-      filtered = filtered.filter((item) => item.category.toLowerCase() === selectedCategory.toLowerCase());
-    }
-    if (selectedGender !== "All") {
-      filtered = filtered.filter((item) => item.gender === selectedGender || item.gender === "All");
-    }
-    if (selectedSize) {
-      filtered = filtered.filter((item) => item.sizes && item.sizes.includes(selectedSize));
-    }
-    if (selectedPrice !== "All") {
-      filtered = filtered.filter((item) => {
-        const price = parseFloat(item.price) || 0;
-        if (selectedPrice === "Under Rs.3000") return price < 3000;
-        if (selectedPrice === "Rs.3000 - Rs.5000") return price >= 3000 && price <= 5000;
-        if (selectedPrice === "Rs.5000 - Rs.10000") return price > 5000 && price <= 10000;
-        if (selectedPrice === "Rs.10000 - Rs.20000") return price > 10000 && price <= 20000;
-        if (selectedPrice === "Rs.20000+") return price > 20000;
-        return true;
-      });
-    }
-    if (sortBy === "low-high") filtered.sort((a, b) => a.price - b.price);
-    else if (sortBy === "high-low") filtered.sort((a, b) => b.price - a.price);
-    else if (sortBy === "newest") filtered.sort((a, b) => b.id - a.id);
-    else filtered.sort((a, b) => Number(b.featured) - Number(a.featured));
-    return filtered;
-  }, [products, selectedCategory, selectedGender, selectedSize, selectedPrice, sortBy]);
+    return products;
+  }, [products]);
 
   const sizes = useMemo(() => {
     const allSizes = new Set();

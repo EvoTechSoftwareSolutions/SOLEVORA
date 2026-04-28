@@ -7,252 +7,243 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model addresses {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  title      String
-  name       String
-  street     String?
-  country    String?
-  phone      String?
-  isDefault  Boolean  @default(false)
-  icon       String   @default(dbgenerated("(home)"))
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime
-  city       String?
-  postalCode String?
-  users      users    @relation(fields: [userId], references: [id])
-
-  @@index([userId], map: "addresses_userId_fkey")
-}
-
-model Category {
-  id          Int      @id @default(autoincrement())
-  name        String
-  slug        String   @unique
-  description String?  @db.Text
-  image       String?
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  products    Product[]
-}
-
-model contacts {
-  id        BigInt   @id @default(autoincrement())
-  name      String
-  phone     String?
-  email     String
-  subject   String?
-  message   String?  @db.Text
+model blacklistedtoken {
+  id        Int      @id @default(autoincrement())
+  token     String
   createdAt DateTime @default(now())
-  updatedAt DateTime
-  isRead    Boolean  @default(false)
 }
 
-model order_items {
-  id                BigInt   @id @default(autoincrement())
-  quantity          Int
-  price_at_purchase Decimal  @db.Decimal(10, 2)
-  orderId           BigInt
-  productId         Int
-  size              String?
-  orders            orders   @relation(fields: [orderId], references: [id])
-  products          Product @relation(fields: [productId], references: [id])
-
-  @@index([orderId], map: "order_items_orderId_fkey")
-  @@index([productId], map: "order_items_productId_fkey")
-}
-
-model orders {
-  id                 BigInt                @id @default(autoincrement())
-  total_amount       Decimal               @db.Decimal(10, 2)
-  status             orders_status         @default(dbgenerated("(pending)"))
-  shipping_address   String?               @db.Text
-  contact_number     String?
-  email              String?
-  createdAt          DateTime              @default(now())
-  updatedAt          DateTime
-  userId             Int?
-  tracking_number    String?
-  carrier            String?
-  payment_method     orders_payment_method @default(dbgenerated("(online)"))
-  payment_status     orders_payment_status @default(dbgenerated("(pending)"))
-  estimated_delivery DateTime?
-  actual_delivery    DateTime?
-  order_items        order_items[]
-  users              users?                @relation(fields: [userId], references: [id])
-
-  @@index([userId], map: "orders_userId_fkey")
-}
-
-model product_batches {
-  id                BigInt   @id @default(autoincrement())
-  productId         Int
-  quantity          Int      @default(0)
-  original_quantity Int
-  cost_price        Decimal? @db.Decimal(10, 2)
-  selling_price     Decimal  @db.Decimal(10, 2)
-  batch_date        DateTime @default(now())
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime
-  products          Product @relation(fields: [productId], references: [id])
-
-  @@index([productId], map: "product_batches_productId_fkey")
-}
-
-model Product {
-  id              Int               @id @default(autoincrement())
-  name            String
-  description     String?           @db.Text
-  price           Decimal           @db.Decimal(10, 2)
-  discountPrice   Decimal?          @db.Decimal(10, 2)
-  slug            String            @unique
-  gender          ProductGender     @default(ALL)
-  categoryId      Int
-  isActive        Boolean           @default(true)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  category        Category          @relation(fields: [categoryId], references: [id])
-  images          ProductImage[]
-  stocks          ProductStock[]
-  order_items     order_items[]
-  product_batches product_batches[]
-  reviews         reviews[]
-  wishlists       wishlists[]
-}
-
-model ProductImage {
-  id        Int    @id @default(autoincrement())
-  url       String
-  productId Int
-
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-}
-
-model ProductStock {
-  id        Int    @id @default(autoincrement())
+model cart {
+  id        Int      @id @default(autoincrement())
+  userId    Int
   productId Int
   size      String
-  costPrice Decimal @db.Decimal(10, 2)
-  quantity  Int
-
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-}
-
-model promo_codes {
-  id             Int                      @id @default(autoincrement())
-  code           String                   @unique
-  discountType   promo_codes_discountType @default(dbgenerated("(percentage)"))
-  discountValue  Decimal                  @db.Decimal(10, 2)
-  minOrderAmount Decimal                  @default(0.00) @db.Decimal(10, 2)
-  maxUses        Int?
-  usedCount      Int                      @default(0)
-  expiresAt      DateTime?
-  isActive       Boolean                  @default(true)
-  createdAt      DateTime                 @default(now())
-  updatedAt      DateTime
-}
-
-model reviews {
-  id        BigInt   @id @default(autoincrement())
-  rating    Int
-  comment   String   @db.Text
-  userId    Int
-  productId Int
+  quantity  Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime
-  products  Product @relation(fields: [productId], references: [id])
-  users     users    @relation(fields: [userId], references: [id])
+  product   product  @relation(fields: [productId], references: [id], map: "Cart_productId_fkey")
 
-  @@index([productId], map: "reviews_productId_fkey")
-  @@index([userId], map: "reviews_userId_fkey")
+  @@index([productId], map: "Cart_productId_fkey")
 }
 
-model subscribers {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique(map: "email")
-  createdAt DateTime @default(now())
-  updatedAt DateTime
+model category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique(map: "Category_slug_key")
+  description String?
+  image       String?
+  isActive    Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  product     product[]
 }
 
-model users {
-  id                Int         @id @default(autoincrement())
-  name              String
-  email             String      @unique(map: "email")
-  password          String
-  createdAt         DateTime    @default(now())
+model order {
+  id                Int                 @id @default(autoincrement())
+  userId            Int
+  customerName      String?
+  email             String?
+  contactNumber     String?
+  shippingAddress   String?
+  paymentMethod     order_paymentMethod
+  paymentStatus     order_paymentStatus @default(dbgenerated("(PENDING)"))
+  status            order_status        @default(dbgenerated("(PENDING)"))
+  totalAmount       Decimal             @db.Decimal(10, 2)
+  createdAt         DateTime            @default(now())
   updatedAt         DateTime
-  phone             String?
-  location          String?
-  newsletter        Boolean     @default(true)
-  pushNotifications Boolean     @default(true)
-  usageReports      Boolean     @default(false)
-  role              users_role  @default(dbgenerated("(customer)"))
+  actualDelivery    DateTime?
+  carrier           String?
+  estimatedDelivery DateTime?
+  trackingNumber    String?
+  user              user                @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
+  orderitem         orderitem[]
+
+  @@index([userId], map: "Order_userId_fkey")
+}
+
+model orderitem {
+  id           Int      @id @default(autoincrement())
+  orderId      Int
+  productId    Int
+  productName  String
+  size         String
+  quantity     Int
+  sellingPrice Decimal  @db.Decimal(10, 2)
+  costPrice    Decimal  @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+  order        order    @relation(fields: [orderId], references: [id], onDelete: Cascade, map: "OrderItem_orderId_fkey")
+  product      product  @relation(fields: [productId], references: [id], map: "OrderItem_productId_fkey")
+
+  @@index([orderId], map: "OrderItem_orderId_fkey")
+  @@index([productId], map: "OrderItem_productId_fkey")
+}
+
+model product {
+  id            Int            @id @default(autoincrement())
+  name          String
+  description   String?
+  price         Decimal        @db.Decimal(10, 2)
+  discountPrice Decimal?       @db.Decimal(10, 2)
+  slug          String         @unique(map: "Product_slug_key")
+  gender        product_gender @default(dbgenerated("(ALL)"))
+  categoryId    Int
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime
+  cart          cart[]
+  orderitem     orderitem[]
+  category      category       @relation(fields: [categoryId], references: [id], map: "Product_categoryId_fkey")
+  productimage  productimage[]
+  productstock  productstock[]
+  wishlist      wishlist[]
+  reviews       reviews[]
+
+  @@index([categoryId], map: "Product_categoryId_fkey")
+}
+
+model productimage {
+  id        Int     @id @default(autoincrement())
+  url       String
+  productId Int
+  product   product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ProductImage_productId_fkey")
+
+  @@index([productId], map: "ProductImage_productId_fkey")
+}
+
+model productstock {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  size      String
+  costPrice Decimal  @db.Decimal(10, 2)
+  quantity  Int
+  createdAt DateTime @default(now())
+  product   product  @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ProductStock_productId_fkey")
+
+  @@index([productId], map: "ProductStock_productId_fkey")
+}
+
+model user {
+  id                Int        @id @default(autoincrement())
+  name              String     @db.VarChar(100)
+  email             String     @unique(map: "User_email_key") @db.VarChar(150)
+  password          String     @db.VarChar(255)
+  role              user_role  @default(dbgenerated("(customer)"))
+  phone             String?    @db.VarChar(20)
+  location          String?    @db.VarChar(255)
+  streetAddress     String?    @db.VarChar(255)
+  city              String?    @db.VarChar(100)
+  postalCode        String?    @db.VarChar(20)
+  country           String?    @db.VarChar(100)
+  newsletter        Boolean    @default(true)
+  pushNotifications Boolean    @default(true)
+  usageReports      Boolean    @default(false)
+  status            Int        @default(1)
   lastLogin         DateTime?
-  streetAddress     String?
-  city              String?
-  postalCode        String?
-  country           String?
   resetToken        String?
   resetTokenExpires DateTime?
-  addresses         addresses[]
-  orders            orders[]
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  order             order[]
+  wishlist          wishlist[]
   reviews           reviews[]
-  wishlists         wishlists[]
 }
 
-model wishlists {
+model wishlist {
   id        Int      @id @default(autoincrement())
   userId    Int
   productId Int
   createdAt DateTime @default(now())
-  updatedAt DateTime
-  products  Product @relation(fields: [productId], references: [id])
-  users     users    @relation(fields: [userId], references: [id])
+  product   product  @relation(fields: [productId], references: [id], map: "Wishlist_productId_fkey")
+  user      user     @relation(fields: [userId], references: [id], map: "Wishlist_userId_fkey")
 
-  @@index([productId], map: "wishlists_productId_fkey")
-  @@index([userId], map: "wishlists_userId_fkey")
+  @@unique([userId, productId], map: "Wishlist_userId_productId_key")
+  @@index([productId], map: "Wishlist_productId_fkey")
 }
 
-enum orders_status {
-  pending
-  paid
-  processing
-  shipped
-  delivered
-  cancelled
+model promocode {
+  id              Int      @id @default(autoincrement())
+  code            String   @unique
+  discountType    String   @default("percentage") // percentage, fixed
+  discountValue   Decimal  @db.Decimal(10, 2)
+  minOrderAmount  Decimal  @default(0) @db.Decimal(10, 2)
+  maxUses         Int?
+  usedCount       Int      @default(0)
+  expiresAt       DateTime?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
-enum promo_codes_discountType {
-  percentage
-  fixed
+model contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
-enum orders_payment_method {
-  online
-  cod
+model settings {
+  id                    Int      @id @default(1)
+  storeName            String   @default("SoleVora")
+  storeEmail           String   @default("info@solevora.com")
+  storePhone           String   @default("+94 11 234 5678")
+  storeCurrency        String   @default("Rs.")
+  lowStockThreshold    Int      @default(20)
+  maintenanceMode      Boolean  @default(false)
+  allowGuestCheckout   Boolean  @default(true)
+  shippingFee          Decimal  @default(350) @db.Decimal(10, 2)
+  freeShippingThreshold Decimal  @default(5000) @db.Decimal(10, 2)
+  maxOrdersPerDay      Int      @default(500)
+  updatedAt            DateTime @updatedAt
 }
 
-enum users_role {
+enum user_role {
   admin
   store_manager
   customer
 }
 
-enum orders_payment_status {
-  pending
-  paid
-  failed
+enum order_paymentMethod {
+  COD
+  ONLINE
 }
 
-enum ProductGender {
+enum product_gender {
   MEN
   WOMEN
   KIDS
   ALL
+}
+
+enum order_paymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum order_status {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model reviews {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  userId    Int
+  rating    Int
+  comment   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   product  @relation(fields: [productId], references: [id], onDelete: Cascade, map: "Reviews_productId_fkey")
+  users     user     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Reviews_userId_fkey")
+
+  @@index([productId], map: "Reviews_productId_fkey")
+  @@index([userId], map: "Reviews_userId_fkey")
 }

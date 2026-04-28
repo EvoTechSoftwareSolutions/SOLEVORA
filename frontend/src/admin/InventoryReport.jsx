@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './InventoryReport.css';
 
+import { API_URL, getImageUrl } from '../config/api';
+
 const InventoryReport = () => {
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
@@ -18,13 +20,13 @@ const InventoryReport = () => {
             try {
                 setLoading(true);
                 const [prodRes, catRes] = await Promise.all([
-                    axios.get('http://localhost:5001/api/products'),
-                    axios.get('http://localhost:5001/api/categories')
+                    axios.get(`${API_URL}/admin/inventory`),
+                    axios.get(`${API_URL}/category`)
                 ]);
                 
                 setProducts(prodRes.data);
                 setFilteredProducts(prodRes.data);
-                setCategories(catRes.data);
+                setCategories(catRes.data.data);
                 setLoading(false);
             } catch (err) {
                 console.error("Failed to fetch inventory data:", err);
@@ -116,7 +118,7 @@ const InventoryReport = () => {
                 </div>
                 <div className="inventory-stat-card">
                     <span className="stat-label">Estimated Inventory Value</span>
-                    <span className="stat-value">LKR {totalStockValue.toLocaleString()}</span>
+                    <span className="stat-value">Rs. {totalStockValue.toLocaleString()}</span>
                     <div className="stat-indicator bg-green"></div>
                 </div>
                 <div className="inventory-stat-card">
@@ -145,7 +147,7 @@ const InventoryReport = () => {
                     <label>Category:</label>
                     <select className="filter-select" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
                         <option value="All">All Categories</option>
-                        {categories.map(cat => (
+                        {(categories || []).map(cat => (
                             <option key={cat.id} value={cat.name}>{cat.name}</option>
                         ))}
                     </select>
@@ -184,7 +186,7 @@ const InventoryReport = () => {
                                     <td>
                                         <div className="prod-info">
                                             <img 
-                                                src={product.image_url.startsWith('http') ? product.image_url : `http://localhost:5001${product.image_url}`} 
+                                                src={getImageUrl(product.image_url)} 
                                                 alt={product.name} 
                                                 className="prod-thumb" 
                                             />
@@ -195,9 +197,9 @@ const InventoryReport = () => {
                                         </div>
                                     </td>
                                     <td>{product.category?.name || 'N/A'}</td>
-                                    <td>LKR {parseFloat(product.price).toLocaleString()}</td>
+                                    <td>Rs. {parseFloat(product.price).toLocaleString()}</td>
                                     <td>{product.stock_quantity} Units</td>
-                                    <td>LKR {(product.price * product.stock_quantity).toLocaleString()}</td>
+                                    <td>Rs. {(product.price * product.stock_quantity).toLocaleString()}</td>
                                     <td>
                                         <span className={`stock-badge ${statusClass}`}>
                                             {statusText}

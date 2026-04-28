@@ -1,111 +1,147 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Analytics.css';
+import { API_URL } from '../config/api';
 
 const Analytics = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const fetchStats = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/admin/stats`);
+            setStats(response.data);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching analytics stats:', error);
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await axios.get('http://localhost:5001/api/admin/stats');
-                setStats(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching analytics stats:', error);
-                setLoading(false);
-            }
-        };
         fetchStats();
+        // 5 second refresh as per request
+        const interval = setInterval(fetchStats, 5000);
+        return () => clearInterval(interval);
     }, []);
 
-    if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading analytics...</div>;
+    if (loading) return <div style={{ padding: '100px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Analyzing data streams...</div>;
+    if (!stats) return <div style={{ padding: '100px', textAlign: 'center' }}>Unable to retrieve analytics.</div>;
 
-    const topPerforming = [
-        {
-            name: 'Air Max Velocity',
-            units: '1,240',
-            revenue: 'Rs. 186,000',
-            growth: '+18%',
-            img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&h=100&fit=crop',
-            positive: true
-        },
-        {
-            name: 'Cloud Walker Pro',
-            units: '980',
-            revenue: 'Rs. 142,100',
-            growth: '+12%',
-            img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=100&h=100&fit=crop',
-            positive: true
-        }
-    ];
+    const topPerforming = stats.topProducts || [];
+    const salesByCategory = stats.salesByCategory || [];
+
+    // Calculate max values for bar chart scaling
+    const maxCatRevenue = salesByCategory.length > 0 ? Math.max(...salesByCategory.map(c => Number(c.revenue))) : 1;
 
     return (
         <div className="dashboard-content">
             {/* page header */}
-            <div className="page-header" style={{ marginBottom: '25px' }}>
-                <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#111' }}>Analytics Deep-Dive</h1>
-                <p style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>Review real-time performance metrics and business intelligence.</p>
+            <div className="page-header" style={{ marginBottom: '30px' }}>
+                <h1 style={{ fontSize: '28px', fontWeight: '900', color: '#111', letterSpacing: '-0.5px' }}>Analytics Deep-Dive</h1>
+                <p style={{ fontSize: '15px', color: '#666', marginTop: '6px' }}>Advanced business intelligence and revenue distribution analysis.</p>
             </div>
-           {/* top metrics cards */}
+
+            {/* Core Metrics Grid */}
             <div className="metrics-grid-analytics">
                 <div className="metric-card-top card-orange-a">
                     <div className="card-top-row">
                         <div className="top-icon-circle">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                         </div>
                     </div>
-                    <div className="metric-title-top">Total Revenue</div>
-                    <div className="metric-value-top">Rs. {stats.totalRevenue.toLocaleString()}</div>
+                    <div className="metric-title-top">Gross Revenue</div>
+                    <div className="metric-value-top">Rs. {(Number(stats.totalRevenue) || 0).toLocaleString()}</div>
+                    <div className="metric-sub-top">Across {stats.totalOrders} total orders</div>
                 </div>
-                {/* total orders */}
+
                 <div className="metric-card-top card-blue-a">
                     <div className="card-top-row">
                         <div className="top-icon-circle">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
                         </div>
                     </div>
-                    <div className="metric-title-top">Total Orders</div>
-                    <div className="metric-value-top">{stats.totalOrders}</div>
+                    <div className="metric-title-top">Average Order Value</div>
+                    <div className="metric-value-top">Rs. {(Number(stats.averageOrderValue) || 0).toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                    <div className="metric-sub-top">Average spend per customer</div>
                 </div>
 
                 <div className="metric-card-top card-purple-a">
                     <div className="card-top-row">
                         <div className="top-icon-circle">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
                         </div>
                     </div>
-                    <div className="metric-title-top">Catalog Size</div>
-                    <div className="metric-value-top">{stats.totalProducts}</div>
+                    <div className="metric-title-top">Market Reach</div>
+                    <div className="metric-value-top">{salesByCategory.length}</div>
+                    <div className="metric-sub-top">Active product categories</div>
                 </div>
 
                 <div className="metric-card-top card-green-a">
                     <div className="card-top-row">
                         <div className="top-icon-circle">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
                         </div>
                     </div>
-                    <div className="metric-title-top">Low Stock</div>
-                    <div className="metric-value-top">{stats.lowStockItems}</div>
+                    <div className="metric-title-top">Customer Base</div>
+                    <div className="metric-value-top">{stats.totalOrders > 0 ? (stats.totalOrders * 0.8).toFixed(0) : 0}</div>
+                    <div className="metric-sub-top">Estimated unique buyers</div>
                 </div>
             </div>
-           {/* simple chart section (static svg for now) */}
-            <div className="charts-grid">
-                <div className="analytics-card">
-                    <div className="analytics-card-title">Revenue vs. Target</div>
-                    <div className="chart-container">
-                        {/* line chart using SVG */}
-                        <svg className="chart-svg-main" viewBox="0 0 600 200" preserveAspectRatio="none">
-                            <path d="M 0 130 C 80 120, 100 20, 200 40 C 250 80, 260 85, 300 75 C 340 90, 360 85, 400 30 C 450 40, 500 20, 600 0"
-                                fill="none" stroke="#f66d3b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
+
+            <div className="deep-dive-grid">
+                {/* Sales by Category (Visual Bars) */}
+                <div className="base-card analytics-main-card">
+                    <h3 className="card-title-main">Revenue by Category</h3>
+                    <div className="category-bars-container">
+                        {salesByCategory.map((cat, idx) => {
+                            const percentage = (Number(cat.revenue) / maxCatRevenue) * 100;
+                            return (
+                                <div key={idx} className="category-bar-row">
+                                    <div className="category-bar-info">
+                                        <span className="cat-bar-name">{cat.category}</span>
+                                        <span className="cat-bar-val">Rs. {Number(cat.revenue).toLocaleString()}</span>
+                                    </div>
+                                    <div className="cat-bar-bg">
+                                        <div className="cat-bar-fill" style={{ width: `${percentage}%` }}></div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        {salesByCategory.length === 0 && <p className="empty-text">No category data available yet.</p>}
+                    </div>
+                </div>
+
+                {/* Top Products Table */}
+                <div className="base-card analytics-main-card">
+                    <h3 className="card-title-main">Top Performing Products</h3>
+                    <div className="top-products-mini-list">
+                        <table className="analytics-mini-table">
+                            <thead>
+                                <tr>
+                                    <th>PRODUCT</th>
+                                    <th>UNITS</th>
+                                    <th>REVENUE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {topPerforming.map((item, idx) => (
+                                    <tr key={idx}>
+                                        <td className="td-p-name">{item.productName}</td>
+                                        <td>{item._sum.quantity}</td>
+                                        <td className="td-p-rev">Rs. {Number(item._sum.sellingPrice).toLocaleString()}</td>
+                                    </tr>
+                                ))}
+                                {topPerforming.length === 0 && <tr><td colSpan="3" className="empty-text">No sales data recorded.</td></tr>}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+
             {/* footer */}
-            <div className="footer-text">
-                © 2026 SoleVora Admin Dashboard. Powered by Enterprise Intelligence Systems.
+            <div className="footer-text" style={{ marginTop: '40px', textAlign: 'center', opacity: '0.6' }}>
+                © 2026 SoleVora Admin Analytics. Data updates every 5 seconds.
             </div>
         </div>
     );

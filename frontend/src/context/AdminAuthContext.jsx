@@ -57,11 +57,17 @@ export const AdminAuthProvider = ({ children }) => {
     null;
 
   const permissions = {
-    canViewAdminDashboard: isAdmin,
+    canViewDashboard: isAdmin || isStoreManager,
     canManageProducts: isAdmin || isStoreManager,
-    canManageUsers: isAdmin,
+    canManagePromoCodes: isAdmin || isStoreManager,
     canViewOrders: isAdmin || isStoreManager,
-    canViewSecurity: isAdmin, // 🔒 only admin
+    canManageCustomers: isAdmin || isStoreManager,
+    canViewMessages: isAdmin || isStoreManager,
+    canViewInventory: isAdmin || isStoreManager,
+    canViewAnalytics: isAdmin, // 📊 restricted
+    canManageSettings: isAdmin,  // ⚙️ restricted
+    canManageStaff: isAdmin,     // 👥 restricted
+    canViewSecurity: isAdmin,    // 🔒 restricted
   };
 
   const login = async (email, password) => {

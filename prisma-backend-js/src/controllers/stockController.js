@@ -44,7 +44,7 @@ export const addStock = async (req, res) => {
     }
 
     // STEP 2: UPSERT STOCK (PREVENT DUPLICATE BATCH)
-    const stock = await prisma.productStock.upsert({
+    const stock = await prisma.productstock.upsert({
       where: {
         productId_size_costPrice: {
           productId: Number(finalProductId),
@@ -85,7 +85,7 @@ export const getStockByProduct = async (req, res) => {
   try {
     const { productId } = req.params;
 
-    const stock = await prisma.productStock.findMany({
+    const stock = await prisma.productstock.findMany({
       where: {
         productId: Number(productId),
       },
@@ -113,7 +113,7 @@ export const deleteStock = async (req, res) => {
   try {
     const { id } = req.params;
 
-    await prisma.productStock.delete({
+    await prisma.productstock.delete({
       where: {
         id: Number(id),
       },
