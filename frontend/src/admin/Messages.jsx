@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 import './Messages.css';
 import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 

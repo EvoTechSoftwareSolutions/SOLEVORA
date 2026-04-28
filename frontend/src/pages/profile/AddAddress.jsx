@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './AddAddress.css';
-import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
 
 const AddAddress = () => {
     const navigate = useNavigate();
@@ -42,7 +41,7 @@ const AddAddress = () => {
 
         setLoading(true);
         try {
-            await axios.post('${API_URL}/addresses', {
+            await axios.post('http://localhost:5001/api/addresses', {
                 ...formData,
                 userId
             });

@@ -1,513 +1,349 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { XMarkIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
-import { API_URL, BASE_URL, getImageUrl } from '../config/api';
-import Toast from '../components/ui/Toast';
+import { XMarkIcon, ArrowUpTrayIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+
+const BASE_URL = 'http://localhost:5001';
 
 const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
-    // categories for dropdown
     const [categories, setCategories] = useState([]);
-    // form data for product
-    const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        price: '',
-        stock_quantity: '',
-        categoryId: '',
-        image_url: '',
-        image_url_2: '',
-        image_url_3: '',
-        image_url_4: '',
-        gender: 'All',
-        sizes: ['6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '12', '13'],
-        size_range: ''
-    });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [uploading, setUploading] = useState({
-        image_url: false,
-        image_url_2: false,
-        image_url_3: false,
-        image_url_4: false
+    const [searchTerm, setSearchTerm] = useState("");
+const [suggestions, setSuggestions] = useState([]);
+const [showDropdown, setShowDropdown] = useState(false);
+    // Basic Form State
+    const [formData, setFormData] = useState({
+        name: '',
+        slug: '',
+        description: '',
+        price: '',
+        discountPrice: '',
+        categoryId: '',
+        gender: 'ALL',
     });
 
-    // Stock Batch Update Logic
-    const [incomingStock, setIncomingStock] = useState('');
-    const [incomingPrice, setIncomingPrice] = useState('');
-    const [showStockHelper, setShowStockHelper] = useState(false);
-    const [toast, setToast] = useState(null);
+    // Stock/Size State
+    const [stocks, setStocks] = useState([{ size: '7', costPrice: '', quantity: '' }]);
 
-    const isEdit = !!product;
-// run only when modal opens
+    // Image State
+    const [images, setImages] = useState([]); 
+    const [imagePreviews, setImagePreviews] = useState([]); 
+    const [allProducts, setAllProducts] = useState([]);
+
+useEffect(() => {
+  const fetchAll = async () => {
+    const res = await axios.get(`${BASE_URL}/api/products/all`);
+    setAllProducts(res.data.data || []);
+  };
+
+  fetchAll();
+}, []);
+    // 1. Fetch Categories
     useEffect(() => {
         if (isOpen) {
+            const fetchCategories = async () => {
+                try {
+                    const { data } = await axios.get(`${BASE_URL}/api/category`);
+                    console.log("API RESPONSE:", data);
+                    setCategories(data.data || []);
+                     
+                } catch (err) {
+                    console.error('Error fetching categories:', err);
+                }
+            };
             fetchCategories();
-            if (isEdit) {
+        }
+    }, [isOpen]);
+
+    // 2. Pre-fill or Reset Form
+    useEffect(() => {
+        if (isOpen) {
+            if (product) {
                 setFormData({
                     name: product.name || '',
+                    slug: product.slug || '',
                     description: product.description || '',
                     price: product.price || '',
-                    stock_quantity: product.stock_quantity || '',
+                    discountPrice: product.discountPrice || '',
                     categoryId: product.categoryId || '',
-                    image_url: product.image_url || '',
-                    image_url_2: product.image_url_2 || '',
-                    image_url_3: product.image_url_3 || '',
-                    image_url_4: product.image_url_4 || '',
-                    gender: product.gender || 'All',
-                    sizes: (typeof product.sizes === 'string' ? JSON.parse(product.sizes) : product.sizes) || ['6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '12', '13'],
-                    size_range: product.size_range || ''
+                    gender: product.gender || 'ALL',
                 });
+                setStocks(product.stocks || [{ size: '7', costPrice: '', quantity: '' }]);
+                setImagePreviews(product.images?.map(img => `${BASE_URL}${img.url}`) || []);
             } else {
-                // reset form for new product
-                setFormData({
-                    name: '',
-                    description: '',
-                    price: '',
-                    stock_quantity: '',
-                    categoryId: '',
-                    image_url: '',
-                    image_url_2: '',
-                    image_url_3: '',
-                    image_url_4: '',
-                    gender: 'All',
-                    sizes: ['6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '12', '13'],
-                    size_range: ''
-                });
+                setFormData({ name: '', slug: '', description: '', price: '', discountPrice: '', categoryId: '', gender: 'ALL' });
+                setStocks([{ size: '7', costPrice: '', quantity: '' }]);
+                setImages([]);
+                setImagePreviews([]);
             }
         }
-    }, [isOpen, product, isEdit]);
-// get categories from backend
-    const fetchCategories = async () => {
-        try {
-            const response = await axios.get(`${API_URL}/categories`);
-            const categoryList = Array.isArray(response.data) ? response.data : [];
-            setCategories(categoryList);
-            if (categoryList.length > 0 && !formData.categoryId && !isEdit) {
-                setFormData(prev => ({ ...prev, categoryId: categoryList[0].id }));
-            }
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-            setCategories([]);
-        }
+    }, [isOpen, product]);
+
+
+// for auto complete
+const handleNameChange = (e) => {
+  const value = e.target.value;
+
+  setFormData((prev) => ({
+    ...prev,
+    name: value,
+  }));
+
+  setSearchTerm(value);
+
+  if (value.length > 1) {
+    const filtered = allProducts.filter((p) =>
+      p.name.toLowerCase().includes(value.toLowerCase())
+    );
+
+    setSuggestions(filtered);
+    setShowDropdown(true);
+  } else {
+    setShowDropdown(false);
+  }
+};
+
+const handleSelectProduct = (product) => {
+  setFormData({
+    name: product.name,
+    slug: product.slug,
+    description: product.description,
+    price: product.price,
+    discountPrice: product.discountPrice,
+    categoryId: product.categoryId,
+    gender: product.gender,
+  });
+
+  setStocks(product.stocks || []);
+  setImagePreviews(
+    product.images?.map((img) => `${BASE_URL}${img.url}`) || []
+  );
+
+  setShowDropdown(false);
+};
+ const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData(prev => ({
+        ...prev,
+        [name]: name === "categoryId" ? Number(value) : value
+    }));
+};
+
+    const handleStockChange = (index, field, value) => {
+        const updated = [...stocks];
+        updated[index][field] = value;
+        setStocks(updated);
     };
-// handle input changes
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files);
+        setImages(files);
+        const previews = files.map(file => URL.createObjectURL(file));
+        setImagePreviews(prev => [...prev, ...previews]);
     };
 
-    // handle image upload to Cloudinary via backend
-    const handleFileUpload = async (e, fieldName) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        // Check file size (5MB limit)
-        if (file.size > 5 * 1024 * 1024) {
-            setError('File size too large (max 5MB)');
-            return;
-        }
-
-        setUploading(prev => ({ ...prev, [fieldName]: true }));
-        setError('');
-
-        const uploadData = new FormData();
-        uploadData.append('image', file);
-
-        try {
-            const response = await axios.post(`${API_URL}/upload`, uploadData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-
-            if (response.data && response.data.url) {
-                setFormData(prev => ({ ...prev, [fieldName]: response.data.url }));
-            }
-        } catch (error) {
-            console.error('Upload error:', error);
-            setError(error.response?.data?.message || 'Failed to upload image. Please try again.');
-        } finally {
-            setUploading(prev => ({ ...prev, [fieldName]: false }));
-            // Clear input
-            e.target.value = '';
-        }
+    const handleRemoveImage = (index) => {
+        setImagePreviews(prev => prev.filter((_, i) => i !== index));
+        setImages(prev => prev.filter((_, i) => i !== index));
     };
-// submit form (create or update product)
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
-     // convert values before sending
+
         try {
-            const payload = {
-                ...formData,
-                price: parseFloat(formData.price),
-                stock_quantity: parseInt(formData.stock_quantity),
-                sizes: JSON.stringify(formData.sizes)
+            const token = localStorage.getItem('token');
+            const data = new FormData();
+            
+    Object.entries(formData).forEach(([key, value]) => {
+  if (value !== undefined && value !== null && value !== '') {
+    data.append(key, value);
+  }
+});
+            
+            data.append('stocks', JSON.stringify(stocks || []));
+
+            images.forEach(file => data.append('images', file));
+
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
             };
 
-            let response;
-            if (isEdit) {
-                // If using the Stock Arrival Helper, send specific batch data
-                if (formData.isNewBatch) {
-                    response = await axios.put(`${API_URL}/products/${product.id}`, {
-                        ...payload,
-                        isNewBatch: true,
-                        added_quantity: formData.added_quantity,
-                        price: formData.price // This is the price of the NEW batch
-                    });
-                } else {
-                    response = await axios.put(`${API_URL}/products/${product.id}`, payload);
-                }
+            if (product) {
+                await axios.put(`${BASE_URL}/api/products/${product.id}`, data, config);
             } else {
-                response = await axios.post(`${API_URL}/products`, payload);
+                await axios.post(`${BASE_URL}/api/products`, data, config);
             }
 
-            if (response.status === 200 || response.status === 201) {
-                onProductSaved(response.data);
-                onClose();
-            }
-        } catch (error) {
-            setError(error.response?.data?.message || `Error ${isEdit ? 'updating' : 'creating'} product. Please try again.`);
-            console.error(`Error ${isEdit ? 'updating' : 'creating'} product:`, error);
+            onProductSaved();
+            onClose();
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to save product');
         } finally {
             setLoading(false);
         }
     };
 
-    const calculateWeightedAverage = () => {
-        const q1 = parseInt(formData.stock_quantity) || 0;
-        const p1 = parseFloat(formData.price) || 0;
-        const q2 = parseInt(incomingStock) || 0;
-        const p2 = parseFloat(incomingPrice) || 0;
-        
-        if (q2 <= 0) return p1;
-        
-        const totalStock = q1 + q2;
-        const averagePrice = ((q1 * p1) + (q2 * p2)) / totalStock;
-        return averagePrice.toFixed(2);
-    };
-
-    const applyStockArrival = () => {
-        if (!incomingStock || !incomingPrice) return;
-        
-        // Instead of calculating average here, we tell the backend it's a new batch
-        setFormData(prev => ({
-            ...prev,
-            isNewBatch: true,
-            added_quantity: parseInt(incomingStock),
-            price: parseFloat(incomingPrice) // The price for the NEW batch
-        }));
-        
-        // Visual feedback
-        setToast({
-            message: `New Batch Prepared: ${incomingStock} units at Rs. ${incomingPrice}.`,
-            type: 'success'
-        });
-        
-        setIncomingStock('');
-        setIncomingPrice('');
-        setShowStockHelper(false);
-    };
-// don't render if modal is closed
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm transition-all animate-fadeIn">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all scale-100">
-                {/* Modal Header */}
-                <div className="px-6 py-4 flex justify-between items-center border-b border-gray-100">
-                    <div>
-                        <h2 className="text-xl font-bold text-gray-800">{isEdit ? 'Edit Product' : 'Add New Product'}</h2>
-                        <p className="text-xs text-gray-500 mt-1">{isEdit ? 'Update product details in your inventory' : 'Fill in the details to add to your inventory'}</p>
-                    </div>
-                    <button 
-                        onClick={onClose}
-                        className="p-1 rounded-full hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
-                    >
-                        <XMarkIcon className="w-5 h-5" />
-                    </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                <div className="sticky top-0 bg-white px-6 py-4 flex justify-between items-center border-b z-10">
+                    <h2 className="text-xl font-bold">{product ? 'Edit Product' : 'Add New Product'}</h2>
+                    <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full"><XMarkIcon className="w-6 h-6" /></button>
                 </div>
 
-                {/* Modal Body */}
-                <form onSubmit={handleSubmit} className="px-6 py-4">
-                    {error && (
-                        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded flex items-center">
-                            <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                            {error}
-                        </div>
-                    )}
+                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                    {error && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
 
+                    {/* Basic Info */}
                     <div className="grid grid-cols-2 gap-4">
-                        {/* Name */}
-                        <div className="col-span-2">
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Product Name</label>
-                            <input 
-                                type="text"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                required
-                                placeholder="Enter product name (e.g. SoleRunner V1)"
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
-                            />
-                        </div>
-
-                        {/* Category */}
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Category</label>
-                            <select 
-                                name="categoryId"
-                                value={formData.categoryId}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none appearance-none bg-no-repeat bg-[right_1rem_center]"
-                                style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236b7280\' stroke-width=\'2\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundSize: '1.2em' }}
-                            >
-                                <option value="" disabled>Select Category</option>
-                                {categories.map(cat => (
-                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Price (Rs.)</label>
-                            <input 
-                                type="number"
-                                step="0.01"
-                                name="price"
-                                value={formData.price}
-                                onChange={handleChange}
-                                required
-                                placeholder="0.00"
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
-                            />
-                        </div>
-
-                        {/* Stock */}
                         <div className="relative">
-                            <div className="flex justify-between items-center mb-1.5">
-                                <label className="block text-xs font-semibold text-gray-700">Stock Quantity</label>
-                                {isEdit && (
-                                    <button 
-                                        type="button"
-                                        onClick={() => setShowStockHelper(!showStockHelper)}
-                                        className="text-[10px] text-[#f66d3b] hover:underline font-bold"
-                                    >
-                                        {showStockHelper ? 'Cancel Arrival' : '+ New Stock Arrival'}
-                                    </button>
-                                )}
-                            </div>
-                            <input 
-                                type="number"
-                                name="stock_quantity"
-                                value={formData.stock_quantity}
-                                onChange={handleChange}
-                                required
-                                placeholder="0"
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
-                            />
-                            
-                            {/* Stock Arrival Helper Overlay/Section */}
-                            {showStockHelper && (
-                                <div className="absolute left-0 right-0 top-full mt-2 p-3 bg-orange-50 border border-orange-100 rounded-lg shadow-lg z-10 animate-slideDown">
-                                    <h4 className="text-[11px] font-bold text-orange-800 mb-2 uppercase tracking-wider">Stock Arrival Helper</h4>
-                                    <div className="space-y-2">
-                                        <div>
-                                            <label className="block text-[10px] text-orange-700 mb-1">Incoming Units</label>
-                                            <input 
-                                                type="number"
-                                                value={incomingStock}
-                                                onChange={(e) => setIncomingStock(e.target.value)}
-                                                className="w-full px-2 py-1 text-xs rounded border border-orange-200 focus:outline-none focus:ring-1 focus:ring-orange-400"
-                                                placeholder="e.g. 50"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] text-orange-700 mb-1">Incoming Price (Rs.)</label>
-                                            <input 
-                                                type="number"
-                                                value={incomingPrice}
-                                                onChange={(e) => setIncomingPrice(e.target.value)}
-                                                className="w-full px-2 py-1 text-xs rounded border border-orange-200 focus:outline-none focus:ring-1 focus:ring-orange-400"
-                                                placeholder="e.g. 5000"
-                                            />
-                                        </div>
-                                        {incomingStock && incomingPrice && (
-                                            <div className="bg-white p-2 rounded border border-orange-100 mt-2">
-                                                <p className="text-[10px] font-bold text-orange-800 uppercase tracking-tighter">FIFO Batch Mode</p>
-                                                <p className="text-[10px] text-gray-600 mt-1">
-                                                    Creating a new batch of <strong>{incomingStock}</strong> units at <strong>Rs. {parseFloat(incomingPrice).toLocaleString()}</strong>.
-                                                </p>
-                                            </div>
-                                        )}
-                                        <button 
-                                            type="button"
-                                            onClick={applyStockArrival}
-                                            className="w-full py-1.5 bg-[#f66d3b] text-white text-[11px] font-bold rounded hover:bg-orange-600 transition-colors mt-1"
-                                        >
-                                            Apply Update
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+  <label className="block text-sm font-medium mb-1">
+    Product Name
+  </label>
 
-                        {/* Gender */}
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Gender</label>
-                            <select 
+  <input
+    type="text"
+    value={formData.name}
+    onChange={handleNameChange}
+    className="w-full border p-2 rounded"
+    placeholder="Type product name..."
+  />
+
+  {/* DROPDOWN */}
+  {showDropdown && suggestions.length > 0 && (
+    <div className="absolute z-50 bg-white border w-full mt-1 rounded shadow max-h-40 overflow-y-auto">
+      {suggestions.map((item) => (
+        <div
+          key={item.id}
+          onClick={() => handleSelectProduct(item)}
+          className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+        >
+          {item.name}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+                        <div className="col-span-2 md:col-span-1">
+                            <label className="block text-sm font-medium mb-1">Slug</label>
+                            <input type="text" name="slug" value={formData.slug} onChange={handleChange} required className="w-full border rounded-lg p-2" />
+                        </div>
+                    </div>
+                       <div className="grid grid-cols-2 gap-4">
+                        <div className="col-span-2 md:col-span-1">
+                            <label className="block text-sm font-medium mb-1">Description</label>
+                            <input type="text" name="description" value={formData.description} onChange={handleChange} required className="w-full border rounded-lg p-2" />
+                        </div>
+                        <div className="col-span-2 md:col-span-1">
+                            <label className="block text-sm font-medium mb-1">Gender</label>
+                            <select
                                 name="gender"
                                 value={formData.gender}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none appearance-none bg-no-repeat bg-[right_1rem_center]"
-                                style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236b7280\' stroke-width=\'2\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundSize: '1.2em' }}
+                                className="w-full border rounded-lg p-2"
                             >
-                                <option value="All">All</option>
-                                <option value="Men">Men</option>
-                                <option value="Women">Women</option>
-                                <option value="Kids">Kids</option>
+                                <option value="ALL">All</option>
+                                <option value="MEN">Men</option>
+                                <option value="WOMEN">Women</option>
+                                <option value="KIDS">Kids</option>
                             </select>
                         </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="col-span-2 md:col-span-1">
+  <label className="block text-sm font-medium mb-1">Category</label>
 
-                        {/* Size Range */}
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Size Range</label>
-                            <input 
-                                type="text"
-                                name="size_range"
-                                value={formData.size_range}
-                                onChange={handleChange}
-                                placeholder="e.g. 6-13"
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
-                            />
-                        </div>
+  <select
+    name="categoryId"
+    value={formData.categoryId}
+    onChange={handleChange}
+    required
+    className="w-full border rounded-lg p-2"
+  >
+    <option value="">Select Category</option>
 
-                        {/* Image URL */}
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Main Image URL</label>
-                            <div className="relative group">
-                                <input 
-                                    type="text"
-                                    name="image_url"
-                                    value={formData.image_url}
-                                    onChange={handleChange}
-                                    placeholder="https://unsplash.com/..."
-                                    className="w-full pl-3 pr-10 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none"
-                                />
-                                <label className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-[#f66d3b] transition-colors">
-                                    {uploading.image_url ? (
-                                        <div className="w-4 h-4 border-2 border-[#f66d3b] border-t-transparent rounded-full animate-spin"></div>
-                                    ) : (
-                                        <>
-                                            <ArrowUpTrayIcon className="w-4 h-4" />
-                                            <input 
-                                                type="file" 
-                                                className="hidden" 
-                                                accept="image/*"
-                                                onChange={(e) => handleFileUpload(e, 'image_url')} 
-                                            />
-                                        </>
-                                    )}
-                                </label>
-                            </div>
-                        </div>
+    {categories.map((cat) => (
+      <option key={cat.id} value={cat.id}>
+        {cat.name}
+      </option>
+    ))}
+  </select>
+</div>
+                    </div>
 
-                        {/* Additional Image URLs */}
+                    {/* Pricing */}
+                    <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL 2</label>
-                            <div className="relative group">
-                                <input type="text" name="image_url_2" value={formData.image_url_2} onChange={handleChange} placeholder="Optional secondary image URL" className="w-full pl-3 pr-10 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
-                                <label className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-[#f66d3b] transition-colors">
-                                    {uploading.image_url_2 ? (
-                                        <div className="w-4 h-4 border-2 border-[#f66d3b] border-t-transparent rounded-full animate-spin"></div>
-                                    ) : (
-                                        <>
-                                            <ArrowUpTrayIcon className="w-4 h-4" />
-                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'image_url_2')} />
-                                        </>
-                                    )}
-                                </label>
-                            </div>
+                            <label className="block text-sm font-medium mb-1">Price (Rs.)</label>
+                            <input type="number" name="price" value={formData.price} onChange={handleChange} required className="w-full border rounded-lg p-2" />
                         </div>
                         <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL 3</label>
-                            <div className="relative group">
-                                <input type="text" name="image_url_3" value={formData.image_url_3} onChange={handleChange} placeholder="Optional third image URL" className="w-full pl-3 pr-10 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
-                                <label className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-[#f66d3b] transition-colors">
-                                    {uploading.image_url_3 ? (
-                                        <div className="w-4 h-4 border-2 border-[#f66d3b] border-t-transparent rounded-full animate-spin"></div>
-                                    ) : (
-                                        <>
-                                            <ArrowUpTrayIcon className="w-4 h-4" />
-                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'image_url_3')} />
-                                        </>
-                                    )}
-                                </label>
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL 4</label>
-                            <div className="relative group">
-                                <input type="text" name="image_url_4" value={formData.image_url_4} onChange={handleChange} placeholder="Optional fourth image URL" className="w-full pl-3 pr-10 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none" />
-                                <label className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-[#f66d3b] transition-colors">
-                                    {uploading.image_url_4 ? (
-                                        <div className="w-4 h-4 border-2 border-[#f66d3b] border-t-transparent rounded-full animate-spin"></div>
-                                    ) : (
-                                        <>
-                                            <ArrowUpTrayIcon className="w-4 h-4" />
-                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'image_url_4')} />
-                                        </>
-                                    )}
-                                </label>
-                            </div>
-                        </div>
-
-                        {/* Description */}
-                        <div className="col-span-2">
-                            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Description</label>
-                            <textarea 
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                required
-                                rows="3"
-                                placeholder="Describe the key features and materials..."
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#f66d3b] focus:border-transparent transition-all outline-none resize-none"
-                            ></textarea>
+                            <label className="block text-sm font-medium mb-1">Discount Price</label>
+                            <input type="number" name="discountPrice" value={formData.discountPrice} onChange={handleChange} className="w-full border rounded-lg p-2" />
                         </div>
                     </div>
 
-                    {/* Footer Actions */}
-                    <div className="mt-6 flex gap-3">
-                        <button 
-                            type="button"
-                            onClick={onClose}
-                            className="flex-1 py-2 px-4 rounded-lg border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button 
-                            type="submit"
-                            disabled={loading}
-                            className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold text-white shadow-md transition-all ${loading ? 'bg-orange-300' : 'bg-[#f66d3b] hover:bg-orange-600'}`}
-                        >
-                            {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Product' : 'Create Product')}
+                    {/* Stocks Section */}
+                    <div className="border-t pt-4">
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="font-bold text-gray-700">Stock & Sizes</h3>
+                            <button type="button" onClick={() => setStocks([...stocks, { size: '', costPrice: '', quantity: '' }])} className="text-sm flex items-center text-blue-600">
+                                <PlusIcon className="w-4 h-4 mr-1" /> Add Size
+                            </button>
+                        </div>
+                        {stocks.map((stock, idx) => (
+                            <div key={idx} className="grid grid-cols-4 gap-2 mb-2 items-end">
+                                <input placeholder="Size" value={stock.size} onChange={(e) => handleStockChange(idx, 'size', e.target.value)} className="border rounded-lg p-2 text-sm" />
+                                <input placeholder="Cost" type="number" value={stock.costPrice} onChange={(e) => handleStockChange(idx, 'costPrice', e.target.value)} className="border rounded-lg p-2 text-sm" />
+                                <input placeholder="Qty" type="number" value={stock.quantity} onChange={(e) => handleStockChange(idx, 'quantity', e.target.value)} className="border rounded-lg p-2 text-sm" />
+                                <button type="button" onClick={() => setStocks(stocks.filter((_, i) => i !== idx))} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">
+                                    <TrashIcon className="w-5 h-5" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Images */}
+                    <div className="border-t pt-4">
+                        <label className="block text-sm font-medium mb-2">Product Images</label>
+                        <div className="flex flex-wrap gap-3 mb-3">
+                            {imagePreviews.map((src, i) => (
+                                <div key={i} className="relative group">
+                                    <img src={src} alt={`preview ${i+1}`} className="w-20 h-20 object-cover rounded-lg border" />
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveImage(i)}
+                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <XMarkIcon className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            ))}
+                            <label className="w-20 h-20 flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
+                                <ArrowUpTrayIcon className="w-6 h-6 text-gray-400" />
+                                <span className="text-xs text-gray-500 mt-1">Add Images</span>
+                                <input type="file" multiple className="hidden" onChange={handleImageChange} accept="image/*" />
+                            </label>
+                        </div>
+                        <p className="text-xs text-gray-500">Upload multiple images. All images will be displayed.</p>
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                        <button type="button" onClick={onClose} className="flex-1 py-2 border rounded-lg font-semibold">Cancel</button>
+                        <button type="submit" disabled={loading} className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold disabled:bg-blue-300">
+                            {loading ? 'Saving...' : product ? 'Update Product' : 'Create Product'}
                         </button>
                     </div>
                 </form>
-
-                {toast && (
-                    <Toast 
-                        message={toast.message} 
-                        type={toast.type} 
-                        onClose={() => setToast(null)} 
-                    />
-                )}
             </div>
         </div>
     );

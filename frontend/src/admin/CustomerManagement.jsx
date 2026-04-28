@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 import './CustomerManagement.css';
 import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
 const CustomerManagement = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
-// fetch customers from API
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // fetch customers from API
   const fetchCustomers = async () => {
     try {
       const response = await axios.get(`${API_URL}/admin/customers`);
@@ -30,7 +33,8 @@ const CustomerManagement = () => {
     }, 15000);
     return () => clearInterval(interval);
   }, []);
-// delete customer by id
+
+  // delete customer by id
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
@@ -41,6 +45,11 @@ const CustomerManagement = () => {
       }
     }
   };
+
+  const filteredCustomers = customers.filter(cust => 
+    cust.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    cust.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="dashboard-content">
@@ -65,7 +74,12 @@ const CustomerManagement = () => {
           <div className="filters-left">
             <div className="search-input-box">
               <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" placeholder="Search by name or email..." />
+              <input 
+                type="text" 
+                placeholder="Search by name or email..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
         </div>
@@ -82,9 +96,9 @@ const CustomerManagement = () => {
           <tbody>
             {loading ? (
               <tr><td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>Loading customers...</td></tr>
-            ) : customers.length === 0 ? (
+            ) : filteredCustomers.length === 0 ? (
               <tr><td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>No customers found</td></tr>
-            ) : customers.map((cust) => (
+            ) : filteredCustomers.map((cust) => (
               <tr key={cust.id}>
                 <td>
                   <div className="td-customer">

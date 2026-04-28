@@ -5,7 +5,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import '../../styles/user/TrackOrder.css';
-import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
 
 const TrackOrder = () => {
     const [orderId, setOrderId] = useState('');
@@ -22,7 +21,7 @@ const TrackOrder = () => {
 
         try {
             // Fetch orders by email and filter by order ID
-            const response = await axios.get(`${API_URL}/orders/search?email=${email}`);
+            const response = await axios.get(`http://localhost:5001/api/orders/search?email=${email}`);
             
             // Clean up the searched ID (remove # or ORD- prefix if user typed it)
             const cleanId = orderId.replace(/[^0-9]/g, '');
@@ -43,27 +42,6 @@ const TrackOrder = () => {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        if (!orderInfo) return;
-
-        // Silent background refresh every 15 seconds if order is found
-        const interval = setInterval(async () => {
-            try {
-                const response = await axios.get(`${API_URL}/orders/search?email=${email}`);
-                const cleanId = orderId.replace(/[^0-9]/g, '');
-                const foundOrder = response.data.find(o => o.id.toString() === cleanId);
-                if (foundOrder) {
-                    setOrderInfo(foundOrder);
-                }
-            } catch (err) {
-                console.error("Silent order tracking refresh failed:", err);
-            }
-        }, 15000);
-
-        return () => clearInterval(interval);
-    }, [orderInfo, email, orderId]);
-
 // get progress step index based on status
     const getProgressStatus = (status) => {
         const statuses = ['pending', 'processing', 'shipped', 'delivered'];

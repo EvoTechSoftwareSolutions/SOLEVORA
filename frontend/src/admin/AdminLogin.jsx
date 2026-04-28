@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import logo from '../assets/logo.png';
 import './AdminLogin.css';
-import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 // Admin Login Component
+
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -14,24 +13,30 @@ const AdminLogin = () => {
     const { login } = useAdminAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        if (!email || !password) { setError('Please enter email and password'); return; }
 
-        setLoading(true);
-        try {
-            // Send login request to backend
-            const res = await axios.post(`${BASE_URL}/admin-login`, { email, password });
-            login(res.data.user);
-            navigate('/admin', { replace: true });
-        } catch (err) {
-            setError(err.response?.data?.message || 'Login failed');
-        } finally {
-            setLoading(false);
-        }
-    };
 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const result = await login(email, password);
+
+  if (!result.success) {
+    setError(result.message);
+    return;
+  }
+
+  const user = result.user; 
+
+  if (user.role === "admin") {
+    navigate("/admin");
+  } 
+  else if (user.role === "store_manager") {
+    navigate("/admin/products");
+  } 
+  else {
+    navigate("/home");
+  }
+};
     return (
         <div className="al-root">
             {/* Background decoration */}

@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import './Settings.css';
-import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
-const API = `${API_URL}/admin`;
+import { API_URL } from '../config/api';
 
 //  API headers with admin id 
 const authHeaders = (adminUser) => ({ 'x-admin-id': adminUser?.id });
-
 
 // Settings Page Component
 const Settings = () => {
@@ -39,8 +37,8 @@ const Settings = () => {
         const load = async () => {
             try {
                 const [settingsRes, staffRes] = await Promise.all([
-                    axios.get(`${API}/settings`,     { headers: authHeaders(adminUser) }),
-                    axios.get(`${API}/admin-users`,  { headers: authHeaders(adminUser) })
+                    axios.get(`${API_URL}/admin/settings`,     { headers: authHeaders(adminUser) }),
+                    axios.get(`${API_URL}/admin/admin-users`,  { headers: authHeaders(adminUser) })
                 ]);
                 setSettings(settingsRes.data);
                 setStaffList(staffRes.data);
@@ -51,20 +49,6 @@ const Settings = () => {
             }
         };
         load();
-
-        // Silent background refresh every 15 seconds (only for staff list and settings if not saving)
-        const interval = setInterval(() => {
-            if (!adminUser) return;
-            
-            // We refresh staff list silently
-            axios.get(`${API}/admin-users`, { headers: authHeaders(adminUser) })
-                .then(res => setStaffList(res.data))
-                .catch(err => console.error('Silent staff fetch failed', err));
-                
-            // We refresh settings only if user is not on a form tab or if we want to risk it
-            // For now, let's just refresh staff list to be safe, as settings is a direct form state
-        }, 15000);
-        return () => clearInterval(interval);
     }, [adminUser]);
 
     const showToast = (msg, type = 'success') => {
@@ -77,7 +61,7 @@ const Settings = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            await axios.put(`${API}/settings`, settings, { headers: authHeaders(adminUser) });
+            await axios.put(`${API_URL}/admin/settings`, settings, { headers: authHeaders(adminUser) });
             showToast('Settings saved successfully!');
         } catch (err) {
             showToast(err.response?.data?.message || 'Failed to save settings', 'error');
@@ -104,12 +88,12 @@ const Settings = () => {
         setSaving(true);
         try {
             if (editingStaff) {
-                const res = await axios.put(`${API}/admin-users/${editingStaff.id}`, staffForm, { headers: authHeaders(adminUser) });
+                const res = await axios.put(`${API_URL}/admin/admin-users/${editingStaff.id}`, staffForm, { headers: authHeaders(adminUser) });
                 setStaffList(prev => prev.map(m => m.id === editingStaff.id ? { ...m, ...res.data.user } : m));
                 showToast('Staff member updated');
             } else {
-                const res = await axios.post(`${API}/admin-users`, staffForm, { headers: authHeaders(adminUser) });
-                const refreshed = await axios.get(`${API}/admin-users`, { headers: authHeaders(adminUser) });
+                const res = await axios.post(`${API_URL}/admin/admin-users`, staffForm, { headers: authHeaders(adminUser) });
+                const refreshed = await axios.get(`${API_URL}/admin/admin-users`, { headers: authHeaders(adminUser) });
                 setStaffList(refreshed.data);
                 showToast('Staff member created');
             }
@@ -124,7 +108,7 @@ const Settings = () => {
     const handleDeleteStaff = async (id) => {
         if (!window.confirm('Remove this staff member?')) return;
         try {
-            await axios.delete(`${API}/admin-users/${id}`, { headers: authHeaders(adminUser) });
+            await axios.delete(`${API_URL}/admin/admin-users/${id}`, { headers: authHeaders(adminUser) });
             setStaffList(prev => prev.filter(m => m.id !== id));
             showToast('Staff member removed');
         } catch (err) {
@@ -145,7 +129,7 @@ const Settings = () => {
         setPwErrors({});
         setIsPwSaving(true);
         try {
-            await axios.put(`${BASE_URL}/user/${adminUser.id}/password`, {
+            await axios.put(`${API_URL}/user/user/${adminUser.id}/password`, {
                 currentPassword: pwForm.currentPassword,
                 newPassword: pwForm.newPassword,
             });

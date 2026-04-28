@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import './Dashboard.css';
-import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
 
 const Dashboard = () => {
     const { checkoutData } = useCart();
@@ -26,7 +25,7 @@ const Dashboard = () => {
             if (!user.email) return;
             setLoading(true);
             try {
-                const response = await axios.get(`${API_URL}/orders/search?email=${user.email}`);
+                const response = await axios.get(`http://localhost:5001/api/orders/search?email=${user.email}`);
                 setOrders(response.data);
             } catch (error) {
                 console.error('Error fetching orders:', error);

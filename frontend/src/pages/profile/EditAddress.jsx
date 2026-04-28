@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import './AddAddress.css';
-import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
 
 const EditAddress = () => {
     const navigate = useNavigate();
@@ -23,7 +22,7 @@ const EditAddress = () => {
     useEffect(() => {
         const fetchAddressDetails = async () => {
             try {
-                const res = await axios.get(`${API_URL}/addresses/details/${id}`);
+                const res = await axios.get(`http://localhost:5001/api/addresses/details/${id}`);
                 setFormData(res.data);
             } catch (error) {
                 console.error("Failed to fetch address details", error);
@@ -47,7 +46,7 @@ const EditAddress = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            await axios.put(`${API_URL}/addresses/${id}`, formData);
+            await axios.put(`http://localhost:5001/api/addresses/${id}`, formData);
             navigate('/profile/addresses');
         } catch (error) {
             console.error("Failed to update address", error);

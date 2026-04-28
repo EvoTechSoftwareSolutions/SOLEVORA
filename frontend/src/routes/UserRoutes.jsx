@@ -35,7 +35,7 @@ const UserRoutes = (
     <Route path="/home" element={<Home />} />
     <Route path="/about" element={<About />} />
     <Route path="/contact" element={<Contact />} />
-    <Route path="/product/:id" element={<ProductDetail />} />
+    <Route path="/product/:slug" element={<ProductDetail />} />
     <Route path="/category" element={<Category />} />
     <Route path="/categorypage" element={<Category />} />
     <Route path="/category-details" element={<CategoryDetails />} />

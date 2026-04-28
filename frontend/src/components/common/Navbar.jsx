@@ -17,11 +17,18 @@ const Navbar = () => {
     const handleToggle = () => setMenuOpen(!menuOpen);
 
     // Logout function
-    const handleLogout = () => {
-        localStorage.removeItem('user');
-        localStorage.removeItem('auth_token'); // remove auth token if used
-        window.location.href = '/login'; // redirect to login
-    };
+const handleLogout = () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (user?.id) {
+        localStorage.removeItem(`solevora_cart_${user.id}`);
+    }
+
+    localStorage.removeItem('user');
+    localStorage.removeItem('auth_token');
+window.dispatchEvent(new Event("authChange"));
+    window.location.href = '/';
+};
 
     return (
         <header className="header-main">

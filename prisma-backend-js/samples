@@ -1,0 +1,21 @@
+{
+  "name": "Sajee",
+  "email": "sajeev@example.com",
+  "password": "12345678",
+  "role": "customer",
+  "phone": "0771234567",
+  "location": "Negombo",
+  "streetAddress": "No 12, Beach Road",
+  "city": "Negombo",
+  "postalCode": "11500",
+  "country": "Sri Lanka",
+  "newsletter": true,
+  "pushNotifications": true,
+  "usageReports": false
+}
+
+customer@gmail.com,
+
+storeadmin@gmail.com
+
+admin@gmail.com

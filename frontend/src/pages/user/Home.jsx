@@ -1,9 +1,9 @@
 // Importing necessary libraries, components, and styles
+const BASE_URL = 'http://localhost:5001';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "../../styles/user/Home.css";
-import { API_URL, getImageUrl, BASE_URL } from "../../config/api";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -40,6 +40,11 @@ import adidas from "../../assets/image/LogoSvg/adidas.svg";
 import underarmour from "../../assets/image/LogoSvg/underarmour.svg";
 import nike from "../../assets/image/LogoSvg/nike.svg";
 import justdoit from "../../assets/image/LogoSvg/justdoit.svg";
+
+
+const FALLBACK_IMG = `data:image/svg+xml,...`; 
+
+
 
 // Predefined categories for the homepage
 const categories = [
@@ -116,35 +121,18 @@ const [searchTerm, setSearchTerm] = useState("");
   // Fetch categories from the database on component mount
   useEffect(() => {
     fetchDbCategories();
-    // Silent background refresh every 15 seconds
-    const interval = setInterval(() => {
-      fetchDbCategories();
-    }, 15000);
-    return () => clearInterval(interval);
   }, []);
 
   // Fetch products whenever the active category changes
   useEffect(() => {
     fetchProducts();
-    // Silent background refresh every 15 seconds
-    const interval = setInterval(() => {
-      // Re-fetch products silently without setting loading(true) to avoid flickering
-      const category = activeCategory === "All" ? "" : encodeURIComponent(activeCategory);
-      const endpoint = category
-        ? `${API_URL}/products?category=${category}`
-        : `${API_URL}/products`;
-      axios.get(endpoint)
-        .then(resp => setProducts(resp.data))
-        .catch(err => console.error('Silent product fetch failed', err));
-    }, 15000);
-    return () => clearInterval(interval);
   }, [activeCategory]);
 
   // Function to fetch categories from the backend
   const fetchDbCategories = async () => {
     try {
-      const resp = await axios.get(`${API_URL}/categories`);
-      setDbCategories(resp.data);
+      const resp = await axios.get(`${BASE_URL}/api/category`);
+      setDbCategories(resp.data.data);
     } catch (err) {
       console.error('Error fetching categories:', err);
     }
@@ -156,16 +144,24 @@ const [searchTerm, setSearchTerm] = useState("");
     try {
       const category = activeCategory === "All" ? "" : encodeURIComponent(activeCategory);
       const endpoint = category
-        ? `${API_URL}/products?category=${category}`
-        : `${API_URL}/products`;
+        ? `http://localhost:5001/api/products?category=${category}`
+        : "http://localhost:5001/api/products";
       const resp = await axios.get(endpoint);
-      setProducts(resp.data);
+      setProducts(resp.data.data);
     } catch (err) {
       console.error('Error fetching products:', err);
     } finally {
       setLoading(false);
     }
   };
+//for image
+const getProductImage = (item) => {
+    const first = item.images?.[0]?.url;
+    if (!first) return FALLBACK_IMG;
+    if (first.startsWith('http')) return first;
+    if (first.startsWith('/')) return `${BASE_URL}${first}`;        // ← add this line
+    return `${BASE_URL}/${first.replace(/\\/g, '/')}`;
+};
 
   // Function to toggle FAQ visibility
   const toggleFAQ = (index) => {
@@ -252,11 +248,10 @@ const [searchTerm, setSearchTerm] = useState("");
           ) : filteredProducts.slice(0, 3).map((item) => (
             <Card
               key={item.id}
-              image={item.image_url}
+              image={getProductImage(item)}
               title={item.name}
-              description={item.description}
               price={item.price}
-              link={`/product/${item.id}`}
+              link={`/product/${item.slug}`}
             />
           ))}
         </div>

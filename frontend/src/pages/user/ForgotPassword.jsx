@@ -5,8 +5,6 @@ import axios from "axios";
 import forgotImage from "../../assets/shoe.png";
 import { HiOutlineMail } from "react-icons/hi";
 import "../../styles/Auth.css";
-import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
-import Toast from "../../components/ui/Toast";
 
 function ForgotPassword() {
   const navigate = useNavigate();
@@ -14,37 +12,23 @@ function ForgotPassword() {
   // State to manage the email input and feedback message
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [toast, setToast] = useState(null);
-
-  const validateEmail = (email) => {
-    return String(email)
-      .toLowerCase()
-      .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      );
-  };
 
   // Function to handle the forgot password form submission
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     
     if (!email) {
-      setToast({ message: "Please enter your email address", type: "error" });
+      setMessage("Please enter your email address");
       return;
-    }
-
-    if (!validateEmail(email)) {
-        setToast({ message: "Please enter a valid email address", type: "error" });
-        return;
     }
 
     try {
       // Sending the email to the backend API for password reset
-      const res = await axios.post(`${BASE_URL}/forgot-password`, {
+      const res = await axios.post("http://localhost:5001/forgot-password", {
         email,
       });
 
-      setToast({ message: res.data.message, type: "success" });
+      setMessage(res.data.message);
 
       // Redirecting to the check email page after a short delay
       setTimeout(() => {
@@ -53,9 +37,9 @@ function ForgotPassword() {
     } catch (error) {
       // Handling errors and displaying appropriate messages
       if (error.response && error.response.data.message) {
-        setToast({ message: error.response.data.message, type: "error" });
+        setMessage(error.response.data.message);
       } else {
-        setToast({ message: "Something went wrong", type: "error" });
+        setMessage("Something went wrong");
       }
     }
   };
@@ -139,14 +123,6 @@ function ForgotPassword() {
           </div>
         </div>
       </div>
-
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </div>
   );
 }

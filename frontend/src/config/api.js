@@ -1,10 +1,8 @@
-const API_BASE_URL = "http://localhost:5000";
+export const BASE_URL = 'http://localhost:5001';
+export const API_URL = `${BASE_URL}/api`;
 
-export const API_URL = `${API_BASE_URL}/api`;
-export const BASE_URL = API_BASE_URL;
-
-export const getImageUrl = (path) => {
-  if (!path) return "/placeholder.png";
-  if (path.startsWith("http")) return path;
-  return `${BASE_URL}${path}`;
+export const getImageUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 };

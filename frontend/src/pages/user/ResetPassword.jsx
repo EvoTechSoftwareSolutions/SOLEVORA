@@ -4,11 +4,9 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { BASE_URL } from "../../config/api";
 import { LuEye, LuCircleCheck, LuCircle } from "react-icons/lu";
 import resetImage from "../../assets/reset-password.png";
 import "./../../styles/Auth.css";
-import Toast from "../../components/ui/Toast";
 
 function ResetPassword() {
   const navigate = useNavigate();
@@ -18,13 +16,12 @@ function ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [userRole, setUserRole] = useState("user");
-  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     if (!token) return;
     const verifyToken = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/verify-reset-token/${token}`);
+        const res = await axios.get(`http://localhost:5001/verify-reset-token/${token}`);
         if (res.data.role) setUserRole(res.data.role);
       } catch (err) {
         console.error("Token verification error:", err);
@@ -45,28 +42,27 @@ function ResetPassword() {
   const hasMinLength = newPassword.length >= 8;
   const hasSpecialAndNumber =
     /[0-9]/.test(newPassword) && /[^A-Za-z0-9]/.test(newPassword);
-
-  // reset password function
+// reset password function
   const handleResetPassword = async () => {
     // Form validation
     if (!newPassword || !confirmPassword) {
-      setToast({ message: "Please fill all fields", type: "error" });
+      setMessage("Please fill all fields");
       return;
     }
-
+// basic validation
     if (newPassword !== confirmPassword) {
-      setToast({ message: "Passwords do not match", type: "error" });
+      setMessage("Passwords do not match");
       return;
     }
 
     try {
       // Send password reset request to backend
       const res = await axios.post(
-        `${BASE_URL}/reset-password/${token}`,
+        `http://localhost:5001/reset-password/${token}`,
         { newPassword }
       );
 
-      setToast({ message: res.data.message, type: "success" });
+      setMessage(res.data.message);
 
       // Redirect to success page after 1 second
       setTimeout(() => {
@@ -75,9 +71,9 @@ function ResetPassword() {
     } catch (error) {
       // Error handling
       if (error.response && error.response.data.message) {
-        setToast({ message: error.response.data.message, type: "error" });
+        setMessage(error.response.data.message);
       } else {
-        setToast({ message: "Reset failed", type: "error" });
+        setMessage("Reset failed");
       }
     }
   };
@@ -101,7 +97,8 @@ function ResetPassword() {
           {/* Promotional content */}
           <div className="absolute z-10 text-white left-8 md:left-14 bottom-24">
             <h1 className="text-4xl font-bold leading-tight md:text-6xl">
-              Redefining the<br />
+              Redefining the
+              <br />
               <span className="text-orange-500">Kinetic</span> Standard.
             </h1>
 
@@ -118,6 +115,7 @@ function ResetPassword() {
             <div className="w-10 h-1 rounded-full bg-gray-500/40"></div>
           </div>
         </div>
+
 
         {/* Right form panel */}
         <div className="auth-right-panel">
@@ -204,7 +202,7 @@ function ResetPassword() {
                   </div>
                 </div>
               </div>
-
+            {/* submit */}
               <button
                 type="submit"
                 className="w-full h-16 rounded-full bg-orange-500 text-white text-2xl font-semibold hover:bg-orange-600 transition shadow-[0_10px_20px_rgba(255,102,0,0.15)]"
@@ -212,12 +210,14 @@ function ResetPassword() {
                 Reset Password →
               </button>
 
+              {/* Status message display */}
               {message && (
                 <p className="mt-4 text-sm text-center text-blue-600">{message}</p>
               )}
             </form>
 
             <div className="text-center mt-14">
+              {/* Intelligent link back to correct portal */}
               <Link
                 to={["admin", "store_manager"].includes(userRole) ? "/admin-login" : "/"}
                 className="text-[#635d63] text-xl hover:text-orange-500 transition"
@@ -225,18 +225,11 @@ function ResetPassword() {
                 ← Return to Login
               </Link>
             </div>
-          </div>
+
         </div>
       </div>
-
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </div>
+  </div>
   );
 }
 

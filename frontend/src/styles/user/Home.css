@@ -202,24 +202,37 @@
 
 /* Product filter bar styles */
 .filter {
-  padding: 20px;
+  padding: 12px 24px;
   border-radius: 12px;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   width: 100%;
   max-width: 1200px;
-  justify-content: center;
+  justify-content: space-between;
   background-color: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin: 0 auto;
+  gap: 20px;
+}
+
+.filter-categories {
+  flex: 1;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none; 
+}
+
+.filter-categories::-webkit-scrollbar {
+  display: none;
 }
 
 /* Filter categories list */
 .filter-categories ul {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
   gap: 12px;
   list-style: none;
   padding: 0;
@@ -254,7 +267,6 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-top: 20px;
 }
 
 /* Icon for filter actions */

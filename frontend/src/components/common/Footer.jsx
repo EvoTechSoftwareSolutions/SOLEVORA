@@ -5,7 +5,6 @@ import footerLogo from '../../assets/logo2.png';
 import SuccessPopup from "./SuccessPoppup";
 import SizeChartModal from "../user/SizeChartModal";
 import './Footer.css';
-import { API_URL, BASE_URL, getImageUrl } from '../../config/api';
 
 const Footer = () => {
   const [email, setEmail] = useState("");
@@ -25,7 +24,7 @@ const Footer = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("${API_URL}/newsletter/subscribe", { email });
+      const res = await axios.post("http://localhost:5001/api/newsletter/subscribe", { email });
 
       setMessage(res.data.message || "Thank you for subscribing!");
       setPopupType("success");

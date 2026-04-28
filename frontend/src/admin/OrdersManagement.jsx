@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './OrdersManagement.css';
-import { API_URL, BASE_URL, getImageUrl } from '../config/api';
+import { API_URL, getImageUrl } from '../config/api';
 
 const OrdersManagement = () => {
     const [subTab, setSubTab] = useState('All Orders');
@@ -19,8 +19,8 @@ const OrdersManagement = () => {
 // fetch orders from API
     const fetchOrders = async () => {
         try {
-            const response = await axios.get(`${API_URL}/admin/orders`);
-            setOrders(response.data);
+            const response = await axios.get(`${API_URL}/orders`);
+            setOrders(response.data.data);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -30,21 +30,12 @@ const OrdersManagement = () => {
 // load orders when page opens
     useEffect(() => {
         fetchOrders();
-        // Silent background refresh every 15 seconds
-        const interval = setInterval(() => {
-            axios.get(`${API_URL}/admin/orders`)
-                .then(response => {
-                    setOrders(response.data);
-                })
-                .catch(err => console.error('Silent fetch failed', err));
-        }, 15000);
-        return () => clearInterval(interval);
     }, []);
 // delete order
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this order?')) {
             try {
-                await axios.delete(`${API_URL}/admin/orders/${id}`);
+                await axios.delete(`${API_URL}/orders/${id}`);
                 fetchOrders();
             } catch (error) {
                 alert('Error deleting order');

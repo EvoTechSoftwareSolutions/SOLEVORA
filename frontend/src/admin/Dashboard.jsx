@@ -2,72 +2,44 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
-import { API_URL, BASE_URL, getImageUrl } from '../config/api';
+import { API_URL } from '../config/api';
 
 const Dashboard = () => {
-    const [chartFilter, setChartFilter] = useState('Monthly');
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
-// get dashboard stats from backend
+
+    // get dashboard stats from backend
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await axios.get(`${API_URL}/admin/stats`);
+                // Use relative path since baseURL is set in AdminAuthContext
+                const response = await axios.get('/admin/stats');
                 setStats(response.data);
                 setLoading(false);
             } catch (error) {
-                console.error('Error fetching admin stats:', error);
+                console.error('CRITICAL: Dashboard stats fetch failed:', error.response?.status, error.message);
                 setLoading(false);
             }
         };
         fetchStats();
 
-        // Silent background refresh every 15 seconds
+        // Silent background refresh every 5 seconds
         const interval = setInterval(() => {
-            axios.get(`${API_URL}/admin/stats`)
+            axios.get('/admin/stats')
                 .then(response => {
                     setStats(response.data);
                 })
-                .catch(err => console.error('Silent stats fetch failed', err));
-        }, 15000);
+                .catch(err => console.error('Silent stats fetch failed:', err.response?.status, err.message));
+        }, 5000);
         return () => clearInterval(interval);
     }, []);
-// simple loading UI
+
+    // simple loading UI
     if (loading) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading dashboard...</div>;
     if (!stats) return <div style={{ padding: '50px', textAlign: 'center' }}>Error loading dashboard data. Please try again later.</div>;
+
     // fallback if no orders
     const recentOrders = stats.recentOrders || [];
-// static top selling products
-    const topSelling = [
-        {
-            name: 'Zenith Runner X',
-            sales: '420',
-            value: 'Rs. 79,380',
-            img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&h=100&fit=crop',
-            barWidth: '85%'
-        },
-        {
-            name: 'Urban Glide Pro',
-            sales: '315',
-            value: 'Rs. 45,832',
-            img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=100&h=100&fit=crop',
-            barWidth: '60%'
-        },
-        {
-            name: 'Mountain Peak XT',
-            sales: '280',
-            value: 'Rs. 58,800',
-            img: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=100&h=100&fit=crop',
-            barWidth: '70%'
-        },
-        {
-            name: 'Classic Suede',
-            sales: '190',
-            value: 'Rs. 24,700',
-            img: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=100&h=100&fit=crop',
-            barWidth: '40%'
-        }
-    ];
 
     const monthlySales = stats.monthlySales || [];
     
@@ -184,7 +156,7 @@ const Dashboard = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="td-amount">Rs. {(Number(order.total_amount) || 0).toLocaleString()}</td>
+                                    <td className="td-amount">Rs. {(Number(order.totalAmount) || 0).toLocaleString()}</td>
                                     <td>
                                         <div className={`status-pill status-${order.status.toLowerCase()}`}>
                                             {order.status.toUpperCase()}
@@ -202,17 +174,17 @@ const Dashboard = () => {
                         <h3 className="card-title-main">Top Selling</h3>
                     </div>
                     <div className="top-selling-list">
-                        {topSelling.map((item, idx) => (
+                        {(stats.topProducts || []).map((item, idx) => (
                             <div key={idx} className="top-selling-item">
-                                <img src={item.img} alt="shoe" className="top-item-img" />
+                                <img src={item.img || 'https://via.placeholder.com/100'} alt="shoe" className="top-item-img" />
                                 <div className="top-item-details">
                                     <div className="top-item-name">{item.name}</div>
                                     <div className="top-item-sales">{item.sales} SALES</div>
                                 </div>
                                 <div className="top-item-value-box">
-                                    <div className="top-item-val">{item.value}</div>
+                                    <div className="top-item-val">Rs. {(Number(item.value) || 0).toLocaleString()}</div>
                                     <div className="top-item-bar-bg">
-                                        <div className="top-item-bar-fill" style={{ width: item.barWidth }}></div>
+                                        <div className="top-item-bar-fill" style={{ width: `${Math.min(100, (item.sales / 50) * 100)}%` }}></div>
                                     </div>
                                 </div>
                             </div>

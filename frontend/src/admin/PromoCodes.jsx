@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './PromoCodes.css';
-import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
-const API = `${API_URL}/promo`;
+import { API_URL } from '../config/api';
+
+const API = `${API_URL}/admin/promo`;
 
 const emptyForm = {
     code: '',
@@ -41,18 +42,7 @@ const PromoCodes = () => {
         }
     };
 
-    useEffect(() => {
-        fetchPromos();
-        // Silent background refresh every 15 seconds
-        const interval = setInterval(() => {
-            axios.get(API)
-                .then(response => {
-                    setPromos(response.data);
-                })
-                .catch(err => console.error('Silent fetch failed', err));
-        }, 15000);
-        return () => clearInterval(interval);
-    }, []);
+    useEffect(() => { fetchPromos(); }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -206,9 +196,9 @@ const PromoCodes = () => {
                                         <td>
                                             {promo.discountType === 'percentage'
                                                 ? `${promo.discountValue}%`
-                                                : `$${Number(promo.discountValue).toFixed(2)}`}
+                                                : `Rs. ${Number(promo.discountValue).toLocaleString()}`}
                                         </td>
-                                        <td>${Number(promo.minOrderAmount).toFixed(2)}</td>
+                                        <td>Rs. {Number(promo.minOrderAmount).toLocaleString()}</td>
                                         <td>
                                             {promo.usedCount}
                                             {promo.maxUses ? ` / ${promo.maxUses}` : ' / ∞'}
@@ -254,19 +244,19 @@ const PromoCodes = () => {
                                     <label>Discount Type *</label>
                                     <select name="discountType" value={form.discountType} onChange={handleChange} className="pc-input">
                                         <option value="percentage">Percentage (%)</option>
-                                        <option value="fixed">Fixed Amount ($)</option>
+                                        <option value="fixed">Fixed Amount (Rs.)</option>
                                     </select>
                                 </div>
                             </div>
                             <div className="pc-form-row">
                                 <div className="pc-form-group">
-                                    <label>Discount Value * {form.discountType === 'percentage' ? '(%)' : '($)'}</label>
+                                    <label>Discount Value * {form.discountType === 'percentage' ? '(%)' : '(Rs.)'}</label>
                                     <input name="discountValue" type="number" min="0" step="0.01"
                                         value={form.discountValue} onChange={handleChange} required
-                                        placeholder={form.discountType === 'percentage' ? '10' : '5.00'} className="pc-input" />
+                                        placeholder={form.discountType === 'percentage' ? '10' : '500'} className="pc-input" />
                                 </div>
                                 <div className="pc-form-group">
-                                    <label>Min Order Amount ($)</label>
+                                    <label>Min Order Amount (Rs.)</label>
                                     <input name="minOrderAmount" type="number" min="0" step="0.01"
                                         value={form.minOrderAmount} onChange={handleChange}
                                         placeholder="0.00" className="pc-input" />
