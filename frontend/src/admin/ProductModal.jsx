@@ -55,24 +55,38 @@ useEffect(() => {
         }
     }, [isOpen]);
 
+    const normalizeStocks = (items) => {
+        if (!Array.isArray(items) || items.length === 0) {
+            return [{ size: '7', costPrice: '', quantity: '' }];
+        }
+        return items.map((s) => ({
+            size: s.size ?? '',
+            costPrice: s.costPrice ?? '',
+            quantity: s.quantity ?? ''
+        }));
+    };
+
+    const normalizeFormData = (item) => ({
+        name: item?.name ?? '',
+        slug: item?.slug ?? '',
+        description: item?.description ?? '',
+        price: item?.price ?? '',
+        discountPrice: item?.discountPrice ?? '',
+        categoryId: item?.categoryId ?? '',
+        gender: item?.gender ?? 'ALL',
+    });
+
     // 2. Pre-fill or Reset Form
     useEffect(() => {
         if (isOpen) {
             if (product) {
-                setFormData({
-                    name: product.name || '',
-                    slug: product.slug || '',
-                    description: product.description || '',
-                    price: product.price || '',
-                    discountPrice: product.discountPrice || '',
-                    categoryId: product.categoryId || '',
-                    gender: product.gender || 'ALL',
-                });
-                setStocks(product.stocks || [{ size: '7', costPrice: '', quantity: '' }]);
+                setFormData(normalizeFormData(product));
+                setStocks(normalizeStocks(product.stocks));
                 setImagePreviews(product.images?.map(img => `${BASE_URL}${img.url}`) || []);
+                setImages([]);
             } else {
-                setFormData({ name: '', slug: '', description: '', price: '', discountPrice: '', categoryId: '', gender: 'ALL' });
-                setStocks([{ size: '7', costPrice: '', quantity: '' }]);
+                setFormData(normalizeFormData(null));
+                setStocks(normalizeStocks([]));
                 setImages([]);
                 setImagePreviews([]);
             }
@@ -104,17 +118,9 @@ const handleNameChange = (e) => {
 };
 
 const handleSelectProduct = (product) => {
-  setFormData({
-    name: product.name,
-    slug: product.slug,
-    description: product.description,
-    price: product.price,
-    discountPrice: product.discountPrice,
-    categoryId: product.categoryId,
-    gender: product.gender,
-  });
+    setFormData(normalizeFormData(product));
 
-  setStocks(product.stocks || []);
+    setStocks(normalizeStocks(product.stocks));
   setImagePreviews(
     product.images?.map((img) => `${BASE_URL}${img.url}`) || []
   );

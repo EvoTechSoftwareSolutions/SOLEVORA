@@ -3,10 +3,18 @@ import prisma from "../prisma/client.js";
 // ADD TO CART
 export const addToCart = async (req, res) => {
   try {
-    const userId = req.user.id; 
-    const { productId, size } = req.body;
+    if (!req.user?.id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
 
-    if (!productId || !size) {
+    const userId = Number(req.user.id);
+    const { productId, size } = req.body;
+    const parsedProductId = Number(productId);
+
+    if (!parsedProductId || !size) {
       return res.status(400).json({
         success: false,
         message: "Missing required fields"
@@ -14,13 +22,16 @@ export const addToCart = async (req, res) => {
     }
 
     const existing = await prisma.cart.findFirst({
-      where: { userId, productId, size }
+      where: { userId, productId: parsedProductId, size }
     });
 
     if (existing) {
       const updated = await prisma.cart.update({
         where: { id: existing.id },
-        data: { quantity: existing.quantity + 1 }
+        data: { 
+          quantity: existing.quantity + 1,
+          updatedAt: new Date()
+        }
       });
 
       return res.json({
@@ -32,9 +43,10 @@ export const addToCart = async (req, res) => {
     const cart = await prisma.cart.create({
       data: {
         userId,
-        productId,
+        productId: parsedProductId,
         size,
-        quantity: 1
+        quantity: 1,
+        updatedAt: new Date()
       }
     });
 
@@ -94,7 +106,10 @@ export const updateCartItem = async (req, res) => {
 
     const updated = await prisma.cart.update({
       where: { id: Number(cartId) },
-      data: { quantity }
+      data: { 
+        quantity,
+        updatedAt: new Date()
+      }
     });
 
     res.json({

@@ -34,7 +34,8 @@ const PromoCodes = () => {
         try {
             setLoading(true);
             const { data } = await axios.get(API);
-            setPromos(data);
+            const list = Array.isArray(data?.data) ? data.data : [];
+            setPromos(list);
         } catch {
             notify('Failed to load promo codes', 'error');
         } finally {
@@ -105,6 +106,7 @@ const PromoCodes = () => {
     };
 
     const isExpired = (expiresAt) => expiresAt && new Date(expiresAt) < new Date();
+    const safePromos = Array.isArray(promos) ? promos : [];
 
     return (
         <div className="pc-container">
@@ -130,28 +132,28 @@ const PromoCodes = () => {
                 <div className="pc-stat-card">
                     <span className="pc-stat-icon material-symbols-outlined">confirmation_number</span>
                     <div>
-                        <p className="pc-stat-val">{promos.length}</p>
+                        <p className="pc-stat-val">{safePromos.length}</p>
                         <p className="pc-stat-lbl">Total Codes</p>
                     </div>
                 </div>
                 <div className="pc-stat-card">
                     <span className="pc-stat-icon pc-active material-symbols-outlined">check_circle</span>
                     <div>
-                        <p className="pc-stat-val">{promos.filter(p => p.isActive && !isExpired(p.expiresAt)).length}</p>
+                        <p className="pc-stat-val">{safePromos.filter(p => p.isActive && !isExpired(p.expiresAt)).length}</p>
                         <p className="pc-stat-lbl">Active</p>
                     </div>
                 </div>
                 <div className="pc-stat-card">
                     <span className="pc-stat-icon pc-used material-symbols-outlined">person</span>
                     <div>
-                        <p className="pc-stat-val">{promos.reduce((s, p) => s + (p.usedCount || 0), 0)}</p>
+                        <p className="pc-stat-val">{safePromos.reduce((s, p) => s + (p.usedCount || 0), 0)}</p>
                         <p className="pc-stat-lbl">Total Uses</p>
                     </div>
                 </div>
                 <div className="pc-stat-card">
                     <span className="pc-stat-icon pc-expired material-symbols-outlined">schedule</span>
                     <div>
-                        <p className="pc-stat-val">{promos.filter(p => isExpired(p.expiresAt)).length}</p>
+                        <p className="pc-stat-val">{safePromos.filter(p => isExpired(p.expiresAt)).length}</p>
                         <p className="pc-stat-lbl">Expired</p>
                     </div>
                 </div>
@@ -160,7 +162,7 @@ const PromoCodes = () => {
             {/* Promo Table */}
             {loading ? (
                 <div className="pc-loading">Loading promo codes...</div>
-            ) : promos.length === 0 ? (
+            ) : safePromos.length === 0 ? (
                 <div className="pc-empty">
                     <span className="material-symbols-outlined pc-empty-icon">confirmation_number</span>
                     <p>No promo codes yet. Create your first one!</p>
@@ -180,7 +182,7 @@ const PromoCodes = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {promos.map(promo => {
+                            {safePromos.map(promo => {
                                 const expired = isExpired(promo.expiresAt);
                                 const statusClass = !promo.isActive ? 'pc-badge-inactive'
                                     : expired ? 'pc-badge-expired'

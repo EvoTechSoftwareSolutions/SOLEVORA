@@ -45,7 +45,10 @@ const AccountSettings = () => {
             if (!userId) return;
 
             try {
-                const res = await axios.get(`http://localhost:5001/user/${userId}`);
+                const token = localStorage.getItem("auth_token");
+                const res = await axios.get(`http://localhost:5001/api/user/${userId}`, {
+                  headers: { Authorization: `Bearer ${token}` }
+                });
                 setProfileData({
                     fullName: res.data.name || '',
                     email: res.data.email || '',

@@ -22,8 +22,11 @@ const EditAddress = () => {
     useEffect(() => {
         const fetchAddressDetails = async () => {
             try {
-                const res = await axios.get(`http://localhost:5001/api/addresses/details/${id}`);
-                setFormData(res.data);
+                const token = localStorage.getItem("auth_token");
+                const res = await axios.get(`http://localhost:5001/api/addresses/details/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setFormData(res.data?.data ?? res.data);
             } catch (error) {
                 console.error("Failed to fetch address details", error);
                 alert("Failed to load address data");
@@ -46,7 +49,13 @@ const EditAddress = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            await axios.put(`http://localhost:5001/api/addresses/${id}`, formData);
+            const token = localStorage.getItem("auth_token");
+            await axios.put(`http://localhost:5001/api/addresses/${id}`, {
+                ...formData,
+                phone: (formData.phone || "").trim(),
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             navigate('/profile/addresses');
         } catch (error) {
             console.error("Failed to update address", error);
@@ -109,6 +118,7 @@ const EditAddress = () => {
                             placeholder="+1 (555) 000-0000" 
                             value={formData.phone} 
                             onChange={handleChange} 
+                            required
                         />
                     </div>
 

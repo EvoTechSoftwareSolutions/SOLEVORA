@@ -17,11 +17,7 @@ const AddAddress = () => {
         isDefault: false
     });
 
-    const getUserId = () => {
-        const userStr = localStorage.getItem("user");
-        if (userStr) return JSON.parse(userStr).id;
-        return null;
-    };
+    const trimOrEmpty = (v) => (typeof v === "string" ? v.trim() : "");
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -33,22 +29,62 @@ const AddAddress = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const userId = getUserId();
-        if (!userId) {
-            alert("Please login first");
-            return;
-        }
-
+        
         setLoading(true);
         try {
-            await axios.post('http://localhost:5001/api/addresses', {
-                ...formData,
-                userId
+            const token = localStorage.getItem("auth_token");
+            console.log("Token exists:", !!token);
+            console.log("Token length:", token?.length);
+            if (!token) {
+                alert("Session expired. Please login again.");
+                return;
+            }
+
+            const payload = {
+                title: trimOrEmpty(formData.title),
+                name: trimOrEmpty(formData.name),
+                street: trimOrEmpty(formData.street),
+                city: trimOrEmpty(formData.city),
+                postalCode: trimOrEmpty(formData.postalCode),
+                country: trimOrEmpty(formData.country),
+                phone: trimOrEmpty(formData.phone),
+                isDefault: Boolean(formData.isDefault),
+            };
+
+            console.log("Sending payload:", JSON.stringify(payload, null, 2));
+
+            const required = ["title", "name", "street", "city", "postalCode", "country", "phone"];
+            console.log("Checking required fields:");
+            required.forEach(field => {
+                console.log(`${field}: "${payload[field]}" (empty: ${!payload[field]})`);
+            });
+            const missing = required.filter((k) => !payload[k] || payload[k].trim() === "");
+            if (missing.length) {
+                alert(`Please fill: ${missing.join(", ")}`);
+                return;
+            }
+
+            await axios.post('http://localhost:5001/api/addresses', payload, {
+              headers: { Authorization: `Bearer ${token}` }
             });
             navigate('/profile/addresses');
         } catch (error) {
-            console.error("Failed to add address", error);
-            alert("Failed to save address. Please try again.");
+            const status = error?.response?.status;
+            const data = error?.response?.data;
+            console.error("Failed to add address", { status, data, error });
+            console.log("Full error response:", JSON.stringify(error?.response, null, 2));
+            
+            if (data?.message) {
+                alert(`Error: ${data.message}`);
+            } else if (status === 400) {
+                alert("Invalid data provided. Please check all fields and try again.");
+            } else if (status === 401) {
+                alert("Session expired. Please login again.");
+            } else if (status === 403) {
+                alert("Access denied. You don't have permission to perform this action.");
+            } else {
+                alert("Failed to save address. Please try again.");
+            }
         } finally {
             setLoading(false);
         }
@@ -99,6 +135,7 @@ const AddAddress = () => {
                             placeholder="+1 (555) 000-0000" 
                             value={formData.phone} 
                             onChange={handleChange} 
+                            required
                         />
                     </div>
 

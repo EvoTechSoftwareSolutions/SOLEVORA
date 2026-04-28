@@ -32,9 +32,9 @@ router.get("/verify-reset-token/:token", verifyResetToken);
 router.post("/reset-password/:token", resetPassword);
 
 // USER ROUTES
-router.get("/user/:id", authMiddleware, getUser);
-router.put("/user/:id", authMiddleware, updateUser);
-router.put("/user/:id/password", authMiddleware, updatePassword);
+router.get("/:id", authMiddleware, getUser);
+router.put("/:id", authMiddleware, updateUser);
+router.put("/:id/password", authMiddleware, updatePassword);
 
 // ADMIN / MANAGER ROUTES
 router.delete("/user/:id", authMiddleware, requireRole(["admin"]), deleteUser);

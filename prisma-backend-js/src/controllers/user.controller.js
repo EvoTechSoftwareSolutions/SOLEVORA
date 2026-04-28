@@ -325,8 +325,9 @@ export const updatePassword = async (req, res) => {
 
 // DELETE USER
 export const deleteUser = async (req, res) => {
-  try {
-    const { id } = req.params;
+  try {    if (!req.user?.id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }    const { id } = req.params;
 
     await prisma.user.update({
       where: { id: Number(id) },

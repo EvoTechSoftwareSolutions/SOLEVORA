@@ -105,6 +105,7 @@ export const createProduct = async (req, res) => {
         discountPrice: discountPrice ? parseFloat(discountPrice) : null,
         categoryId: Number(categoryId),
         gender,
+        updatedAt: new Date(),
 
         productimage: {
           create: files.map(file => ({

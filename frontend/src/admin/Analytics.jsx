@@ -28,7 +28,7 @@ const Analytics = () => {
     if (loading) return <div style={{ padding: '100px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Analyzing data streams...</div>;
     if (!stats) return <div style={{ padding: '100px', textAlign: 'center' }}>Unable to retrieve analytics.</div>;
 
-    const topPerforming = stats.topProducts || [];
+    const topPerforming = Array.isArray(stats.topProducts) ? stats.topProducts : [];
     const salesByCategory = stats.salesByCategory || [];
 
     // Calculate max values for bar chart scaling
@@ -125,13 +125,18 @@ const Analytics = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {topPerforming.map((item, idx) => (
+                                {topPerforming.map((item, idx) => {
+                                    const name = item.productName ?? item.name ?? '—';
+                                    const units = item._sum?.quantity ?? item.sales ?? 0;
+                                    const revenue = item._sum?.sellingPrice ?? item.value ?? 0;
+                                    return (
                                     <tr key={idx}>
-                                        <td className="td-p-name">{item.productName}</td>
-                                        <td>{item._sum.quantity}</td>
-                                        <td className="td-p-rev">Rs. {Number(item._sum.sellingPrice).toLocaleString()}</td>
+                                        <td className="td-p-name">{name}</td>
+                                        <td>{units}</td>
+                                        <td className="td-p-rev">Rs. {Number(revenue).toLocaleString()}</td>
                                     </tr>
-                                ))}
+                                    );
+                                })}
                                 {topPerforming.length === 0 && <tr><td colSpan="3" className="empty-text">No sales data recorded.</td></tr>}
                             </tbody>
                         </table>

@@ -12,7 +12,8 @@ const CustomerManagement = () => {
   const fetchCustomers = async () => {
     try {
       const response = await axios.get(`${API_URL}/admin/customers`);
-      setCustomers(response.data);
+      const data = Array.isArray(response.data?.data) ? response.data.data : [];
+      setCustomers(data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching customers:', error);
@@ -26,7 +27,8 @@ const CustomerManagement = () => {
     const interval = setInterval(() => {
       axios.get(`${API_URL}/admin/customers`)
         .then(response => {
-          setCustomers(response.data);
+          const data = Array.isArray(response.data?.data) ? response.data.data : [];
+          setCustomers(data);
         })
         .catch(err => console.error('Silent fetch failed', err));
     }, 15000);
@@ -45,7 +47,8 @@ const CustomerManagement = () => {
     }
   };
 
-  const filteredCustomers = customers.filter(cust => 
+  const safeCustomers = Array.isArray(customers) ? customers : [];
+  const filteredCustomers = safeCustomers.filter(cust => 
     cust.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
     cust.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );

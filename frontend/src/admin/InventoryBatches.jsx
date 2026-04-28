@@ -74,13 +74,17 @@ const InventoryBatches = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {batches.map((batch) => (
+                        {batches.map((batch) => {
+                            const imageSrc = batch.product?.image_url
+                                ? getImageUrl(batch.product.image_url)
+                                : null;
+                            return (
                             <tr key={batch.id}>
                                 <td>
                                     <div className="product-info-cell">
-                                        <img 
-                                            src={getImageUrl(batch.product?.image_url)} 
-                                            alt={batch.product?.name} 
+                                        <img
+                                            src={imageSrc || undefined}
+                                            alt={batch.product?.name || ""}
                                             className="product-batch-img"
                                         />
                                         <span className="product-batch-name">{batch.product?.name}</span>
@@ -107,7 +111,8 @@ const InventoryBatches = () => {
                                     </span>
                                 </td>
                             </tr>
-                        ))}
+                            );
+                        })}
                     </tbody>
                 </table>
                 {batches.length === 0 && (

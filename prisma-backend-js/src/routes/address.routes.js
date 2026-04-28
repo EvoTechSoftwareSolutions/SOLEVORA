@@ -6,13 +6,14 @@ import {
   updateAddress,
   deleteAddress
 } from "../controllers/address.controller.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/:userId", getAddressesByUserId);
-router.get("/details/:id", getAddressDetails);
-router.post("/", createAddress);
-router.put("/:id", updateAddress);
-router.delete("/:id", deleteAddress);
+router.get("/:userId", authMiddleware, getAddressesByUserId);
+router.get("/details/:id", authMiddleware, getAddressDetails);
+router.post("/", authMiddleware, createAddress);
+router.put("/:id", authMiddleware, updateAddress);
+router.delete("/:id", authMiddleware, deleteAddress);
 
 export default router;

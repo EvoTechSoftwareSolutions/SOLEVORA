@@ -130,3 +130,54 @@ export const deleteStock = async (req, res) => {
     });
   }
 };
+
+//
+// GET ALL STOCK BATCHES (ADMIN VIEWS)
+//
+export const getAllStockBatches = async (req, res) => {
+  try {
+    const batches = await prisma.productstock.findMany({
+      include: {
+        product: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            discountPrice: true,
+            productimage: {
+              take: 1,
+              select: { url: true },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const mapped = batches.map((batch) => {
+      const sellingPrice = batch.product?.discountPrice ?? batch.product?.price ?? 0;
+      return {
+        id: batch.id,
+        createdAt: batch.createdAt,
+        quantity: batch.quantity,
+        original_quantity: batch.quantity,
+        cost_price: Number(batch.costPrice || 0),
+        selling_price: Number(sellingPrice || 0),
+        product: batch.product
+          ? {
+              id: batch.product.id,
+              name: batch.product.name,
+              image_url: batch.product.productimage?.[0]?.url || "",
+            }
+          : null,
+      };
+    });
+
+    return res.json(mapped);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

@@ -25,8 +25,11 @@ const Addresses = () => {
     const userId = getUserId();
     if (!userId) return;
     try {
-      const res = await axios.get(`http://localhost:5001/api/addresses/${userId}`);
-      setAddresses(res.data);
+      const token = localStorage.getItem("auth_token");
+      const res = await axios.get(`http://localhost:5001/api/addresses/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAddresses(res.data?.data ?? res.data);
     } catch (error) {
       showStatus("Error", "Failed to fetch addresses. Please check your connection.");
     } finally {
@@ -55,7 +58,10 @@ const Addresses = () => {
   const confirmDelete = async () => {
     if (!addressToDelete) return;
     try {
-      await axios.delete(`http://localhost:5001/api/addresses/${addressToDelete}`);
+      const token = localStorage.getItem("auth_token");
+      await axios.delete(`http://localhost:5001/api/addresses/${addressToDelete}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setIsDeleteModalOpen(false);
       fetchAddresses();
     } catch (error) {
@@ -65,7 +71,10 @@ const Addresses = () => {
 
   const handleSetDefault = async (id) => {
     try {
-      await axios.put(`http://localhost:5001/api/addresses/${id}`, { isDefault: true });
+      const token = localStorage.getItem("auth_token");
+      await axios.put(`http://localhost:5001/api/addresses/${id}`, { isDefault: true }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       fetchAddresses();
     } catch (error) {
       showStatus("Error", "Failed to update default address.");
@@ -111,7 +120,7 @@ const Addresses = () => {
                   <div className="addr-card-lines">
                     <p className="addr-line addr-name">{addr.name}</p>
                     <p className="addr-line">{addr.street}</p>
-                    <p className="addr-line addr-city-state">{addr.cityStateZip}</p>
+                    <p className="addr-line addr-city-state">{addr.city}, {addr.postalCode}</p>
                     <p className="addr-line">{addr.country}</p>
 
                     {addr.phone && (
