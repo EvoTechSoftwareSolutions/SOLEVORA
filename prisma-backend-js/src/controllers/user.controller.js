@@ -350,7 +350,7 @@ export const logout = async (req, res) => {
       return res.status(400).json({ message: "No token provided" });
     }
 
-    await prisma.blacklistedtoken.create({
+    await prisma.blacklistedToken.create({
       data: { token },
     });
 

@@ -34,7 +34,7 @@ const PromoCodes = () => {
         try {
             setLoading(true);
             const { data } = await axios.get(API);
-            setPromos(data);
+            setPromos(data.data || []);
         } catch {
             notify('Failed to load promo codes', 'error');
         } finally {
