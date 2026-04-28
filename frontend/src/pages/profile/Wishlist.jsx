@@ -54,8 +54,8 @@ const handleAddToCart = (product, productId, imageUrl) => {
 
                         if (!product) return null;
                         
-                           const imageUrl = product.images?.[0]?.url
-        ? getImg(product.images[0].url)
+                           const imageUrl = product.productimage?.[0]?.url
+        ? getImg(product.productimage[0].url)
         : getImg(product.image_url);
 
                         return (

@@ -19,7 +19,9 @@ const ShippingMethod = () => {
   const navigate = useNavigate();
 
   // ✅ only use what exists in CartContext
-  const { cart, cartTotal } = useCart();
+  const { selectedCart, selectedTotal } = useCart();
+  const cart = selectedCart;
+  const cartTotal = selectedTotal;
 
   const [selectedMethod, setSelectedMethod] = useState('standard');
   const [promoCode, setPromoCode] = useState('');

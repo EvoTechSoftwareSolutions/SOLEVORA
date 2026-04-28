@@ -10,6 +10,7 @@ const Dashboard = () => {
     const { wishlist } = useWishlist();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [profileData, setProfileData] = useState(null);
     
     // Get logged-in user
     const getLoggedInUser = () => {
@@ -22,19 +23,39 @@ const Dashboard = () => {
 
     useEffect(() => {
         const fetchOrders = async () => {
-            if (!user.email) return;
+            if (!user.id) return;
             setLoading(true);
             try {
-                const response = await axios.get(`http://localhost:5001/api/orders/search?email=${user.email}`);
-                setOrders(response.data);
+                const token = localStorage.getItem('auth_token');
+                // Fetch Orders
+                const response = await axios.get(
+                    `http://localhost:5001/api/orders/user/${user.id}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const ordersData = response.data.data || response.data;
+                setOrders(Array.isArray(ordersData) ? ordersData : []);
+
+                // Fetch Profile Data
+                const profileRes = await axios.get(
+                    `http://localhost:5001/api/user/${user.id}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                setProfileData(profileRes.data);
             } catch (error) {
-                console.error('Error fetching orders:', error);
+                console.error('Error fetching dashboard data:', error);
             } finally {
                 setLoading(false);
             }
         };
         fetchOrders();
-    }, [user.email]);
+    }, [user.id]);
+
+    const BASE_URL = "http://localhost:5001";
+    const getImgUrl = (url) => {
+        if (!url) return "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300";
+        if (url.startsWith('http')) return url;
+        return `${BASE_URL}${url.startsWith('/') ? '' : '/'}${url.replace(/\\/g, '/')}`;
+    };
 
     const userName = user.name;
     const recentOrders = orders.slice(0, 3);
@@ -152,7 +173,7 @@ const Dashboard = () => {
                         ) : recentOrders.map(order => {
                             const firstItem = order.items && order.items[0];
                             const product = firstItem?.product;
-                            const imageUrl = product?.image_url || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=150&h=150&fit=crop";
+                            const imageUrl = getImgUrl(product?.productimage?.[0]?.url || product?.image_url);
 
                             return (
                                 <div className="pdb-mini-order" key={order.id}>
@@ -187,11 +208,11 @@ const Dashboard = () => {
                             <div key={item.id} className="pdb-mini-wishlist-card">
                                 <div className="pdb-wishlist-img-box">
                                     <span className="material-symbols-outlined pdb-heart-icon">favorite_border</span>
-                                    <img src={item.image_url} alt={item.name} />
+                                    <img src={getImgUrl(item.product?.productimage?.[0]?.url || item.product?.image_url)} alt={item.name} />
                                 </div>
                                 <div className="pdb-wishlist-info">
-                                    <h4>{item.name}</h4>
-                                    <p>Rs. {parseFloat(item.price).toLocaleString()}</p>
+                                    <h4>{item.product?.name || 'Product'}</h4>
+                                    <p>Rs. {parseFloat(item.product?.price || 0).toLocaleString()}</p>
                                 </div>
                             </div>
                         ))}
@@ -212,7 +233,7 @@ const Dashboard = () => {
                         </div>
                         <div className="pdb-overview-card-info">
                             <label>EMAIL ADDRESS</label>
-                            <p>{user.email || 'Not provided'}</p>
+                            <p>{profileData?.email || user.email || 'Not provided'}</p>
                         </div>
                     </div>
 
@@ -225,7 +246,7 @@ const Dashboard = () => {
                         </div>
                         <div className="pdb-overview-card-info">
                             <label>PHONE NUMBER</label>
-                            <p>{user.phone || 'Not provided'}</p>
+                            <p>{profileData?.phone || 'Not provided'}</p>
                         </div>
                     </div>
 
@@ -238,7 +259,7 @@ const Dashboard = () => {
                         </div>
                         <div className="pdb-overview-card-info">
                             <label>LOCATION</label>
-                            <p>{user.location || 'No location saved'}</p>
+                            <p>{profileData?.location || profileData?.city || 'No location saved'}</p>
                         </div>
                     </div>
                 </div>

@@ -21,6 +21,13 @@ const MyOrders = () => {
     return null;
   };
   const user = getLoggedInUser();
+  const BASE_URL = "http://localhost:5001";
+
+  const getImgUrl = (url) => {
+    if (!url) return "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300";
+    if (url.startsWith('http')) return url;
+    return `${BASE_URL}${url.startsWith('/') ? '' : '/'}${url.replace(/\\/g, '/')}`;
+  };
 
   // Fetch orders by userId
   const fetchOrders = async () => {
@@ -29,10 +36,12 @@ const MyOrders = () => {
       return;
     }
     try {
+      const token = localStorage.getItem('auth_token');
       const response = await axios.get(
-        `http://localhost:5001/api/orders/user/${user.id}`
+        `http://localhost:5001/api/orders/user/${user.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setOrders(response.data);
+      setOrders(response.data.data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -161,7 +170,7 @@ const MyOrders = () => {
                  <div className="mo-tc-items-scroll">
                    {activeTrackingOrder.items?.map((item, idx) => (
                      <div key={idx} className="mo-tc-item">
-                       <img src={item.product?.image_url} alt="" />
+                        <img src={getImgUrl(item.product?.productimage?.[0]?.url || item.product?.image_url)} alt={item.product?.name} />
                        <div className="mo-tc-item-meta">
                          <div className="mo-tc-item-name">{item.product?.name}</div>
                          <div className="mo-tc-item-sub">Size: {item.size} | Qty: {item.quantity}</div>
@@ -267,7 +276,7 @@ const MyOrders = () => {
                 <td>
                   {order.items && order.items.length > 0 ? (
                     <div className="mo-img-stack">
-                      <img src={order.items[0].product?.image_url} alt="product" className="mo-thumb" />
+                      <img src={getImgUrl(order.items[0].product?.productimage?.[0]?.url || order.items[0].product?.image_url)} alt="product" className="mo-thumb" />
                       {order.items.length > 1 && (
                         <span className="mo-more-count">+{order.items.length - 1}</span>
                       )}

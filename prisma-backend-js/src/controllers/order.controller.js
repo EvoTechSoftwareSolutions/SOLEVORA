@@ -40,7 +40,8 @@ export const createOrder = async (req, res) => {
           trackingNumber: generateTrackingNumber(),
           carrier: "AUTO-COURIER",
           estimatedDelivery: getEstimatedDelivery(),
-          totalAmount: 0 // Placeholder
+          totalAmount: 0, // Placeholder
+          updatedAt: new Date()
         }
       });
 
@@ -103,7 +104,10 @@ export const createOrder = async (req, res) => {
       // 5. Finalize Total
       return await tx.order.update({
         where: { id: order.id },
-        data: { totalAmount: total }
+        data: { 
+          totalAmount: total,
+          updatedAt: new Date()
+        }
       });
     });
 
@@ -135,7 +139,9 @@ export const getAllOrders = async (req, res) => {
         user: true,
         orderitem: {
           include: {
-            product: true,
+            product: {
+              include: { productimage: true }
+            }
           },
         },
       },
@@ -190,7 +196,9 @@ export const getAllOrdersByUserID = async (req, res) => {
         user: true,
         orderitem: {
           include: {
-            product: true
+            product: {
+              include: { productimage: true }
+            }
           }
         }
       },
@@ -241,7 +249,9 @@ export const getOrderById = async (req, res) => {
         user: true,
         orderitem: {
           include: {
-            product: true,
+            product: {
+              include: { productimage: true }
+            }
           },
         },
       },
@@ -363,7 +373,9 @@ export const searchOrders = async (req, res) => {
       include: {
         orderitem: {
           include: {
-            product: true,
+            product: {
+              include: { productimage: true }
+            },
           },
         },
       },

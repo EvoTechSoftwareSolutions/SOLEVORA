@@ -117,10 +117,12 @@ const Home = () => {
   const [dbCategories, setDbCategories] = useState([]); // Categories from database
   const [activeCategory, setActiveCategory] = useState('All'); // Active category filter
   const [loading, setLoading] = useState(true); // Loading state
-const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [promos, setPromos] = useState([]); // Promo codes state
   // Fetch categories from the database on component mount
   useEffect(() => {
     fetchDbCategories();
+    fetchPromos();
   }, []);
 
   // Fetch products whenever the active category changes
@@ -135,6 +137,15 @@ const [searchTerm, setSearchTerm] = useState("");
       setDbCategories(resp.data.data);
     } catch (err) {
       console.error('Error fetching categories:', err);
+    }
+  };
+
+  const fetchPromos = async () => {
+    try {
+      const resp = await axios.get(`${BASE_URL}/api/products/promotions`);
+      setPromos(resp.data.data || []);
+    } catch (err) {
+      console.error('Error fetching promos:', err);
     }
   };
 
@@ -194,6 +205,7 @@ const getProductImage = (item) => {
           <img src={shoe} alt="" />
         </div>
       </div>
+
 
       {/* Intro Section */}
       <div className="intro">

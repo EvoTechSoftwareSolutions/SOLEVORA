@@ -8,6 +8,7 @@ import {
   getProductsAll,
   getProductBySlug,
 } from "../controllers/product.controller.js";
+import { getPublicPromos } from "../controllers/admin.controller.js";
 import { getAllStockBatches } from "../controllers/stockController.js";
 import upload from "../utils/multer.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -21,6 +22,7 @@ router.get("/all", getProductsAll);
 router.get("/batches", getAllStockBatches);
 router.get("/id/:id", getProductById);
 router.get("/slug/:slug", getProductBySlug);
+router.get("/promotions", getPublicPromos);
 
 
 // ADMIN + STORE MANAGER ONLY

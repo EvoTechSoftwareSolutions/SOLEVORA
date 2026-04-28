@@ -18,7 +18,9 @@ const handleImgError = (e) => {
 
 const PaymentDetails = () => {
   const navigate = useNavigate();
-  const { cart, cartTotal, clearCart } = useCart();
+  const { selectedCart, selectedTotal, clearCart } = useCart();
+  const cart = selectedCart;
+  const cartTotal = selectedTotal;
 
 
   const [paymentMethod, setPaymentMethod] = useState('ONLINE');
@@ -67,80 +69,33 @@ const PaymentDetails = () => {
   };
 
  const handlePlaceOrder = async (paymentMethod) => {
-
-    try {
-      
-      // 1. Retrieve data from Session Storage
-      const backendPaymentMethod = paymentMethod === 'COD' ? 'COD' : 'ONLINE';
-      const shippingInfo = JSON.parse(sessionStorage.getItem('checkoutFormData'));
-      const shippingMethodName = sessionStorage.getItem('checkoutShippingMethod');
-      const shippingCharge = Number(sessionStorage.getItem('checkoutShippingCharge'));
-      const promoDiscount = Number(sessionStorage.getItem('checkoutPromoDiscount')) || 0;
-
-      // 2. Prepare the payload for your createOrder controller
-      const orderPayload = {
-        userId: user?.id ? Number(user.id) : undefined,
-        customerName: shippingInfo.fullName,
-        email: shippingInfo.email,
-        contactNumber: shippingInfo.phone,
-        // Combine address fields into one string or object as per your Prisma schema
-        shippingAddress: `${shippingInfo.streetAddress}, ${shippingInfo.city}, ${shippingInfo.postalCode}, ${shippingInfo.country}`,
-       paymentMethod: paymentMethod === 'COD' ? 'COD' : 'ONLINE',
-        
-        // Map cart items to match your backend productId/price expectation
-        items: cart.map(item => ({
-          productId: (item.productId), 
-          quantity: item.quantity,
-          price: item.price,
-          size: item.size
-        })),
-        
-        // Optional: Include shipping and discount if your backend supports these fields
-        shippingCharge,
-        promoDiscount,
-        totalAmount: cartTotal + shippingCharge - promoDiscount
-      };
-
-   
-      const response = await axios.post('http://localhost:5001/api/orders', orderPayload);
-
-      if (response.data.success) {
-        sessionStorage.clear(); 
-        await clearCart();      
-        
-        navigate('/order-success', { 
-          state: { 
-            orderId: response.data.data.orderId,
-            trackingNumber: response.data.data.trackingNumber 
-          } 
-        });
-      }
-    } catch (error) {
-const errorMsg = error.response?.data?.errors 
-      ? error.response.data.errors.map(e => e.message).join(', ')
-      : error.response?.data?.message || "Validation failed. Please check your details.";
-    
-    showMessage('Order Error', errorMsg);
-    console.error("Zod Validation Error:", error.response?.data);    }
+    if (paymentMethod === 'COD') {
+      handleCOD();
+    } else if (paymentMethod === 'ONLINE') {
+      handlePayHere();
+    } else {
+      showMessage('Payment Method Not Supported', 'Please select a valid payment method.');
+    }
   };
 
   const handleCOD = async () => {
     try {
       const orderPayload = {
-        total_amount: total,
-        status: 'PENDING',
-        shipping_address: `${checkoutFormData.streetAddress || 'N/A'}, ${checkoutFormData.city || 'N/A'}, ${checkoutFormData.postalCode || '00000'}`,
-        contact_number: checkoutFormData.phone || 'N/A',
+        userId: user?.id ? Number(user.id) : undefined,
+        customerName: checkoutFormData.fullName || user?.name || 'Guest User',
         email: checkoutFormData.email || user?.email || 'guest@example.com',
-        userId: user?.id || null,
-        payment_method: 'COD',
+        contactNumber: checkoutFormData.phone || '0000000000',
+        shippingAddress: `${checkoutFormData.streetAddress || 'N/A'}, ${checkoutFormData.city || 'N/A'}, ${checkoutFormData.postalCode || '00000'}, ${checkoutFormData.country || 'Sri Lanka'}`,
+        paymentMethod: 'COD',
         items: cart.map(item => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.price,
+          productId: Number(item.productId || item.id),
+          quantity: Number(item.quantity),
+          price: Number(item.price),
           size: item.size,
         })),
-        promo_code: promoApplied ? promoCode : null,
+        shippingCharge: Number(sessionStorage.getItem('checkoutShippingCharge')) || 0,
+        promoDiscount: promoApplied ? (promoData?.discountAmount || 0) : 0,
+        totalAmount: total
       };
 
       const response = await axios.post('http://localhost:5001/api/orders', orderPayload);
@@ -158,7 +113,11 @@ const errorMsg = error.response?.data?.errors
       sessionStorage.removeItem('checkoutPromoDiscount');
 
       navigate('/order-confirmation', {
-        state: { orderId: orderData.id || orderData.data?.id, items: currentItems, paymentMethod: 'COD' },
+        state: { 
+          orderId: orderData.data?.orderId || orderData.id || orderData.data?.id, 
+          items: currentItems, 
+          paymentMethod: 'cod' 
+        },
       });
     } catch (error) {
       console.error('Error placing COD order:', error);
@@ -169,55 +128,58 @@ const errorMsg = error.response?.data?.errors
   const handlePayHere = async () => {
     try {
       const orderPayload = {
-        total_amount: total,
-        status: 'pending',
-        shipping_address: `${checkoutFormData.streetAddress || 'N/A'}, ${checkoutFormData.city || 'N/A'}, ${checkoutFormData.postalCode || '00000'}`,
-        contact_number: checkoutFormData.phone || 'N/A',
+        userId: user?.id ? Number(user.id) : undefined,
+        customerName: checkoutFormData.fullName || user?.name || 'Guest User',
         email: checkoutFormData.email || user?.email || 'guest@example.com',
-        userId: user?.id || null,
-        payment_method: 'online',
+        contactNumber: checkoutFormData.phone || '0000000000',
+        shippingAddress: `${checkoutFormData.streetAddress || 'N/A'}, ${checkoutFormData.city || 'N/A'}, ${checkoutFormData.postalCode || '00000'}, ${checkoutFormData.country || 'Sri Lanka'}`,
+        paymentMethod: 'ONLINE',
         items: cart.map(item => ({
-          productId: item.productId || item.id,
-          quantity: item.quantity,
-          price: item.price,
+          productId: Number(item.productId || item.id),
+          quantity: Number(item.quantity),
+          price: Number(item.price),
           size: item.size,
         })),
-        promo_code: promoApplied ? promoCode : null,
+        shippingCharge: Number(sessionStorage.getItem('checkoutShippingCharge')) || 0,
+        promoDiscount: promoApplied ? (promoData?.discountAmount || 0) : 0,
+        totalAmount: total
       };
 
       const response = await axios.post('http://localhost:5001/api/orders', orderPayload);
       const orderData = response.data;
 
+      const orderId = orderData.data?.orderId || orderData.id;
+
       const hashResponse = await axios.post('http://localhost:5001/api/payment/hash', {
-        order_id: orderData.id || orderData.data?.id,
+        order_id: orderId,
         amount: total,
         currency: 'LKR',
       });
 
-      const { hash, merchant_id } = hashResponse.data;
+      const { hash, merchant_id } = hashResponse.data.data || hashResponse.data;
 
       const payment = {
         sandbox: true,
-        merchant_id,
+        merchant_id: String(merchant_id),
         return_url: `${window.location.origin}/profile/orders`,
         cancel_url: window.location.href,
         notify_url: 'http://localhost:5001/api/payment/notify',
-        order_id: String(orderData.id || orderData.data?.id),
-        items: `SoleVora Order #${orderData.id || orderData.data?.id}`,
+        order_id: String(orderId),
+        items: `SoleVora Order #${orderId}`,
         amount: total.toFixed(2),
         currency: 'LKR',
-        hash,
-        first_name: checkoutFormData.fullName?.split(' ')[0] || user?.name?.split(' ')[0] || 'Guest',
-        last_name: checkoutFormData.fullName?.split(' ')[1] || user?.name?.split(' ')[1] || 'User',
+        hash: hash,
+        first_name: (checkoutFormData.fullName || user?.name || 'Guest').split(' ')[0] || 'Guest',
+        last_name: (checkoutFormData.fullName || user?.name || 'Guest').split(' ').slice(1).join(' ') || 'User',
         email: checkoutFormData.email || user?.email || 'guest@example.com',
-        phone: checkoutFormData.phone || '0000000000',
-        address: checkoutFormData.streetAddress || 'Address line 1',
-        city: checkoutFormData.city || 'Colombo',
+        phone: checkoutFormData.phone || user?.phone || '0000000000',
+        address: checkoutFormData.streetAddress || user?.streetAddress || user?.location || 'Main Street',
+        city: checkoutFormData.city || user?.city || 'Colombo',
         country: 'Sri Lanka',
       };
 
       window.payhere.onCompleted = function (orderId) {
-        axios.put(`http://localhost:5001/api/orders/${orderId}/status`, { status: 'paid' })
+        axios.put(`http://localhost:5001/api/payment/orders/${orderId}/status`, { status: 'PROCESSING', paymentStatus: 'PAID' })
           .finally(() => {
             const currentItems = [...cart];
             clearCart();
@@ -226,7 +188,11 @@ const errorMsg = error.response?.data?.errors
             sessionStorage.removeItem('checkoutShippingMethod');
             sessionStorage.removeItem('checkoutShippingCharge');
             navigate('/order-confirmation', {
-              state: { orderId, items: currentItems, paymentMethod: 'ONLINE' },
+              state: { 
+                orderId: orderId, 
+                items: currentItems, 
+                paymentMethod: 'online' 
+              },
             });
           });
       };

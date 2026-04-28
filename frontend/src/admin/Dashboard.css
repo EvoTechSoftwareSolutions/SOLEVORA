@@ -624,3 +624,65 @@ body {
 .inventory-btn:hover {
     background-color: #e2e8f0;
 }
+
+/* Dashboard Promo Styles */
+.dashboard-promo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 5px;
+}
+
+.dash-promo-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+.dash-promo-item:hover {
+    transform: scale(1.02);
+    border-color: #f66d3b;
+}
+
+.dash-promo-code {
+    background: #f66d3b;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-family: 'Monaco', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 90px;
+    text-align: center;
+}
+
+.dash-promo-info {
+    flex: 1;
+}
+
+.dash-promo-discount {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.dash-promo-min {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.empty-promo-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #94a3b8;
+    font-size: 13px;
+    font-style: italic;
+    background: #f8fafc;
+    border: 2px dashed #e2e8f0;
+    border-radius: 10px;
+}

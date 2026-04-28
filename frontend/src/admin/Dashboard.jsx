@@ -4,6 +4,13 @@ import { Link } from 'react-router-dom';
 import './Dashboard.css';
 import { API_URL } from '../config/api';
 
+const BASE_URL = "http://localhost:5001";
+const getImgUrl = (url) => {
+    if (!url) return "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300";
+    if (url.startsWith('http')) return url;
+    return `${BASE_URL}${url.startsWith('/') ? '' : '/'}${url.replace(/\\/g, '/')}`;
+};
+
 const Dashboard = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -176,7 +183,7 @@ const Dashboard = () => {
                     <div className="top-selling-list">
                         {(stats.topProducts || []).map((item, idx) => (
                             <div key={idx} className="top-selling-item">
-                                <img src={item.img || 'https://via.placeholder.com/100'} alt="shoe" className="top-item-img" />
+                                <img src={getImgUrl(item.img)} alt="shoe" className="top-item-img" />
                                 <div className="top-item-details">
                                     <div className="top-item-name">{item.name}</div>
                                     <div className="top-item-sales">{item.sales} SALES</div>
@@ -193,6 +200,31 @@ const Dashboard = () => {
                     <Link to="/admin/inventory-report">
                         <button className="inventory-btn">Inventory Report</button>
                     </Link>
+                </div>
+
+                {/* Live Promotions */}
+                <div className="base-card">
+                    <div className="card-header-flex">
+                        <h3 className="card-title-main">Live Promotions</h3>
+                        <Link to="/admin/promo-codes" className="view-all-link">Manage</Link>
+                    </div>
+                    <div className="dashboard-promo-list">
+                        {(stats.activePromos || []).length === 0 ? (
+                            <div className="empty-promo-state">No active promos currently live.</div>
+                        ) : (
+                            stats.activePromos.map(promo => (
+                                <div key={promo.id} className="dash-promo-item">
+                                    <div className="dash-promo-code">{promo.code}</div>
+                                    <div className="dash-promo-info">
+                                        <div className="dash-promo-discount">
+                                            {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `Rs. ${Number(promo.discountValue).toLocaleString()}`} OFF
+                                        </div>
+                                        <div className="dash-promo-min">Min: Rs. {Number(promo.minOrderAmount).toLocaleString()}</div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

@@ -165,8 +165,56 @@
 .si-form-heading {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e8dfce;
+  position: relative;
+}
+
+.si-refresh-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 8px 16px;
+  background: #f8f4ee;
+  border: 1px solid #e8dfce;
+  border-radius: 8px;
+  color: #8b7355;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.si-refresh-profile-btn:hover {
+  background: #e07b39;
+  color: white;
+  border-color: #e07b39;
+}
+
+.si-refresh-profile-btn .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.si-profile-loaded-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  color: #166534;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.si-profile-loaded-notice .material-symbols-outlined {
+  font-size: 18px;
+  color: #22c55e;
 }
 
 /* Truck icon in heading */

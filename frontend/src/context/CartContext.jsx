@@ -26,6 +26,7 @@ const getImg = (url) => {
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]); // Persistent selection
   const [toast, setToast] = useState(null);
   const [ready, setReady] = useState(false);
 
@@ -67,6 +68,12 @@ export const CartProvider = ({ children }) => {
       });
 
       setCart(formatted);
+      // Default select all if it's the first fetch or new items added
+      setSelectedIds(prev => {
+        const existingIds = formatted.map(i => i.id);
+        if (prev.length === 0) return existingIds;
+        return prev.filter(id => existingIds.includes(id));
+      });
     } catch (err) {
       console.error("Fetch cart error:", err.response?.data || err.message);
     }
@@ -154,30 +161,43 @@ const removeFromCart = async (cartId) => {
     }
   };
 
-  //  CLEAR CART
+  //  CLEAR SELECTED ITEMS AFTER ORDER
   const clearCart = async () => {
-  const userId = getUserId();
-  const token = getToken();
+    const token = getToken();
+    if (!token) return;
 
-  try {
-    await axios.delete(`${API}/clear/${userId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    try {
+      // Remove each selected item from backend
+      await Promise.all(selectedIds.map(id => 
+        axios.delete(`${API}/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ));
 
-    setCart([]);
-  } catch (err) {
-    console.error("Clear cart error:", err);
-  }
-};
+      // Update local state
+      setCart(prev => prev.filter(item => !selectedIds.includes(item.id)));
+      setSelectedIds([]);
+    } catch (err) {
+      console.error("Clear selected cart items error:", err);
+      fetchCart();
+    }
+  };
 
   // TOTALS 
   const cartCount = cart.reduce((a, b) => a + b.quantity, 0);
   const cartTotal = cart.reduce((a, b) => a + b.quantity * b.price, 0);
+  
+  const selectedCart = cart.filter(item => selectedIds.includes(item.id));
+  const selectedTotal = selectedCart.reduce((a, b) => a + b.quantity * b.price, 0);
 
   return (
     <CartContext.Provider
       value={{
         cart,
+        selectedIds,
+        setSelectedIds,
+        selectedCart,
+        selectedTotal,
         addToCart,
         removeFromCart,
         updateQuantity,

@@ -46,9 +46,31 @@ const Cart = () => {
   const navigate = useNavigate();
 
   // only destructure what exists in CartContext
-  const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const { 
+    cart, 
+    removeFromCart, 
+    updateQuantity, 
+    selectedIds, 
+    setSelectedIds, 
+    selectedTotal 
+  } = useCart();
 
-  const total = cartTotal;
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === cart.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(cart.map(item => item.id));
+    }
+  };
+
+  const total = selectedTotal;
+  const allSelected = cart.length > 0 && selectedIds.length === cart.length;
 
   // Empty cart
   if (cart.length === 0) {
@@ -75,10 +97,23 @@ const Cart = () => {
       <div className="container">
         {/* Cart Title */}
         <div className="cart-header">
-          <h2>
-            <span className="material-symbols-outlined c-icon">shopping_bag</span>
-            Shopping Cart <span className="item-count">({cart.length} items)</span>
-          </h2>
+          <div className="cart-header-title">
+            <h2>
+              <span className="material-symbols-outlined c-icon">shopping_bag</span>
+              Shopping Cart <span className="item-count">({cart.length} items)</span>
+            </h2>
+            <div className="select-all-wrap">
+              <label className="checkbox-container">
+                <input 
+                  type="checkbox" 
+                  checked={allSelected} 
+                  onChange={toggleSelectAll} 
+                />
+                <span className="checkmark"></span>
+                Select All
+              </label>
+            </div>
+          </div>
         </div>
 
         <div className="cart-main-layout">
@@ -86,7 +121,17 @@ const Cart = () => {
           <div className="cart-items-list">
             <div className="cart-items-scroll">
               {cart.map((item) => (
-                <div key={item.id} className="cart-item-card">
+                <div key={item.id} className={`cart-item-card ${selectedIds.includes(item.id) ? 'selected' : ''}`}>
+                  <div className="item-selection">
+                    <label className="checkbox-container">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedIds.includes(item.id)} 
+                        onChange={() => toggleSelect(item.id)} 
+                      />
+                      <span className="checkmark"></span>
+                    </label>
+                  </div>
                   <div className="item-image">
                     {/*  image_url comes from CartContext fetchCart */}
                     <img
@@ -153,10 +198,11 @@ const Cart = () => {
 
             <button
               type="button"
-              className="checkout-btn"
-              onClick={() => navigate("/shipping")}
+              className={`checkout-btn ${selectedIds.length === 0 ? 'disabled' : ''}`}
+              onClick={() => selectedIds.length > 0 && navigate("/shipping", { state: { selectedIds } })}
+              disabled={selectedIds.length === 0}
             >
-              Proceed to Checkout{" "}
+              {selectedIds.length === 0 ? 'Select Items to Checkout' : 'Proceed to Checkout'}
               <span className="material-symbols-outlined">credit_card</span>
             </button>
 

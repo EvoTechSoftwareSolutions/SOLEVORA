@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useCart } from '../../context/CartContext';
 import Modal from '../../components/ui/Modal';
+import { API_URL } from '../../config/api';
 import '../../styles/user/ShippingInformation.css';
 
 const FALLBACK =
@@ -19,8 +20,10 @@ const handleImgError = (e) => {
 const ShippingInformation = () => {
   const navigate = useNavigate();
 
-  //  only use what exists in the new CartContext
-  const { cart, cartTotal } = useCart();
+  // ✅ only use selected items for checkout flow
+  const { selectedCart, selectedTotal } = useCart();
+  const cart = selectedCart; // Map to local naming convention
+  const cartTotal = selectedTotal;
 
   // local promo state (no longer in context)
   const [promoCode, setPromoCode] = useState('');
@@ -33,6 +36,7 @@ const ShippingInformation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', body: '' });
   const [savedAddresses, setSavedAddresses] = useState([]);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   const showToast = (msg) => {
     setToastMsg(msg);
@@ -64,20 +68,62 @@ const ShippingInformation = () => {
     }
   });
 
-  // fetch saved addresses
+  // fetch user profile and saved addresses
   useEffect(() => {
     if (!formData.userId) return;
-    const fetchAddresses = async () => {
+    
+    const fetchUserData = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:5001/api/addresses/${formData.userId}`);
-        setSavedAddresses(data || []);
-        const def = data?.find(a => a.isDefault);
+        // Fetch latest user profile data
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          const profileRes = await axios.get(`/user/${formData.userId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          // Only update form if fields are empty or different from current values
+          setFormData(prev => {
+            const hasEmptyOrDifferentFields = 
+              !prev.fullName || prev.fullName !== profileRes.data.name ||
+              !prev.email || prev.email !== profileRes.data.email ||
+              !prev.phone || prev.phone !== profileRes.data.phone ||
+              !prev.streetAddress || prev.streetAddress !== profileRes.data.streetAddress ||
+              !prev.city || prev.city !== profileRes.data.city ||
+              !prev.postalCode || prev.postalCode !== profileRes.data.postalCode ||
+              !prev.country || prev.country !== profileRes.data.country;
+            
+            if (hasEmptyOrDifferentFields) {
+              return {
+                ...prev,
+                fullName: prev.fullName || profileRes.data.name || '',
+                email: prev.email || profileRes.data.email || '',
+                phone: prev.phone || profileRes.data.phone || '',
+                streetAddress: prev.streetAddress || profileRes.data.streetAddress || profileRes.data.location || '',
+                city: prev.city || profileRes.data.city || '',
+                postalCode: prev.postalCode || profileRes.data.postalCode || '',
+                country: prev.country || profileRes.data.country || 'Sri Lanka',
+              };
+            }
+            return prev;
+          });
+        }
+
+        // Fetch saved addresses
+        const res = await axios.get(`/addresses/${formData.userId}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        
+        const addresses = res.data.data || [];
+        setSavedAddresses(addresses);
+        
+        const def = addresses.find(a => a.isDefault);
         if (def && !formData.streetAddress) applySavedAddress(def);
-      } catch {
-       
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
       }
     };
-    fetchAddresses();
+    
+    fetchUserData();
   }, [formData.userId]);
 
   const applySavedAddress = (addr) => {
@@ -90,6 +136,40 @@ const ShippingInformation = () => {
       postalCode: addr.postalCode || prev.postalCode,
       country: addr.country || prev.country,
     }));
+  };
+
+  const refreshFromProfile = async () => {
+    if (!formData.userId) return;
+    
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        showToast('Please login to refresh profile data');
+        return;
+      }
+
+      const profileRes = await axios.get(`/user/${formData.userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setFormData(prev => ({
+        ...prev,
+        fullName: profileRes.data.name || '',
+        email: profileRes.data.email || '',
+        phone: profileRes.data.phone || '',
+        streetAddress: profileRes.data.streetAddress || profileRes.data.location || '',
+        city: profileRes.data.city || '',
+        postalCode: profileRes.data.postalCode || '',
+        country: profileRes.data.country || 'Sri Lanka',
+      }));
+      
+      setProfileLoaded(true);
+      showToast('Shipping information updated from your profile');
+      setTimeout(() => setProfileLoaded(false), 3000);
+    } catch (error) {
+      console.error('Failed to refresh profile data:', error);
+      showToast('Failed to refresh profile data');
+    }
   };
 
   const handleInputChange = (e) => {
@@ -108,7 +188,7 @@ const ShippingInformation = () => {
     if (!trimmed) { showToast('Please enter a promo code first.'); return; }
     setPromoLoading(true);
     try {
-      const { data } = await axios.post('http://localhost:5001/api/promo/validate', {
+      const { data } = await axios.post('/promo/validate', {
         code: trimmed,
         orderAmount: grossTotal,
       });
@@ -199,7 +279,25 @@ const ShippingInformation = () => {
             <div className="si-form-heading">
               <span className="si-truck-icon">🚚</span>
               <h2 className="si-form-title">Shipping Information</h2>
+              {formData.userId && (
+                <button 
+                  type="button" 
+                  onClick={refreshFromProfile}
+                  className="si-refresh-profile-btn"
+                  title="Refresh data from your profile"
+                >
+                  <span className="material-symbols-outlined">refresh</span>
+                  From Profile
+                </button>
+              )}
             </div>
+            
+            {profileLoaded && (
+              <div className="si-profile-loaded-notice">
+                <span className="material-symbols-outlined">check_circle</span>
+                Information updated from your profile
+              </div>
+            )}
 
             <div className="si-form">
               {/* Saved Addresses */}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../../config/api.js';
 import './AddAddress.css';
 
 const AddAddress = () => {
@@ -64,7 +65,7 @@ const AddAddress = () => {
                 return;
             }
 
-            await axios.post('http://localhost:5001/api/addresses', payload, {
+            await axios.post(`${API_URL}/addresses`, payload, {
               headers: { Authorization: `Bearer ${token}` }
             });
             navigate('/profile/addresses');

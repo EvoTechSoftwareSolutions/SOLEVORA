@@ -14,6 +14,11 @@ const OrderConfirmation = () => {
   const [popupMessage, setPopupMessage] = React.useState("");
   const [popupType, setPopupType] = React.useState("success");
 
+  // Retrieve user information from local storage
+  const user = React.useMemo(() => {
+    try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
+  }, []);
+
   // Function to generate and download PDF receipt
   const handleDownloadReceipt = () => {
     setPopupMessage("Your digital receipt is being prepared. It will download automatically in a few seconds.");
@@ -134,10 +139,7 @@ const OrderConfirmation = () => {
   // Check if the payment method is Cash on Delivery (COD)
   const isCOD = paymentMethod === 'cod';
 
-  // Retrieve user information from local storage
-  const user = (() => {
-    try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
-  })();
+
 
   return (
     <div className="oc-page">

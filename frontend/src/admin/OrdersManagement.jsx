@@ -146,7 +146,7 @@ const OrdersManagement = () => {
                                     <div className="td-items-flex">
                                         <div className="item-img-box">
                                             {order.items?.slice(0, 3).map((item, i) => (
-                                                <img key={i} src={getImageUrl(item.product?.image_url)} alt="" className="item-img" style={{ marginLeft: i > 0 ? '-10px' : '0' }} />
+                                                <img key={i} src={getImageUrl(item.product?.productimage?.[0]?.url || item.product?.image_url)} alt="" className="item-img" style={{ marginLeft: i > 0 ? '-10px' : '0' }} />
                                             ))}
                                         </div>
                                         <span className="td-items-count">{order.items?.length > 3 ? `+${order.items.length - 3}` : ''}</span>
@@ -218,7 +218,7 @@ const OrdersManagement = () => {
                                 <h3 style={{ fontSize: '14px', color: '#888', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '15px' }}>Ordered Items</h3>
                                 {selectedOrder.items?.map((item, idx) => (
                                     <div key={idx} className="modal-item-row">
-                                        <img src={getImageUrl(item.product?.image_url)} alt="" className="modal-item-img" />
+                                        <img src={getImageUrl(item.product?.productimage?.[0]?.url || item.product?.image_url)} alt="" className="modal-item-img" />
                                         <div className="modal-item-info">
                                             <div className="item-name-tag">{item.product?.name}</div>
                                             <div className="item-meta-tag">Size: {item.size} | Qty: {item.quantity} | Price: Rs. {parseFloat(item.price_at_purchase).toLocaleString()}</div>

@@ -6,6 +6,13 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import '../../styles/user/TrackOrder.css';
 
+const BASE_URL = "http://localhost:5001";
+const getImgUrl = (url) => {
+    if (!url) return "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300";
+    if (url.startsWith('http')) return url;
+    return `${BASE_URL}${url.startsWith('/') ? '' : '/'}${url.replace(/\\/g, '/')}`;
+};
+
 const TrackOrder = () => {
     const [orderId, setOrderId] = useState('');
     const [email, setEmail] = useState('');
@@ -128,7 +135,7 @@ const TrackOrder = () => {
                                 {orderInfo.items.map((item, idx) => (
                                     <div key={idx} className="tracking-item">
                                         <div className="item-image-wrap">
-                                            <img src={item.product?.image_url} alt={item.product?.name} />
+                                            <img src={getImgUrl(item.product?.productimage?.[0]?.url || item.product?.image_url)} alt={item.product?.name} />
                                         </div>
                                         <div className="item-details">
                                             <h4>{item.product?.name}</h4>

@@ -13,7 +13,8 @@ export const getAdminStats = async (req, res) => {
       monthlySales: [],
       averageOrderValue: 0,
       topProducts: [],
-      salesByCategory: []
+      salesByCategory: [],
+      activePromos: []
     };
 
     // 1. Total Revenue & Orders
@@ -72,12 +73,39 @@ export const getAdminStats = async (req, res) => {
         orderBy: { _sum: { sellingPrice: 'desc' } },
         take: 5
       });
-      stats.topProducts = grouped.map(item => ({
-        name: item.productName,
-        sales: item._sum.quantity || 0,
-        value: Number(item._sum.sellingPrice || 0)
-      }));
+
+      // Fetch images for these products
+      const productIds = grouped.map(g => g.productId);
+      const products = await prisma.product.findMany({
+        where: { id: { in: productIds } },
+        include: { productimage: { take: 1 } }
+      });
+
+      stats.topProducts = grouped.map(item => {
+        const product = products.find(p => p.id === item.productId);
+        return {
+          name: item.productName,
+          sales: item._sum.quantity || 0,
+          value: Number(item._sum.sellingPrice || 0),
+          img: product?.productimage[0]?.url || ''
+        };
+      });
     } catch (e) { console.error("Stats Error (TopProducts):", e.message); }
+
+    // 7. Active Promos
+    try {
+      stats.activePromos = await prisma.promocode.findMany({
+        where: {
+          isActive: true,
+          OR: [
+            { expiresAt: null },
+            { expiresAt: { gt: new Date() } }
+          ]
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 3
+      });
+    } catch (e) { console.error("Stats Error (Promos):", e.message); }
 
     res.json(stats);
 
@@ -188,6 +216,25 @@ export const updatePromo = async (req, res) => {
       }
     });
     res.json({ success: true, data: promo });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getPublicPromos = async (req, res) => {
+  try {
+    const promos = await prisma.promocode.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          { expiresAt: null },
+          { expiresAt: { gt: new Date() } }
+        ]
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 5
+    });
+    res.json({ success: true, data: promos });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
