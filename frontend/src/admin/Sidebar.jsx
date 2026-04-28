@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import logo from '../assets/logo.png';
-import { API_URL } from '../config/api';
 import './Sidebar.css';
 import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 

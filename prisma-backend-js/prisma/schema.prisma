@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model blacklistedtoken {
+model BlacklistedToken {
   id        Int      @id @default(autoincrement())
   token     String
   createdAt DateTime @default(now())
