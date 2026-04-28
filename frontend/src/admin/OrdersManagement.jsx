@@ -199,7 +199,10 @@ const OrdersManagement = () => {
                                         <div className="detail-row"><span className="detail-label">Email:</span> <span className="detail-value">{selectedOrder.email}</span></div>
                                         <div className="detail-row"><span className="detail-label">Phone:</span> <span className="detail-value">{selectedOrder.contact_number || 'N/A'}</span></div>
                                         <div className="detail-row"><span className="detail-label">Payment:</span> <span className="detail-value">{selectedOrder.payment_method?.toUpperCase()}</span></div>
-                                        <div className="detail-row"><span className="detail-label">Address:</span> <span className="detail-value" style={{ textAlign: 'right', fontSize: '12px', maxWidth: '150px' }}>{selectedOrder.shipping_address}</span></div>
+                                        <div className="detail-row address-row">
+                                            <span className="detail-label">Address:</span> 
+                                            <span className="detail-value">{selectedOrder.shipping_address}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="details-section">

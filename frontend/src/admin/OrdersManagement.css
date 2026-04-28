@@ -690,6 +690,20 @@ body {
 .detail-value {
     color: #111;
     font-weight: 700;
+    text-align: right;
+    word-break: break-word;
+}
+
+.address-row {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.address-row .detail-value {
+    font-size: 12px;
+    max-width: 200px;
+    line-height: 1.4;
 }
 
 /* Items in Modal */
