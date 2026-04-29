@@ -1,6 +1,7 @@
 import express from "express";
 import { getNewsletterSubscribers } from "../controllers/admin.controller.js";
 import prisma from "../prisma/client.js";
+import nodemailer from 'nodemailer';
 
 const router = express.Router();
 
@@ -42,6 +43,45 @@ router.post("/subscribe", async (req, res) => {
       where: { email },
       data: { newsletter: true }
     });
+
+    // Send Welcome Email
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS?.replace(/\s/g, ''),
+      },
+    });
+
+    const mailOptions = {
+      from: `"SoleVora" <${process.env.GMAIL_USER}>`,
+      to: email,
+      subject: "Welcome to SoleVora! 👟",
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+          <div style="background: #1a1a2e; padding: 20px; text-align: center;">
+            <h1 style="color: #f97316; margin: 0;">SOLEVORA</h1>
+          </div>
+          <div style="padding: 30px; line-height: 1.6; color: #333;">
+            <h2>Thanks for joining us!</h2>
+            <p>You're now subscribed to the SoleVora newsletter. Get ready for exclusive access to new drops, premium collections, and special offers.</p>
+            <div style="background: #fdf2f0; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+              <p style="margin: 0; font-size: 14px; color: #666;">Use this code for 10% off your first order:</p>
+              <h1 style="margin: 10px 0; color: #f97316; letter-spacing: 2px;">WELCOME10</h1>
+            </div>
+            <p>Step up your game with our latest arrivals.</p>
+            <a href="http://localhost:5173/category" style="display: inline-block; background: #1a1a2e; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Shop Now</a>
+          </div>
+          <div style="background: #f9f9f9; padding: 20px; text-align: center; font-size: 12px; color: #999;">
+            <p>© 2026 SoleVora Inc. All rights reserved.</p>
+          </div>
+        </div>
+      `
+    };
+
+    transporter.sendMail(mailOptions).catch(err => console.error("Error sending welcome email:", err));
 
     res.json({ success: true, message: "Thank you for subscribing!" });
   } catch (error) {

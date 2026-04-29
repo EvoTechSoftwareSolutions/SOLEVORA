@@ -1,6 +1,7 @@
 import prisma from "../prisma/client.js";
 import { orderSchema } from "../validators/order.validator.js";
 import { generateTrackingNumber, getEstimatedDelivery } from "../utils/TrackOrder.js";
+import { sendOrderConfirmationEmail } from "../utils/emailService.js";
 // CREATE ORDER
 export const createOrder = async (req, res) => {
   try {
@@ -110,6 +111,15 @@ export const createOrder = async (req, res) => {
         }
       });
     });
+
+    // 6. Send Confirmation Email (Async - don't block response)
+    // Only send here for COD. Online payments send after successful payment notification.
+    if (finalOrder.paymentMethod === 'COD') {
+      const orderItems = await prisma.orderitem.findMany({
+        where: { orderId: finalOrder.id }
+      });
+      sendOrderConfirmationEmail(finalOrder, orderItems);
+    }
 
     // If we reached here, everything succeeded and is committed to DB
     res.status(201).json({
