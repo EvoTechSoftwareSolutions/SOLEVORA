@@ -12,7 +12,7 @@ import {
   FaXTwitter,
   IoPaperPlaneOutline,
 } from "../../components/common/icons.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Contact = () => {
   // State to manage form data
@@ -27,6 +27,24 @@ const Contact = () => {
   // State to manage loading status and success message
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+
+  // Pre-fill from profile if logged in
+  useEffect(() => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        setFormData(prev => ({
+          ...prev,
+          name: user.name || user.fullName || prev.name,
+          email: user.email || prev.email,
+          phone: user.phone || user.contactNumber || user.contact || prev.phone
+        }));
+      }
+    } catch (err) {
+      console.error("Error pre-filling contact form:", err);
+    }
+  }, []);
 
   // Function to handle input changes and update form data
   const handleChange = (e) => {
@@ -89,16 +107,18 @@ const Contact = () => {
       {/* Contact Form Section */}
       <section className="contact-box">
         <div className="contact-form">
-          <h4>Send us a Message</h4>
+          <div className="form-header">
+            <h4>Send us a Message</h4>
+            <p className="form-subtitle">We'd love to hear from you. Our team is here to help.</p>
+          </div>
           <form onSubmit={handleSubmit}>
-            {/* Form Row for Name and Phone */}
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="name"> Name</label>
+                <label htmlFor="name">Full Name</label>
                 <input
                   type="text"
                   id="name"
-                  placeholder="Enter your Full Name"
+                  placeholder="Govindi Tharsh"
                   value={formData.name}
                   onChange={handleChange}
                   required
@@ -106,31 +126,29 @@ const Contact = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="phone">Phone</label>
+                <label htmlFor="phone">Phone Number</label>
                 <input
-                  type="phone"
+                  type="tel"
                   id="phone"
-                  placeholder="Phone your Address"
+                  placeholder="+94 77 123 4567"
                   value={formData.phone}
                   onChange={handleChange}
                 />
               </div>
             </div>
 
-            {/* Email Input */}
             <div className="form-group">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">Email Address</label>
               <input
                 type="email"
                 id="email"
-                placeholder="Email your Address"
+                placeholder="john@example.com"
                 value={formData.email}
                 onChange={handleChange}
                 required
               />
             </div>
 
-            {/* Subject Dropdown */}
             <div className="form-group">
               <label htmlFor="subject">Subject</label>
               <select
@@ -138,26 +156,26 @@ const Contact = () => {
                 value={formData.subject}
                 onChange={handleChange}
               >
-                <option value="">Select Subject</option>
-                <option value="support">Support</option>
-                <option value="sales">Sales</option>
-                <option value="general">General</option>
+                <option value="">What can we help you with?</option>
+                <option value="support">Technical Support</option>
+                <option value="sales">Product Inquiry</option>
+                <option value="delivery">Delivery Status</option>
+                <option value="return">Returns &amp; Exchanges</option>
+                <option value="other">General Inquiry</option>
               </select>
             </div>
 
-            {/* Message Textarea */}
             <div className="form-group">
-              <label htmlFor="message"> Message</label>
+              <label htmlFor="message">Message</label>
               <textarea
                 id="message"
-                placeholder="Tell Something...."
+                placeholder="Tell us more about your inquiry..."
                 value={formData.message}
                 onChange={handleChange}
                 required
               ></textarea>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               className="send-btn"
@@ -172,36 +190,32 @@ const Contact = () => {
         {/* Contact Information Section */}
         <div className="contact-info">
           <div className="contact-grid">
-            {/* Address Information */}
             <div className="contact-items">
               <LuMapPinHouse className="contactUs-icon" />
-              <h5>Visit Us</h5>
-              <span>123 Future Street</span>
-              <span>Tech City, TC 12345</span>
+              <h5>Visit Our Store</h5>
+              <span>45/A Premium Arcade</span>
+              <span>Colombo 07, Sri Lanka</span>
             </div>
 
-            {/* Phone Information */}
             <div className="contact-items">
               <IoCallOutline className="contactUs-icon" />
-              <h5>Call Us</h5>
-              <span>0768575371</span>
-              <span>0768575371</span>
+              <h5>Support Hotline</h5>
+              <span>+94 11 234 5678</span>
+              <span>+94 77 123 4567</span>
             </div>
 
-            {/* Email Information */}
             <div className="contact-items">
               <CiMail className="contactUs-icon" />
-              <h5>Email Us</h5>
-              <span>hello@nexstep.com</span>
-              <span>support@nexstep.com</span>
+              <h5>Email Support</h5>
+              <span>hello@solevora.com</span>
+              <span>support@solevora.com</span>
             </div>
 
-            {/* Business Hours */}
             <div className="contact-items">
               <CiClock1 className="contactUs-icon" />
               <h5>Business Hours</h5>
               <span>Mon - Fri: 9AM - 8PM</span>
-              <span>Sat - Sun: 10AM - 6PM</span>
+              <span>Weekend: 10AM - 6PM</span>
             </div>
           </div>
 
