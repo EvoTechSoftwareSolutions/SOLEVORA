@@ -187,7 +187,7 @@ export const validatePromo = async (req, res) => {
       return res.status(400).json({ success: false, message: 'This promo code has expired.' });
     }
 
-    if (promo.maxUses && promo.usageCount >= promo.maxUses) {
+    if (promo.maxUses && promo.usedCount >= promo.maxUses) {
       return res.status(400).json({ success: false, message: 'This promo code has reached its usage limit.' });
     }
 
