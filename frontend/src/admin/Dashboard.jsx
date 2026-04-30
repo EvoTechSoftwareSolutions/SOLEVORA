@@ -11,6 +11,146 @@ const getImgUrl = (url) => {
     return `${BASE_URL}${url.startsWith('/') ? '' : '/'}${url.replace(/\\/g, '/')}`;
 };
 
+/* ─── Sales Chart Sub-Component ─── */
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const SalesChart = ({ monthlySales = [], totalRevenue = 0, totalOrders = 0 }) => {
+    const [period, setPeriod] = useState('all');
+    const [tooltip, setTooltip] = useState(null);
+
+    const filtered = period === '3m' ? monthlySales.slice(-3)
+        : period === '6m' ? monthlySales.slice(-6)
+        : monthlySales;
+
+    const W = 760, H = 180, PAD_L = 0, PAD_R = 0, PAD_T = 10, PAD_B = 0;
+    const vals = filtered.map(d => Number(d.total) || 0);
+    const maxVal = Math.max(...vals, 1);
+    const minVal = 0;
+
+    const toX = (i) => filtered.length < 2 ? W / 2 : PAD_L + (i / (filtered.length - 1)) * (W - PAD_L - PAD_R);
+    const toY = (v) => PAD_T + (1 - (v - minVal) / (maxVal - minVal)) * (H - PAD_T - PAD_B);
+
+    const points = filtered.map((d, i) => ({ x: toX(i), y: toY(Number(d.total) || 0), ...d }));
+
+    const linePath = points.length > 1
+        ? `M ${points.map(p => `${p.x},${p.y}`).join(' L ')}`
+        : `M 0 ${H / 2} L ${W} ${H / 2}`;
+
+    const areaPath = points.length > 1
+        ? `${linePath} L ${points[points.length-1].x},${H} L ${points[0].x},${H} Z`
+        : '';
+
+    const yTicks = [0, 0.25, 0.5, 0.75, 1].map(r => maxVal * r);
+
+    const peakMonth = filtered.reduce((best, d) => Number(d.total) > Number(best?.total || 0) ? d : best, filtered[0]);
+    const avgRevenue = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+
+    const fmtMonth = (str) => {
+        if (!str) return '';
+        const [y, m] = str.split('-');
+        return `${MONTH_NAMES[parseInt(m,10)-1] || m} '${y?.slice(2)}`;
+    };
+
+    return (
+        <div className="sc-card">
+            {/* Header */}
+            <div className="sc-header">
+                <div>
+                    <h3 className="sc-title">Sales Overview</h3>
+                    <p className="sc-sub">Real-time revenue tracking from your orders database</p>
+                </div>
+                <div className="sc-period-btns">
+                    {[['all','All'],['6m','6M'],['3m','3M']].map(([k,l]) => (
+                        <button key={k} className={`sc-period-btn ${period === k ? 'active' : ''}`} onClick={() => setPeriod(k)}>{l}</button>
+                    ))}
+                </div>
+            </div>
+
+            {/* KPI Strip */}
+            <div className="sc-kpis">
+                <div className="sc-kpi">
+                    <span className="sc-kpi-label">Total Revenue</span>
+                    <span className="sc-kpi-value">Rs. {Number(totalRevenue).toLocaleString()}</span>
+                </div>
+                <div className="sc-kpi-divider" />
+                <div className="sc-kpi">
+                    <span className="sc-kpi-label">Avg / Month</span>
+                    <span className="sc-kpi-value">Rs. {Math.round(avgRevenue).toLocaleString()}</span>
+                </div>
+                <div className="sc-kpi-divider" />
+                <div className="sc-kpi">
+                    <span className="sc-kpi-label">Peak Month</span>
+                    <span className="sc-kpi-value sc-kpi-peak">{peakMonth ? fmtMonth(peakMonth.month) : '—'}</span>
+                </div>
+                <div className="sc-kpi-divider" />
+                <div className="sc-kpi">
+                    <span className="sc-kpi-label">Total Orders</span>
+                    <span className="sc-kpi-value">{totalOrders}</span>
+                </div>
+            </div>
+
+            {/* Chart */}
+            <div className="sc-chart-wrap" onMouseLeave={() => setTooltip(null)}>
+                {filtered.length === 0 ? (
+                    <div className="sc-empty">No sales data for this period yet.</div>
+                ) : (
+                    <svg viewBox={`-60 0 ${W + 80} ${H + 40}`} className="sc-svg" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="scGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#f66d3b" stopOpacity="0.18" />
+                                <stop offset="100%" stopColor="#f66d3b" stopOpacity="0" />
+                            </linearGradient>
+                        </defs>
+
+                        {/* Gridlines + Y-axis labels */}
+                        {yTicks.map((v, i) => {
+                            const y = toY(v);
+                            return (
+                                <g key={i}>
+                                    <line x1={0} y1={y} x2={W} y2={y} stroke="#f0f0f0" strokeWidth="1" />
+                                    <text x={-8} y={y + 4} textAnchor="end" fontSize="9" fill="#bbb" fontFamily="Inter,sans-serif">
+                                        {v >= 1000 ? `${(v/1000).toFixed(0)}k` : Math.round(v)}
+                                    </text>
+                                </g>
+                            );
+                        })}
+
+                        {/* Area fill */}
+                        {areaPath && <path d={areaPath} fill="url(#scGrad)" />}
+
+                        {/* Line */}
+                        <path d={linePath} fill="none" stroke="#f66d3b" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+
+                        {/* Data points + tooltip triggers */}
+                        {points.map((p, i) => (
+                            <g key={i} onMouseEnter={() => setTooltip(p)} style={{ cursor: 'pointer' }}>
+                                <circle cx={p.x} cy={p.y} r="12" fill="transparent" />
+                                <circle cx={p.x} cy={p.y} r="4" fill="#fff" stroke="#f66d3b" strokeWidth="2" />
+                            </g>
+                        ))}
+
+                        {/* X-axis labels */}
+                        {points.map((p, i) => (
+                            <text key={i} x={p.x} y={H + 28} textAnchor="middle" fontSize="9" fill="#aaa" fontFamily="Inter,sans-serif">
+                                {fmtMonth(p.month)}
+                            </text>
+                        ))}
+                    </svg>
+                )}
+
+                {/* Tooltip */}
+                {tooltip && (
+                    <div className="sc-tooltip">
+                        <div className="sc-tooltip-month">{fmtMonth(tooltip.month)}</div>
+                        <div className="sc-tooltip-val">Rs. {Number(tooltip.total).toLocaleString()}</div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+
 const Dashboard = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -47,23 +187,7 @@ const Dashboard = () => {
 
     // fallback if no orders
     const recentOrders = stats.recentOrders || [];
-
     const monthlySales = stats.monthlySales || [];
-    
-    // Simple helper to generate SVG path from data
-    const generatePath = (data) => {
-        if (!data || data.length < 2) return "M 0 150 L 800 150";
-        const maxVal = Math.max(...data.map(d => parseFloat(d.total) || 0), 1);
-        const points = data.map((d, i) => {
-            const x = (i / (data.length - 1)) * 800;
-            const y = 180 - ((parseFloat(d.total) || 0) / maxVal) * 150;
-            return `${x},${y}`;
-        });
-        return `M ${points.join(' L ')}`;
-    };
-
-    const areaPath = `${generatePath(monthlySales)} L 800 200 L 0 200 Z`;
-    const linePath = generatePath(monthlySales);
 
     return (
         <div className="dashboard-content">
@@ -111,29 +235,9 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="chart-card">
-                <div className="chart-header">
-                    <div className="chart-title">
-                        <h3>Sales Overview</h3>
-                        <p>Real-time revenue tracking from your orders database</p>
-                    </div>
-                </div>
+            {/* ── Sales Overview Chart ── */}
+            <SalesChart monthlySales={monthlySales} totalRevenue={stats.totalRevenue} totalOrders={stats.totalOrders} />
 
-                <div className="chart-placeholder">
-                    <svg className="chart-svg" viewBox="0 0 800 200" preserveAspectRatio="none">
-                        <path d={areaPath} fill="rgba(246, 109, 59, 0.05)" />
-                        <path d={linePath} fill="none" stroke="#f66d3b" strokeWidth="4" />
-                    </svg>
-
-                    <div className="chart-axis-labels">
-                        {monthlySales.length > 0 ? monthlySales.map((m, i) => (
-                            <span key={i}>{m.month.split('-')[1]}</span>
-                        )) : (
-                            <><span>JAN</span><span>MAR</span><span>MAY</span><span>JUL</span><span>SEP</span><span>NOV</span></>
-                        )}
-                    </div>
-                </div>
-            </div>
 
             {/* Bottom Grid */}
             <div className="bottom-grid">

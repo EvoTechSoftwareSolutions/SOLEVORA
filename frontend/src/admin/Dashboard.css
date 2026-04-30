@@ -686,3 +686,171 @@ body {
     border: 2px dashed #e2e8f0;
     border-radius: 10px;
 }
+
+/* ═══════════════════════════════════════════
+   SALES CHART COMPONENT
+═══════════════════════════════════════════ */
+.sc-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 24px 28px 18px;
+    margin-bottom: 20px;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.sc-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.sc-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #111;
+    margin: 0 0 4px 0;
+}
+
+.sc-sub {
+    font-size: 12.5px;
+    color: #999;
+    margin: 0;
+}
+
+/* Period filter pills */
+.sc-period-btns {
+    display: flex;
+    background: #f3f4f6;
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+}
+
+.sc-period-btn {
+    background: transparent;
+    border: none;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+
+.sc-period-btn.active {
+    background: #fff;
+    color: #f66d3b;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+/* KPI strip */
+.sc-kpis {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: #fafafa;
+    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+}
+
+.sc-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 100px;
+}
+
+.sc-kpi-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.sc-kpi-value {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111;
+}
+
+.sc-kpi-peak {
+    color: #f66d3b;
+}
+
+.sc-kpi-divider {
+    width: 1px;
+    height: 36px;
+    background: #e5e7eb;
+    margin: 0 24px;
+    flex-shrink: 0;
+}
+
+/* Chart wrapper */
+.sc-chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 220px;
+}
+
+.sc-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+}
+
+.sc-empty {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ccc;
+    font-size: 14px;
+    font-style: italic;
+    border: 2px dashed #f0f0f0;
+    border-radius: 10px;
+}
+
+/* Tooltip */
+.sc-tooltip {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #111;
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 14px;
+    pointer-events: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    animation: fadeIn 0.15s ease;
+}
+
+.sc-tooltip-month {
+    font-size: 11px;
+    font-weight: 600;
+    color: #f66d3b;
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sc-tooltip-val {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

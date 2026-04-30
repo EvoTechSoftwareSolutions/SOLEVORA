@@ -18,7 +18,7 @@ export const createOrder = async (req, res) => {
     }
 
     const userId = req.user?.id || req.body.userId;
-    const { items, paymentMethod, customerName, email, contactNumber, shippingAddress } = req.body;
+    const { items, paymentMethod, customerName, email, contactNumber, shippingAddress, promoCode, promoDiscount } = req.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({ success: false, message: "Cart is empty" });
@@ -69,8 +69,8 @@ export const createOrder = async (req, res) => {
           throw new Error(`Insufficient stock for ${product.name} - Size ${item.size}`);
         }
 
+        let totalCostForThisItem = 0;
         let remainingQty = item.quantity;
-        let costPrice = 0;
 
         for (const stock of stocks) {
           if (remainingQty <= 0) break;
@@ -81,10 +81,11 @@ export const createOrder = async (req, res) => {
             data: { quantity: stock.quantity - deduct }
           });
 
-          costPrice = stock.costPrice;
+          totalCostForThisItem += (deduct * Number(stock.costPrice));
           remainingQty -= deduct;
         }
 
+        const averageCostPrice = totalCostForThisItem / item.quantity;
         const itemTotal = item.quantity * item.price;
         total += itemTotal;
 
@@ -97,12 +98,32 @@ export const createOrder = async (req, res) => {
             size: item.size,
             quantity: item.quantity,
             sellingPrice: item.price,
-            costPrice: costPrice
+            costPrice: averageCostPrice
           }
         });
+
       }
 
-      // 5. Finalize Total
+      // 5. Handle Promo Code Usage
+      if (promoCode) {
+        const promo = await tx.promocode.findUnique({
+          where: { code: promoCode.toUpperCase() }
+        });
+
+        if (promo) {
+          if (!promo.isActive) throw new Error("This promo code is no longer active");
+          if (promo.expiresAt && new Date() > new Date(promo.expiresAt)) throw new Error("This promo code has expired");
+          if (promo.maxUses && promo.usedCount >= promo.maxUses) throw new Error("This promo code has reached its usage limit");
+
+          // Increment usedCount
+          await tx.promocode.update({
+            where: { id: promo.id },
+            data: { usedCount: { increment: 1 } }
+          });
+        }
+      }
+
+      // 6. Finalize Total
       return await tx.order.update({
         where: { id: order.id },
         data: { 

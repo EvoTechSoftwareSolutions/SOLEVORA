@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { GoogleLogin } from '@react-oauth/google';
 import registerImage from "../../assets/shoe.png";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
@@ -60,20 +61,27 @@ function Register() {
       setIsLoading(false);
     }
   };
-  // Demo Google registration (placeholder for actual OAuth integration)
-  const handleGoogleRegister = async () => {
+  // Function to handle Google signup success
+  const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      // Simulate Google registration with demo data
-      const res = await axios.post("http://localhost:5001/register", {
-        name: "Google User",
-        email: "googleuser@gmail.com",
-        password: "social_register",
-      });
-      setMessage("Registration successful! Redirecting...");
-      setTimeout(() => navigate("/login"), 2000);
+      const res = await axios.post(
+        "http://localhost:5001/api/user/google-login",
+        { token: credentialResponse.credential }
+      );
+
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("auth_token", res.data.token);
+      localStorage.setItem("isAuthenticated", "true");
+      window.dispatchEvent(new Event("authChange"));
+      setMessage("Google signup successful! Redirecting...");
+      setTimeout(() => navigate("/home"), 2000);
     } catch (error) {
-      setMessage("Google registration failed");
+      setMessage(error.response?.data?.message || "Google signup failed");
     }
+  };
+
+  const handleGoogleError = () => {
+    setMessage("Google signup failed");
   };
   // Demo Apple registration (placeholder for actual OAuth integration)
   const handleAppleRegister = async () => {
@@ -200,20 +208,21 @@ function Register() {
         </div>
 
         {/* Social registration buttons */}
-        <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={handleGoogleRegister}
-            className="flex items-center justify-center w-1/2 gap-2 h-10 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 text-xs font-medium transition-all active:scale-95"
-          >
-            <FcGoogle size={20} />
-            Google
-          </button>
+        <div className="flex flex-col gap-4">
+          <div className="w-full flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              theme="outline"
+              size="large"
+              width="100%"
+            />
+          </div>
 
           <button
             type="button"
             onClick={handleAppleRegister}
-            className="flex items-center justify-center w-1/2 gap-2 h-10 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 text-xs font-medium transition-all active:scale-95"
+            className="flex items-center justify-center w-full gap-2 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 text-xs font-medium transition-all active:scale-95 h-10"
           >
             <FaApple size={18} />
             Apple

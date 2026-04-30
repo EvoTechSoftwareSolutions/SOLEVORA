@@ -25,10 +25,13 @@ const ShippingInformation = () => {
   const cart = selectedCart; // Map to local naming convention
   const cartTotal = selectedTotal;
 
-  // local promo state (no longer in context)
-  const [promoCode, setPromoCode] = useState('');
-  const [promoApplied, setPromoApplied] = useState(false);
-  const [promoData, setPromoData] = useState(null); 
+  // local promo state
+  const initialPromoCode = sessionStorage.getItem('checkoutPromoCode') || '';
+  const initialPromoDiscount = Number(sessionStorage.getItem('checkoutPromoDiscount')) || 0;
+
+  const [promoCode, setPromoCode] = useState(initialPromoCode);
+  const [promoApplied, setPromoApplied] = useState(initialPromoDiscount > 0);
+  const [promoData, setPromoData] = useState(initialPromoDiscount > 0 ? { code: initialPromoCode, discountAmount: initialPromoDiscount } : null); 
   const [promoLoading, setPromoLoading] = useState(false);
 
   const [isToastOpen, setIsToastOpen] = useState(false);
@@ -194,6 +197,8 @@ const ShippingInformation = () => {
       });
       setPromoApplied(true);
       setPromoData({ code: data.code, discountAmount: data.discountAmount });
+      sessionStorage.setItem('checkoutPromoCode', data.code);
+      sessionStorage.setItem('checkoutPromoDiscount', String(data.discountAmount));
       showToast(`Promo applied! ${data.message}`);
     } catch (err) {
       setPromoApplied(false);
@@ -208,6 +213,8 @@ const ShippingInformation = () => {
     setPromoApplied(false);
     setPromoData(null);
     setPromoCode('');
+    sessionStorage.setItem('checkoutPromoCode', '');
+    sessionStorage.setItem('checkoutPromoDiscount', '0');
   };
 
   // continue to next step — save form to sessionStorage so ShippingMethod can read it
@@ -220,6 +227,7 @@ const ShippingInformation = () => {
     sessionStorage.setItem('checkoutFormData', JSON.stringify(formData));
     sessionStorage.setItem('checkoutGrossTotal', String(grossTotal));
     sessionStorage.setItem('checkoutPromoDiscount', String(promoDiscount));
+    sessionStorage.setItem('checkoutPromoCode', promoApplied && promoData ? promoData.code : '');
     navigate('/shipping-method');
   };
 

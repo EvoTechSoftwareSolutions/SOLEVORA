@@ -23,10 +23,13 @@ const PaymentDetails = () => {
   const cartTotal = selectedTotal;
 
 
+  const initialPromoCode = sessionStorage.getItem('checkoutPromoCode') || '';
+  const initialPromoDiscount = Number(sessionStorage.getItem('checkoutPromoDiscount')) || 0;
+
   const [paymentMethod, setPaymentMethod] = useState('ONLINE');
-  const [promoCode, setPromoCode] = useState('');
-  const [promoApplied, setPromoApplied] = useState(false);
-  const [promoData, setPromoData] = useState(null);
+  const [promoCode, setPromoCode] = useState(initialPromoCode);
+  const [promoApplied, setPromoApplied] = useState(initialPromoDiscount > 0);
+  const [promoData, setPromoData] = useState(initialPromoDiscount > 0 ? { code: initialPromoCode, discountAmount: initialPromoDiscount } : null);
   const [promoLoading, setPromoLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', body: '' });
@@ -61,11 +64,21 @@ const PaymentDetails = () => {
       });
       setPromoApplied(true);
       setPromoData({ code: data.code, discountAmount: data.discountAmount });
+      sessionStorage.setItem('checkoutPromoCode', data.code);
+      sessionStorage.setItem('checkoutPromoDiscount', String(data.discountAmount));
     } catch (error) {
       showMessage('Error', 'Could not validate promo code. Please try again.');
     } finally {
       setPromoLoading(false);
     }
+  };
+
+  const removePromo = () => {
+    setPromoApplied(false);
+    setPromoData(null);
+    setPromoCode('');
+    sessionStorage.setItem('checkoutPromoCode', '');
+    sessionStorage.setItem('checkoutPromoDiscount', '0');
   };
 
  const handlePlaceOrder = async (paymentMethod) => {
@@ -95,6 +108,7 @@ const PaymentDetails = () => {
         })),
         shippingCharge: Number(sessionStorage.getItem('checkoutShippingCharge')) || 0,
         promoDiscount: promoApplied ? (promoData?.discountAmount || 0) : 0,
+        promoCode: promoApplied ? (promoData?.code || '') : '',
         totalAmount: total
       };
 
@@ -111,12 +125,17 @@ const PaymentDetails = () => {
       sessionStorage.removeItem('checkoutShippingMethod');
       sessionStorage.removeItem('checkoutShippingCharge');
       sessionStorage.removeItem('checkoutPromoDiscount');
+      sessionStorage.removeItem('checkoutPromoCode');
 
       navigate('/order-confirmation', {
         state: { 
           orderId: orderData.data?.orderId || orderData.id || orderData.data?.id, 
           items: currentItems, 
-          paymentMethod: 'cod' 
+          paymentMethod: 'cod',
+          promoCode: promoData?.code || '',
+          promoDiscount: promoData?.discountAmount || 0,
+          customerName: checkoutFormData.fullName || user?.name || 'Guest User',
+          email: checkoutFormData.email || user?.email || 'guest@example.com'
         },
       });
     } catch (error) {
@@ -142,6 +161,7 @@ const PaymentDetails = () => {
         })),
         shippingCharge: Number(sessionStorage.getItem('checkoutShippingCharge')) || 0,
         promoDiscount: promoApplied ? (promoData?.discountAmount || 0) : 0,
+        promoCode: promoApplied ? (promoData?.code || '') : '',
         totalAmount: total
       };
 
@@ -187,11 +207,17 @@ const PaymentDetails = () => {
             sessionStorage.removeItem('checkoutGrossTotal');
             sessionStorage.removeItem('checkoutShippingMethod');
             sessionStorage.removeItem('checkoutShippingCharge');
+            sessionStorage.removeItem('checkoutPromoDiscount');
+            sessionStorage.removeItem('checkoutPromoCode');
             navigate('/order-confirmation', {
               state: { 
                 orderId: orderId, 
                 items: currentItems, 
-                paymentMethod: 'online' 
+                paymentMethod: 'online',
+                promoCode: promoData?.code || '',
+                promoDiscount: promoData?.discountAmount || 0,
+                customerName: checkoutFormData.fullName || user?.name || 'Guest User',
+                email: checkoutFormData.email || user?.email || 'guest@example.com'
               },
             });
           });
@@ -350,11 +376,21 @@ const PaymentDetails = () => {
             {/* Promo */}
             <div className="pd-promo">
               <input type="text" placeholder="Promo code" value={promoCode}
-                onChange={e => setPromoCode(e.target.value)} className="pd-promo-input" />
-              <button type="button" onClick={handleApplyPromo} className="pd-promo-btn" disabled={promoLoading}>
-                {promoLoading ? '...' : 'Apply'}
-              </button>
+                onChange={e => { setPromoCode(e.target.value); if (promoApplied) removePromo(); }}
+                className="pd-promo-input" disabled={promoApplied} />
+              {promoApplied ? (
+                <button type="button" onClick={removePromo} className="pd-promo-btn" style={{backgroundColor: '#fee2e2', color: '#ef4444'}}>Remove</button>
+              ) : (
+                <button type="button" onClick={handleApplyPromo} className="pd-promo-btn" disabled={promoLoading}>
+                  {promoLoading ? '...' : 'Apply'}
+                </button>
+              )}
             </div>
+            {promoApplied && (
+              <div style={{ fontSize: '12px', color: '#16a34a', marginTop: '8px', padding: '8px', background: '#dcfce7', borderRadius: '6px' }}>
+                ✅ <strong>{promoData?.code}</strong> — Rs. {promoDiscount.toLocaleString()} off
+              </div>
+            )}
 
             {/* Totals */}
             <div className="pd-totals">
@@ -362,10 +398,12 @@ const PaymentDetails = () => {
                 <span className="pd-total-key">Gross Total</span>
                 <span className="pd-total-val">Rs. {grossTotal.toLocaleString()}</span>
               </div>
-              <div className="pd-total-row">
-                <span className="pd-total-key">Promo Discount</span>
-                <span className="pd-total-val">-Rs. {promoDiscount.toLocaleString()}</span>
-              </div>
+              {promoApplied && (
+                <div className="pd-total-row" style={{ color: '#22c55e' }}>
+                  <span className="pd-total-key">Promo Discount ({promoData?.code})</span>
+                  <span className="pd-total-val">-Rs. {promoDiscount.toLocaleString()}</span>
+                </div>
+              )}
               <div className="pd-total-row">
                 <span className="pd-total-key">Shipping ({shippingMethodName})</span>
                 <span className="pd-free">{shippingCharge === 0 ? 'Free' : `Rs. ${shippingCharge.toLocaleString()}`}</span>

@@ -16,7 +16,11 @@
     position: relative;
     padding-top: 0;
     min-width: 0;
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
 }
+
 
 /* --- Sidebar --- */
 .profile-sidebar {

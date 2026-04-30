@@ -60,6 +60,31 @@
     font-size: 1.25rem;
 }
 
+.pdb-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.pdb-status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #dcfce7;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.025em;
+}
+
+.pdb-status-badge .material-symbols-outlined {
+    font-size: 1.125rem;
+}
+
+
 /* ---------- Stats Grid ---------- */
 .pdb-stats-grid {
     display: grid;

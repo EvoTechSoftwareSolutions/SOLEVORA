@@ -12,6 +12,7 @@ import {
   updatePassword,
   deleteUser,
   getActiveUsers,
+  googleLogin,
 } from "../controllers/user.controller.js";
 
 import { validateUser } from "../middleware/validateUser.js";
@@ -24,6 +25,7 @@ const router = express.Router();
 router.post("/register", validateUser, register);
 router.post("/social-register", socialRegister);
 router.post("/login", login);
+router.post("/google-login", googleLogin);
 router.post("/logout", authMiddleware, logout);
 
 // PASSWORD RESET

@@ -104,10 +104,17 @@ const Dashboard = () => {
                     <h2>Welcome back, {userName}!</h2>
                     <p>You have {orders.length} orders in your history.</p>
                 </div>
-                <button className="pdb-upgrade-btn">
-                    <span className="material-symbols-outlined pdb-upgrade-icon">rocket_launch</span>
-                    Upgrade Plan
-                </button>
+                <div className="pdb-header-actions">
+                    <div className="pdb-status-badge">
+                        <span className="material-symbols-outlined">inventory_2</span>
+                        FIFO Logic Active
+                    </div>
+                    <button className="pdb-upgrade-btn">
+                        <span className="material-symbols-outlined pdb-upgrade-icon">rocket_launch</span>
+                        Upgrade Plan
+                    </button>
+                </div>
+
             </div>
 
             {/* Stats Grid */}

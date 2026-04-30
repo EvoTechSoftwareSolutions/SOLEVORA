@@ -47,9 +47,10 @@ const AccountSettings = () => {
 
             try {
                 const token = localStorage.getItem("auth_token");
-                const res = await axios.get(`/user/${userId}`, {
-                  headers: { Authorization: `Bearer ${token}` }
+                const res = await axios.get(`${API_URL}/user/${userId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
                 });
+
                 setProfileData({
                     fullName: res.data.name || '',
                     email: res.data.email || '',
@@ -118,7 +119,11 @@ const AccountSettings = () => {
                     payload.newPassword = passwordData.newPassword;
                 }
 
-                res = await axios.put(`/user/${userId}`, payload);
+                const token = localStorage.getItem("auth_token");
+                res = await axios.put(`${API_URL}/user/${userId}`, payload, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
                 localStorage.setItem("user", JSON.stringify(res.data.user));
                 // Clear password fields on success
                 setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -127,10 +132,14 @@ const AccountSettings = () => {
                     setMessage("Passwords do not match");
                     return;
                 }
-                res = await axios.put(`/user/${userId}/password`, {
+                const token = localStorage.getItem("auth_token");
+                res = await axios.put(`${API_URL}/user/${userId}/password`, {
                     currentPassword: passwordData.currentPassword,
                     newPassword: passwordData.newPassword
+                }, {
+                    headers: { Authorization: `Bearer ${token}` }
                 });
+
                 setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
             }
 
@@ -146,7 +155,11 @@ const AccountSettings = () => {
         if (!window.confirm("Are you sure you want to delete your account? This is permanent!")) return;
         const userId = getUserId();
         try {
-            await axios.delete(`/user/${userId}`);
+            const token = localStorage.getItem("auth_token");
+            await axios.delete(`${API_URL}/user/${userId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
             localStorage.removeItem("user");
             window.location.href = "/";
         } catch (err) {
@@ -160,8 +173,16 @@ const AccountSettings = () => {
             <div className="as-header">
                 <h2>Account Management</h2>
                 <p>Review your information and update your security preferences.</p>
-                {message && <div style={{marginTop: "1rem", color: "#f97316", fontWeight: "600"}}>{message}</div>}
+                {message && (
+                    <div className={`as-message-box animate-fadeIn ${message.toLowerCase().includes('failed') || message.toLowerCase().includes('error') ? 'as-message-error' : 'as-message-success'}`}>
+                        <span className="material-symbols-outlined">
+                            {message.toLowerCase().includes('failed') || message.toLowerCase().includes('error') ? 'error' : 'check_circle'}
+                        </span>
+                        {message}
+                    </div>
+                )}
             </div>
+
 
             {/* Profile Information Section */}
             <div className="as-card">

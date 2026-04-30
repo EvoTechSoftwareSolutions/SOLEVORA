@@ -23,10 +23,13 @@ const ShippingMethod = () => {
   const cart = selectedCart;
   const cartTotal = selectedTotal;
 
+  const initialPromoCode = sessionStorage.getItem('checkoutPromoCode') || '';
+  const initialPromoDiscount = Number(sessionStorage.getItem('checkoutPromoDiscount')) || 0;
+
   const [selectedMethod, setSelectedMethod] = useState('standard');
-  const [promoCode, setPromoCode] = useState('');
-  const [promoApplied, setPromoApplied] = useState(false);
-  const [promoData, setPromoData] = useState(null);
+  const [promoCode, setPromoCode] = useState(initialPromoCode);
+  const [promoApplied, setPromoApplied] = useState(initialPromoDiscount > 0);
+  const [promoData, setPromoData] = useState(initialPromoDiscount > 0 ? { code: initialPromoCode, discountAmount: initialPromoDiscount } : null);
   const [promoLoading, setPromoLoading] = useState(false);
   const [isToastOpen, setIsToastOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
@@ -63,6 +66,8 @@ const ShippingMethod = () => {
       });
       setPromoApplied(true);
       setPromoData({ code: data.code, discountAmount: data.discountAmount });
+      sessionStorage.setItem('checkoutPromoCode', data.code);
+      sessionStorage.setItem('checkoutPromoDiscount', String(data.discountAmount));
       showToast(`Promo applied! ${data.message}`);
     } catch (err) {
       setPromoApplied(false);
@@ -77,6 +82,8 @@ const ShippingMethod = () => {
     setPromoApplied(false);
     setPromoData(null);
     setPromoCode('');
+    sessionStorage.setItem('checkoutPromoCode', '');
+    sessionStorage.setItem('checkoutPromoDiscount', '0');
   };
 
   const handleContinueToPayment = () => {
@@ -84,6 +91,7 @@ const ShippingMethod = () => {
     sessionStorage.setItem('checkoutShippingMethod', currentShippingObj.name);
     sessionStorage.setItem('checkoutShippingCharge', String(currentShipping));
     sessionStorage.setItem('checkoutPromoDiscount', String(promoDiscount));
+    sessionStorage.setItem('checkoutPromoCode', promoApplied && promoData ? promoData.code : '');
     navigate('/payment');
   };
 

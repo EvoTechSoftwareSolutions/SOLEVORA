@@ -9,7 +9,7 @@ import '../../styles/user/OrderConfirmation.css';
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { orderId, items, paymentMethod } = location.state || {};
+  const { orderId, items, paymentMethod, promoCode, promoDiscount, customerName, email } = location.state || {};
   const [showPopup, setShowPopup] = React.useState(false);
   const [popupMessage, setPopupMessage] = React.useState("");
   const [popupType, setPopupType] = React.useState("success");
@@ -53,11 +53,9 @@ const OrderConfirmation = () => {
       doc.text(`Date: ${new Date().toLocaleDateString()}`, 15, 62);
       doc.text(`Payment Method: ${paymentMethod?.toUpperCase() || 'N/A'}`, 15, 69);
 
-      // Customer Info (if available)
-      if (user) {
-          doc.text(`Customer Name: ${user.name || 'Valued Customer'}`, 130, 55);
-          doc.text(`Customer Email: ${user.email || 'N/A'}`, 130, 62);
-      }
+      // Customer Info
+      doc.text(`Customer Name: ${customerName || user?.name || 'Valued Customer'}`, 130, 55);
+      doc.text(`Customer Email: ${email || user?.email || 'N/A'}`, 130, 62);
 
       // Table of Items
       const tableData = orderedItems.map(item => [
@@ -85,9 +83,21 @@ const OrderConfirmation = () => {
       } else if (doc.previousAutoTable && doc.previousAutoTable.finalY) {
         finalY = doc.previousAutoTable.finalY + 15;
       }
-      doc.setFontSize(12);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Subtotal: Rs. ${safeSubtotal.toLocaleString()}`, 195, finalY, { align: 'right' });
+      
+      if (promoDiscount > 0) {
+          finalY += 7;
+          doc.setTextColor(34, 197, 94); // Green for discount
+          doc.text(`Discount (${promoCode}): -Rs. ${promoDiscount.toLocaleString()}`, 195, finalY, { align: 'right' });
+          doc.setTextColor(33, 33, 33); // Reset to dark
+      }
+      
+      finalY += 10;
+      doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
-      doc.text(`Grand Total: Rs. ${safeSubtotal.toLocaleString()}`, 195, finalY, { align: 'right' });
+      doc.text(`Grand Total: Rs. ${(safeSubtotal - (promoDiscount || 0)).toLocaleString()}`, 195, finalY, { align: 'right' });
 
       // Footer
       doc.setFontSize(9);
@@ -134,7 +144,7 @@ const OrderConfirmation = () => {
   // Extracting ordered items and calculating totals
   const orderedItems = items || [];
   const subtotal = orderedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const total = subtotal;
+  const total = subtotal - (promoDiscount || 0);
 
   // Check if the payment method is Cash on Delivery (COD)
   const isCOD = paymentMethod === 'cod';
@@ -230,6 +240,12 @@ const OrderConfirmation = () => {
                 <span className="oc-total-key">Shipping</span>
                 <span className="oc-total-val-green">Free</span>
               </div>
+              {promoDiscount > 0 && (
+                <div className="oc-total-row" style={{ color: '#22c55e' }}>
+                  <span className="oc-total-key">Discount ({promoCode})</span>
+                  <span className="oc-total-val">-Rs. {promoDiscount.toLocaleString()}</span>
+                </div>
+              )}
               <div className="oc-grand-total">
                 <span className="oc-grand-label">{isCOD ? 'Amount Due on Delivery' : 'Total'}</span>
                 <span className="oc-grand-amount">Rs. {total.toLocaleString()}</span>
@@ -250,7 +266,7 @@ const OrderConfirmation = () => {
               <>
                 <span className="material-symbols-outlined oc-info-icon">info</span>
                 <p className="oc-footer-text">
-                  A confirmation email has been sent to <span className="oc-bold">{user?.email || 'your email'}</span>.
+                  A confirmation email has been sent to <span className="oc-bold">{email || user?.email || 'your email'}</span>.
                 </p>
               </>
             )}

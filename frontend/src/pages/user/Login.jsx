@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { GoogleLogin } from '@react-oauth/google';
 import loginImage from "../../assets/login-shoe.png";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
@@ -53,19 +54,26 @@ const handleLogin = async (e) => {
   }
 };
 
-  // Function to handle Google login (demo implementation)
-  const handleGoogleLogin = async () => {
+  // Function to handle Google login success
+  const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const res = await axios.post("http://localhost:50011/login", {
-        email: "googleuser@gmail.com",
-        password: "social_login",
-      });
+      const res = await axios.post(
+        "http://localhost:5001/api/user/google-login",
+        { token: credentialResponse.credential }
+      );
+
       localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("auth_token", res.data.token);
       localStorage.setItem("isAuthenticated", "true");
+      window.dispatchEvent(new Event("authChange"));
       navigate(from, { replace: true });
     } catch (error) {
       setMessage(error.response?.data?.message || "Google login failed");
     }
+  };
+
+  const handleGoogleError = () => {
+    setMessage("Google login failed");
   };
 
   // Function to handle Apple login (demo implementation)
@@ -182,20 +190,21 @@ const handleLogin = async (e) => {
           <div className="flex-1 border-t border-gray-300"></div>
         </div>
 
-        <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="flex items-center justify-center flex-1 gap-2 border border-gray-300 h-10 rounded-xl hover:bg-white text-xs"
-          >
-            <FcGoogle className="text-lg" />
-            Google
-          </button>
+        <div className="flex flex-col gap-4">
+          <div className="w-full flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              theme="outline"
+              size="large"
+              width="100%"
+            />
+          </div>
 
           <button
             type="button"
             onClick={handleAppleLogin}
-            className="flex items-center justify-center flex-1 gap-2 border border-gray-300 h-10 rounded-xl hover:bg-white text-xs"
+            className="flex items-center justify-center w-full gap-2 border border-gray-300 h-10 rounded-xl hover:bg-white text-xs"
           >
             <FaApple className="text-lg" />
             Apple

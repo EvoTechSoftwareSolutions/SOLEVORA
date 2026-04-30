@@ -2,6 +2,9 @@ import prisma from "../prisma/client.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // import { sendEmail } from "../utils/emailService.js";
 
 // REGISTER
@@ -364,3 +367,56 @@ export const logout = async (req, res) => {
     });
   }
 };
+
+// GOOGLE LOGIN
+export const googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const { name, email } = ticket.getPayload();
+
+    let user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      // Create new user if they don't exist
+      user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: await bcrypt.hash(crypto.randomBytes(16).toString("hex"), 10),
+          status: 1, // Active by default
+          role: "customer",
+        },
+      });
+    } else if (user.status === 0) {
+      return res.status(403).json({ message: "User inactive" });
+    }
+
+    const jwtToken = jwt.sign(
+      {
+        id: user.id,
+        role: user.role,
+        email: user.email,
+      },
+      process.env.JWT_SECRET.trim(),
+      { expiresIn: "1d" }
+    );
+
+
+    res.json({
+      message: "Google login successful",
+      token: jwtToken,
+      user: {
+        id: user.id,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("GOOGLE_LOGIN_ERROR:", error);
+    res.status(500).json({ message: "Google login failed" });
+  }
+};

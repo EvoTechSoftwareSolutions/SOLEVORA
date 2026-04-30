@@ -16,6 +16,7 @@ import adminRoutes from "./routes/admin.routes.js";
 import contactRoutes from "./routes/contact.routes.js";
 import newsletterRoutes from "./routes/newsletter.routes.js";
 import paymentRoutes from "./routes/payment.route.js";
+import promoRoutes from "./routes/promo.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +29,13 @@ app.use(
     credentials: true,
   })
 );
+
+// Add COOP header for Google Auth
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  next();
+});
+
 
 app.use(express.json());
 
@@ -47,5 +55,6 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/promo", promoRoutes);
 
 export default app;

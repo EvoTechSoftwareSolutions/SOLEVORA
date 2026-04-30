@@ -21,6 +21,17 @@ const ProductsManagement = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [expandedStock, setExpandedStock] = useState(null);
 
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterMinPrice, setFilterMinPrice] = useState("");
+  const [filterMaxPrice, setFilterMaxPrice] = useState("");
+  const [filterSort, setFilterSort] = useState("newest");
+
+  // Derive unique categories from loaded products
+  const categories = [...new Set(products.map((p) => p.category?.name).filter(Boolean))];
+
   const getTotalStock = (prod) =>
     (prod.stocks || []).reduce(
       (acc, s) => acc + (parseInt(s.quantity) || 0),
@@ -85,12 +96,71 @@ const ProductsManagement = () => {
   const toggleStockExpand = (id) =>
     setExpandedStock((prev) => (prev === id ? null : id));
 
-  const filteredProducts = products.filter((prod) => {
-    if (subTab === "All Products") return true;
-    const total = getTotalStock(prod);
-    const { label } = getStatus(total);
-    return label === subTab;
-  });
+  // Apply all filters
+  const filteredProducts = products
+    .filter((prod) => {
+      // Tab filter
+      if (subTab !== "All Products") {
+        const total = getTotalStock(prod);
+        const { label } = getStatus(total);
+        if (label !== subTab) return false;
+      }
+      // Search filter (name, category, description)
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const inName = prod.name?.toLowerCase().includes(q);
+        const inCat = prod.category?.name?.toLowerCase().includes(q);
+        const inDesc = prod.description?.toLowerCase().includes(q);
+        if (!inName && !inCat && !inDesc) return false;
+      }
+      // Category filter
+      if (filterCategory && prod.category?.name !== filterCategory) return false;
+      // Price filter
+      const price = parseFloat(prod.price);
+      if (filterMinPrice && price < parseFloat(filterMinPrice)) return false;
+      if (filterMaxPrice && price > parseFloat(filterMaxPrice)) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (filterSort === "price-asc") return parseFloat(a.price) - parseFloat(b.price);
+      if (filterSort === "price-desc") return parseFloat(b.price) - parseFloat(a.price);
+      if (filterSort === "name-asc") return a.name.localeCompare(b.name);
+      if (filterSort === "stock-asc") return getTotalStock(a) - getTotalStock(b);
+      // newest (default)
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
+  const handleExportCSV = () => {
+    const headers = ["ID", "Name", "Category", "Price", "Total Stock", "Status"];
+    const rows = filteredProducts.map((p) => {
+      const total = getTotalStock(p);
+      const { label } = getStatus(total);
+      return [
+        p.id,
+        `"${p.name}"`,
+        p.category?.name || "Uncategorized",
+        parseFloat(p.price).toFixed(2),
+        total,
+        label,
+      ];
+    });
+    const csv = [headers, ...rows].map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `solevora-products-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const clearFilters = () => {
+    setFilterCategory("");
+    setFilterMinPrice("");
+    setFilterMaxPrice("");
+    setFilterSort("newest");
+    setSearchQuery("");
+  };
 
   return (
     <div className="dashboard-content">
@@ -100,7 +170,7 @@ const ProductsManagement = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "25px",
+          marginBottom: "20px",
         }}
       >
         <div>
@@ -129,13 +199,7 @@ const ProductsManagement = () => {
             boxShadow: "0 4px 12px rgba(246,109,59,0.2)",
           }}
         >
-          <svg
-            style={{ width: "18px", height: "18px" }}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
+          <svg style={{ width: "18px", height: "18px" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
@@ -143,48 +207,109 @@ const ProductsManagement = () => {
         </button>
       </div>
 
+      {/* Search Bar */}
+      <div className="pm-search-row">
+        <div className="pm-search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pm-search-icon">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search by product name, category, description..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pm-search-input"
+          />
+          {searchQuery && (
+            <button className="pm-search-clear" onClick={() => setSearchQuery("")} title="Clear search">✕</button>
+          )}
+        </div>
+        <span className="pm-result-count">
+          {filteredProducts.length} of {products.length} products
+        </span>
+      </div>
+
       {/* Tabs Bar */}
       <div className="tabs-bar">
         <div className="tabs-left">
-          {["All Products", "Active", "Out of Stock", "Low Stock"].map(
-            (tab) => (
-              <button
-                key={tab}
-                className={`tab-link ${subTab === tab ? "active" : ""}`}
-                onClick={() => setSubTab(tab)}
-              >
-                {tab}
-              </button>
-            ),
-          )}
+          {["All Products", "Active", "Out of Stock", "Low Stock"].map((tab) => (
+            <button
+              key={tab}
+              className={`tab-link ${subTab === tab ? "active" : ""}`}
+              onClick={() => setSubTab(tab)}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
         <div className="tabs-right">
-          <button className="btn-secondary">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
+          <button
+            className={`btn-secondary ${showFilterPanel ? "btn-secondary-active" : ""}`}
+            onClick={() => setShowFilterPanel((v) => !v)}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
             Filter
+            {(filterCategory || filterMinPrice || filterMaxPrice || filterSort !== "newest") && (
+              <span className="pm-filter-active-dot" />
+            )}
           </button>
-          <button className="btn-secondary">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
+          <button className="btn-secondary" onClick={handleExportCSV}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
-            Export
+            Export CSV
           </button>
         </div>
       </div>
+
+      {/* Filter Panel */}
+      {showFilterPanel && (
+        <div className="pm-filter-panel">
+          <div className="pm-filter-group">
+            <label>Category</label>
+            <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
+              <option value="">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+          <div className="pm-filter-group">
+            <label>Min Price (Rs.)</label>
+            <input
+              type="number"
+              placeholder="0"
+              value={filterMinPrice}
+              onChange={(e) => setFilterMinPrice(e.target.value)}
+            />
+          </div>
+          <div className="pm-filter-group">
+            <label>Max Price (Rs.)</label>
+            <input
+              type="number"
+              placeholder="Any"
+              value={filterMaxPrice}
+              onChange={(e) => setFilterMaxPrice(e.target.value)}
+            />
+          </div>
+          <div className="pm-filter-group">
+            <label>Sort By</label>
+            <select value={filterSort} onChange={(e) => setFilterSort(e.target.value)}>
+              <option value="newest">Newest First</option>
+              <option value="price-asc">Price: Low → High</option>
+              <option value="price-desc">Price: High → Low</option>
+              <option value="name-asc">Name: A → Z</option>
+              <option value="stock-asc">Stock: Low → High</option>
+            </select>
+          </div>
+          <button className="pm-filter-clear" onClick={clearFilters}>Clear All</button>
+        </div>
+      )}
 
       {/* Table */}
       <div className="table-container">

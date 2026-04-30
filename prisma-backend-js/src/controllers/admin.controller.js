@@ -161,7 +161,76 @@ export const deleteCustomer = async (req, res) => {
   }
 };
 
+// --- PUBLIC PROMO VALIDATION ---
+
+export const validatePromo = async (req, res) => {
+  try {
+    const { code, orderAmount } = req.body;
+
+    if (!code) {
+      return res.status(400).json({ success: false, message: 'Promo code is required.' });
+    }
+
+    const promo = await prisma.promocode.findUnique({
+      where: { code: code.toUpperCase() }
+    });
+
+    if (!promo) {
+      return res.status(404).json({ success: false, message: 'Promo code not found.' });
+    }
+
+    if (!promo.isActive) {
+      return res.status(400).json({ success: false, message: 'This promo code is no longer active.' });
+    }
+
+    if (promo.expiresAt && new Date() > new Date(promo.expiresAt)) {
+      return res.status(400).json({ success: false, message: 'This promo code has expired.' });
+    }
+
+    if (promo.maxUses && promo.usageCount >= promo.maxUses) {
+      return res.status(400).json({ success: false, message: 'This promo code has reached its usage limit.' });
+    }
+
+    const order = Number(orderAmount) || 0;
+    const minOrder = Number(promo.minOrderAmount) || 0;
+
+    if (order < minOrder) {
+      return res.status(400).json({
+        success: false,
+        message: `Minimum order amount of Rs. ${minOrder.toLocaleString()} required to use this code.`
+      });
+    }
+
+    // Calculate discount
+    let discountAmount = 0;
+    if (promo.discountType === 'percentage') {
+      discountAmount = Math.round((order * Number(promo.discountValue)) / 100);
+    } else {
+      discountAmount = Number(promo.discountValue);
+    }
+
+    // Cap discount to order amount
+    discountAmount = Math.min(discountAmount, order);
+
+    return res.json({
+      success: true,
+      code: promo.code,
+      discountAmount,
+      discountType: promo.discountType,
+      discountValue: Number(promo.discountValue),
+      message: promo.discountType === 'percentage'
+        ? `${promo.discountValue}% off applied! You save Rs. ${discountAmount.toLocaleString()}.`
+        : `Rs. ${discountAmount.toLocaleString()} off applied!`
+    });
+
+  } catch (error) {
+    console.error('PROMO_VALIDATE_ERROR:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // --- PROMO CODES ---
+
 
 export const getAllPromos = async (req, res) => {
   try {

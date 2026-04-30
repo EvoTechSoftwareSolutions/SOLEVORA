@@ -55,5 +55,6 @@ export const orderSchema = z.object({
   // Add these as optional so they don't cause validation errors if sent
   shippingCharge: z.coerce.number().optional(),
   promoDiscount: z.coerce.number().optional(),
+  promoCode: z.string().optional(),
   totalAmount: z.coerce.number().optional()
 });
