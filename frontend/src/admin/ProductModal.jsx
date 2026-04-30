@@ -57,11 +57,12 @@ useEffect(() => {
 
     const normalizeStocks = (items) => {
         if (!Array.isArray(items) || items.length === 0) {
-            return [{ size: '7', costPrice: '', quantity: '' }];
+            return [{ size: '7', costPrice: '', sellingPrice: '', quantity: '' }];
         }
         return items.map((s) => ({
             size: s.size ?? '',
             costPrice: s.costPrice ?? '',
+            sellingPrice: s.sellingPrice ?? '',
             quantity: s.quantity ?? ''
         }));
     };
@@ -139,6 +140,12 @@ const handleSelectProduct = (product) => {
     const handleStockChange = (index, field, value) => {
         const updated = [...stocks];
         updated[index][field] = value;
+        
+        // Auto-fill selling price if it's empty and cost is being set
+        if (field === 'costPrice' && !updated[index].sellingPrice) {
+            updated[index].sellingPrice = value;
+        }
+        
         setStocks(updated);
     };
 
@@ -300,20 +307,38 @@ const handleSelectProduct = (product) => {
 
                     {/* Stocks Section */}
                     <div className="border-t pt-4">
-                        <div className="flex justify-between items-center mb-3">
+                        <div className="flex justify-between items-center mb-1">
                             <h3 className="font-bold text-gray-700">Stock & Sizes</h3>
-                            <button type="button" onClick={() => setStocks([...stocks, { size: '', costPrice: '', quantity: '' }])} className="text-sm flex items-center text-blue-600">
+                            <button type="button" onClick={() => setStocks([...stocks, { size: '', costPrice: '', sellingPrice: '', quantity: '' }])} className="text-sm flex items-center text-blue-600">
                                 <PlusIcon className="w-4 h-4 mr-1" /> Add Size
                             </button>
                         </div>
+                        <p className="text-[11px] text-gray-500 mb-3">
+                            Set a unique <span className="font-semibold">Selling Price</span> for each size if needed.
+                        </p>
                         {stocks.map((stock, idx) => (
-                            <div key={idx} className="grid grid-cols-4 gap-2 mb-2 items-end">
-                                <input placeholder="Size" value={stock.size} onChange={(e) => handleStockChange(idx, 'size', e.target.value)} className="border rounded-lg p-2 text-sm" />
-                                <input placeholder="Cost" type="number" value={stock.costPrice} onChange={(e) => handleStockChange(idx, 'costPrice', e.target.value)} className="border rounded-lg p-2 text-sm" />
-                                <input placeholder="Qty" type="number" value={stock.quantity} onChange={(e) => handleStockChange(idx, 'quantity', e.target.value)} className="border rounded-lg p-2 text-sm" />
-                                <button type="button" onClick={() => setStocks(stocks.filter((_, i) => i !== idx))} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">
-                                    <TrashIcon className="w-5 h-5" />
-                                </button>
+                            <div key={idx} className="grid grid-cols-5 gap-2 mb-2 items-end">
+                                <div>
+                                    <label className="block text-[10px] text-gray-400 uppercase font-bold mb-1">Size</label>
+                                    <input placeholder="Size" value={stock.size} onChange={(e) => handleStockChange(idx, 'size', e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] text-gray-400 uppercase font-bold mb-1">Cost</label>
+                                    <input placeholder="Cost" type="number" value={stock.costPrice} onChange={(e) => handleStockChange(idx, 'costPrice', e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] text-gray-400 uppercase font-bold mb-1">Selling</label>
+                                    <input placeholder="Price" type="number" value={stock.sellingPrice} onChange={(e) => handleStockChange(idx, 'sellingPrice', e.target.value)} className="w-full border rounded-lg p-2 text-sm bg-orange-50 border-orange-200" />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] text-gray-400 uppercase font-bold mb-1">Qty</label>
+                                    <input placeholder="Qty" type="number" value={stock.quantity} onChange={(e) => handleStockChange(idx, 'quantity', e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+                                </div>
+                                <div className="flex justify-center">
+                                    <button type="button" onClick={() => setStocks(stocks.filter((_, i) => i !== idx))} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">
+                                        <TrashIcon className="w-5 h-5" />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>

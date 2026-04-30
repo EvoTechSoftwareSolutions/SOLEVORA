@@ -319,12 +319,25 @@ function ProductDetail() {
 
             {/* Product pricing */}
             <div className="pricing">
-              <span className="current-price">
-                Rs. {parseFloat(product.price).toLocaleString()}
-              </span>
-              <span className="old-price">
-                Rs. {(parseFloat(product.price) * 1.2).toLocaleString()}
-              </span>
+              {(() => {
+                const activeStock = (product.stocks || []).find(s => parseFloat(s.size) === parseFloat(selectedSize) && s.quantity > 0);
+                const displayPrice = (activeStock && Number(activeStock.sellingPrice) > 0) 
+                  ? Number(activeStock.sellingPrice) 
+                  : (activeStock && Number(activeStock.costPrice) > 0)
+                    ? Number(activeStock.costPrice)
+                    : parseFloat(product.price);
+                
+                return (
+                  <>
+                    <span className="current-price">
+                      Rs. {displayPrice.toLocaleString()}
+                    </span>
+                    <span className="old-price">
+                      Rs. {(displayPrice * 1.2).toLocaleString()}
+                    </span>
+                  </>
+                );
+              })()}
             </div>
 
             {/* Product description teaser */}

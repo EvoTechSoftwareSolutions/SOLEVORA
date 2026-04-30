@@ -45,13 +45,14 @@ export const createProduct = async (req, res) => {
         });
 
         if (existingStock) {
-          // increment quantity
+          // increment quantity and update selling price
           await prisma.productstock.update({
             where: { id: existingStock.id },
             data: {
               quantity: {
                 increment: Number(s.quantity)
-              }
+              },
+              sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : (s.costPrice || existingProduct.price || 0))
             }
           });
         } else {
@@ -61,6 +62,7 @@ export const createProduct = async (req, res) => {
               productId: existingProduct.id,
               size: s.size,
               costPrice: Number(s.costPrice),
+              sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : (s.costPrice || existingProduct.price || 0)),
               quantity: Number(s.quantity)
             }
           });
@@ -117,6 +119,7 @@ export const createProduct = async (req, res) => {
           create: parsedStocks.map(s => ({
             size: s.size,
             costPrice: Number(s.costPrice),
+            sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : (s.costPrice || price || 0)),
             quantity: Number(s.quantity)
           }))
         }
@@ -381,7 +384,10 @@ export const updateProduct = async (req, res) => {
           if (existingStock) {
             await tx.productstock.update({
               where: { id: existingStock.id },
-              data: { quantity: Number(s.quantity) },
+              data: { 
+                quantity: Number(s.quantity),
+                sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : (s.costPrice || product.price || 0))
+              },
             });
           } else {
             await tx.productstock.create({
@@ -389,6 +395,7 @@ export const updateProduct = async (req, res) => {
                 productId: product.id,
                 size: s.size,
                 costPrice: Number(s.costPrice),
+                sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : (s.costPrice || product.price || 0)),
                 quantity: Number(s.quantity),
               },
             });

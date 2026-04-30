@@ -5,7 +5,7 @@ import prisma from "../prisma/client.js";
 //
 export const addStock = async (req, res) => {
   try {
-    const { productId, slug, size, costPrice, quantity } = req.body;
+    const { productId, slug, size, costPrice, quantity, newSellingPrice } = req.body;
 
     // VALIDATION
     if ((!productId && !slug) || !size || !costPrice || !quantity) {
@@ -35,6 +35,7 @@ export const addStock = async (req, res) => {
 
     const parsedCost = parseFloat(costPrice);
     const parsedQty = Number(quantity);
+    const parsedSellingPrice = newSellingPrice ? parseFloat(newSellingPrice) : null;
 
     if (isNaN(parsedCost) || isNaN(parsedQty)) {
       return res.status(400).json({
@@ -43,32 +44,47 @@ export const addStock = async (req, res) => {
       });
     }
 
-    // STEP 2: UPSERT STOCK (PREVENT DUPLICATE BATCH)
-    const stock = await prisma.productstock.upsert({
-      where: {
-        productId_size_costPrice: {
+    // STEP 2: TRANSACTION FOR ATOMIC UPDATE
+    const result = await prisma.$transaction(async (tx) => {
+      // Upsert stock batch
+      const stock = await tx.productstock.upsert({
+        where: {
+          productId_size_costPrice: {
+            productId: Number(finalProductId),
+            size: size,
+            costPrice: parsedCost,
+          },
+        },
+        update: {
+          quantity: {
+            increment: parsedQty,
+          },
+          sellingPrice: (parsedSellingPrice && parsedSellingPrice != 0) ? parsedSellingPrice : (parsedCost || 0),
+        },
+        create: {
           productId: Number(finalProductId),
           size: size,
           costPrice: parsedCost,
+          sellingPrice: (parsedSellingPrice && parsedSellingPrice != 0) ? parsedSellingPrice : (parsedCost || 0),
+          quantity: parsedQty,
         },
-      },
-      update: {
-        quantity: {
-          increment: parsedQty,
-        },
-      },
-      create: {
-        productId: Number(finalProductId),
-        size: size,
-        costPrice: parsedCost,
-        quantity: parsedQty,
-      },
+      });
+
+      // Optionally update product base selling price (for display/fallback)
+      if (parsedSellingPrice !== null && !isNaN(parsedSellingPrice)) {
+        await tx.product.update({
+          where: { id: Number(finalProductId) },
+          data: { price: parsedSellingPrice }
+        });
+      }
+
+      return stock;
     });
 
     return res.status(201).json({
       success: true,
-      message: "Stock added/updated successfully",
-      data: stock,
+      message: "Stock added/updated successfully" + (parsedSellingPrice ? " and product price updated" : ""),
+      data: result,
     });
   } catch (error) {
     return res.status(500).json({
@@ -155,10 +171,14 @@ export const getAllStockBatches = async (req, res) => {
     });
 
     const mapped = batches.map((batch) => {
-      const sellingPrice = batch.product?.discountPrice ?? batch.product?.price ?? 0;
+      const sellingPrice = (Number(batch.sellingPrice) > 0) 
+        ? batch.sellingPrice 
+        : (batch.product?.discountPrice ?? batch.product?.price ?? 0);
+      
       return {
         id: batch.id,
         createdAt: batch.createdAt,
+        size: batch.size,
         quantity: batch.quantity,
         original_quantity: batch.quantity,
         cost_price: Number(batch.costPrice || 0),

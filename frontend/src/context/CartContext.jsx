@@ -56,13 +56,21 @@ export const CartProvider = ({ children }) => {
           item.product?.image_url ||
           "";
 
+        const stocks = item.product?.productstock || [];
+        const sizeStock = stocks.find(s => parseFloat(s.size) === parseFloat(item.size) && s.quantity > 0);
+        const itemPrice = (sizeStock && Number(sizeStock.sellingPrice) > 0) 
+          ? Number(sizeStock.sellingPrice) 
+          : (sizeStock && Number(sizeStock.costPrice) > 0)
+            ? Number(sizeStock.costPrice)
+            : Number(item.product?.price || 0);
+
         return {
           id: item.id,
           productId: item.productId,
           size: item.size,
           quantity: item.quantity,
           name: item.product?.name || "Product",
-          price: Number(item.product?.price || 0),
+          price: itemPrice,
           image_url: rawUrl ? getImg(rawUrl) : "",
         };
       });
