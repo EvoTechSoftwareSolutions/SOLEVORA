@@ -41,7 +41,7 @@ model category {
 
 model order {
   id                Int                 @id @default(autoincrement())
-  userId            Int
+  userId            Int?
   customerName      String?
   email             String?
   contactNumber     String?
@@ -59,7 +59,7 @@ model order {
   carrier           String?
   estimatedDelivery DateTime?
   trackingNumber    String?
-  user              user                @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
+  user              user?                @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
   orderitem         orderitem[]
 
   @@index([userId], map: "Order_userId_fkey")

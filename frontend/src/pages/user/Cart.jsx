@@ -199,7 +199,18 @@ const Cart = () => {
             <button
               type="button"
               className={`checkout-btn ${selectedIds.length === 0 ? 'disabled' : ''}`}
-              onClick={() => selectedIds.length > 0 && navigate("/shipping", { state: { selectedIds } })}
+              onClick={() => {
+                if (selectedIds.length > 0) {
+                  // Clear old checkout session data to avoid "sudden" promos or old info
+                  sessionStorage.removeItem('checkoutPromoCode');
+                  sessionStorage.removeItem('checkoutPromoDiscount');
+                  sessionStorage.removeItem('checkoutGrossTotal');
+                  sessionStorage.removeItem('checkoutShippingCharge');
+                  sessionStorage.removeItem('checkoutShippingMethod');
+                  
+                  navigate("/shipping", { state: { selectedIds } });
+                }
+              }}
               disabled={selectedIds.length === 0}
             >
               {selectedIds.length === 0 ? 'Select Items to Checkout' : 'Proceed to Checkout'}

@@ -8,6 +8,7 @@ export const createOrder = async (req, res) => {
     const result = orderSchema.safeParse(req.body);
 
     if (!result.success) {
+      console.log("ORDER_VALIDATION_ERROR:", JSON.stringify(result.error.format(), null, 2));
       return res.status(400).json({
         success: false,
         errors: result.error.issues.map(err => ({
@@ -17,10 +18,22 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    const userId = req.user?.id || req.body.userId;
-    const { items, paymentMethod, customerName, email, contactNumber, shippingAddress, promoCode, promoDiscount } = req.body;
+    const userId = req.user?.id ? Number(req.user.id) : (req.body.userId ? Number(req.body.userId) : null);
+    const { 
+      items, 
+      paymentMethod, 
+      customerName, 
+      email, 
+      contactNumber, 
+      shippingAddress, 
+      promoCode, 
+      promoDiscount, 
+      shippingCharge, 
+      totalAmount 
+    } = req.body;
 
     if (!items || items.length === 0) {
+      console.log("ORDER_ERROR: Cart is empty", JSON.stringify(req.body, null, 2));
       return res.status(400).json({ success: false, message: "Cart is empty" });
     }
 
@@ -41,7 +54,10 @@ export const createOrder = async (req, res) => {
           trackingNumber: generateTrackingNumber(),
           carrier: "AUTO-COURIER",
           estimatedDelivery: getEstimatedDelivery(),
-          totalAmount: 0, // Placeholder
+          totalAmount: totalAmount || 0,
+          shippingCharge: shippingCharge || 0,
+          promoDiscount: promoDiscount || 0,
+          promoCode: promoCode || null,
           updatedAt: new Date()
         }
       });
@@ -59,8 +75,11 @@ export const createOrder = async (req, res) => {
         }
 
         // 3. Check and Deduct Stock (using tx)
+        // Normalize size (e.g., "9.0" -> "9")
+        const normalizedSize = String(parseFloat(item.size) || item.size);
+
         const stocks = await tx.productstock.findMany({
-          where: { productId: item.productId, size: item.size, quantity: { gt: 0 } },
+          where: { productId: item.productId, size: normalizedSize, quantity: { gt: 0 } },
           orderBy: { createdAt: "asc" }
         });
 

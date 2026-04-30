@@ -140,7 +140,11 @@ const PaymentDetails = () => {
       });
     } catch (error) {
       console.error('Error placing COD order:', error);
-      showMessage('Order Failed', 'Could not place your order. Please try again.');
+      const errorMsg = error.response?.data?.errors 
+        ? error.response.data.errors.map(e => `${e.field}: ${e.message}`).join(', ') 
+        : (error.response?.data?.message || 'Something went wrong. Please try again.');
+      
+      showMessage('Order Failed', errorMsg);
     }
   };
 
