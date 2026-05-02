@@ -152,10 +152,11 @@ export const getAllCustomers = async (req, res) => {
 export const deleteCustomer = async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.user.delete({
-      where: { id: Number(id) }
+    await prisma.user.update({
+      where: { id: Number(id) },
+      data: { status: 0 }
     });
-    res.json({ success: true, message: "Customer deleted successfully" });
+    res.json({ success: true, message: "Customer deactivated successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -476,13 +477,12 @@ export const deleteAdminUser = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Don't allow deleting the last admin or yourself if needed, 
-    // but for now simple delete:
-    await prisma.user.delete({
-      where: { id: Number(id) }
+    await prisma.user.update({
+      where: { id: Number(id) },
+      data: { status: 0 }
     });
     
-    res.json({ success: true, message: "Staff removed" });
+    res.json({ success: true, message: "Staff member deactivated" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

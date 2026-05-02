@@ -403,9 +403,11 @@
   flex-direction: row;
   width: 100%;
   align-items: center;
-  max-width: 1000px;
-  justify-content: space-between;
+  max-width: 1200px;
+  justify-content: center;
+  gap: 40px;
   margin-top: 60px;
+  flex-wrap: wrap;
 }
 
 

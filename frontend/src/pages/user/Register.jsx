@@ -30,6 +30,18 @@ function Register() {
       setMessage("Please fill all fields");
       return;
     }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email) || email.includes('***')) {
+      setMessage("Invalid email format");
+      return;
+    }
+
+    const nameRegex = /^[a-zA-Z\s]*$/;
+    if (!nameRegex.test(name)) {
+      setMessage("Name should only contain letters");
+      return;
+    }
     
     // Password confirmation validation
     if (password !== confirmPassword) {

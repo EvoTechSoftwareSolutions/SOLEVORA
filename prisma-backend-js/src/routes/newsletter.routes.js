@@ -44,6 +44,24 @@ router.post("/subscribe", async (req, res) => {
       data: { newsletter: true }
     });
 
+    // Ensure Promo Code exists in DB
+    const promoCode = "WELCOME10";
+    const existingPromo = await prisma.promocode.findUnique({
+      where: { code: promoCode }
+    });
+
+    if (!existingPromo) {
+      await prisma.promocode.create({
+        data: {
+          code: promoCode,
+          discountPercent: 10,
+          isActive: true,
+          description: "Newsletter Welcome Discount",
+          expiresAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1)) // 1 year expiry
+        }
+      });
+    }
+
     // Send Welcome Email
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',

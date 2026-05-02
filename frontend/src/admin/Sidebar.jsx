@@ -34,7 +34,7 @@ const Sidebar = () => {
 
     const isTabActive = (pathName) => {
         if (currentPath === '/admin' && pathName === '/admin') return 'active';
-        if (pathName !== '/admin' && currentPath === pathName) return 'active';
+        if (pathName !== '/admin' && currentPath.startsWith(pathName)) return 'active';
         return '';
     };
 // logout function
@@ -137,8 +137,9 @@ const Sidebar = () => {
                 <Link to="/admin/newsletter" style={{ textDecoration: 'none' }}>
                     <div className={`app-nav-item ${isTabActive('/admin/newsletter')}`}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                            <polyline points="22,6 12,13 2,6"></polyline>
+                            <path d="M22 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5C2 7 4 5 6.5 5H18c2.2 0 4 1.8 4 4v8z"></path>
+                            <polyline points="15,9 18,9 18,12"></polyline>
+                            <path d="M15 5v8"></path>
                         </svg>
                         Newsletter
                     </div>

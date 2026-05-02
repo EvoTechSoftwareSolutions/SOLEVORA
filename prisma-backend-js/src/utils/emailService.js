@@ -28,17 +28,28 @@ export const sendOrderConfirmationEmail = async (order, items) => {
   try {
     const { id, customerName, email, totalAmount, shippingAddress, paymentMethod, trackingNumber } = order;
 
-    const itemsHtml = items.map(item => `
-      <tr style="border-bottom: 1px solid #eee;">
-        <td style="padding: 10px; text-align: left;">
-          <div style="font-weight: bold; color: #333;">${item.productName || 'Product'}</div>
-          <div style="font-size: 12px; color: #666;">Size: ${item.size} | Qty: ${item.quantity}</div>
-        </td>
-        <td style="padding: 10px; text-align: right; color: #333;">
-          Rs. ${item.sellingPrice.toLocaleString()}
-        </td>
-      </tr>
-    `).join('');
+    const itemsHtml = items.map(item => {
+      const imgUrl = item.product?.productimage?.[0]?.url 
+        ? (item.product.productimage[0].url.startsWith('http') 
+            ? item.product.productimage[0].url 
+            : `http://localhost:5001${item.product.productimage[0].url}`)
+        : 'https://via.placeholder.com/80';
+
+      return `
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 10px; text-align: left; display: flex; align-items: center; gap: 15px;">
+            <img src="${imgUrl}" alt="${item.productName}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #eee;" />
+            <div>
+              <div style="font-weight: bold; color: #333;">${item.productName || 'Product'}</div>
+              <div style="font-size: 12px; color: #666;">Size: ${item.size} | Qty: ${item.quantity}</div>
+            </div>
+          </td>
+          <td style="padding: 10px; text-align: right; color: #333; vertical-align: middle;">
+            Rs. ${item.sellingPrice.toLocaleString()}
+          </td>
+        </tr>
+      `;
+    }).join('');
 
     const mailOptions = {
       from: `"SoleVora" <${process.env.GMAIL_USER}>`,

@@ -64,6 +64,7 @@ function CategoryPage() {
   const [popupMessage, setPopupMessage] = useState("");
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [products, setProducts] = useState([]);
+  const [selectedProductSizes, setSelectedProductSizes] = useState({});
 
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -98,8 +99,8 @@ function CategoryPage() {
   // addToCart now only needs product.id and size — CartContext handles the rest
   const handleAddToCart = (product) => {
     if (!user) { setPopupMessage("Please login to add items to your cart."); setShowPopup(true); return; }
-    const defaultSize = product.sizes?.[0] || "One Size";
-    addToCart({ id: product.id, name: product.name, price: product.price }, defaultSize);
+    const selectedSize = selectedProductSizes[product.id] || product.sizes?.[0] || "One Size";
+    addToCart({ id: product.id, name: product.name, price: product.price }, selectedSize);
   };
 
   const categories = [
@@ -322,7 +323,19 @@ function CategoryPage() {
                   <p className="text-[#ff5c45] text-[10px] font-bold uppercase tracking-wider mb-1">{product.category}</p>
                   <h3 className="text-[17px] font-semibold text-[#222] truncate">{product.name}</h3>
                   
-                  <p className="mt-1 text-[20px] font-bold text-[#111]">Rs. {product.price.toLocaleString()}</p>
+                  <div className="mt-1 flex items-center justify-between">
+                    <p className="text-[20px] font-bold text-[#111]">Rs. {product.price.toLocaleString()}</p>
+                    <select 
+                      value={selectedProductSizes[product.id] || ""} 
+                      onChange={(e) => setSelectedProductSizes(prev => ({ ...prev, [product.id]: e.target.value }))}
+                      className="text-[11px] font-bold bg-white border border-[#eee] rounded px-1 py-0.5 outline-none"
+                    >
+                      <option value="" disabled>Size</option>
+                      {product.sizes?.map(sz => (
+                        <option key={sz} value={sz}>{sz}</option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="flex items-center gap-3 mt-4">
                     <button onClick={() => navigate(`/product/${product.slug}`, { state: { productImage: product.image } })}
                       className="flex-1 py-2.5 bg-transparent border border-[#999] text-[#222] text-xs font-semibold rounded-lg hover:bg-white transition duration-300">

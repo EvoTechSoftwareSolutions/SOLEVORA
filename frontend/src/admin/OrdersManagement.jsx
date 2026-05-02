@@ -10,6 +10,9 @@ const OrdersManagement = () => {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [updateLoading, setUpdateLoading] = useState(false);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Form states for update
     const [status, setStatus] = useState('');
@@ -72,8 +75,19 @@ const OrdersManagement = () => {
     };
 // filter orders based on selected tab
     const filteredOrders = orders.filter(order => {
-        if (subTab === 'All Orders') return true;
-        return order.status.toLowerCase() === subTab.toLowerCase();
+        const matchesTab = subTab === 'All Orders' || order.status.toLowerCase() === subTab.toLowerCase();
+        
+        const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+        const matchesStart = !startDate || orderDate >= startDate;
+        const matchesEnd = !endDate || orderDate <= endDate;
+
+        const searchLower = searchTerm.toLowerCase();
+        const matchesSearch = !searchTerm || 
+            order.id.toString().includes(searchTerm) || 
+            order.email?.toLowerCase().includes(searchLower) ||
+            order.tracking_number?.toLowerCase().includes(searchLower);
+
+        return matchesTab && matchesStart && matchesEnd && matchesSearch;
     });
 
     return (
@@ -117,8 +131,27 @@ const OrdersManagement = () => {
                         </button>
                     ))}
                 </div>
+                <div className="tabs-right" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <div className="date-filter-group" style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                        <span style={{ fontSize: '12px', color: '#666' }}>From:</span>
+                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={{ padding: '5px', borderRadius: '5px', border: '1px solid #ddd', fontSize: '12px' }} />
+                        <span style={{ fontSize: '12px', color: '#666' }}>To:</span>
+                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{ padding: '5px', borderRadius: '5px', border: '1px solid #ddd', fontSize: '12px' }} />
+                        {(startDate || endDate) && (
+                            <button onClick={() => { setStartDate(''); setEndDate(''); }} style={{ background: 'none', border: 'none', color: '#f66d3b', fontSize: '12px', cursor: 'pointer' }}>Clear</button>
+                        )}
+                    </div>
+                    <div className="search-group" style={{ marginLeft: '10px' }}>
+                        <input 
+                            type="text" 
+                            placeholder="Search by ID, Email, Tracking..." 
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            style={{ padding: '5px 10px', borderRadius: '5px', border: '1px solid #ddd', fontSize: '12px', width: '200px' }}
+                        />
+                    </div>
+                </div>
             </div>
-          {/* orders table */}
             <div className="table-container">
                 <table className="orders-table">
                     <thead>

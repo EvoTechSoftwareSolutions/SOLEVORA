@@ -223,6 +223,18 @@ const ShippingInformation = () => {
       showToast('Please fill in all required shipping fields.');
       return;
     }
+
+    const symbolRegex = /[!@#$%^&*()_+={}\[\]:;"'<>?,./|\\]/;
+    if (symbolRegex.test(formData.fullName)) {
+      showToast('Name should not contain special symbols.');
+      return;
+    }
+
+    const phoneRegex = /^[0-9+-\s()]*$/;
+    if (formData.phone && !phoneRegex.test(formData.phone)) {
+      showToast('Invalid phone number format.');
+      return;
+    }
     // ✅ persist shipping data via sessionStorage (no longer in context)
     sessionStorage.setItem('checkoutFormData', JSON.stringify(formData));
     sessionStorage.setItem('checkoutGrossTotal', String(grossTotal));

@@ -27,6 +27,13 @@ router.get("/:id", authMiddleware, getOrderById);
 router.get("/user/:id", authMiddleware, getAllOrdersByUserID);
 
 router.put(
+  "/:id/status",
+  authMiddleware,
+  requireRole("admin", "store_manager"),
+  updateOrderStatus,
+);
+
+router.put(
   "/:id",
   authMiddleware,
   requireRole("admin", "store_manager"),

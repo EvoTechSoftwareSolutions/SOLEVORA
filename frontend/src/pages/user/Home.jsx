@@ -228,7 +228,7 @@ const getProductImage = (item) => {
               >
                 All
               </li>
-              {dbCategories.map(cat => (
+              {dbCategories.filter(cat => cat.name !== 'All').map(cat => (
                 <li 
                   key={cat.id} 
                   className={activeCategory === cat.name ? 'active' : ''} 

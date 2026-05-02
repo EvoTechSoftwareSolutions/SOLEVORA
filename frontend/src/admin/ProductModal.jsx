@@ -193,6 +193,7 @@ const handleSelectProduct = (product) => {
                 await axios.post(`${BASE_URL}/api/products`, data, config);
             }
 
+            alert(product ? "Product updated successfully!" : "Product added successfully!");
             onProductSaved();
             onClose();
         } catch (err) {

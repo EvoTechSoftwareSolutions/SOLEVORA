@@ -7,6 +7,8 @@ const Messages = () => {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedMessage, setSelectedMessage] = useState(null);
+    const [replyText, setReplyText] = useState("");
+    const [sendingReply, setSendingReply] = useState(false);
 // fetch messages from API
     const fetchMessages = async () => {
         try {
@@ -52,6 +54,26 @@ const Messages = () => {
 // close modal
     const closeModal = () => {
         setSelectedMessage(null);
+        setReplyText("");
+    };
+
+    const handleSendReply = async () => {
+        if (!replyText.trim()) return;
+        setSendingReply(true);
+        try {
+            // Here we assume there's an endpoint to send reply, or we use a general email sender
+            // For now, let's assume we have a reply endpoint or we'll add one to contact controller
+            await axios.post(`${API_URL}/contact/${selectedMessage.id}/reply`, {
+                reply: replyText
+            });
+            alert("Reply sent successfully!");
+            closeModal();
+        } catch (error) {
+            console.error("Error sending reply:", error);
+            alert("Failed to send reply.");
+        } finally {
+            setSendingReply(false);
+        }
     };
 
     if (loading) return <div className="messages-loading">Loading messages...</div>;
@@ -126,8 +148,26 @@ const Messages = () => {
                             </div>
                         </div>
                         {/* footer */}
-                        <div className="modal-footer">
-                            <button className="btn-close" onClick={closeModal}>Close</button>
+                        <div className="modal-footer" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            <div className="reply-section" style={{ width: '100%', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                                <h4 style={{ fontSize: '13px', marginBottom: '10px' }}>Reply to Customer</h4>
+                                <textarea 
+                                    className="reply-textarea"
+                                    placeholder="Type your message here..."
+                                    value={replyText}
+                                    onChange={(e) => setReplyText(e.target.value)}
+                                    style={{ width: '100%', height: '100px', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', resize: 'none', fontSize: '14px' }}
+                                />
+                                <button 
+                                    className="send-reply-btn"
+                                    onClick={handleSendReply}
+                                    disabled={sendingReply || !replyText.trim()}
+                                    style={{ marginTop: '10px', padding: '10px 20px', background: '#f66d3b', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                                >
+                                    {sendingReply ? 'Sending...' : 'Send Reply'}
+                                </button>
+                            </div>
+                            <button className="btn-close" onClick={closeModal} style={{ alignSelf: 'flex-end', background: 'none', border: 'none', color: '#888', cursor: 'pointer' }}>Close</button>
                         </div>
                     </div>
                 </div>

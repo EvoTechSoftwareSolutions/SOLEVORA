@@ -105,20 +105,20 @@ export const createOrder = async (req, res) => {
         }
 
         const averageCostPrice = totalCostForThisItem / item.quantity;
-        const itemTotal = item.quantity * item.price;
+        const itemTotal = item.quantity * Number(product.price);
         total += itemTotal;
 
         // 4. Create Order Items
         await tx.orderitem.create({
-          data: {
-            orderId: order.id,
-            productId: item.productId,
-            productName: product.name,
-            size: item.size,
-            quantity: item.quantity,
-            sellingPrice: item.price,
-            costPrice: averageCostPrice
-          }
+            data: {
+              orderId: order.id,
+              productId: item.productId,
+              productName: product.name,
+              size: item.size,
+              quantity: item.quantity,
+              sellingPrice: product.price,
+              costPrice: averageCostPrice
+            }
         });
 
       }
@@ -156,7 +156,12 @@ export const createOrder = async (req, res) => {
     // Only send here for COD. Online payments send after successful payment notification.
     if (finalOrder.paymentMethod === 'COD') {
       const orderItems = await prisma.orderitem.findMany({
-        where: { orderId: finalOrder.id }
+        where: { orderId: finalOrder.id },
+        include: {
+          product: {
+            include: { productimage: true }
+          }
+        }
       });
       sendOrderConfirmationEmail(finalOrder, orderItems);
     }

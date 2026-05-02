@@ -88,6 +88,25 @@ const AccountSettings = () => {
             setMessage("You are not logged in!");
             return;
         }
+
+        // Validation for special symbols in names and addresses
+        const symbolRegex = /[!@#$%^&*()_+={}\[\]:;"'<>?,./|\\]/;
+        const phoneRegex = /^[0-9+-\s()]*$/;
+
+        if (type === 'profile') {
+            if (symbolRegex.test(profileData.fullName)) {
+                setMessage("Name should not contain special symbols");
+                return;
+            }
+            if (profileData.phone && !phoneRegex.test(profileData.phone)) {
+                setMessage("Invalid phone number format");
+                return;
+            }
+            if (symbolRegex.test(profileData.streetAddress) || symbolRegex.test(profileData.city)) {
+                setMessage("Address fields should not contain special symbols");
+                return;
+            }
+        }
         
         try {
             let res;
