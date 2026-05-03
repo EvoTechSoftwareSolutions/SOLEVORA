@@ -180,20 +180,17 @@ function ProductDetail() {
 
   // Main component render
 
-  // Use sizes from productstock in the DB (only sizes with stock > 0)
-  let displaySizes = [];
+  // Use all sizes from productstock in the DB
+  let stockDetails = [];
   if (product && product.stocks && product.stocks.length > 0) {
-    displaySizes = product.stocks
-      .filter(s => s.quantity > 0)
-      .map(s => String(s.size));
+    stockDetails = product.stocks.map(s => ({
+      size: String(s.size),
+      quantity: s.quantity
+    }));
   }
-  // Remove duplicates
-  displaySizes = [...new Set(displaySizes)];
+  // Sort sizes numerically
+  stockDetails.sort((a, b) => parseFloat(a.size) - parseFloat(b.size));
 
-  // Auto-select first available size if current selectedSize is not in the list
-  if (displaySizes.length > 0 && !displaySizes.includes(selectedSize)) {
-    // We do this outside the render to avoid setState during render — handled via effect
-  }
 
   // Helper to get unique features based on product category or name
   const getProductFeatures = () => {
@@ -375,20 +372,46 @@ function ProductDetail() {
                 </button>
               </div>
               <div className="size-btns">
-                {displaySizes.length === 0 ? (
+                {stockDetails.length === 0 ? (
                   <p style={{ color: '#e53e3e', fontWeight: '600', fontSize: '14px' }}>
-                    ⚠ This product is currently out of stock.
+                    ⚠ No sizes available for this product.
                   </p>
                 ) : (
-                  displaySizes.map((size) => (
-                    <button
-                      key={size}
-                      className={selectedSize === String(size) ? "active" : ""}
-                      onClick={() => setSelectedSize(String(size))}
-                    >
-                      {size}
-                    </button>
-                  ))
+                  stockDetails.map((item) => {
+                    const isOutOfStock = item.quantity <= 0;
+                    return (
+                      <button
+                        key={item.size}
+                        className={`${selectedSize === item.size ? "active" : ""} ${isOutOfStock ? "out-of-stock" : ""}`}
+                        onClick={() => !isOutOfStock && setSelectedSize(item.size)}
+                        disabled={isOutOfStock}
+                        title={isOutOfStock ? "Out of Stock" : ""}
+                        style={{
+                          position: 'relative',
+                          opacity: isOutOfStock ? 0.4 : 1,
+                          cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                          textDecoration: isOutOfStock ? 'line-through' : 'none'
+                        }}
+                      >
+                        {item.size}
+                        {isOutOfStock && (
+                          <span style={{
+                            position: 'absolute',
+                            bottom: '-12px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            fontSize: '8px',
+                            whiteSpace: 'nowrap',
+                            color: '#e53e3e',
+                            fontWeight: 'bold',
+                            textDecoration: 'none'
+                          }}>
+                            SOLD OUT
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -397,8 +420,8 @@ function ProductDetail() {
             <div className="buy-actions">
               <button
                 className="add-cart-btn"
-                disabled={displaySizes.length === 0}
-                style={displaySizes.length === 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                disabled={!selectedSize || (stockDetails.find(s => s.size === selectedSize)?.quantity <= 0)}
+                style={(!selectedSize || (stockDetails.find(s => s.size === selectedSize)?.quantity <= 0)) ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                 onClick={() => {
                   if (!user) {
                     setPopupMessage("Please login to add items to your cart.");
@@ -410,11 +433,17 @@ function ProductDetail() {
                     setShowPopup(true);
                     return;
                   }
+                  const stockItem = stockDetails.find(s => s.size === selectedSize);
+                  if (!stockItem || stockItem.quantity <= 0) {
+                    setPopupMessage("This size is currently out of stock.");
+                    setShowPopup(true);
+                    return;
+                  }
                   addToCart({ ...product, image_url: mainImage }, selectedSize);
                 }}
               >
                 <span className="material-symbols-outlined">shopping_bag</span>
-                {displaySizes.length === 0 ? 'Out of Stock' : 'Add to Cart'}
+                {(!selectedSize || (stockDetails.find(s => s.size === selectedSize)?.quantity <= 0)) ? 'Unavailable' : 'Add to Cart'}
               </button>
               <button
                 className={`wish-btn ${isInWishlist(product.id) ? "active" : ""}`}

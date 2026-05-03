@@ -47,28 +47,37 @@ const AccountSettings = () => {
 
             try {
                 const token = localStorage.getItem("auth_token");
-                const res = await axios.get(`${API_URL}/user/${userId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const [profileRes, addressesRes] = await Promise.all([
+                    axios.get(`${API_URL}/user/${userId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }),
+                    axios.get(`${API_URL}/addresses/${userId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    })
+                ]);
+
+                // Find default address if it exists
+                const addresses = addressesRes.data?.data ?? addressesRes.data ?? [];
+                const defaultAddr = addresses.find(a => a.isDefault);
 
                 setProfileData({
-                    fullName: res.data.name || '',
-                    email: res.data.email || '',
-                    phone: res.data.phone || '',
-                    location: res.data.location || '',
-                    streetAddress: res.data.streetAddress || '',
-                    city: res.data.city || '',
-                    postalCode: res.data.postalCode || '',
-                    country: res.data.country || '',
+                    fullName: profileRes.data.name || '',
+                    email: profileRes.data.email || '',
+                    phone: profileRes.data.phone || '',
+                    location: defaultAddr?.title || profileRes.data.location || '',
+                    streetAddress: defaultAddr?.street || profileRes.data.streetAddress || '',
+                    city: defaultAddr?.city || profileRes.data.city || '',
+                    postalCode: defaultAddr?.postalCode || profileRes.data.postalCode || '',
+                    country: defaultAddr?.country || profileRes.data.country || '',
                 });
                 setPreferences({
-                    newsletter: res.data.newsletter,
-                    pushNotifications: res.data.pushNotifications,
-                    usageReports: res.data.usageReports
+                    newsletter: profileRes.data.newsletter,
+                    pushNotifications: profileRes.data.pushNotifications,
+                    usageReports: profileRes.data.usageReports
                 });
 
             } catch (err) {
-                console.error("Failed to fetch profile");
+                console.error("Failed to fetch profile or addresses", err);
             }
         };
         fetchProfile();

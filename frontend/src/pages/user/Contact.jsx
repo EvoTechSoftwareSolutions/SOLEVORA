@@ -30,20 +30,43 @@ const Contact = () => {
 
   // Pre-fill from profile if logged in
   useEffect(() => {
-    try {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
+    const fetchUserDetails = async () => {
+      try {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) return;
+        
         const user = JSON.parse(userStr);
+        const token = localStorage.getItem('auth_token');
+
+        // Initial pre-fill from localStorage for speed
         setFormData(prev => ({
           ...prev,
           name: user.name || user.fullName || prev.name,
           email: user.email || prev.email,
           phone: user.phone || user.contactNumber || user.contact || prev.phone
         }));
+
+        // Fetch latest details from API if we have an ID
+        if (user.id && token) {
+          const res = await axios.get(`http://localhost:5001/api/user/${user.id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          if (res.data) {
+            setFormData(prev => ({
+              ...prev,
+              name: res.data.name || prev.name,
+              email: res.data.email || prev.email,
+              phone: res.data.phone || prev.phone
+            }));
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching user details for contact form:", err);
       }
-    } catch (err) {
-      console.error("Error pre-filling contact form:", err);
-    }
+    };
+
+    fetchUserDetails();
   }, []);
 
   // Function to handle input changes and update form data
