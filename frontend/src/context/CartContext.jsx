@@ -58,11 +58,10 @@ export const CartProvider = ({ children }) => {
 
         const stocks = item.product?.productstock || [];
         const sizeStock = stocks.find(s => parseFloat(s.size) === parseFloat(item.size) && s.quantity > 0);
+        // Use sellingPrice if available and > 0, otherwise fall back to product base price (never cost price)
         const itemPrice = (sizeStock && Number(sizeStock.sellingPrice) > 0) 
           ? Number(sizeStock.sellingPrice) 
-          : (sizeStock && Number(sizeStock.costPrice) > 0)
-            ? Number(sizeStock.costPrice)
-            : Number(item.product?.price || 0);
+          : Number(item.product?.price || 0);
 
         return {
           id: item.id,

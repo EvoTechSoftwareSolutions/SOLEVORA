@@ -17,15 +17,20 @@ export const getAdminStats = async (req, res) => {
       activePromos: []
     };
 
-    // 1. Total Revenue & Orders
+    // 1. Total Revenue & Orders (only count DELIVERED, SHIPPED, PROCESSING orders — not CANCELLED)
     try {
       const revenueResult = await prisma.order.aggregate({
         _sum: { totalAmount: true },
-        _count: { id: true }
+        _count: { id: true },
+        where: {
+          status: { notIn: ['CANCELLED'] },
+          paymentStatus: { not: 'FAILED' }
+        }
       });
+      const totalOrdersResult = await prisma.order.count();
       stats.totalRevenue = Number(revenueResult._sum?.totalAmount || 0);
-      stats.totalOrders = revenueResult._count?.id || 0;
-      stats.averageOrderValue = stats.totalOrders > 0 ? (stats.totalRevenue / stats.totalOrders) : 0;
+      stats.totalOrders = totalOrdersResult;
+      stats.averageOrderValue = revenueResult._count?.id > 0 ? (stats.totalRevenue / revenueResult._count.id) : 0;
     } catch (e) { console.error("Stats Error (Revenue):", e.message); }
 
     // 2. Catalog Size

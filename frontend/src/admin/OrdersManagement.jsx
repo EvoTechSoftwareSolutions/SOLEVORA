@@ -16,6 +16,7 @@ const OrdersManagement = () => {
 
     // Form states for update
     const [status, setStatus] = useState('');
+    const [paymentStatus, setPaymentStatus] = useState('');
     const [trackingNumber, setTrackingNumber] = useState('');
     const [carrier, setCarrier] = useState('');
     const [estimatedDelivery, setEstimatedDelivery] = useState('');
@@ -49,6 +50,7 @@ const OrdersManagement = () => {
     const handleOpenModal = (order) => {
         setSelectedOrder(order);
         setStatus(order.status);
+        setPaymentStatus(order.payment_status || order.paymentStatus || 'PENDING');
         setTrackingNumber(order.tracking_number || '');
         setCarrier(order.carrier || '');
         setEstimatedDelivery(order.estimated_delivery ? new Date(order.estimated_delivery).toISOString().split('T')[0] : '');
@@ -61,6 +63,7 @@ const OrdersManagement = () => {
         try {
             await axios.put(`${API_URL}/orders/${selectedOrder.id}/status`, {
                 status,
+                paymentStatus,
                 tracking_number: trackingNumber,
                 carrier,
                 estimated_delivery: estimatedDelivery
@@ -281,6 +284,14 @@ const OrdersManagement = () => {
                                             <option value="shipped">Shipped</option>
                                             <option value="delivered">Delivered</option>
                                             <option value="cancelled">Cancelled</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Payment Status</label>
+                                        <select className="form-select" value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
+                                            <option value="PENDING">Pending</option>
+                                            <option value="PAID">Paid</option>
+                                            <option value="FAILED">Failed</option>
                                         </select>
                                     </div>
                                     <div className="form-group">

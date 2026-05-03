@@ -163,9 +163,46 @@ const handleSelectProduct = (product) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         setError('');
 
+        // --- Frontend Validation ---
+        if (!formData.name.trim()) {
+            setError('Product name is required.');
+            return;
+        }
+        if (!formData.slug.trim()) {
+            setError('Slug is required.');
+            return;
+        }
+        if (!formData.categoryId) {
+            setError('Please select a category.');
+            return;
+        }
+        if (!formData.price || Number(formData.price) <= 0) {
+            setError('A valid price is required.');
+            return;
+        }
+        if (formData.discountPrice && Number(formData.discountPrice) >= Number(formData.price)) {
+            setError('Discount price must be less than the main price.');
+            return;
+        }
+        const validStocks = stocks.filter(s => s.size && s.quantity);
+        if (validStocks.length === 0) {
+            setError('Please add at least one size with a size label and quantity.');
+            return;
+        }
+        for (const s of validStocks) {
+            if (Number(s.quantity) < 0) {
+                setError('Stock quantity cannot be negative.');
+                return;
+            }
+        }
+        if (!product && images.length === 0) {
+            setError('Please upload at least one product image.');
+            return;
+        }
+
+        setLoading(true);
         try {
             const token = localStorage.getItem('token');
             const data = new FormData();

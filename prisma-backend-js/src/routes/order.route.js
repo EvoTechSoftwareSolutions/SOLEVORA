@@ -4,6 +4,7 @@ import {
   getAllOrders,
   getOrderById,
   updateOrderStatus,
+  deleteOrder,
   getAllOrdersByUserID,
   searchOrders
 } from "../controllers/order.controller.js";
@@ -38,6 +39,13 @@ router.put(
   authMiddleware,
   requireRole("admin", "store_manager"),
   updateOrderStatus,
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  requireRole("admin", "store_manager"),
+  deleteOrder,
 );
 
 export default router;

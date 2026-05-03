@@ -351,10 +351,13 @@ export const getOrderById = async (req, res) => {
 export const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, paymentStatus } = req.body;
+    const { status, paymentStatus, tracking_number, carrier, estimated_delivery } = req.body;
 
     const order = await prisma.order.findUnique({
-      where: { id: Number(id) }
+      where: { id: Number(id) },
+      include: {
+        orderitem: true
+      }
     });
 
     if (!order) {
@@ -364,13 +367,35 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
+    // Restore stock when status changes to CANCELLED
+    const newStatus = status ? status.toUpperCase() : order.status;
+    const wasCancelled = order.status === 'CANCELLED';
+    if (newStatus === 'CANCELLED' && !wasCancelled) {
+      for (const item of order.orderitem) {
+        const normalizedSize = String(parseFloat(item.size) || item.size);
+        const stockEntry = await prisma.productstock.findFirst({
+          where: { productId: item.productId, size: normalizedSize }
+        });
+        if (stockEntry) {
+          await prisma.productstock.update({
+            where: { id: stockEntry.id },
+            data: { quantity: { increment: item.quantity } }
+          });
+        }
+      }
+    }
+
     const updatedOrder = await prisma.order.update({
       where: { id: Number(id) },
       data: {
-        status: status ? status.toUpperCase() : order.status,
+        status: newStatus,
         paymentStatus: paymentStatus
           ? paymentStatus.toUpperCase()
-          : order.paymentStatus
+          : order.paymentStatus,
+        ...(tracking_number !== undefined && { trackingNumber: tracking_number }),
+        ...(carrier !== undefined && { carrier }),
+        ...(estimated_delivery !== undefined && { estimatedDelivery: estimated_delivery ? new Date(estimated_delivery) : null }),
+        updatedAt: new Date()
       },
       include: {
         user: true,
@@ -409,6 +434,45 @@ export const updateOrderStatus = async (req, res) => {
       success: false,
       message: error.message
     });
+  }
+};
+
+// DELETE ORDER (ADMIN / STORE MANAGER) — restores stock automatically via Cascade
+export const deleteOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await prisma.order.findUnique({
+      where: { id: Number(id) },
+      include: { orderitem: true }
+    });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    // Restore stock for non-cancelled orders before deleting
+    if (order.status !== 'CANCELLED') {
+      for (const item of order.orderitem) {
+        const normalizedSize = String(parseFloat(item.size) || item.size);
+        const stockEntry = await prisma.productstock.findFirst({
+          where: { productId: item.productId, size: normalizedSize }
+        });
+        if (stockEntry) {
+          await prisma.productstock.update({
+            where: { id: stockEntry.id },
+            data: { quantity: { increment: item.quantity } }
+          });
+        }
+      }
+    }
+
+    // Delete the order (orderitems cascade-deleted via schema)
+    await prisma.order.delete({ where: { id: Number(id) } });
+
+    res.json({ success: true, message: "Order deleted and stock restored successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 // SEARCH ORDERS BY EMAIL (Public)

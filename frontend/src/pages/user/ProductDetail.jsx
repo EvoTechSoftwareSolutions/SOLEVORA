@@ -30,7 +30,7 @@ function ProductDetail() {
   // Component state management
   const [product, setProduct] = useState(null); // Product data from API
   const [loading, setLoading] = useState(true); // Loading state for API calls
-  const [selectedSize, setSelectedSize] = useState("9.0"); // Selected shoe size
+  const [selectedSize, setSelectedSize] = useState(""); // Selected shoe size
   const [activeTab, setActiveTab] = useState("description"); // Active content tab
   const [mainImage, setMainImage] = useState(passedImage || ""); // Currently displayed product image
   const [showPopup, setShowPopup] = useState(false);
@@ -86,6 +86,17 @@ function ProductDetail() {
     fetchProduct();
   }, [slug]); 
 
+  // Auto-select first available in-stock size when product loads
+  useEffect(() => {
+    if (product && product.stocks) {
+      const inStockSizes = product.stocks
+        .filter(s => s.quantity > 0)
+        .map(s => String(s.size));
+      if (inStockSizes.length > 0 && !inStockSizes.includes(selectedSize)) {
+        setSelectedSize(inStockSizes[0]);
+      }
+    }
+  }, [product]);
 
   const fetchReviews = async (productId) => {
     try {
@@ -169,24 +180,19 @@ function ProductDetail() {
 
   // Main component render
 
-  // Safely parse sizes to avoid JSON.parse crashing the React render tree
-  let displaySizes = ["7.0", "8.0", "9.0", "10.0", "11.0", "12.0"];
-  if (product && product.sizes) {
-    if (Array.isArray(product.sizes)) {
-      displaySizes = product.sizes.map(String);
-    } else if (typeof product.sizes === "string") {
-      try {
-        const parsed = JSON.parse(product.sizes);
-        if (Array.isArray(parsed)) displaySizes = parsed.map(String);
-        else displaySizes = [String(parsed)];
-      } catch (e) {
-        if (product.sizes.includes(",")) {
-          displaySizes = product.sizes.split(",").map((s) => s.trim());
-        } else {
-          displaySizes = [product.sizes];
-        }
-      }
-    }
+  // Use sizes from productstock in the DB (only sizes with stock > 0)
+  let displaySizes = [];
+  if (product && product.stocks && product.stocks.length > 0) {
+    displaySizes = product.stocks
+      .filter(s => s.quantity > 0)
+      .map(s => String(s.size));
+  }
+  // Remove duplicates
+  displaySizes = [...new Set(displaySizes)];
+
+  // Auto-select first available size if current selectedSize is not in the list
+  if (displaySizes.length > 0 && !displaySizes.includes(selectedSize)) {
+    // We do this outside the render to avoid setState during render — handled via effect
   }
 
   // Helper to get unique features based on product category or name
@@ -321,20 +327,22 @@ function ProductDetail() {
             <div className="pricing">
               {(() => {
                 const activeStock = (product.stocks || []).find(s => parseFloat(s.size) === parseFloat(selectedSize) && s.quantity > 0);
+                // Use sellingPrice if available and > 0, otherwise fall back to product's base price (never cost price)
                 const displayPrice = (activeStock && Number(activeStock.sellingPrice) > 0) 
                   ? Number(activeStock.sellingPrice) 
-                  : (activeStock && Number(activeStock.costPrice) > 0)
-                    ? Number(activeStock.costPrice)
-                    : parseFloat(product.price);
+                  : parseFloat(product.price);
+                const originalPrice = product.discountPrice ? parseFloat(product.price) : null;
                 
                 return (
                   <>
                     <span className="current-price">
                       Rs. {displayPrice.toLocaleString()}
                     </span>
-                    <span className="old-price">
-                      Rs. {(displayPrice * 1.2).toLocaleString()}
-                    </span>
+                    {originalPrice && originalPrice > displayPrice && (
+                      <span className="old-price">
+                        Rs. {originalPrice.toLocaleString()}
+                      </span>
+                    )}
                   </>
                 );
               })()}
@@ -367,15 +375,21 @@ function ProductDetail() {
                 </button>
               </div>
               <div className="size-btns">
-                {displaySizes.map((size) => (
-                  <button
-                    key={size}
-                    className={selectedSize === String(size) ? "active" : ""}
-                    onClick={() => setSelectedSize(String(size))}
-                  >
-                    {size}
-                  </button>
-                ))}
+                {displaySizes.length === 0 ? (
+                  <p style={{ color: '#e53e3e', fontWeight: '600', fontSize: '14px' }}>
+                    ⚠ This product is currently out of stock.
+                  </p>
+                ) : (
+                  displaySizes.map((size) => (
+                    <button
+                      key={size}
+                      className={selectedSize === String(size) ? "active" : ""}
+                      onClick={() => setSelectedSize(String(size))}
+                    >
+                      {size}
+                    </button>
+                  ))
+                )}
               </div>
             </div>
 
@@ -383,9 +397,16 @@ function ProductDetail() {
             <div className="buy-actions">
               <button
                 className="add-cart-btn"
+                disabled={displaySizes.length === 0}
+                style={displaySizes.length === 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                 onClick={() => {
                   if (!user) {
                     setPopupMessage("Please login to add items to your cart.");
+                    setShowPopup(true);
+                    return;
+                  }
+                  if (!selectedSize) {
+                    setPopupMessage("Please select a size.");
                     setShowPopup(true);
                     return;
                   }
@@ -393,7 +414,7 @@ function ProductDetail() {
                 }}
               >
                 <span className="material-symbols-outlined">shopping_bag</span>
-                Add to Cart
+                {displaySizes.length === 0 ? 'Out of Stock' : 'Add to Cart'}
               </button>
               <button
                 className={`wish-btn ${isInWishlist(product.id) ? "active" : ""}`}
