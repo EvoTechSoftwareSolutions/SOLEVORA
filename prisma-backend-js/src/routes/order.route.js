@@ -6,7 +6,8 @@ import {
   updateOrderStatus,
   deleteOrder,
   getAllOrdersByUserID,
-  searchOrders
+  searchOrders,
+  cancelOrder
 } from "../controllers/order.controller.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -32,6 +33,12 @@ router.put(
   authMiddleware,
   requireRole("admin", "store_manager"),
   updateOrderStatus,
+);
+
+router.put(
+  "/:id/cancel",
+  authMiddleware,
+  cancelOrder,
 );
 
 router.put(

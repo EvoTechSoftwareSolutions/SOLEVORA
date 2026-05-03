@@ -527,3 +527,74 @@ export const searchOrders = async (req, res) => {
     });
   }
 };
+// CANCEL ORDER (USER)
+export const cancelOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    const order = await prisma.order.findUnique({
+      where: { id: Number(id) },
+      include: {
+        orderitem: true
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found"
+      });
+    }
+
+    // Check ownership
+    if (order.userId !== Number(userId)) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to cancel this order"
+      });
+    }
+
+    // Check if order can be cancelled (only if pending or processing)
+    if (!['PENDING', 'PROCESSING'].includes(order.status.toUpperCase())) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot cancel order with status: ${order.status}`
+      });
+    }
+
+    // Restore stock
+    for (const item of order.orderitem) {
+      const normalizedSize = String(parseFloat(item.size) || item.size);
+      const stockEntry = await prisma.productstock.findFirst({
+        where: { productId: item.productId, size: normalizedSize }
+      });
+      if (stockEntry) {
+        await prisma.productstock.update({
+          where: { id: stockEntry.id },
+          data: { quantity: { increment: item.quantity } }
+        });
+      }
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: Number(id) },
+      data: {
+        status: 'CANCELLED',
+        updatedAt: new Date()
+      }
+    });
+
+    res.json({
+      success: true,
+      message: "Order cancelled successfully",
+      data: updatedOrder
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};

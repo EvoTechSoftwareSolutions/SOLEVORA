@@ -4,14 +4,26 @@ import { XMarkIcon, ArrowUpTrayIcon, TrashIcon, PlusIcon } from '@heroicons/reac
 
 const BASE_URL = 'http://localhost:5001';
 
+// Only allow letters, numbers, spaces, hyphens, apostrophes for name/description
+const ALPHA_REGEX = /^[a-zA-Z0-9 '\-.,()&]+$/;
+// Slug: only lowercase letters, numbers, hyphens
+const SLUG_REGEX = /^[a-z0-9-]+$/;
+
+const generateSlug = (name) =>
+    name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
+
 const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [searchTerm, setSearchTerm] = useState("");
-const [suggestions, setSuggestions] = useState([]);
-const [showDropdown, setShowDropdown] = useState(false);
-    // Basic Form State
+    const [searchTerm, setSearchTerm] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [allProducts, setAllProducts] = useState([]);
+
     const [formData, setFormData] = useState({
         name: '',
         slug: '',
@@ -22,31 +34,31 @@ const [showDropdown, setShowDropdown] = useState(false);
         gender: 'ALL',
     });
 
-    // Stock/Size State
-    const [stocks, setStocks] = useState([{ size: '7', costPrice: '', quantity: '' }]);
+    const [stocks, setStocks] = useState([{ size: '7', costPrice: '', sellingPrice: '', quantity: '' }]);
+    const [images, setImages] = useState([]);
+    const [imagePreviews, setImagePreviews] = useState([]);
 
-    // Image State
-    const [images, setImages] = useState([]); 
-    const [imagePreviews, setImagePreviews] = useState([]); 
-    const [allProducts, setAllProducts] = useState([]);
+    // Field-level errors
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [submitError, setSubmitError] = useState('');
 
-useEffect(() => {
-  const fetchAll = async () => {
-    const res = await axios.get(`${BASE_URL}/api/products/all`);
-    setAllProducts(res.data.data || []);
-  };
+    // ─── Data Fetching ────────────────────────────────────────────────────────
+    useEffect(() => {
+        const fetchAll = async () => {
+            try {
+                const res = await axios.get(`${BASE_URL}/api/products/all`);
+                setAllProducts(res.data.data || []);
+            } catch { /* silent */ }
+        };
+        fetchAll();
+    }, []);
 
-  fetchAll();
-}, []);
-    // 1. Fetch Categories
     useEffect(() => {
         if (isOpen) {
             const fetchCategories = async () => {
                 try {
                     const { data } = await axios.get(`${BASE_URL}/api/category`);
-                    console.log("API RESPONSE:", data);
                     setCategories(data.data || []);
-                     
                 } catch (err) {
                     console.error('Error fetching categories:', err);
                 }
@@ -55,15 +67,15 @@ useEffect(() => {
         }
     }, [isOpen]);
 
+    // ─── Normalize Helpers ────────────────────────────────────────────────────
     const normalizeStocks = (items) => {
-        if (!Array.isArray(items) || items.length === 0) {
+        if (!Array.isArray(items) || items.length === 0)
             return [{ size: '7', costPrice: '', sellingPrice: '', quantity: '' }];
-        }
         return items.map((s) => ({
             size: s.size ?? '',
             costPrice: s.costPrice ?? '',
             sellingPrice: s.sellingPrice ?? '',
-            quantity: s.quantity ?? ''
+            quantity: s.quantity ?? '',
         }));
     };
 
@@ -77,13 +89,15 @@ useEffect(() => {
         gender: item?.gender ?? 'ALL',
     });
 
-    // 2. Pre-fill or Reset Form
+    // ─── Reset / Pre-fill ─────────────────────────────────────────────────────
     useEffect(() => {
         if (isOpen) {
+            setFieldErrors({});
+            setSubmitError('');
             if (product) {
                 setFormData(normalizeFormData(product));
                 setStocks(normalizeStocks(product.stocks));
-                setImagePreviews(product.images?.map(img => `${BASE_URL}${img.url}`) || []);
+                setImagePreviews(product.images?.map((img) => `${BASE_URL}${img.url}`) || []);
                 setImages([]);
             } else {
                 setFormData(normalizeFormData(null));
@@ -94,111 +108,205 @@ useEffect(() => {
         }
     }, [isOpen, product]);
 
+    // ─── Field Validation ─────────────────────────────────────────────────────
+    const validateField = (name, value) => {
+        switch (name) {
+            case 'name':
+                if (!value.trim()) return 'Product name is required.';
+                if (value.trim().length < 3) return 'Name must be at least 3 characters.';
+                if (value.trim().length > 100) return 'Name must be under 100 characters.';
+                if (!ALPHA_REGEX.test(value)) return 'Name must not contain special symbols.';
+                return '';
+            case 'slug':
+                if (!value.trim()) return 'Slug is required.';
+                if (!SLUG_REGEX.test(value)) return 'Slug may only contain lowercase letters, numbers, and hyphens.';
+                if (value.length > 120) return 'Slug must be under 120 characters.';
+                return '';
+            case 'description':
+                if (!value.trim()) return 'Description is required.';
+                if (value.trim().length < 10) return 'Description must be at least 10 characters.';
+                if (value.trim().length > 500) return 'Description must be under 500 characters.';
+                if (!ALPHA_REGEX.test(value)) return 'Description must not contain special symbols.';
+                return '';
+            case 'price':
+                if (!value && value !== 0) return 'Price is required.';
+                if (isNaN(value) || Number(value) <= 0) return 'Price must be a positive number.';
+                return '';
+            case 'discountPrice':
+                if (value === '' || value === null) return '';
+                if (isNaN(value) || Number(value) <= 0) return 'Discount price must be positive.';
+                if (formData.price && Number(value) >= Number(formData.price))
+                    return 'Discount price must be less than the main price.';
+                return '';
+            case 'categoryId':
+                if (!value) return 'Please select a category.';
+                return '';
+            default:
+                return '';
+        }
+    };
 
-// for auto complete
-const handleNameChange = (e) => {
-  const value = e.target.value;
+    const setFieldError = (name, msg) =>
+        setFieldErrors((prev) => ({ ...prev, [name]: msg }));
 
-  setFormData((prev) => ({
-    ...prev,
-    name: value,
-  }));
+    const clearFieldError = (name) =>
+        setFieldErrors((prev) => ({ ...prev, [name]: '' }));
 
-  setSearchTerm(value);
+    // ─── Handlers ─────────────────────────────────────────────────────────────
 
-  if (value.length > 1) {
-    const filtered = allProducts.filter((p) =>
-      p.name.toLowerCase().includes(value.toLowerCase())
-    );
+    // Block symbols for name field + autocomplete
+    const handleNameChange = (e) => {
+        const raw = e.target.value;
+        // Strip disallowed characters silently while typing
+        const sanitized = raw.replace(/[^a-zA-Z0-9 '\-.,()&]/g, '');
 
-    setSuggestions(filtered);
-    setShowDropdown(true);
-  } else {
-    setShowDropdown(false);
-  }
-};
+        setFormData((prev) => ({
+            ...prev,
+            name: sanitized,
+            // Auto-generate slug only when adding a new product
+            slug: !product ? generateSlug(sanitized) : prev.slug,
+        }));
+        setSearchTerm(sanitized);
+        clearFieldError('name');
+        if (!product) clearFieldError('slug');
 
-const handleSelectProduct = (product) => {
-    setFormData(normalizeFormData(product));
+        if (sanitized.length > 1) {
+            const filtered = allProducts.filter((p) =>
+                p.name.toLowerCase().includes(sanitized.toLowerCase())
+            );
+            setSuggestions(filtered);
+            setShowDropdown(true);
+        } else {
+            setShowDropdown(false);
+        }
+    };
 
-    setStocks(normalizeStocks(product.stocks));
-  setImagePreviews(
-    product.images?.map((img) => `${BASE_URL}${img.url}`) || []
-  );
+    const handleSelectProduct = (p) => {
+        setFormData(normalizeFormData(p));
+        setStocks(normalizeStocks(p.stocks));
+        setImagePreviews(p.images?.map((img) => `${BASE_URL}${img.url}`) || []);
+        setShowDropdown(false);
+        setFieldErrors({});
+    };
 
-  setShowDropdown(false);
-};
- const handleChange = (e) => {
-    const { name, value } = e.target;
+    const handleChange = (e) => {
+        const { name, value } = e.target;
 
-    setFormData(prev => ({
-        ...prev,
-        [name]: name === "categoryId" ? Number(value) : value
-    }));
-};
+        // Block symbols for slug
+        if (name === 'slug') {
+            const sanitized = value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+            setFormData((prev) => ({ ...prev, slug: sanitized }));
+            const err = validateField('slug', sanitized);
+            setFieldError('slug', err);
+            return;
+        }
+
+        // Block symbols for description
+        if (name === 'description') {
+            const sanitized = value.replace(/[^a-zA-Z0-9 '\-.,()&]/g, '');
+            setFormData((prev) => ({ ...prev, description: sanitized }));
+            const err = validateField('description', sanitized);
+            setFieldError('description', err);
+            return;
+        }
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: name === 'categoryId' ? Number(value) : value,
+        }));
+        const err = validateField(name, name === 'categoryId' ? Number(value) : value);
+        setFieldError(name, err);
+    };
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        const err = validateField(name, value);
+        setFieldError(name, err);
+    };
 
     const handleStockChange = (index, field, value) => {
+        // Prevent negative numbers
+        if ((field === 'costPrice' || field === 'sellingPrice' || field === 'quantity') && value < 0) return;
+
         const updated = [...stocks];
         updated[index][field] = value;
-        
-        // Auto-fill selling price if it's empty and cost is being set
         if (field === 'costPrice' && !updated[index].sellingPrice) {
             updated[index].sellingPrice = value;
         }
-        
         setStocks(updated);
     };
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
-        setImages(files);
-        const previews = files.map(file => URL.createObjectURL(file));
-        setImagePreviews(prev => [...prev, ...previews]);
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        const maxSize = 5 * 1024 * 1024; // 5 MB
+
+        const invalid = files.find((f) => !allowedTypes.includes(f.type));
+        if (invalid) {
+            setFieldError('images', 'Only JPG, PNG, WebP, or GIF images are allowed.');
+            return;
+        }
+        const tooBig = files.find((f) => f.size > maxSize);
+        if (tooBig) {
+            setFieldError('images', 'Each image must be under 5 MB.');
+            return;
+        }
+
+        clearFieldError('images');
+        setImages((prev) => [...prev, ...files]);
+        const previews = files.map((file) => URL.createObjectURL(file));
+        setImagePreviews((prev) => [...prev, ...previews]);
     };
 
     const handleRemoveImage = (index) => {
-        setImagePreviews(prev => prev.filter((_, i) => i !== index));
-        setImages(prev => prev.filter((_, i) => i !== index));
+        setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+        setImages((prev) => prev.filter((_, i) => i !== index));
     };
 
+    // ─── Submit ───────────────────────────────────────────────────────────────
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
+        setSubmitError('');
 
-        // --- Frontend Validation ---
-        if (!formData.name.trim()) {
-            setError('Product name is required.');
-            return;
-        }
-        if (!formData.slug.trim()) {
-            setError('Slug is required.');
-            return;
-        }
-        if (!formData.categoryId) {
-            setError('Please select a category.');
-            return;
-        }
-        if (!formData.price || Number(formData.price) <= 0) {
-            setError('A valid price is required.');
-            return;
-        }
-        if (formData.discountPrice && Number(formData.discountPrice) >= Number(formData.price)) {
-            setError('Discount price must be less than the main price.');
-            return;
-        }
-        const validStocks = stocks.filter(s => s.size && s.quantity);
+        // Run all field validations
+        const errors = {
+            name: validateField('name', formData.name),
+            slug: validateField('slug', formData.slug),
+            description: validateField('description', formData.description),
+            price: validateField('price', formData.price),
+            discountPrice: validateField('discountPrice', formData.discountPrice),
+            categoryId: validateField('categoryId', formData.categoryId),
+        };
+        setFieldErrors(errors);
+        if (Object.values(errors).some(Boolean)) return;
+
+        // Stocks validation
+        const validStocks = stocks.filter((s) => s.size && s.quantity);
         if (validStocks.length === 0) {
-            setError('Please add at least one size with a size label and quantity.');
+            setSubmitError('Please add at least one size with a size label and quantity.');
             return;
         }
         for (const s of validStocks) {
             if (Number(s.quantity) < 0) {
-                setError('Stock quantity cannot be negative.');
+                setSubmitError('Stock quantity cannot be negative.');
+                return;
+            }
+            if (s.costPrice && Number(s.costPrice) < 0) {
+                setSubmitError('Cost price cannot be negative.');
                 return;
             }
         }
+
+        // Duplicate size check
+        const sizes = validStocks.map((s) => s.size.trim().toLowerCase());
+        if (new Set(sizes).size !== sizes.length) {
+            setSubmitError('Duplicate sizes detected. Each size must be unique.');
+            return;
+        }
+
+        // Images required on create
         if (!product && images.length === 0) {
-            setError('Please upload at least one product image.');
+            setFieldError('images', 'Please upload at least one product image.');
             return;
         }
 
@@ -206,20 +314,17 @@ const handleSelectProduct = (product) => {
         try {
             const token = localStorage.getItem('token');
             const data = new FormData();
-            
-    Object.entries(formData).forEach(([key, value]) => {
-  if (value !== undefined && value !== null && value !== '') {
-    data.append(key, value);
-  }
-});
-            
+            Object.entries(formData).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && value !== '') {
+                    data.append(key, value);
+                }
+            });
             data.append('stocks', JSON.stringify(stocks || []));
-
-            images.forEach(file => data.append('images', file));
+            images.forEach((file) => data.append('images', file));
 
             const config = {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',
                 },
             };
@@ -230,11 +335,11 @@ const handleSelectProduct = (product) => {
                 await axios.post(`${BASE_URL}/api/products`, data, config);
             }
 
-            alert(product ? "Product updated successfully!" : "Product added successfully!");
+            alert(product ? 'Product updated successfully!' : 'Product added successfully!');
             onProductSaved();
             onClose();
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to save product');
+            setSubmitError(err.response?.data?.error || 'Failed to save product.');
         } finally {
             setLoading(false);
         }
@@ -242,59 +347,107 @@ const handleSelectProduct = (product) => {
 
     if (!isOpen) return null;
 
+    // ─── Render Helpers ───────────────────────────────────────────────────────
+    const ErrorMsg = ({ field }) =>
+        fieldErrors[field] ? (
+            <p className="text-red-500 text-xs mt-1">{fieldErrors[field]}</p>
+        ) : null;
+
+    const inputCls = (field) =>
+        `w-full border rounded-lg p-2 ${fieldErrors[field] ? 'border-red-400 bg-red-50' : ''}`;
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                 <div className="sticky top-0 bg-white px-6 py-4 flex justify-between items-center border-b z-10">
                     <h2 className="text-xl font-bold">{product ? 'Edit Product' : 'Add New Product'}</h2>
-                    <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full"><XMarkIcon className="w-6 h-6" /></button>
+                    <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full">
+                        <XMarkIcon className="w-6 h-6" />
+                    </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                    {error && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
+                <form onSubmit={handleSubmit} className="p-6 space-y-6" noValidate>
+                    {submitError && (
+                        <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">
+                            {submitError}
+                        </div>
+                    )}
 
                     {/* Basic Info */}
                     <div className="grid grid-cols-2 gap-4">
+                        {/* Product Name */}
                         <div className="relative">
-  <label className="block text-sm font-medium mb-1">
-    Product Name
-  </label>
+                            <label className="block text-sm font-medium mb-1">
+                                Product Name <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.name}
+                                onChange={handleNameChange}
+                                onBlur={() => setFieldError('name', validateField('name', formData.name))}
+                                className={inputCls('name')}
+                                placeholder="e.g. Nike Air Max"
+                                maxLength={100}
+                            />
+                            <ErrorMsg field="name" />
+                            {showDropdown && suggestions.length > 0 && (
+                                <div className="absolute z-50 bg-white border w-full mt-1 rounded shadow max-h-40 overflow-y-auto">
+                                    {suggestions.map((item) => (
+                                        <div
+                                            key={item.id}
+                                            onClick={() => handleSelectProduct(item)}
+                                            className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                        >
+                                            {item.name}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
-  <input
-    type="text"
-    value={formData.name}
-    onChange={handleNameChange}
-    className="w-full border p-2 rounded"
-    placeholder="Type product name..."
-  />
-
-  {/* DROPDOWN */}
-  {showDropdown && suggestions.length > 0 && (
-    <div className="absolute z-50 bg-white border w-full mt-1 rounded shadow max-h-40 overflow-y-auto">
-      {suggestions.map((item) => (
-        <div
-          key={item.id}
-          onClick={() => handleSelectProduct(item)}
-          className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
-        >
-          {item.name}
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-                        <div className="col-span-2 md:col-span-1">
-                            <label className="block text-sm font-medium mb-1">Slug</label>
-                            <input type="text" name="slug" value={formData.slug} onChange={handleChange} required className="w-full border rounded-lg p-2" />
+                        {/* Slug */}
+                        <div>
+                            <label className="block text-sm font-medium mb-1">
+                                Slug <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="slug"
+                                value={formData.slug}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                className={inputCls('slug')}
+                                placeholder="e.g. nike-air-max"
+                                maxLength={120}
+                            />
+                            <p className="text-[10px] text-gray-400 mt-0.5">Auto-generated. Only lowercase letters, numbers, hyphens.</p>
+                            <ErrorMsg field="slug" />
                         </div>
                     </div>
-                       <div className="grid grid-cols-2 gap-4">
-                        <div className="col-span-2 md:col-span-1">
-                            <label className="block text-sm font-medium mb-1">Description</label>
-                            <input type="text" name="description" value={formData.description} onChange={handleChange} required className="w-full border rounded-lg p-2" />
+
+                    {/* Description & Gender */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">
+                                Description <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                className={inputCls('description')}
+                                placeholder="Brief product description..."
+                                maxLength={500}
+                            />
+                            <p className="text-[10px] text-gray-400 mt-0.5">{formData.description.length}/500 characters</p>
+                            <ErrorMsg field="description" />
                         </div>
-                        <div className="col-span-2 md:col-span-1">
-                            <label className="block text-sm font-medium mb-1">Gender</label>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">
+                                Gender <span className="text-red-500">*</span>
+                            </label>
                             <select
                                 name="gender"
                                 value={formData.gender}
@@ -309,37 +462,62 @@ const handleSelectProduct = (product) => {
                             </select>
                         </div>
                     </div>
+
+                    {/* Category */}
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="col-span-2 md:col-span-1">
-  <label className="block text-sm font-medium mb-1">Category</label>
-
-  <select
-    name="categoryId"
-    value={formData.categoryId}
-    onChange={handleChange}
-    required
-    className="w-full border rounded-lg p-2"
-  >
-    <option value="">Select Category</option>
-
-    {categories.map((cat) => (
-      <option key={cat.id} value={cat.id}>
-        {cat.name}
-      </option>
-    ))}
-  </select>
-</div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">
+                                Category <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                name="categoryId"
+                                value={formData.categoryId}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                className={inputCls('categoryId')}
+                            >
+                                <option value="">Select Category</option>
+                                {categories.map((cat) => (
+                                    <option key={cat.id} value={cat.id}>
+                                        {cat.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <ErrorMsg field="categoryId" />
+                        </div>
                     </div>
 
                     {/* Pricing */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1">Price (Rs.)</label>
-                            <input type="number" name="price" value={formData.price} onChange={handleChange} required className="w-full border rounded-lg p-2" />
+                            <label className="block text-sm font-medium mb-1">
+                                Price (Rs.) <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                name="price"
+                                value={formData.price}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                min={0}
+                                className={inputCls('price')}
+                                placeholder="0.00"
+                            />
+                            <ErrorMsg field="price" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-1">Discount Price</label>
-                            <input type="number" name="discountPrice" value={formData.discountPrice} onChange={handleChange} className="w-full border rounded-lg p-2" />
+                            <input
+                                type="number"
+                                name="discountPrice"
+                                value={formData.discountPrice}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                min={0}
+                                className={inputCls('discountPrice')}
+                                placeholder="0.00 (optional)"
+                            />
+                            <ErrorMsg field="discountPrice" />
                         </div>
                     </div>
 
@@ -347,33 +525,69 @@ const handleSelectProduct = (product) => {
                     <div className="border-t pt-4">
                         <div className="flex justify-between items-center mb-1">
                             <h3 className="font-bold text-gray-700">Stock & Sizes</h3>
-                            <button type="button" onClick={() => setStocks([...stocks, { size: '', costPrice: '', sellingPrice: '', quantity: '' }])} className="text-sm flex items-center text-blue-600">
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setStocks([...stocks, { size: '', costPrice: '', sellingPrice: '', quantity: '' }])
+                                }
+                                className="text-sm flex items-center text-blue-600"
+                            >
                                 <PlusIcon className="w-4 h-4 mr-1" /> Add Size
                             </button>
                         </div>
                         <p className="text-[11px] text-gray-500 mb-3">
-                            Set a unique <span className="font-semibold">Selling Price</span> for each size if needed.
+                            Set a unique <span className="font-semibold">Selling Price</span> per size if needed.
                         </p>
                         {stocks.map((stock, idx) => (
                             <div key={idx} className="grid grid-cols-5 gap-2 mb-2 items-end">
                                 <div>
                                     <label className="block text-[10px] text-gray-400 uppercase font-bold mb-1">Size</label>
-                                    <input placeholder="Size" value={stock.size} onChange={(e) => handleStockChange(idx, 'size', e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+                                    <input
+                                        placeholder="e.g. 42"
+                                        value={stock.size}
+                                        onChange={(e) => handleStockChange(idx, 'size', e.target.value)}
+                                        className="w-full border rounded-lg p-2 text-sm"
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-[10px] text-gray-400 uppercase font-bold mb-1">Cost</label>
-                                    <input placeholder="Cost" type="number" value={stock.costPrice} onChange={(e) => handleStockChange(idx, 'costPrice', e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+                                    <input
+                                        placeholder="Cost"
+                                        type="number"
+                                        min={0}
+                                        value={stock.costPrice}
+                                        onChange={(e) => handleStockChange(idx, 'costPrice', e.target.value)}
+                                        className="w-full border rounded-lg p-2 text-sm"
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-[10px] text-gray-400 uppercase font-bold mb-1">Selling</label>
-                                    <input placeholder="Price" type="number" value={stock.sellingPrice} onChange={(e) => handleStockChange(idx, 'sellingPrice', e.target.value)} className="w-full border rounded-lg p-2 text-sm bg-orange-50 border-orange-200" />
+                                    <input
+                                        placeholder="Price"
+                                        type="number"
+                                        min={0}
+                                        value={stock.sellingPrice}
+                                        onChange={(e) => handleStockChange(idx, 'sellingPrice', e.target.value)}
+                                        className="w-full border rounded-lg p-2 text-sm bg-orange-50 border-orange-200"
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-[10px] text-gray-400 uppercase font-bold mb-1">Qty</label>
-                                    <input placeholder="Qty" type="number" value={stock.quantity} onChange={(e) => handleStockChange(idx, 'quantity', e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+                                    <input
+                                        placeholder="Qty"
+                                        type="number"
+                                        min={0}
+                                        value={stock.quantity}
+                                        onChange={(e) => handleStockChange(idx, 'quantity', e.target.value)}
+                                        className="w-full border rounded-lg p-2 text-sm"
+                                    />
                                 </div>
                                 <div className="flex justify-center">
-                                    <button type="button" onClick={() => setStocks(stocks.filter((_, i) => i !== idx))} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">
+                                    <button
+                                        type="button"
+                                        onClick={() => setStocks(stocks.filter((_, i) => i !== idx))}
+                                        className="text-red-500 p-2 hover:bg-red-50 rounded-lg"
+                                    >
                                         <TrashIcon className="w-5 h-5" />
                                     </button>
                                 </div>
@@ -383,11 +597,17 @@ const handleSelectProduct = (product) => {
 
                     {/* Images */}
                     <div className="border-t pt-4">
-                        <label className="block text-sm font-medium mb-2">Product Images</label>
+                        <label className="block text-sm font-medium mb-2">
+                            Product Images {!product && <span className="text-red-500">*</span>}
+                        </label>
                         <div className="flex flex-wrap gap-3 mb-3">
                             {imagePreviews.map((src, i) => (
                                 <div key={i} className="relative group">
-                                    <img src={src} alt={`preview ${i+1}`} className="w-20 h-20 object-cover rounded-lg border" />
+                                    <img
+                                        src={src}
+                                        alt={`preview ${i + 1}`}
+                                        className="w-20 h-20 object-cover rounded-lg border"
+                                    />
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveImage(i)}
@@ -399,16 +619,29 @@ const handleSelectProduct = (product) => {
                             ))}
                             <label className="w-20 h-20 flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
                                 <ArrowUpTrayIcon className="w-6 h-6 text-gray-400" />
-                                <span className="text-xs text-gray-500 mt-1">Add Images</span>
-                                <input type="file" multiple className="hidden" onChange={handleImageChange} accept="image/*" />
+                                <span className="text-xs text-gray-500 mt-1">Add</span>
+                                <input
+                                    type="file"
+                                    multiple
+                                    className="hidden"
+                                    onChange={handleImageChange}
+                                    accept="image/jpeg,image/png,image/webp,image/gif"
+                                />
                             </label>
                         </div>
-                        <p className="text-xs text-gray-500">Upload multiple images. All images will be displayed.</p>
+                        <p className="text-xs text-gray-500">JPG, PNG, WebP or GIF · Max 5 MB each.</p>
+                        <ErrorMsg field="images" />
                     </div>
 
                     <div className="flex gap-3 pt-4">
-                        <button type="button" onClick={onClose} className="flex-1 py-2 border rounded-lg font-semibold">Cancel</button>
-                        <button type="submit" disabled={loading} className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold disabled:bg-blue-300">
+                        <button type="button" onClick={onClose} className="flex-1 py-2 border rounded-lg font-semibold">
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-semibold disabled:bg-blue-300"
+                        >
                             {loading ? 'Saving...' : product ? 'Update Product' : 'Create Product'}
                         </button>
                     </div>

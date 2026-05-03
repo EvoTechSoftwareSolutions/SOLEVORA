@@ -94,12 +94,17 @@ const MyOrders = () => {
   const handleCancelOrder = async (orderId) => {
     if (window.confirm('Are you sure you want to cancel this order?')) {
       try {
-        await axios.put(`http://localhost:5001/api/orders/${orderId}/status`, { status: 'cancelled' });
+        const token = localStorage.getItem('auth_token');
+        await axios.put(
+          `http://localhost:5001/api/orders/${orderId}/cancel`, 
+          {}, 
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         alert('Order cancelled successfully');
         fetchOrders();
       } catch (error) {
         console.error('Error cancelling order:', error);
-        alert('Error cancelling order');
+        alert(error.response?.data?.message || 'Error cancelling order');
       }
     }
   };
