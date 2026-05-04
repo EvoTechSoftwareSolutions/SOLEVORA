@@ -68,6 +68,25 @@ const AddAddress = () => {
                 return;
             }
 
+            // Symbol validation
+            const symbolRegex = /[!@#$%^&*()_+={}\[\]:;"'<>?|\\]/;
+            const addressFields = {
+                'Address Title': payload.title,
+                'Full Name': payload.name,
+                'Street Address': payload.street,
+                'City': payload.city,
+                'Postal Code': payload.postalCode,
+                'Country': payload.country
+            };
+
+            for (const [label, value] of Object.entries(addressFields)) {
+                if (value && symbolRegex.test(value)) {
+                    showError("Invalid Input", `${label} should not contain special symbols`);
+                    return;
+                }
+            }
+
+
 
             await axios.post(`${API_URL}/addresses`, payload, {
               headers: { Authorization: `Bearer ${token}` }

@@ -32,7 +32,7 @@ window.dispatchEvent(new Event("authChange"));
 
     return (
         <header className="header-main">
-            <nav className="nav-container container">
+            <nav className="nav-container container-custom">
                 {/* LOGO */}
                 <Link to="/" className="nav-logo-link">
                     <img src={logo} alt="SoleVora Logo" className="nav-logo-img" />

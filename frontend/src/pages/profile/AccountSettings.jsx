@@ -101,23 +101,36 @@ const AccountSettings = () => {
         }
 
         // Validation for special symbols in names and addresses
-        const symbolRegex = /[!@#$%^&*()_+={}\[\]:;"'<>?,./|\\]/;
+        // Allows alphanumeric, spaces, and common address punctuation ( , . - / )
+        const symbolRegex = /[!@#$%^&*()_+={}\[\]:;"'<>?|\\]/;
         const phoneRegex = /^[0-9+-\s()]*$/;
 
         if (type === 'profile') {
             if (symbolRegex.test(profileData.fullName)) {
-                setMessage("Name should not contain special symbols");
+                showError("Invalid Name", "Name should not contain special symbols");
                 return;
             }
             if (profileData.phone && !phoneRegex.test(profileData.phone)) {
-                setMessage("Invalid phone number format");
+                showError("Invalid Phone", "Invalid phone number format");
                 return;
             }
-            if (symbolRegex.test(profileData.streetAddress) || symbolRegex.test(profileData.city)) {
-                setMessage("Address fields should not contain special symbols");
-                return;
+            
+            const addressFields = {
+                'Street Address': profileData.streetAddress,
+                'City': profileData.city,
+                'Postal Code': profileData.postalCode,
+                'Country': profileData.country,
+                'Location Label': profileData.location
+            };
+
+            for (const [label, value] of Object.entries(addressFields)) {
+                if (value && symbolRegex.test(value)) {
+                    showError("Invalid Address", `${label} should not contain special symbols`);
+                    return;
+                }
             }
         }
+
         
         try {
             let res;

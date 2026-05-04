@@ -224,11 +224,26 @@ const ShippingInformation = () => {
       return;
     }
 
-    const symbolRegex = /[!@#$%^&*()_+={}\[\]:;"'<>?,./|\\]/;
+    const symbolRegex = /[!@#$%^&*()_+={}\[\]:;"'<>?|\\]/;
     if (symbolRegex.test(formData.fullName)) {
       showToast('Name should not contain special symbols.');
       return;
     }
+
+    const addressFields = {
+      'Street Address': formData.streetAddress,
+      'City': formData.city,
+      'Postal Code': formData.postalCode,
+      'Country': formData.country
+    };
+
+    for (const [label, value] of Object.entries(addressFields)) {
+      if (value && symbolRegex.test(value)) {
+        showToast(`${label} should not contain special symbols.`);
+        return;
+      }
+    }
+
 
     const phoneRegex = /^[0-9+-\s()]*$/;
     if (formData.phone && !phoneRegex.test(formData.phone)) {

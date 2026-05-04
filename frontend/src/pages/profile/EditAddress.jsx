@@ -53,7 +53,27 @@ const EditAddress = () => {
         setSaving(true);
         try {
             const token = localStorage.getItem("auth_token");
+
+            // Symbol validation
+            const symbolRegex = /[!@#$%^&*()_+={}\[\]:;"'<>?|\\]/;
+            const addressFields = {
+                'Address Title': formData.title,
+                'Full Name': formData.name,
+                'Street Address': formData.street,
+                'City': formData.city,
+                'Postal Code': formData.postalCode,
+                'Country': formData.country
+            };
+
+            for (const [label, value] of Object.entries(addressFields)) {
+                if (value && symbolRegex.test(value)) {
+                    showError("Invalid Input", `${label} should not contain special symbols`);
+                    return;
+                }
+            }
+
             await axios.put(`http://localhost:5001/api/addresses/${id}`, {
+
                 ...formData,
                 phone: (formData.phone || "").trim(),
             }, {
