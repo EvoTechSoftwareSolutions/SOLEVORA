@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { showError } from '../../utils/notifications';
 import { API_URL } from '../../config/api.js';
+
 import './AddAddress.css';
 
 const AddAddress = () => {
@@ -37,9 +39,10 @@ const AddAddress = () => {
             console.log("Token exists:", !!token);
             console.log("Token length:", token?.length);
             if (!token) {
-                alert("Session expired. Please login again.");
+                showError("Session Expired", "Please login again.");
                 return;
             }
+
 
             const payload = {
                 title: trimOrEmpty(formData.title),
@@ -61,9 +64,10 @@ const AddAddress = () => {
             });
             const missing = required.filter((k) => !payload[k] || payload[k].trim() === "");
             if (missing.length) {
-                alert(`Please fill: ${missing.join(", ")}`);
+                showError("Missing Fields", `Please fill: ${missing.join(", ")}`);
                 return;
             }
+
 
             await axios.post(`${API_URL}/addresses`, payload, {
               headers: { Authorization: `Bearer ${token}` }
@@ -76,16 +80,17 @@ const AddAddress = () => {
             console.log("Full error response:", JSON.stringify(error?.response, null, 2));
             
             if (data?.message) {
-                alert(`Error: ${data.message}`);
+                showError("Error", data.message);
             } else if (status === 400) {
-                alert("Invalid data provided. Please check all fields and try again.");
+                showError("Invalid Data", "Please check all fields and try again.");
             } else if (status === 401) {
-                alert("Session expired. Please login again.");
+                showError("Session Expired", "Please login again.");
             } else if (status === 403) {
-                alert("Access denied. You don't have permission to perform this action.");
+                showError("Access Denied", "You don't have permission to perform this action.");
             } else {
-                alert("Failed to save address. Please try again.");
+                showError("Error", "Failed to save address. Please try again.");
             }
+
         } finally {
             setLoading(false);
         }

@@ -2,23 +2,25 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { showSuccess, showError } from "../../utils/notifications";
 import forgotImage from "../../assets/shoe.png";
+
 import { HiOutlineMail } from "react-icons/hi";
 import "../../styles/Auth.css";
 
 function ForgotPassword() {
   const navigate = useNavigate();
 
-  // State to manage the email input and feedback message
+  // State to manage the email input
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+
 
   // Function to handle the forgot password form submission
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     
     if (!email) {
-      setMessage("Please enter your email address");
+      showError("Please enter your email address");
       return;
     }
 
@@ -28,21 +30,19 @@ function ForgotPassword() {
         email,
       });
 
-      setMessage(res.data.message);
+      showSuccess("Email Sent!", res.data.message);
 
       // Redirecting to the check email page after a short delay
       setTimeout(() => {
         navigate("/check-email");
-      }, 1000);
+      }, 2000);
     } catch (error) {
       // Handling errors and displaying appropriate messages
-      if (error.response && error.response.data.message) {
-        setMessage(error.response.data.message);
-      } else {
-        setMessage("Something went wrong");
-      }
+      const errorMsg = error.response?.data?.message || "Something went wrong";
+      showError("Error", errorMsg);
     }
   };
+
 
   return (
     <div className="auth-container">
@@ -102,13 +102,8 @@ function ForgotPassword() {
               Send Reset Link →
             </button>
 
-            {/* Feedback Message */}
-            {message && (
-              <p className={message.toLowerCase().includes("wrong") || message.toLowerCase().includes("error") ? "auth-error" : "text-sm text-center text-blue-600 mt-4"}>
-                {message}
-              </p>
-            )}
           </form>
+
 
           {/* Link to Return to Login */}
           <Link to="/" className="auth-link-back">

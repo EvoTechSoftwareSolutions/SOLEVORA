@@ -4,7 +4,9 @@
 // Used for two-factor authentication during checkout process
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { showError } from '../../utils/notifications';
 import '../../styles/user/VerificationCode.css';
+
 
 const VerificationCode = () => {
   // navigation
@@ -50,7 +52,8 @@ const VerificationCode = () => {
     if (fullCode.length === 6) {
       navigate('/order-success', { state: location.state });
     } else {
-      alert('Please enter all 6 digits.');
+      showError('Invalid Code', 'Please enter all 6 digits.');
+
     }
   };
 // format timer (mm:ss)

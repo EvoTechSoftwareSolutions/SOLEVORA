@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './NewsletterManagement.css';
 import { API_URL } from '../config/api';
+import { showConfirm, showSuccess, showError } from '../utils/notifications';
+
 
 const NewsletterManagement = () => {
   const [subscribers, setSubscribers] = useState([]);
@@ -33,15 +35,18 @@ const NewsletterManagement = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to remove this subscriber?')) {
+    const confirmed = await showConfirm('Remove Subscriber?', 'Are you sure you want to remove this subscriber from the mailing list?');
+    if (confirmed) {
       try {
         await axios.delete(`${API_URL}/newsletter/subscribers/${id}`);
+        showSuccess('Removed!', 'Subscriber has been removed successfully.');
         fetchSubscribers();
       } catch (error) {
-        alert('Error deleting subscriber');
+        showError('Error', 'Error deleting subscriber');
       }
     }
   };
+
 
   const filteredSubscribers = subscribers.filter(sub => 
     sub.email.toLowerCase().includes(searchTerm.toLowerCase())

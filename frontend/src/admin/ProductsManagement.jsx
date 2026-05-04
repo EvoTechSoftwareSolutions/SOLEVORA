@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./ProductsManagement.css";
 import ProductModal from "./ProductModal";
+import { showConfirm, showError, showSuccess } from "../utils/notifications";
+
 
 import { API_URL, getImageUrl as resolveUrl } from "../config/api";
 
@@ -79,16 +81,19 @@ const ProductsManagement = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
+    const confirmed = await showConfirm("Are you sure?", "You want to delete this product?");
+    if (confirmed) {
       try {
         await axios.delete(`${API_URL}/products/${id}`);
+        showSuccess("Deleted!", "Product has been deleted.");
         fetchProducts();
       } catch (error) {
         console.error("Error deleting product:", error);
-        alert("Error deleting product. Please try again.");
+        showError("Error", "Error deleting product. Please try again.");
       }
     }
   };
+
 
   const handleEdit = (product) => {
     setSelectedProduct(product);

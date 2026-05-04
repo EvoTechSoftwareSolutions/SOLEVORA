@@ -13,6 +13,8 @@ import {
   IoPaperPlaneOutline,
 } from "../../components/common/icons.jsx";
 import { useState, useEffect } from "react";
+import { showSuccess, showError } from "../../utils/notifications";
+
 
 const Contact = () => {
   // State to manage form data
@@ -90,7 +92,7 @@ const Contact = () => {
         formData,
       );
 
-      setSuccessMsg(res.data.message || "Message sent successfully!");
+      showSuccess("Message Sent!", res.data.message || "We'll get back to you soon.");
 
       // Resetting the form after successful submission
       setFormData({
@@ -100,16 +102,14 @@ const Contact = () => {
         subject: "",
         message: "",
       });
-
-      // Auto-hide success message after 3 seconds
-      setTimeout(() => setSuccessMsg(""), 3000);
     } catch (err) {
       console.error(err);
-      alert("Error sending message");
+      showError("Submission Failed", "Error sending message. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="main-container">

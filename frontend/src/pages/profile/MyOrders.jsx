@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
 import './MyOrders.css';
+import { showConfirm, showSuccess, showError } from '../../utils/notifications';
+
 
 const PAGE_SIZE = 10;
 
@@ -95,7 +97,8 @@ const MyOrders = () => {
   };
 
   const handleCancelOrder = async (orderId) => {
-    if (window.confirm('Are you sure you want to cancel this order?')) {
+    const confirmed = await showConfirm('Cancel Order?', 'Are you sure you want to cancel this order? This action cannot be undone.');
+    if (confirmed) {
       try {
         const token = localStorage.getItem('auth_token');
         await axios.put(
@@ -103,11 +106,11 @@ const MyOrders = () => {
           {}, 
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        alert('Order cancelled successfully');
+        showSuccess('Cancelled!', 'Order has been cancelled successfully.');
         fetchOrders();
       } catch (error) {
         console.error('Error cancelling order:', error);
-        alert(error.response?.data?.message || 'Error cancelling order');
+        showError('Error', error.response?.data?.message || 'Error cancelling order');
       }
     }
   };

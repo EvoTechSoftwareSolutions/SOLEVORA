@@ -4,7 +4,9 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { showSuccess, showError } from "../../utils/notifications";
 import { LuEye, LuCircleCheck, LuCircle } from "react-icons/lu";
+
 import resetImage from "../../assets/reset-password.png";
 import "./../../styles/Auth.css";
 
@@ -14,8 +16,8 @@ function ResetPassword() {
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
   const [userRole, setUserRole] = useState("user");
+
 
   useEffect(() => {
     if (!token) return;
@@ -46,12 +48,12 @@ function ResetPassword() {
   const handleResetPassword = async () => {
     // Form validation
     if (!newPassword || !confirmPassword) {
-      setMessage("Please fill all fields");
+      showError("Please fill all fields");
       return;
     }
 // basic validation
     if (newPassword !== confirmPassword) {
-      setMessage("Passwords do not match");
+      showError("Passwords do not match");
       return;
     }
 
@@ -62,21 +64,19 @@ function ResetPassword() {
         { newPassword }
       );
 
-      setMessage(res.data.message);
+      showSuccess("Success!", res.data.message);
 
       // Redirect to success page after 1 second
       setTimeout(() => {
         navigate("/reset-success", { state: { role: userRole } });
-      }, 1000);
+      }, 1500);
     } catch (error) {
       // Error handling
-      if (error.response && error.response.data.message) {
-        setMessage(error.response.data.message);
-      } else {
-        setMessage("Reset failed");
-      }
+      const errorMsg = error.response?.data?.message || "Reset failed";
+      showError("Error", errorMsg);
     }
   };
+
 
   // Main component render
   return (
@@ -210,10 +210,6 @@ function ResetPassword() {
                 Reset Password →
               </button>
 
-              {/* Status message display */}
-              {message && (
-                <p className="mt-4 text-sm text-center text-blue-600">{message}</p>
-              )}
             </form>
 
             <div className="text-center mt-14">

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../config/api';
+import { showConfirm, showSuccess, showError } from '../../utils/notifications';
 import './AccountSettings.css';
+
 
 const AccountSettings = () => {
     const [profileData, setProfileData] = useState({
@@ -157,7 +159,7 @@ const AccountSettings = () => {
                 setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
             } else if (type === 'password') {
                 if (passwordData.newPassword !== passwordData.confirmPassword) {
-                    setMessage("Passwords do not match");
+                    showError("Passwords do not match");
                     return;
                 }
                 const token = localStorage.getItem("auth_token");
@@ -171,16 +173,17 @@ const AccountSettings = () => {
                 setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
             }
 
-            setMessage(res.data.message);
-            setTimeout(() => setMessage(""), 3000); 
+            showSuccess("Success!", res.data.message);
         } catch (err) {
-            setMessage(err.response?.data?.message || "Operation failed");
+            showError("Operation failed", err.response?.data?.message || "Something went wrong");
         }
     };
 
 
+
     const deleteAccount = async () => {
-        if (!window.confirm("Are you sure you want to delete your account? This is permanent!")) return;
+        const confirmed = await showConfirm("Delete Account?", "Are you sure you want to delete your account? This is permanent and all your data will be lost!");
+        if (!confirmed) return;
         const userId = getUserId();
         try {
             const token = localStorage.getItem("auth_token");
@@ -191,9 +194,10 @@ const AccountSettings = () => {
             localStorage.removeItem("user");
             window.location.href = "/";
         } catch (err) {
-            setMessage("Failed to delete account");
+            showError("Failed to delete account");
         }
     };
+
 
     return (
         <div className="as-container">

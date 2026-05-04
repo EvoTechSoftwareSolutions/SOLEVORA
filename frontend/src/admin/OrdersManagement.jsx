@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './OrdersManagement.css';
 import { API_URL, getImageUrl } from '../config/api';
+import { showConfirm, showSuccess, showError } from '../utils/notifications';
+
 
 const OrdersManagement = () => {
     const [subTab, setSubTab] = useState('All Orders');
@@ -46,15 +48,18 @@ const OrdersManagement = () => {
     }, []);
 // delete order
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this order?')) {
+        const confirmed = await showConfirm('Are you sure?', 'You want to delete this order?');
+        if (confirmed) {
             try {
                 await axios.delete(`${API_URL}/orders/${id}`);
+                showSuccess('Deleted!', 'Order has been deleted successfully.');
                 fetchOrders();
             } catch (error) {
-                alert('Error deleting order');
+                showError('Error', 'Error deleting order');
             }
         }
     };
+
 // open modal and fill form with order data
     const handleOpenModal = (order) => {
         setSelectedOrder(order);
@@ -77,11 +82,13 @@ const OrdersManagement = () => {
                 carrier,
                 estimated_delivery: estimatedDelivery
             });
+            showSuccess('Updated!', 'Order status has been updated successfully.');
             setIsModalOpen(false);
             fetchOrders();
         } catch (error) {
-            alert('Error updating order: ' + (error.response?.data?.message || error.message));
+            showError('Update Failed', error.response?.data?.message || error.message);
         } finally {
+
             setUpdateLoading(false);
         }
     };

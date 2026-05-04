@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { XMarkIcon, ArrowUpTrayIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { showSuccess, showError } from '../utils/notifications';
+
 
 const BASE_URL = 'http://localhost:5001';
 
@@ -335,12 +337,15 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                 await axios.post(`${BASE_URL}/api/products`, data, config);
             }
 
-            alert(product ? 'Product updated successfully!' : 'Product added successfully!');
+            showSuccess(product ? 'Product updated successfully!' : 'Product added successfully!');
+
             onProductSaved();
             onClose();
         } catch (err) {
-            setSubmitError(err.response?.data?.error || 'Failed to save product.');
+            console.error('Error saving product:', err);
+            showError('Error', err.response?.data?.error || 'Failed to save product.');
         } finally {
+
             setLoading(false);
         }
     };

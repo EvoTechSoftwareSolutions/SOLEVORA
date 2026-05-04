@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Messages.css';
 import { API_URL, BASE_URL, getImageUrl } from '../config/api';
+import { showSuccess, showError } from '../utils/notifications';
+
 
 const Messages = () => {
     const [messages, setMessages] = useState([]);
@@ -66,12 +68,13 @@ const Messages = () => {
             await axios.post(`${API_URL}/contact/${selectedMessage.id}/reply`, {
                 reply: replyText
             });
-            alert("Reply sent successfully!");
+            showSuccess("Reply sent successfully!");
             closeModal();
         } catch (error) {
             console.error("Error sending reply:", error);
-            alert("Failed to send reply.");
+            showError("Failed to send reply.");
         } finally {
+
             setSendingReply(false);
         }
     };

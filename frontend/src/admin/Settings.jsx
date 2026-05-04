@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { showConfirm, showSuccess, showError } from '../utils/notifications';
 import './Settings.css';
+
 
 import { API_URL } from '../config/api';
 
@@ -17,7 +19,7 @@ const Settings = () => {
     const [staffList, setStaffList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [toast, setToast] = useState(null);
+
 
     // Staff modal state
     const [showStaffModal, setShowStaffModal] = useState(false);
@@ -43,7 +45,7 @@ const Settings = () => {
                 setSettings(settingsRes.data);
                 setStaffList(staffRes.data);
             } catch (err) {
-                showToast(err.response?.data?.message || 'Failed to load settings', 'error');
+                showError(err.response?.data?.message || 'Failed to load settings');
             } finally {
                 setLoading(false);
             }
@@ -51,10 +53,6 @@ const Settings = () => {
         load();
     }, [adminUser]);
 
-    const showToast = (msg, type = 'success') => {
-        setToast({ msg, type });
-        setTimeout(() => setToast(null), 3500);
-    };
 
     //  Save system settings 
     const handleSaveSettings = async (e) => {
@@ -62,10 +60,11 @@ const Settings = () => {
         setSaving(true);
         try {
             await axios.put(`${API_URL}/admin/settings`, settings, { headers: authHeaders(adminUser) });
-            showToast('Settings saved successfully!');
+            showSuccess('Settings saved successfully!');
         } catch (err) {
-            showToast(err.response?.data?.message || 'Failed to save settings', 'error');
+            showError(err.response?.data?.message || 'Failed to save settings');
         } finally {
+
             setSaving(false);
         }
     };
@@ -90,31 +89,34 @@ const Settings = () => {
             if (editingStaff) {
                 const res = await axios.put(`${API_URL}/admin/admin-users/${editingStaff.id}`, staffForm, { headers: authHeaders(adminUser) });
                 setStaffList(prev => prev.map(m => m.id === editingStaff.id ? { ...m, ...res.data.user } : m));
-                showToast('Staff member updated');
+                showSuccess('Staff member updated');
             } else {
                 const res = await axios.post(`${API_URL}/admin/admin-users`, staffForm, { headers: authHeaders(adminUser) });
                 const refreshed = await axios.get(`${API_URL}/admin/admin-users`, { headers: authHeaders(adminUser) });
                 setStaffList(refreshed.data);
-                showToast('Staff member created');
+                showSuccess('Staff member created');
             }
             setShowStaffModal(false);
         } catch (err) {
-            showToast(err.response?.data?.message || 'Operation failed', 'error');
+            showError(err.response?.data?.message || 'Operation failed');
         } finally {
+
             setSaving(false);
         }
     };
 
     const handleDeleteStaff = async (id) => {
-        if (!window.confirm('Remove this staff member?')) return;
+        const confirmed = await showConfirm('Remove Staff?', 'Are you sure you want to remove this staff member?');
+        if (!confirmed) return;
         try {
             await axios.delete(`${API_URL}/admin/admin-users/${id}`, { headers: authHeaders(adminUser) });
             setStaffList(prev => prev.filter(m => m.id !== id));
-            showToast('Staff member removed');
+            showSuccess('Staff member removed');
         } catch (err) {
-            showToast(err.response?.data?.message || 'Failed to delete', 'error');
+            showError(err.response?.data?.message || 'Failed to delete');
         }
     };
+
 
 
     // Password reset handler
@@ -134,15 +136,16 @@ const Settings = () => {
                 newPassword: pwForm.newPassword,
             });
             setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
-            showToast('Password changed successfully! Please use your new password next time you log in.');
+            showSuccess('Success!', 'Password changed successfully! Please use your new password next time you log in.');
         } catch (err) {
             const msg = err.response?.data?.message || 'Failed to update password';
             if (msg.toLowerCase().includes('incorrect')) {
                 setPwErrors({ currentPassword: 'Current password is incorrect' });
             } else {
-                showToast(msg, 'error');
+                showError(msg);
             }
         } finally {
+
             setIsPwSaving(false);
         }
     };
@@ -174,14 +177,8 @@ const Settings = () => {
 
     return (
         <div className="st-root">
-            {/* Toast */}
-            {toast && (
-                <div className={`st-toast ${toast.type === 'error' ? 'st-toast-error' : 'st-toast-success'}`}>
-                    {toast.msg}
-                </div>
-            )}
-
             {/* Modal */}
+
             {showStaffModal && (
                 <div className="st-modal-overlay" onClick={() => setShowStaffModal(false)}>
                     <div className="st-modal" onClick={e => e.stopPropagation()}>

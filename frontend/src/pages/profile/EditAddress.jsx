@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import { showError } from '../../utils/notifications';
 import './AddAddress.css';
+
 
 const EditAddress = () => {
     const navigate = useNavigate();
@@ -29,7 +31,8 @@ const EditAddress = () => {
                 setFormData(res.data?.data ?? res.data);
             } catch (error) {
                 console.error("Failed to fetch address details", error);
-                alert("Failed to load address data");
+                showError("Failed to load address data");
+
             } finally {
                 setLoading(false);
             }
@@ -59,7 +62,8 @@ const EditAddress = () => {
             navigate('/profile/addresses');
         } catch (error) {
             console.error("Failed to update address", error);
-            alert("Failed to update address. Please try again.");
+            showError("Failed to update address. Please try again.");
+
         } finally {
             setSaving(false);
         }

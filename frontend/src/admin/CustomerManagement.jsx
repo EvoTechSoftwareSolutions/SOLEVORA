@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './CustomerManagement.css';
 import { API_URL, BASE_URL, getImageUrl } from '../config/api';
+import { showConfirm, showSuccess, showError } from '../utils/notifications';
+
 
 const CustomerManagement = () => {
   const [customers, setCustomers] = useState([]);
@@ -37,15 +39,18 @@ const CustomerManagement = () => {
 
   // delete customer by id
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
+    const confirmed = await showConfirm('Are you sure?', 'You want to delete this customer? This action cannot be undone.');
+    if (confirmed) {
       try {
         await axios.delete(`${API_URL}/admin/customers/${id}`);
+        showSuccess('Deleted!', 'Customer has been deleted successfully.');
         fetchCustomers();
       } catch (error) {
-        alert('Error deleting customer');
+        showError('Error', 'Error deleting customer');
       }
     }
   };
+
 
   const safeCustomers = Array.isArray(customers) ? customers : [];
   const filteredCustomers = safeCustomers.filter(cust => 
