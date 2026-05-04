@@ -28,28 +28,44 @@ export const sendOrderConfirmationEmail = async (order, items) => {
   try {
     const { id, customerName, email, totalAmount, shippingAddress, paymentMethod, trackingNumber } = order;
 
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5001';
+    
     const itemsHtml = items.map(item => {
-      const imgUrl = item.product?.productimage?.[0]?.url 
-        ? (item.product.productimage[0].url.startsWith('http') 
-            ? item.product.productimage[0].url 
-            : `http://localhost:5001${item.product.productimage[0].url}`)
-        : 'https://via.placeholder.com/80';
+      let imgUrl = 'https://via.placeholder.com/80';
+      
+      const productImg = item.product?.productimage?.[0]?.url;
+      if (productImg) {
+        if (productImg.startsWith('http')) {
+          imgUrl = productImg;
+        } else {
+          // Ensure no double slashes and use absolute backend URL
+          const cleanPath = productImg.startsWith('/') ? productImg : `/${productImg}`;
+          imgUrl = `${backendUrl}${cleanPath}`;
+        }
+      }
 
       return `
-        <tr style="border-bottom: 1px solid #eee;">
-          <td style="padding: 10px; text-align: left; display: flex; align-items: center; gap: 15px;">
-            <img src="${imgUrl}" alt="${item.productName}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #eee;" />
-            <div>
-              <div style="font-weight: bold; color: #333;">${item.productName || 'Product'}</div>
-              <div style="font-size: 12px; color: #666;">Size: ${item.size} | Qty: ${item.quantity}</div>
-            </div>
+        <tr style="border-bottom: 1px solid #eeeeee;">
+          <td style="padding: 15px 10px; text-align: left; vertical-align: top;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+              <tr>
+                <td width="60" style="vertical-align: top; padding-right: 15px;">
+                  <img src="${imgUrl}" alt="${item.productName}" width="50" height="50" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #eeeeee; display: block;" />
+                </td>
+                <td style="vertical-align: top;">
+                  <div style="font-family: Arial, sans-serif; font-weight: bold; color: #1a1a2e; font-size: 14px; margin-bottom: 4px;">${item.productName || 'Product'}</div>
+                  <div style="font-family: Arial, sans-serif; font-size: 12px; color: #64748b;">Size: ${item.size} | Qty: ${item.quantity}</div>
+                </td>
+              </tr>
+            </table>
           </td>
-          <td style="padding: 10px; text-align: right; color: #333; vertical-align: middle;">
+          <td style="padding: 15px 10px; text-align: right; color: #1a1a2e; vertical-align: middle; font-family: Arial, sans-serif; font-weight: 600; font-size: 14px;">
             Rs. ${item.sellingPrice.toLocaleString()}
           </td>
         </tr>
       `;
     }).join('');
+
 
     const mailOptions = {
       from: `"SoleVora" <${process.env.GMAIL_USER}>`,
@@ -91,25 +107,34 @@ export const sendOrderConfirmationEmail = async (order, items) => {
             </div>
             
             <!-- Details -->
-            <div style="margin-top: 30px; display: flex; flex-wrap: wrap;">
-              <div style="flex: 1; min-width: 250px; margin-bottom: 20px;">
-                <h4 style="margin: 0 0 10px 0; color: #1a1a2e;">Shipping Address</h4>
-                <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.5;">${shippingAddress}</p>
-              </div>
-              <div style="flex: 1; min-width: 200px; margin-bottom: 20px;">
-                <h4 style="margin: 0 0 10px 0; color: #1a1a2e;">Payment Method</h4>
-                <p style="margin: 0; color: #666; font-size: 14px;">${paymentMethod === 'COD' ? 'Cash on Delivery' : 'Online Payment'}</p>
-                
-                <h4 style="margin: 15px 0 10px 0; color: #1a1a2e;">Tracking Number</h4>
-                <p style="margin: 0; color: #f97316; font-weight: bold; font-size: 14px;">${trackingNumber}</p>
-              </div>
-            </div>
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 30px;">
+              <tr>
+                <td style="padding-bottom: 20px;">
+                  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td width="50%" style="vertical-align: top; padding-right: 10px;">
+                        <h4 style="margin: 0 0 10px 0; color: #1a1a2e; font-family: Arial, sans-serif;">Shipping Address</h4>
+                        <p style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.5; font-family: Arial, sans-serif;">${shippingAddress}</p>
+                      </td>
+                      <td width="50%" style="vertical-align: top; padding-left: 10px;">
+                        <h4 style="margin: 0 0 10px 0; color: #1a1a2e; font-family: Arial, sans-serif;">Payment Method</h4>
+                        <p style="margin: 0; color: #64748b; font-size: 13px; font-family: Arial, sans-serif;">${paymentMethod === 'COD' ? 'Cash on Delivery' : 'Online Payment'}</p>
+                        
+                        <h4 style="margin: 15px 0 10px 0; color: #1a1a2e; font-family: Arial, sans-serif;">Tracking Number</h4>
+                        <p style="margin: 0; color: #f97316; font-weight: bold; font-size: 13px; font-family: Arial, sans-serif;">${trackingNumber}</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
             
             <!-- Button -->
             <div style="text-align: center; margin-top: 40px;">
-              <a href="http://localhost:5173/profile/orders" style="background-color: #1a1a2e; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Track Your Order</a>
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile/orders" style="background-color: #1a1a2e; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-family: Arial, sans-serif; font-size: 14px;">Track Your Order</a>
             </div>
           </div>
+
           
           <!-- Footer -->
           <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; color: #999;">
