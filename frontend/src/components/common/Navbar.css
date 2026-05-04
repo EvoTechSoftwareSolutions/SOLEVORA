@@ -14,11 +14,13 @@
 
 
 .nav-container {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     width: 100%;
+    padding: 0 40px;
 }
+
 
 .nav-logo-img {
     height: 70px;
@@ -59,11 +61,11 @@
 .nav-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  max-width: 150px;
+  justify-content: flex-end;
+  gap: 25px;
   width: 100%;
-  
 }
+
 
 .icon-btn.responsive{
     display: none;

@@ -55,9 +55,9 @@ const ProfileLayout = () => {
         <div className="profile-layout-wrapper">
             <Navbar />
             
-            <div className="profile-main-wrapper container-custom">
+            <div className="profile-main-wrapper">
                 <header className="profile-mobile-top-bar" aria-label="Profile navigation">
-                    <div className="container-custom profile-mobile-top-inner">
+                    <div className="container profile-mobile-top-inner">
                         <button
                             type="button"
                             className={`profile-drawer-toggle ${drawerOpen ? 'is-active' : ''}`}
