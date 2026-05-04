@@ -112,6 +112,38 @@ export const getAdminStats = async (req, res) => {
       });
     } catch (e) { console.error("Stats Error (Promos):", e.message); }
 
+    // 8. Sales by Category
+    try {
+      const orderItems = await prisma.orderitem.findMany({
+        where: {
+          order: {
+            status: { notIn: ['CANCELLED'] },
+            paymentStatus: { not: 'FAILED' }
+          }
+        },
+        include: {
+          product: {
+            include: {
+              category: true
+            }
+          }
+        }
+      });
+
+      const categoryRevenue = orderItems.reduce((acc, item) => {
+        const catName = item.product?.category?.name || 'Uncategorized';
+        const revenue = Number(item.sellingPrice) * item.quantity;
+        acc[catName] = (acc[catName] || 0) + revenue;
+        return acc;
+      }, {});
+
+      stats.salesByCategory = Object.entries(categoryRevenue).map(([category, revenue]) => ({
+        category,
+        revenue
+      })).sort((a, b) => b.revenue - a.revenue);
+
+    } catch (e) { console.error("Stats Error (CategorySales):", e.message); }
+
     res.json(stats);
 
   } catch (error) {
@@ -332,6 +364,7 @@ export const deletePromo = async (req, res) => {
 export const getInventoryReport = async (req, res) => {
   try {
     const products = await prisma.product.findMany({
+      where: { isActive: true },
       include: {
         category: {
           select: { name: true }

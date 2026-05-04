@@ -222,6 +222,7 @@ export const getProducts = async (req, res) => {
 export const getProductsAll = async (req, res) => {
   try {
     const products = await prisma.product.findMany({
+      where: { isActive: true },
       include: {
         category: true,
         productimage: true,

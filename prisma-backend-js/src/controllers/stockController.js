@@ -153,6 +153,11 @@ export const deleteStock = async (req, res) => {
 export const getAllStockBatches = async (req, res) => {
   try {
     const batches = await prisma.productstock.findMany({
+      where: {
+        product: {
+          isActive: true
+        }
+      },
       include: {
         product: {
           select: {

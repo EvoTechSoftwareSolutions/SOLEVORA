@@ -7,7 +7,6 @@ import axios from "axios";
 import { GoogleLogin } from '@react-oauth/google';
 import registerImage from "../../assets/shoe.png";
 import { FcGoogle } from "react-icons/fc";
-import { FaApple } from "react-icons/fa";
 import { HiOutlineMail, HiOutlineUser } from "react-icons/hi";
 import { LuLock } from "react-icons/lu";
 
@@ -95,21 +94,7 @@ function Register() {
   const handleGoogleError = () => {
     setMessage("Google signup failed");
   };
-  // Demo Apple registration (placeholder for actual OAuth integration)
-  const handleAppleRegister = async () => {
-    try {
-      // Simulate Apple registration with demo data
-      const res = await axios.post("http://localhost:5001/register", {
-        name: "Apple User",
-        email: "appleuser@gmail.com",
-        password: "social_register",
-      });
-      setMessage("Registration successful! Redirecting...");
-      setTimeout(() => navigate("/login"), 2000);
-    } catch (error) {
-      setMessage("Apple registration failed");
-    }
-  };
+
 
   // Main component render
   return (
@@ -231,14 +216,7 @@ function Register() {
             />
           </div>
 
-          <button
-            type="button"
-            onClick={handleAppleRegister}
-            className="flex items-center justify-center w-full gap-2 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 text-xs font-medium transition-all active:scale-95 h-10"
-          >
-            <FaApple size={18} />
-            Apple
-          </button>
+
         </div>
 
         {/* Sign in link */}

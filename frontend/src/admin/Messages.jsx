@@ -23,14 +23,14 @@ const Messages = () => {
 
     useEffect(() => {
         fetchMessages();
-        // Silent background refresh every 15 seconds
+        // Silent background refresh every 3 seconds
         const interval = setInterval(() => {
             axios.get(`${API_URL}/contact`)
                 .then(response => {
                     setMessages(response.data);
                 })
                 .catch(err => console.error('Silent fetch failed', err));
-        }, 15000);
+        }, 3000);
         return () => clearInterval(interval);
     }, []);
 // mark message as read in backend

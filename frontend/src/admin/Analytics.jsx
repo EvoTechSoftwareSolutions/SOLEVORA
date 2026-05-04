@@ -20,8 +20,8 @@ const Analytics = () => {
 
     useEffect(() => {
         fetchStats();
-        // 5 second refresh as per request
-        const interval = setInterval(fetchStats, 5000);
+        // 3 second refresh as per request
+        const interval = setInterval(fetchStats, 3000);
         return () => clearInterval(interval);
     }, []);
 

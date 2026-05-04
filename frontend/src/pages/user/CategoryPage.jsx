@@ -118,46 +118,50 @@ function CategoryPage() {
   const bgColors = ["bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]", "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]", "bg-[#dfdfdf]", "bg-[#efe8e0]", "bg-[#dcd0c2]", "bg-[#ffb0b0]"];
   const fallbackSizesList = [["6", "7", "8"], ["7.5", "8.5", "9.5", "10"], ["9", "10", "11", "12"], ["6", "8", "9", "10.5"]];
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const params = new URLSearchParams();
-        if (selectedCategory && selectedCategory !== "All") params.append("category", selectedCategory);
-        if (selectedGender && selectedGender !== "All") params.append("gender", selectedGender);
-        if (selectedSize) params.append("size", selectedSize);
-        if (sortBy) params.append("sortBy", sortBy);
-        
-        if (selectedPrice !== "All") {
-          if (selectedPrice === "Under Rs.3000") params.append("maxPrice", "3000");
-          else if (selectedPrice === "Rs.3000 - Rs.5000") { params.append("minPrice", "3000"); params.append("maxPrice", "5000"); }
-          else if (selectedPrice === "Rs.5000 - Rs.10000") { params.append("minPrice", "5000"); params.append("maxPrice", "10000"); }
-          else if (selectedPrice === "Rs.10000 - Rs.20000") { params.append("minPrice", "10000"); params.append("maxPrice", "20000"); }
-          else if (selectedPrice === "Rs.20000+") params.append("minPrice", "20000");
-        }
-
-        const { data } = await axios.get(`${BASE_URL}/api/products?${params.toString()}`);
-        const baseFormatted = data.data.map((p, index) => ({
-          id: p.id,
-          category: p.category?.name || "Uncategorized",
-          name: p.name,
-          slug: p.slug,
-          description: p.description,
-          price: parseFloat(p.price) || 0,
-          image: getImg(p.images?.[0]?.url) || fallbackImages[index % fallbackImages.length],
-          bg: bgColors[index % bgColors.length],
-          gender: p.gender || (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
-          sizes: p.stocks?.length > 0
-            ? p.stocks.map((s) => String(s.size))
-            : fallbackSizesList[index % fallbackSizesList.length],
-          featured: p.isFeatured || false,
-          badge: index === 0 ? "New" : "",
-        }));
-        setProducts(baseFormatted);
-      } catch (err) {
-        console.error("Error fetching products:", err);
+  const fetchProducts = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (selectedCategory && selectedCategory !== "All") params.append("category", selectedCategory);
+      if (selectedGender && selectedGender !== "All") params.append("gender", selectedGender);
+      if (selectedSize) params.append("size", selectedSize);
+      if (sortBy) params.append("sortBy", sortBy);
+      
+      if (selectedPrice !== "All") {
+        if (selectedPrice === "Under Rs.3000") params.append("maxPrice", "3000");
+        else if (selectedPrice === "Rs.3000 - Rs.5000") { params.append("minPrice", "3000"); params.append("maxPrice", "5000"); }
+        else if (selectedPrice === "Rs.5000 - Rs.10000") { params.append("minPrice", "5000"); params.append("maxPrice", "10000"); }
+        else if (selectedPrice === "Rs.10000 - Rs.20000") { params.append("minPrice", "10000"); params.append("maxPrice", "20000"); }
+        else if (selectedPrice === "Rs.20000+") params.append("minPrice", "20000");
       }
-    };
+
+      const { data } = await axios.get(`${BASE_URL}/api/products?${params.toString()}`);
+      const baseFormatted = data.data.map((p, index) => ({
+        id: p.id,
+        category: p.category?.name || "Uncategorized",
+        name: p.name,
+        slug: p.slug,
+        description: p.description,
+        price: parseFloat(p.price) || 0,
+        image: getImg(p.images?.[0]?.url) || fallbackImages[index % fallbackImages.length],
+        bg: bgColors[index % bgColors.length],
+        gender: p.gender || (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
+        sizes: p.stocks?.length > 0
+          ? p.stocks.map((s) => String(s.size))
+          : fallbackSizesList[index % fallbackSizesList.length],
+        featured: p.isFeatured || false,
+        badge: index === 0 ? "New" : "",
+      }));
+      setProducts(baseFormatted);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    }
+  };
+
+  useEffect(() => {
     fetchProducts();
+    // Silent background refresh every 3 seconds
+    const interval = setInterval(fetchProducts, 3000);
+    return () => clearInterval(interval);
   }, [selectedCategory, selectedGender, selectedSize, selectedPrice, sortBy]);
 
   const displayedProducts = useMemo(() => {

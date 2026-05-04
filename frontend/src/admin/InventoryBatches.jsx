@@ -20,14 +20,14 @@ const InventoryBatches = () => {
         };
         fetchBatches();
 
-        // Silent background refresh every 15 seconds
+        // Silent background refresh every 3 seconds
         const interval = setInterval(() => {
             axios.get(`${API_URL}/products/batches`)
                 .then(response => {
                     setBatches(response.data);
                 })
                 .catch(err => console.error('Silent fetch failed', err));
-        }, 15000);
+        }, 3000);
         return () => clearInterval(interval);
     }, []);
 

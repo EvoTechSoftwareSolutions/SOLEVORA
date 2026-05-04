@@ -170,14 +170,14 @@ const Dashboard = () => {
         };
         fetchStats();
 
-        // Silent background refresh every 5 seconds
+        // Silent background refresh every 3 seconds
         const interval = setInterval(() => {
             axios.get('/admin/stats')
                 .then(response => {
                     setStats(response.data);
                 })
                 .catch(err => console.error('Silent stats fetch failed:', err.response?.status, err.message));
-        }, 5000);
+        }, 3000);
         return () => clearInterval(interval);
     }, []);
 

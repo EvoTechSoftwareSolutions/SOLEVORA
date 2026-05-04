@@ -67,6 +67,15 @@ const ProductsManagement = () => {
 
   useEffect(() => {
     fetchProducts();
+    // Silent background refresh every 3 seconds
+    const interval = setInterval(() => {
+      axios.get(`${API_URL}/products`)
+        .then(response => {
+          setProducts(response.data.data);
+        })
+        .catch(err => console.error("Silent products fetch failed:", err));
+    }, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleDelete = async (id) => {

@@ -51,7 +51,7 @@ export const WishlistProvider = ({ children }) => {
         };
 
         syncUserId();
-        const interval = setInterval(syncUserId, 2000);
+        const interval = setInterval(syncUserId, 3000);
         window.addEventListener('storage', syncUserId);
         return () => {
             clearInterval(interval);

@@ -27,8 +27,8 @@ const Sidebar = () => {
         };
         fetchUnreadCount();
         
-        // Polling every 5 seconds for new messages
-        const interval = setInterval(fetchUnreadCount, 5000);
+        // Polling every 3 seconds for new messages
+        const interval = setInterval(fetchUnreadCount, 3000);
         return () => clearInterval(interval);
     }, []);
 

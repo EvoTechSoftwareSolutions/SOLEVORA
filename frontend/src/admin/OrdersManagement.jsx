@@ -34,6 +34,15 @@ const OrdersManagement = () => {
 // load orders when page opens
     useEffect(() => {
         fetchOrders();
+        // Silent background refresh every 3 seconds
+        const interval = setInterval(() => {
+            axios.get(`${API_URL}/orders`)
+                .then(response => {
+                    setOrders(response.data.data);
+                })
+                .catch(err => console.error('Silent orders fetch failed:', err));
+        }, 3000);
+        return () => clearInterval(interval);
     }, []);
 // delete order
     const handleDelete = async (id) => {

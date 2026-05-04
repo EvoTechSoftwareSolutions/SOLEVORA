@@ -58,32 +58,35 @@ function ProductDetail() {
     }
   })();
 
+  const fetchProduct = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5001/api/products/slug/${slug}`,
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setProduct(data.data);
+        if (!passedImage) {
+          setMainImage(getImg(data.data.images?.[0]?.url));
+        }
+        // Fetch reviews for this product
+        fetchReviews(data.data.id);
+      } else {
+        console.error("Product not found");
+      }
+    } catch (error) {
+      console.error("Error fetching product:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch product data and reviews on component mount
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5001/api/products/slug/${slug}`,
-        );
-        const data = await response.json();
-        if (response.ok) {
-          setProduct(data.data);
-          if (!passedImage) {
-            setMainImage(getImg(data.data.images?.[0]?.url));
-          }
-          // Fetch reviews for this product
-          fetchReviews(data.data.id);
-        } else {
-          console.error("Product not found");
-        }
-      } catch (error) {
-        console.error("Error fetching product:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProduct();
+    // Silent background refresh every 3 seconds
+    const interval = setInterval(fetchProduct, 3000);
+    return () => clearInterval(interval);
   }, [slug]); 
 
   // Auto-select first available in-stock size when product loads

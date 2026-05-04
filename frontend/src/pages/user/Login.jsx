@@ -5,7 +5,6 @@ import axios from "axios";
 import { GoogleLogin } from '@react-oauth/google';
 import loginImage from "../../assets/login-shoe.png";
 import { FcGoogle } from "react-icons/fc";
-import { FaApple } from "react-icons/fa";
 import { HiOutlineMail } from "react-icons/hi";
 import { LuLock } from "react-icons/lu";
 import { FiSettings } from "react-icons/fi";
@@ -76,20 +75,7 @@ const handleLogin = async (e) => {
     setMessage("Google login failed");
   };
 
-  // Function to handle Apple login (demo implementation)
-  const handleAppleLogin = async () => {
-    try {
-      const res = await axios.post("http://localhost:5001/login", {
-        email: "appleuser@gmail.com",
-        password: "social_login",
-      });
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      localStorage.setItem("isAuthenticated", "true");
-      navigate(from, { replace: true });
-    } catch (error) {
-      setMessage(error.response?.data?.message || "Apple login failed");
-    }
-  };
+
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-bg-light font-manrope selection:bg-primary/20">
@@ -201,14 +187,7 @@ const handleLogin = async (e) => {
             />
           </div>
 
-          <button
-            type="button"
-            onClick={handleAppleLogin}
-            className="flex items-center justify-center w-full gap-2 border border-gray-300 h-10 rounded-xl hover:bg-white text-xs"
-          >
-            <FaApple className="text-lg" />
-            Apple
-          </button>
+
         </div>
 
         {/* Sign Up Link */}

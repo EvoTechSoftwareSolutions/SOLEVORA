@@ -36,6 +36,16 @@ const InventoryReport = () => {
         };
 
         fetchData();
+
+        // Silent background refresh every 3 seconds
+        const interval = setInterval(() => {
+            axios.get(`${API_URL}/admin/inventory`)
+                .then(res => {
+                    setProducts(res.data);
+                })
+                .catch(err => console.error("Silent inventory refresh failed:", err));
+        }, 3000);
+        return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {

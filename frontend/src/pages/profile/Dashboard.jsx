@@ -21,33 +21,37 @@ const Dashboard = () => {
     
     const user = getLoggedInUser();
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-            if (!user.id) return;
-            setLoading(true);
-            try {
-                const token = localStorage.getItem('auth_token');
-                // Fetch Orders
-                const response = await axios.get(
-                    `http://localhost:5001/api/orders/user/${user.id}`,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                const ordersData = response.data.data || response.data;
-                setOrders(Array.isArray(ordersData) ? ordersData : []);
+    const fetchDashboardData = async () => {
+        if (!user.id) return;
+        try {
+            const token = localStorage.getItem('auth_token');
+            // Fetch Orders
+            const response = await axios.get(
+                `http://localhost:5001/api/orders/user/${user.id}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            const ordersData = response.data.data || response.data;
+            setOrders(Array.isArray(ordersData) ? ordersData : []);
 
-                // Fetch Profile Data
-                const profileRes = await axios.get(
-                    `http://localhost:5001/api/user/${user.id}`,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                setProfileData(profileRes.data);
-            } catch (error) {
-                console.error('Error fetching dashboard data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchOrders();
+            // Fetch Profile Data
+            const profileRes = await axios.get(
+                `http://localhost:5001/api/user/${user.id}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setProfileData(profileRes.data);
+        } catch (error) {
+            console.error('Error fetching dashboard data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        setLoading(true);
+        fetchDashboardData();
+        // Silent background refresh every 3 seconds
+        const interval = setInterval(fetchDashboardData, 3000);
+        return () => clearInterval(interval);
     }, [user.id]);
 
     const BASE_URL = "http://localhost:5001";

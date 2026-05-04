@@ -123,11 +123,24 @@ const Home = () => {
   useEffect(() => {
     fetchDbCategories();
     fetchPromos();
+    
+    // Silent background refresh every 3 seconds
+    const interval = setInterval(() => {
+      fetchDbCategories();
+      fetchPromos();
+    }, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   // Fetch products whenever the active category changes
   useEffect(() => {
     fetchProducts();
+    
+    // Silent background refresh every 3 seconds
+    const interval = setInterval(() => {
+      fetchProducts();
+    }, 3000);
+    return () => clearInterval(interval);
   }, [activeCategory]);
 
   // Function to fetch categories from the backend

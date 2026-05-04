@@ -43,7 +43,19 @@ const PromoCodes = () => {
         }
     };
 
-    useEffect(() => { fetchPromos(); }, []);
+    useEffect(() => { 
+        fetchPromos(); 
+        // Silent background refresh every 3 seconds
+        const interval = setInterval(() => {
+            axios.get(API)
+                .then(res => {
+                    const list = Array.isArray(res.data?.data) ? res.data.data : [];
+                    setPromos(list);
+                })
+                .catch(err => console.error('Silent promo fetch failed', err));
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;

@@ -23,7 +23,7 @@ const CustomerManagement = () => {
 
   useEffect(() => {
     fetchCustomers();
-    // Silent background refresh every 15 seconds
+    // Silent background refresh every 3 seconds
     const interval = setInterval(() => {
       axios.get(`${API_URL}/admin/customers`)
         .then(response => {
@@ -31,7 +31,7 @@ const CustomerManagement = () => {
           setCustomers(data);
         })
         .catch(err => console.error('Silent fetch failed', err));
-    }, 15000);
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
