@@ -11,6 +11,7 @@ export const createOrder = async (req, res) => {
       console.log("ORDER_VALIDATION_ERROR:", JSON.stringify(result.error.format(), null, 2));
       return res.status(400).json({
         success: false,
+        message: "Validation failed",
         errors: result.error.issues.map(err => ({
           field: err.path[0],
           message: err.message
@@ -178,6 +179,7 @@ export const createOrder = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("ORDER_CREATION_TRANSACTION_ERROR:", error.message);
     // If ANY error happened inside the transaction, nothing is saved.
     res.status(400).json({
       success: false,

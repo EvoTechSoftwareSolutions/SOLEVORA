@@ -118,9 +118,15 @@ export const handlePaymentNotification = async (req, res) => {
       
       // Send confirmation email for successful online payment
       const orderItems = await prisma.orderitem.findMany({
-        where: { orderId: parseInt(order_id) }
+        where: { orderId: parseInt(order_id) },
+        include: {
+          product: {
+            include: { productimage: true }
+          }
+        }
       });
       sendOrderConfirmationEmail(updatedOrder, orderItems);
+
 
       console.log(`Payment successful for order ${order_id}`);
     } else if (statusCode === '0' || statusCode === 0) {
@@ -185,10 +191,16 @@ export const updateOrderStatus = async (req, res) => {
     if (paymentStatus?.toUpperCase() === 'PAID') {
       try {
         const orderItems = await prisma.orderitem.findMany({
-          where: { orderId: parseInt(id) }
+          where: { orderId: parseInt(id) },
+          include: {
+            product: {
+              include: { productimage: true }
+            }
+          }
         });
         sendOrderConfirmationEmail(updatedOrder, orderItems);
       } catch (emailError) {
+
         console.error('Failed to send confirmation email from updateOrderStatus:', emailError);
       }
     }

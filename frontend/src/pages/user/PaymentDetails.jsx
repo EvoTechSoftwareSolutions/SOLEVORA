@@ -238,8 +238,13 @@ const PaymentDetails = () => {
       window.payhere.startPayment(payment);
     } catch (error) {
       console.error('Error placing order:', error);
-      showMessage('Order Failed', 'Error initiating payment. Please try again.');
+      const errorMsg = error.response?.data?.errors 
+        ? error.response.data.errors.map(e => `${e.field}: ${e.message}`).join(', ') 
+        : (error.response?.data?.message || 'Error initiating payment. Please try again.');
+      
+      showMessage('Order Failed', errorMsg);
     }
+
   };
 
   if (cart.length === 0) {
@@ -360,8 +365,9 @@ const PaymentDetails = () => {
           <div className="pd-summary-card">
             <h3 className="pd-summary-title">Order Summary</h3>
             <div className="pd-items-scroll">
-              {cart.map(item => (
-                <div key={item.id} className="pd-item-card">
+              {cart.map((item, idx) => (
+                <div key={`${item.id}-${item.size}-${idx}`} className="pd-item-card">
+
                   <div className="pd-item-img-wrap">
                     <img src={item.image_url || FALLBACK} alt={item.name}
                       className="pd-item-img" onError={handleImgError} />
@@ -432,7 +438,10 @@ const PaymentDetails = () => {
 
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalContent.title}
           actions={<button className="modal-btn modal-btn-confirm" onClick={() => setIsModalOpen(false)}>Got it</button>}>
-          <p>{modalContent.body}</p>
+          <div style={{ textAlign: 'center', padding: '10px 0' }}>
+            <span className="material-symbols-outlined modal-alert-icon modal-alert-error">error</span>
+            <p style={{ fontWeight: '500', color: '#374151', fontSize: '16px' }}>{modalContent.body}</p>
+          </div>
         </Modal>
       </div>
     </div>

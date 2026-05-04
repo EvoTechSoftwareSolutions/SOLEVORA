@@ -1,4 +1,12 @@
 import nodemailer from 'nodemailer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+
+// --- Setup __dirname for ES modules ---
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Create a transporter function to ensure env vars are loaded
 const getTransporter = () => {
@@ -27,20 +35,41 @@ const getTransporter = () => {
 export const sendOrderConfirmationEmail = async (order, items) => {
   try {
     const { id, customerName, email, totalAmount, shippingAddress, paymentMethod, trackingNumber } = order;
-
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5001';
     
-    const itemsHtml = items.map(item => {
+    console.log(`📦 Sending email for Order #${id} with ${items?.length} items`);
+    console.log(`🔍 Items Data Sample:`, JSON.stringify(items?.[0], null, 2));
+
+
+    const attachments = [];
+    const itemsHtml = items.map((item, index) => {
       let imgUrl = 'https://via.placeholder.com/80';
+      const cid = `product-image-${index}`;
       
       const productImg = item.product?.productimage?.[0]?.url;
       if (productImg) {
         if (productImg.startsWith('http')) {
           imgUrl = productImg;
         } else {
-          // Ensure no double slashes and use absolute backend URL
+          // For local images, use CID for better local testing compatibility
           const cleanPath = productImg.startsWith('/') ? productImg : `/${productImg}`;
-          imgUrl = `${backendUrl}${cleanPath}`;
+          const filePath = path.join(__dirname, '../../', cleanPath);
+          const fileExists = fs.existsSync(filePath);
+          
+          // Debugging log to ensure path is correct and file exists
+          console.log(`📧 Email Image Check: Path=${filePath}, Exists=${fileExists}`);
+          
+          if (fileExists) {
+            attachments.push({
+              filename: `product-${index}.jpg`,
+              path: filePath,
+              cid: cid
+            });
+            imgUrl = `cid:${cid}`;
+          } else {
+            console.warn(`⚠️ Image file not found: ${filePath}`);
+          }
+
+
         }
       }
 
@@ -66,11 +95,11 @@ export const sendOrderConfirmationEmail = async (order, items) => {
       `;
     }).join('');
 
-
     const mailOptions = {
       from: `"SoleVora" <${process.env.GMAIL_USER}>`,
       to: email,
       subject: `Order Confirmed: #${id} - SoleVora`,
+      attachments: attachments,
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background-color: #ffffff;">
           <!-- Header -->
@@ -131,10 +160,9 @@ export const sendOrderConfirmationEmail = async (order, items) => {
             
             <!-- Button -->
             <div style="text-align: center; margin-top: 40px;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile/orders" style="background-color: #1a1a2e; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-family: Arial, sans-serif; font-size: 14px;">Track Your Order</a>
+              <a href=\"${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile/orders\" style=\"background-color: #1a1a2e; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-family: Arial, sans-serif; font-size: 14px;\">Track Your Order</a>
             </div>
           </div>
-
           
           <!-- Footer -->
           <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; color: #999;">
@@ -153,7 +181,6 @@ export const sendOrderConfirmationEmail = async (order, items) => {
     return info;
   } catch (error) {
     console.error('Error sending order confirmation email:', error);
-    // Don't throw error to avoid breaking the order process, just log it
     return null;
   }
 };
