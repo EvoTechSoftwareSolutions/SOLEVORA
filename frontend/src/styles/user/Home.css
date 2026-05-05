@@ -596,62 +596,82 @@
   color: #000;
   border: #000 solid 1px;
 }
-/* Grid for category circles */
 .circle-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 40px 60px; 
-  justify-content: center;
-  justify-items: center;   
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 30px;
+  justify-content: flex-start;
   align-items: center;
   width: 100%;
-  max-width: 1200px;
-  margin: 40px auto;
+  overflow-x: auto;
+  padding: 20px 40px;
+  margin: 20px 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+
+.circle-grid::-webkit-scrollbar {
+  display: none;
+}
+
 /* Individual category circle */
 .category-circle {
   position: relative;
-  width: 140px;
-  height: 140px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 4px solid #fff;
+  flex-shrink: 0;
 }
 
-/* Hover effect for category circle */
+.category-circle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 30%, rgba(0, 0, 0, 0.5) 100%);
+  z-index: 1;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
 .category-circle:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border-color: #f97316;
+}
+
+.category-circle:hover::after {
+  opacity: 1;
 }
 
 /* Main image inside category circle */
 .category-circle__img {
-  position: absolute;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 130px;
-  height: 130px;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s ease;
 }
 
-/* Rotated decorative image in category circle */
-.category-circle__img-rotate {
-  position: absolute;
-  top: 5%;
-  left: 5%;
-  transform: translate(-50%, -50%);
-  width: 160px;
-  height: 160px;
-  object-fit: contain;
-  transform: rotate(345deg);
+.category-circle__img.zoom-hide-badge {
+  transform: scale(1.4);
+  object-position: 20% 80%; /* Shift away from top-right */
 }
+
+.category-circle:hover .category-circle__img {
+  transform: scale(1.15);
+}
+
+.category-circle:hover .category-circle__img.zoom-hide-badge {
+  transform: scale(1.5);
+}
+
 /* Label overlay for category circle */
 .category-circle__label {
   position: absolute;
@@ -659,14 +679,27 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 2;
-  width: 80px;
-  padding: 4px 8px;
-  font-size: 12px;
-  font-weight: 500;
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 12px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
   text-align: center;
   pointer-events: none;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.category-circle:hover .category-circle__label {
+  background: #f97316;
+  border-color: #f97316;
+  transform: translate(-50%, -50%) scale(1.1);
 }
 
 /* Brands section container */

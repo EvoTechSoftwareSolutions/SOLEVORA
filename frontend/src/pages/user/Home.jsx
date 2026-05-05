@@ -40,6 +40,14 @@ import adidas from "../../assets/image/LogoSvg/adidas.svg";
 import underarmour from "../../assets/image/LogoSvg/underarmour.svg";
 import nike from "../../assets/image/LogoSvg/nike.svg";
 import justdoit from "../../assets/image/LogoSvg/justdoit.svg";
+import catSneakers from "../../assets/category/cat-sneakers.png";
+import catRunning from "../../assets/category/cat-running.png";
+import catFormal from "../../assets/category/cat-formal.png";
+import catBoots from "../../assets/category/cat-boots.png";
+import catSandals from "../../assets/category/cat-sandals.png";
+import catHeels from "../../assets/category/cat-heels.png";
+import catLoafers from "../../assets/category/cat-loafers.png";
+import catAthletic from "../../assets/category/cat-athletic.png";
 
 
 const FALLBACK_IMG = `data:image/svg+xml,...`; 
@@ -48,66 +56,14 @@ const FALLBACK_IMG = `data:image/svg+xml,...`;
 
 // Predefined categories for the homepage
 const categories = [
-  {
-    name: "Office",
-    color: "#ED7777",
-    image: office,
-    className: "category-circle__img",
-  },
-  {
-    name: "Boots",
-    color: "#C9A3A3",
-    image: boots,
-    className: "category-circle__img",
-  },
-  {
-    name: "Brands",
-    color: "#71ABE2",
-    image: brands,
-    className: "category-circle__img-rotate",
-  },
-  {
-    name: "Convers",
-    color: "#DF0B0B",
-    image: convers,
-    className: "category-circle__img",
-  },
-  {
-    name: "Sandals",
-    color: "#FAE25A",
-    image: sandals,
-    className: "category-circle__img-rotate",
-  },
-  {
-    name: "Casual",
-    color: "#ED7777",
-    image: shoe,
-    className: "category-circle__img-rotate",
-  },
-  {
-    name: "Kids",
-    color: "#fff",
-    image: kids,
-    className: "category-circle__img-rotate",
-  },
-  {
-    name: "Sports",
-    color: "#FD9C50",
-    image: sports,
-    className: "category-circle__img-rotate",
-  },
-  {
-    name: "Ladies",
-    color: "#D771D0",
-    image: girls,
-    className: "category-circle__img",
-  },
-  {
-    name: "Sneakers",
-    color: "#75DF8C",
-    image: sneakers,
-    className: "category-circle__img-rotate",
-  },
+  { name: "Sneakers", color: "#75DF8C", image: catSneakers },
+  { name: "Running", color: "#FD9C50", image: catRunning },
+  { name: "Formal", color: "#C9A3A3", image: catFormal },
+  { name: "Boots", color: "#71ABE2", image: catBoots },
+  { name: "Sandals", color: "#FAE25A", image: catSandals },
+  { name: "Heels", color: "#D771D0", image: catHeels },
+  { name: "Loafers", color: "#ED7777", image: catLoafers },
+  { name: "Athletic", color: "#334155", image: catAthletic, hideBadge: true },
 ];
 
 const Home = () => {
@@ -286,7 +242,7 @@ const getProductImage = (item) => {
       <section className="categories">
         <div className="intro-section">
           <div className="intro-section__content">
-            <h1 className="intro-section__title">Our trending products</h1>
+            <h1 className="intro-section__title">Shop by Category</h1>
             <p className="intro-section__subtitle">
               Discover the perfect pair for every step
             </p>
@@ -303,9 +259,13 @@ const getProductImage = (item) => {
               to={`/category?type=${cat.name}`}
               key={index}
               className="category-circle"
-              style={{ backgroundColor: cat.color, textDecoration: 'none' }}
+              style={{ backgroundColor: cat.color }}
             >
-              <img src={cat.image} alt={cat.name} className={cat.className} />
+              <img 
+                src={cat.image} 
+                alt={cat.name} 
+                className={`category-circle__img ${cat.hideBadge ? 'zoom-hide-badge' : ''}`} 
+              />
               <span className="category-circle__label">{cat.name}</span>
             </Link>
           ))}

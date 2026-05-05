@@ -202,7 +202,8 @@ export const getProducts = async (req, res) => {
       ...p,
       images: p.productimage,
       stocks: p.productstock,
-      category: p.category
+      category: p.category,
+      stock_quantity: p.productstock.reduce((sum, s) => sum + s.quantity, 0)
     }));
 
     res.json({
@@ -238,7 +239,8 @@ export const getProductsAll = async (req, res) => {
       ...p,
       images: p.productimage,
       stocks: p.productstock,
-      category: p.category
+      category: p.category,
+      stock_quantity: p.productstock.reduce((sum, s) => sum + s.quantity, 0)
     }));
 
     res.json({
@@ -279,7 +281,8 @@ export const getProductById = async (req, res) => {
     const mappedProduct = {
       ...product,
       images: product.productimage,
-      stocks: product.productstock
+      stocks: product.productstock,
+      stock_quantity: product.productstock.reduce((sum, s) => sum + s.quantity, 0)
     };
 
     res.json({
@@ -316,7 +319,8 @@ export const getProductBySlug = async (req, res) => {
     const mappedProduct = {
       ...product,
       images: product.productimage,
-      stocks: product.productstock
+      stocks: product.productstock,
+      stock_quantity: product.productstock.reduce((sum, s) => sum + s.quantity, 0)
     };
 
     res.json({

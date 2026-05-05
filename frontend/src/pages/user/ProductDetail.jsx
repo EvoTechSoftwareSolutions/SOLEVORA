@@ -556,9 +556,14 @@ function ProductDetail() {
                   <div className="spec-item">
                     <h5>Stock</h5>
                     <p>
-                      {product.stock_quantity > 0
-                        ? `${product.stock_quantity} available`
-                        : "Out of stock"}
+                      {selectedSize 
+                        ? (product.stocks?.find(s => String(s.size) === String(selectedSize))?.quantity > 0 
+                            ? `${product.stocks.find(s => String(s.size) === String(selectedSize)).quantity} available` 
+                            : "Out of stock")
+                        : (product.stock_quantity > 0 
+                            ? `${product.stock_quantity} available` 
+                            : "Out of stock")
+                      }
                     </p>
                   </div>
                   <div className="spec-item">
