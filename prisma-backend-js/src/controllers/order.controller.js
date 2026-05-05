@@ -511,6 +511,34 @@ export const deleteOrder = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+// TOGGLE ORDER STATUS (ACTIVE / INACTIVE)
+export const toggleOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await prisma.order.findUnique({
+      where: { id: Number(id) }
+    });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: Number(id) },
+      data: { isActive: !order.isActive }
+    });
+
+    res.json({ 
+      success: true, 
+      message: `Order marked as ${updatedOrder.isActive ? 'Active' : 'Inactive'}`,
+      data: updatedOrder
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // SEARCH ORDERS BY EMAIL (Public)
 export const searchOrders = async (req, res) => {
   try {

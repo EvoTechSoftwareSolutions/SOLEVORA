@@ -59,6 +59,7 @@ model order {
   carrier           String?
   estimatedDelivery DateTime?
   trackingNumber    String?
+  isActive          Boolean             @default(true)
   user              user?                @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
   orderitem         orderitem[]
 

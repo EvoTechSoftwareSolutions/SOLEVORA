@@ -2,7 +2,7 @@ import express from "express";
 import { 
   getAdminStats, 
   getAllCustomers, 
-  deleteCustomer,
+  toggleCustomerStatus,
   getAllPromos,
   createPromo,
   updatePromo,
@@ -26,7 +26,7 @@ router.use(authMiddleware);
 
 router.get("/stats", getAdminStats);
 router.get("/customers", getAllCustomers);
-router.delete("/customers/:id", deleteCustomer);
+router.put("/customers/:id/toggle", toggleCustomerStatus);
 
 
 

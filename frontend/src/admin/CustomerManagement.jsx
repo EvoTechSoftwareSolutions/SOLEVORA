@@ -37,17 +37,13 @@ const CustomerManagement = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // delete customer by id
-  const handleDelete = async (id) => {
-    const confirmed = await showConfirm('Are you sure?', 'You want to delete this customer? This action cannot be undone.');
-    if (confirmed) {
-      try {
-        await axios.delete(`${API_URL}/admin/customers/${id}`);
-        showSuccess('Deleted!', 'Customer has been deleted successfully.');
-        fetchCustomers();
-      } catch (error) {
-        showError('Error', 'Error deleting customer');
-      }
+  // toggle customer status
+  const handleToggleStatus = async (id) => {
+    try {
+      await axios.put(`${API_URL}/admin/customers/${id}/toggle`);
+      fetchCustomers();
+    } catch (error) {
+      showError('Error', 'Error toggling customer status');
     }
   };
 
@@ -117,9 +113,17 @@ const CustomerManagement = () => {
                 <td><div className="td-text light-text">{new Date(cust.createdAt).toLocaleDateString()}</div></td>
                 <td>
                   <div className="td-actions">
-                    <button className="action-btn delete-btn" onClick={() => handleDelete(cust.id)}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    </button>
+                    <div 
+                      className="status-toggle-container" 
+                      onClick={() => handleToggleStatus(cust.id)}
+                      title={cust.status === 1 ? 'Deactivate Customer' : 'Activate Customer'}
+                    >
+                      <div className={`status-toggle-pill ${cust.status === 1 ? 'active' : 'inactive'}`}>
+                        <div className="status-toggle-knob">
+                          <span className="knob-icon">{cust.status === 1 ? '✓' : '✕'}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </td>
               </tr>

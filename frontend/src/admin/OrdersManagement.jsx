@@ -46,17 +46,13 @@ const OrdersManagement = () => {
         }, 3000);
         return () => clearInterval(interval);
     }, []);
-// delete order
-    const handleDelete = async (id) => {
-        const confirmed = await showConfirm('Are you sure?', 'You want to delete this order?');
-        if (confirmed) {
-            try {
-                await axios.delete(`${API_URL}/orders/${id}`);
-                showSuccess('Deleted!', 'Order has been deleted successfully.');
-                fetchOrders();
-            } catch (error) {
-                showError('Error', 'Error deleting order');
-            }
+// toggle order status
+    const handleToggleOrder = async (id) => {
+        try {
+            await axios.put(`${API_URL}/orders/${id}/toggle`);
+            fetchOrders();
+        } catch (error) {
+            showError('Error', 'Error toggling order status');
         }
     };
 
@@ -222,9 +218,17 @@ const OrdersManagement = () => {
                                         <button className="action-btn-gray" title="Manage Order" onClick={() => handleOpenModal(order)}>
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                         </button>
-                                        <button className="delete-btn" onClick={() => handleDelete(order.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ff4444', marginLeft: '10px' }}>
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                        </button>
+                                        <div 
+                                            className="status-toggle-container" 
+                                            onClick={() => handleToggleOrder(order.id)}
+                                            title={order.isActive ? 'Deactivate Order' : 'Activate Order'}
+                                        >
+                                            <div className={`status-toggle-pill ${order.isActive ? 'active' : 'inactive'}`}>
+                                                <div className="status-toggle-knob">
+                                                    <span className="knob-icon">{order.isActive ? '✓' : '✕'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>

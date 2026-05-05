@@ -186,14 +186,18 @@ export const getAllCustomers = async (req, res) => {
   }
 };
 
-export const deleteCustomer = async (req, res) => {
+export const toggleCustomerStatus = async (req, res) => {
   try {
     const { id } = req.params;
+    const user = await prisma.user.findUnique({ where: { id: Number(id) } });
+    if (!user) return res.status(404).json({ success: false, message: "Customer not found" });
+
+    const newStatus = user.status === 1 ? 0 : 1;
     await prisma.user.update({
       where: { id: Number(id) },
-      data: { status: 0 }
+      data: { status: newStatus }
     });
-    res.json({ success: true, message: "Customer deactivated successfully" });
+    res.json({ success: true, message: `Customer ${newStatus === 1 ? 'activated' : 'deactivated'} successfully` });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
