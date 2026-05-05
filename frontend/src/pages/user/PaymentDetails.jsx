@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import Modal from '../../components/ui/Modal';
+import { API_URL } from '../../config/api';
 import '../../styles/user/PaymentDetails.css';
 
 const FALLBACK =
@@ -59,7 +60,7 @@ const PaymentDetails = () => {
     if (!trimmed) return;
     setPromoLoading(true);
     try {
-      const { data } = await axios.post('http://localhost:5001/api/promo/validate', {
+      const { data } = await axios.post(`${API_URL}/promo/validate`, {
         code: trimmed, orderAmount: grossTotal,
       });
       setPromoApplied(true);
@@ -112,7 +113,7 @@ const PaymentDetails = () => {
         totalAmount: total
       };
 
-      const response = await axios.post('http://localhost:5001/api/orders', orderPayload);
+      const response = await axios.post(`${API_URL}/orders`, orderPayload);
       const orderData = response.data;
       const currentItems = [...cart];
 
@@ -169,12 +170,12 @@ const PaymentDetails = () => {
         totalAmount: total
       };
 
-      const response = await axios.post('http://localhost:5001/api/orders', orderPayload);
+      const response = await axios.post(`${API_URL}/orders`, orderPayload);
       const orderData = response.data;
 
       const orderId = orderData.data?.orderId || orderData.id;
 
-      const hashResponse = await axios.post('http://localhost:5001/api/payment/hash', {
+      const hashResponse = await axios.post(`${API_URL}/payment/hash`, {
         order_id: orderId,
         amount: total,
         currency: 'LKR',
@@ -187,7 +188,7 @@ const PaymentDetails = () => {
         merchant_id: String(merchant_id),
         return_url: `${window.location.origin}/profile/orders`,
         cancel_url: window.location.href,
-        notify_url: 'http://localhost:5001/api/payment/notify',
+        notify_url: `${API_URL}/payment/notify`,
         order_id: String(orderId),
         items: `SoleVora Order #${orderId}`,
         amount: total.toFixed(2),
@@ -203,7 +204,7 @@ const PaymentDetails = () => {
       };
 
       window.payhere.onCompleted = function (orderId) {
-        axios.put(`http://localhost:5001/api/payment/orders/${orderId}/status`, { status: 'PROCESSING', paymentStatus: 'PAID' })
+        axios.put(`${API_URL}/payment/orders/${orderId}/status`, { status: 'PROCESSING', paymentStatus: 'PAID' })
           .finally(() => {
             const currentItems = [...cart];
             clearCart();
@@ -302,7 +303,7 @@ const PaymentDetails = () => {
             <h3 className="pd-section-title">Select Payment Method</h3>
             <div className="pd-methods-grid">
               {[
-                { id: 'ONLINE', icon: 'credit_card', label: 'Credit Card' },
+                { id: 'ONLINE', icon: 'credit_card', label: 'Credit / Debit Card' },
                 { id: 'paypal', icon: 'account_balance_wallet', label: 'PayPal' },
                 { id: 'applepay', icon: null, label: 'Apple Pay', sub: 'iOS' },
                 { id: 'COD', icon: 'payments', label: 'Cash on Delivery' },
@@ -322,8 +323,8 @@ const PaymentDetails = () => {
             <div className="pd-form-card" style={{ padding: '30px', textAlign: 'center' }}>
               {paymentMethod === 'ONLINE' ? (
                 <>
-                  <img src="https://www.payhere.lk/downloads/images/payhere_square_logo.png"
-                    alt="PayHere" style={{ width: '100px', margin: '0 auto 20px' }} />
+                  <img src="https://www.payhere.lk/downloads/images/payhere_logo.png"
+                    alt="PayHere" style={{ width: '150px', margin: '0 auto 20px' }} />
                   <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px' }}>
                     You will be redirected to PayHere secure gateway to complete your transaction.
                   </p>
@@ -426,7 +427,7 @@ const PaymentDetails = () => {
 
             <button className="pd-place-order-btn" onClick={() => handlePlaceOrder(paymentMethod)}>
               <span className="material-symbols-outlined">shopping_bag</span>
-              {paymentMethod === 'cod' ? 'Place Order' : 'Pay Now'}
+              {paymentMethod === 'COD' ? 'Place Order' : 'Pay Now'}
             </button>
 
             <p className="pd-terms">

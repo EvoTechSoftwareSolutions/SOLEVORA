@@ -392,7 +392,11 @@ export const googleLogin = async (req, res) => {
         },
       });
     } else if (user.status === 0) {
-      return res.status(403).json({ message: "User inactive" });
+      // Reactivate user if they were inactive
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { status: 1 }
+      });
     }
 
     const jwtToken = jwt.sign(

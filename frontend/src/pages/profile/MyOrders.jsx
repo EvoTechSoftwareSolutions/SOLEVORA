@@ -295,7 +295,17 @@ const MyOrders = () => {
                   ) : 'No items'}
                 </td>
                 <td>Rs. {parseFloat(order.total_amount).toLocaleString()}</td>
-                <td><span className={`mo-badge ${order.status.toLowerCase()}`}>{order.status.toUpperCase()}</span></td>
+                <td>
+                  <div className="mo-status-container">
+                    <span className={`mo-badge ${order.status.toLowerCase()}`}>{order.status.toUpperCase()}</span>
+                    <div className={`mo-payment-badge ${(order.payment_status || 'pending').toLowerCase()}`}>
+                      <span className="material-symbols-outlined mo-pb-icon">
+                        {order.payment_status?.toUpperCase() === 'PAID' ? 'verified' : 'pending'}
+                      </span>
+                      <span>{order.payment_status?.toUpperCase() || 'PENDING'}</span>
+                    </div>
+                  </div>
+                </td>
                 <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                 <td>
                   <div className="mo-action-btns">

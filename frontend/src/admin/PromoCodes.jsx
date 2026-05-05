@@ -13,7 +13,8 @@ const emptyForm = {
     minOrderAmount: '',
     maxUses: '',
     expiresAt: '',
-    isActive: true
+    isActive: true,
+    usedCount: 0
 };
 
 const PromoCodes = () => {
@@ -77,7 +78,8 @@ const PromoCodes = () => {
             minOrderAmount: promo.minOrderAmount ?? '',
             maxUses: promo.maxUses ?? '',
             expiresAt: promo.expiresAt ? promo.expiresAt.slice(0, 10) : '',
-            isActive: promo.isActive
+            isActive: promo.isActive,
+            usedCount: promo.usedCount ?? 0
         });
         setShowForm(true);
     };
@@ -89,7 +91,8 @@ const PromoCodes = () => {
             discountValue: Number(form.discountValue),
             minOrderAmount: form.minOrderAmount !== '' ? Number(form.minOrderAmount) : 0,
             maxUses: form.maxUses !== '' ? Number(form.maxUses) : null,
-            expiresAt: form.expiresAt || null
+            expiresAt: form.expiresAt || null,
+            usedCount: Number(form.usedCount) || 0
         };
         try {
             if (editingId) {
@@ -295,6 +298,31 @@ const PromoCodes = () => {
                                     Active (visible to customers)
                                 </label>
                             </div>
+
+                            {/* Reset usage count — only visible when editing */}
+                            {editingId && (
+                                <div className="pc-form-group" style={{ marginTop: '4px' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        Current Usage Count
+                                        <button
+                                            type="button"
+                                            onClick={() => setForm(prev => ({ ...prev, usedCount: 0 }))}
+                                            style={{ fontSize: '12px', padding: '2px 10px', background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+                                        >
+                                            Reset to 0
+                                        </button>
+                                    </label>
+                                    <input
+                                        name="usedCount"
+                                        type="number"
+                                        min="0"
+                                        value={form.usedCount}
+                                        onChange={handleChange}
+                                        className="pc-input"
+                                        style={{ marginTop: '6px' }}
+                                    />
+                                </div>
+                            )}
                             <div className="pc-form-actions">
                                 <button type="button" className="pc-cancel-btn" onClick={() => setShowForm(false)}>Cancel</button>
                                 <button type="submit" className="pc-submit-btn">

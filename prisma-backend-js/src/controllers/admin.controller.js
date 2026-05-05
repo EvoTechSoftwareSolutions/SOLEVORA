@@ -308,7 +308,7 @@ export const createPromo = async (req, res) => {
 export const updatePromo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { code, discountType, discountValue, minOrderAmount, maxUses, expiresAt, isActive } = req.body;
+    const { code, discountType, discountValue, minOrderAmount, maxUses, expiresAt, isActive, usedCount } = req.body;
     
     const promo = await prisma.promocode.update({
       where: { id: Number(id) },
@@ -319,7 +319,8 @@ export const updatePromo = async (req, res) => {
         minOrderAmount,
         maxUses,
         expiresAt: expiresAt ? new Date(expiresAt) : null,
-        isActive
+        isActive,
+        ...(usedCount !== undefined && { usedCount: Number(usedCount) })
       }
     });
     res.json({ success: true, data: promo });

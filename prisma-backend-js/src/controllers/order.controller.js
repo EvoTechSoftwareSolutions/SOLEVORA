@@ -143,11 +143,12 @@ export const createOrder = async (req, res) => {
         }
       }
 
-      // 6. Finalize Total
+      // 6. Finalize Total (items sum − promo discount + shipping)
+      const finalTotal = Math.max(0, total - (promoDiscount || 0) + (shippingCharge || 0));
       return await tx.order.update({
         where: { id: order.id },
         data: { 
-          totalAmount: total,
+          totalAmount: finalTotal,
           updatedAt: new Date()
         }
       });
@@ -385,6 +386,17 @@ export const updateOrderStatus = async (req, res) => {
           });
         }
       }
+
+      // Decrement promo usedCount when order is cancelled
+      if (order.promoCode) {
+        const promo = await prisma.promocode.findUnique({ where: { code: order.promoCode } });
+        if (promo && promo.usedCount > 0) {
+          await prisma.promocode.update({
+            where: { id: promo.id },
+            data: { usedCount: { decrement: 1 } }
+          });
+        }
+      }
     }
 
     const updatedOrder = await prisma.order.update({
@@ -403,11 +415,22 @@ export const updateOrderStatus = async (req, res) => {
         user: true,
         orderitem: {
           include: {
-            product: true
+            product: {
+              include: { productimage: true }
+            }
           }
         }
       }
     });
+
+    // Send confirmation email if manually marked as PAID and it wasn't paid before
+    if (paymentStatus?.toUpperCase() === 'PAID' && order.paymentStatus !== 'PAID') {
+      try {
+        sendOrderConfirmationEmail(updatedOrder, updatedOrder.orderitem);
+      } catch (emailError) {
+        console.error('Failed to send manual payment confirmation email:', emailError);
+      }
+    }
 
     const mappedOrder = {
       ...updatedOrder,
@@ -466,6 +489,17 @@ export const deleteOrder = async (req, res) => {
             data: { quantity: { increment: item.quantity } }
           });
         }
+      }
+    }
+
+    // Decrement promo usedCount when order is deleted (if not already cancelled — cancelled orders already decremented)
+    if (order.promoCode && order.status !== 'CANCELLED') {
+      const promo = await prisma.promocode.findUnique({ where: { code: order.promoCode } });
+      if (promo && promo.usedCount > 0) {
+        await prisma.promocode.update({
+          where: { id: promo.id },
+          data: { usedCount: { decrement: 1 } }
+        });
       }
     }
 
@@ -575,6 +609,17 @@ export const cancelOrder = async (req, res) => {
         await prisma.productstock.update({
           where: { id: stockEntry.id },
           data: { quantity: { increment: item.quantity } }
+        });
+      }
+    }
+
+    // Decrement promo usedCount when user cancels order
+    if (order.promoCode) {
+      const promo = await prisma.promocode.findUnique({ where: { code: order.promoCode } });
+      if (promo && promo.usedCount > 0) {
+        await prisma.promocode.update({
+          where: { id: promo.id },
+          data: { usedCount: { decrement: 1 } }
         });
       }
     }

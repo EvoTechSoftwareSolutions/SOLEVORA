@@ -600,7 +600,7 @@
   display: flex;
   flex-wrap: nowrap;
   gap: 30px;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   width: 100%;
   overflow-x: auto;
@@ -617,8 +617,8 @@
 /* Individual category circle */
 .category-circle {
   position: relative;
-  width: 180px;
-  height: 180px;
+  width: 130px;
+  height: 130px;
   border-radius: 50%;
   overflow: hidden;
   display: flex;
@@ -679,8 +679,8 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 2;
-  padding: 8px 20px;
-  font-size: 14px;
+  padding: 6px 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #fff;
   background: rgba(0, 0, 0, 0.2);

@@ -563,35 +563,43 @@
 }
 
 
-/* -------- Payment Details -------- */
-.mo-payment-summary {
+.mo-status-container {
     display: flex;
     flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+}
+
+.mo-payment-badge {
+    display: flex;
+    align-items: center;
     gap: 4px;
-    margin: 8px 0;
-}
-
-.mo-pay-method {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: #475569;
-}
-
-.mo-pay-status {
-    font-size: 0.7rem;
-    font-weight: 700;
-}
-
-.mo-pay-status.paid { color: #16a34a; }
-.mo-pay-status.pending { color: #f97316; }
-
-.mo-cod-reminder {
-    font-size: 0.7rem;
-    background: #fffbeb;
-    color: #92400e;
-    padding: 6px 10px;
+    padding: 2px 8px;
     border-radius: 6px;
-    border-left: 3px solid #f59e0b;
-    margin-top: 8px;
-    font-weight: 500;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mo-payment-badge.paid {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.mo-payment-badge.pending {
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #ffedd5;
+}
+
+.mo-payment-badge.failed {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fee2e2;
+}
+
+.mo-pb-icon {
+    font-size: 14px !important;
 }

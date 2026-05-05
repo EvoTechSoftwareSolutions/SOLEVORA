@@ -65,6 +65,7 @@ function CategoryPage() {
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [products, setProducts] = useState([]);
   const [selectedProductSizes, setSelectedProductSizes] = useState({});
+  const [allCategoryCounts, setAllCategoryCounts] = useState({});
 
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -80,6 +81,16 @@ function CategoryPage() {
     setSelectedCategory(newCategory);
     if (newCategory === "All") searchParams.delete("type");
     else searchParams.set("type", newCategory);
+    setSearchParams(searchParams);
+  };
+
+  const clearFilters = () => {
+    setSelectedCategory("All");
+    setSelectedGender("All");
+    setSelectedSize("");
+    setSelectedPrice("All");
+    setSortBy("featured");
+    searchParams.delete("type");
     setSearchParams(searchParams);
   };
 
@@ -152,6 +163,17 @@ function CategoryPage() {
         badge: index === 0 ? "New" : "",
       }));
       setProducts(baseFormatted);
+
+      // Fetch ALL products once (without filters) to get accurate category counts
+      if (Object.keys(allCategoryCounts).length === 0) {
+        const { data: allData } = await axios.get(`${BASE_URL}/api/products`);
+        const counts = {};
+        allData.data.forEach(p => {
+          const catName = p.category?.name || "Uncategorized";
+          counts[catName] = (counts[catName] || 0) + 1;
+        });
+        setAllCategoryCounts(counts);
+      }
     } catch (err) {
       console.error("Error fetching products:", err);
     }
@@ -178,10 +200,8 @@ function CategoryPage() {
   const priceRanges = ["All", "Under Rs.3000", "Rs.3000 - Rs.5000", "Rs.5000 - Rs.10000", "Rs.10000 - Rs.20000", "Rs.20000+"];
 
   const categoryCounts = useMemo(() => {
-    const counts = {};
-    products.forEach((p) => { counts[p.category] = (counts[p.category] || 0) + 1; });
-    return counts;
-  }, [products]);
+    return allCategoryCounts;
+  }, [allCategoryCounts]);
 
   return (
     <div className="bg-[#f6f6f6] min-h-screen">
@@ -218,14 +238,14 @@ function CategoryPage() {
           {categories.map((item) => (
             <div key={item.id}
               onClick={() => { handleCategoryClick(item.title); document.getElementById("product-grid-section")?.scrollIntoView({ behavior: "smooth" }); }}
-              className="transition duration-300 cursor-pointer group">
-              <div className="relative overflow-hidden shadow-sm rounded-xl">
+              className={`transition duration-300 cursor-pointer group p-2 rounded-2xl ${selectedCategory === item.title ? 'bg-[#fff4e6]' : ''}`}>
+              <div className={`relative overflow-hidden shadow-sm rounded-xl transition-all duration-300 ${selectedCategory === item.title ? 'ring-2 ring-[#df8b4a]' : ''}`}>
                 <img src={item.image} alt={item.title} className="w-full h-[140px] sm:h-[160px] lg:h-[180px] object-cover group-hover:scale-105 transition duration-500" />
-                <span className="absolute top-3 right-3 bg-white text-[10px] sm:text-xs px-3 py-1 rounded-full text-[#333] shadow-sm">
+                <span className={`absolute top-3 right-3 text-[10px] sm:text-xs px-3 py-1 rounded-full shadow-sm transition-colors ${selectedCategory === item.title ? 'bg-[#df8b4a] text-white' : 'bg-white text-[#333]'}`}>
                   {categoryCounts[item.title] || 0} Items
                 </span>
               </div>
-              <h3 className="mt-3 text-sm sm:text-lg font-semibold text-[#222] group-hover:text-[#e58a45] transition">{item.title}</h3>
+              <h3 className={`mt-3 text-sm sm:text-lg font-semibold transition ${selectedCategory === item.title ? 'text-[#df8b4a]' : 'text-[#222] group-hover:text-[#e58a45]'}`}>{item.title}</h3>
               <p className="text-[#777] text-xs sm:text-sm mt-1">{item.subtitle}</p>
             </div>
           ))}
@@ -253,8 +273,17 @@ function CategoryPage() {
         <div className="px-4 sm:px-8 lg:px-16 pb-14 mt-6 grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-6">
           {/* Sidebar */}
           <aside className="lg:sticky lg:top-24 self-start bg-[#fbddba] rounded-[20px] p-6 h-fit shadow-sm">
-            <div className="flex items-center gap-2 mb-5 lg:hidden font-semibold text-[#222]">
-              <HiOutlineAdjustments /><span>Filters</span>
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2 font-semibold text-[#222]">
+                <HiOutlineAdjustments className="lg:hidden" />
+                <span className="lg:hidden">Filters</span>
+                <span className="hidden lg:inline text-[13px] font-bold uppercase tracking-wider">Filters</span>
+              </div>
+              {(selectedCategory !== "All" || selectedGender !== "All" || selectedSize !== "" || selectedPrice !== "All" || sortBy !== "featured") && (
+                <button onClick={clearFilters} className="text-[10px] font-bold text-[#d57731] hover:text-white hover:bg-[#d57731] bg-white px-3 py-1.5 rounded-full shadow-sm transition">
+                  Clear All
+                </button>
+              )}
             </div>
             <div className="mb-8">
               <h4 className="text-[11px] font-bold text-[#222] uppercase tracking-wider mb-3">Category</h4>

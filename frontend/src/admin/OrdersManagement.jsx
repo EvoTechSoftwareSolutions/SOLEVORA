@@ -134,13 +134,13 @@ const OrdersManagement = () => {
                     </div>
                     {/* pending orders */}
                     <div className="card-title-text">Pending Shipment</div>
-                    <div className="card-value-text">{orders.filter(o => ['paid', 'processing'].includes(o.status.toLowerCase())).length}</div>
+                    <div className="card-value-text">{orders.filter(o => ['processing', 'shipped'].includes(o.status.toLowerCase())).length}</div>
                 </div>
             </div>
 
             <div className="tabs-bar">
                 <div className="tabs-left">
-                    {['All Orders', 'Pending', 'Paid', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(tab => (
+                    {['All Orders', 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(tab => (
                         <button
                             key={tab}
                             className={`tab-btn ${subTab === tab ? 'active' : ''}`}
@@ -294,9 +294,8 @@ const OrdersManagement = () => {
                                     <div className="form-group">
                                         <label>Order Status</label>
                                         <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                                            <option value="pending">Pending</option>
-                                            <option value="paid">Paid</option>
-                                            <option value="processing">Processing</option>
+                                            <option value="pending">Pending (Awaiting Payment)</option>
+                                            <option value="processing">Processing (Paid/Ready to Ship)</option>
                                             <option value="shipped">Shipped</option>
                                             <option value="delivered">Delivered</option>
                                             <option value="cancelled">Cancelled</option>
