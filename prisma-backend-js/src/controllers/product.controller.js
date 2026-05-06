@@ -150,6 +150,9 @@ export const createProduct = async (req, res) => {
 export const getProducts = async (req, res) => {
   try {
     const { category, gender, size, minPrice, maxPrice, sortBy } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
 
     const where = {
       isActive: true,
@@ -185,19 +188,24 @@ export const getProducts = async (req, res) => {
     if (sortBy === 'low-high') orderBy = { price: 'asc' };
     else if (sortBy === 'high-low') orderBy = { price: 'desc' };
     else if (sortBy === 'newest') orderBy = { createdAt: 'desc' };
-    else if (sortBy === 'featured') orderBy = { createdAt: 'desc' }; // Default or specific logic
+    else if (sortBy === 'featured') orderBy = { createdAt: 'desc' };
 
-    const products = await prisma.product.findMany({
-      where,
-      include: {
-        category: true,
-        productimage: true,
-        productstock: true,
-      },
-      orderBy,
-    });
+    const [products, totalCount] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: {
+          category: true,
+          productimage: true,
+          productstock: true,
+        },
+        orderBy,
+        skip,
+        take: limit,
+      }),
+      prisma.product.count({ where })
+    ]);
 
-    // Map to match frontend expectations (images, stocks)
+    // Map to match frontend expectations
     const mappedProducts = products.map(p => ({
       ...p,
       images: p.productimage,
@@ -208,7 +216,13 @@ export const getProducts = async (req, res) => {
 
     res.json({
       success: true,
-      data: mappedProducts
+      data: mappedProducts,
+      pagination: {
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
+        limit
+      }
     });
 
   } catch (error) {

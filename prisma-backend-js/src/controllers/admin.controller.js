@@ -176,11 +176,30 @@ export const getNewsletterSubscribers = async (req, res) => {
 
 export const getAllCustomers = async (req, res) => {
   try {
-    const customers = await prisma.user.findMany({
-      where: { role: 'customer' },
-      orderBy: { createdAt: 'desc' }
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [customers, totalCount] = await Promise.all([
+      prisma.user.findMany({
+        where: { role: 'customer' },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit
+      }),
+      prisma.user.count({ where: { role: 'customer' } })
+    ]);
+
+    res.json({ 
+      success: true, 
+      data: customers,
+      pagination: {
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
+        limit
+      }
     });
-    res.json({ success: true, data: customers });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './OrdersManagement.css';
 import { API_URL, getImageUrl } from '../config/api';
-import { showConfirm, showSuccess, showError } from '../utils/notifications';
-
+import { showSuccess, showError } from '../utils/notifications';
+import Pagination from '../components/common/Pagination';
+import './OrdersManagement.css';
 
 const OrdersManagement = () => {
     const [subTab, setSubTab] = useState('All Orders');
@@ -15,6 +15,9 @@ const OrdersManagement = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const limit = 10;
 
     // Form states for update
     const [status, setStatus] = useState('');
@@ -23,34 +26,51 @@ const OrdersManagement = () => {
     const [carrier, setCarrier] = useState('');
     const [estimatedDelivery, setEstimatedDelivery] = useState('');
 // fetch orders from API
-    const fetchOrders = async () => {
+    const fetchOrders = async (page = 1) => {
         try {
-            const response = await axios.get(`${API_URL}/orders`);
+            setLoading(true);
+            const params = new URLSearchParams();
+            params.append('page', page);
+            params.append('limit', limit);
+            if (subTab && subTab !== 'All Orders') params.append('status', subTab);
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+            if (searchTerm) params.append('search', searchTerm);
+
+            const response = await axios.get(`${API_URL}/orders?${params.toString()}`);
             setOrders(response.data.data);
+            setTotalPages(response.data?.pagination?.totalPages || 1);
+            setCurrentPage(page);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching orders:', error);
             setLoading(false);
         }
     };
-// load orders when page opens
+// load orders when page opens or filters change
     useEffect(() => {
-        fetchOrders();
-        // Silent background refresh every 3 seconds
-        const interval = setInterval(() => {
-            axios.get(`${API_URL}/orders`)
-                .then(response => {
-                    setOrders(response.data.data);
-                })
-                .catch(err => console.error('Silent orders fetch failed:', err));
-        }, 3000);
-        return () => clearInterval(interval);
-    }, []);
+        fetchOrders(1);
+    }, [subTab, startDate, endDate]);
+
+    // Use a separate effect for search with debounce if needed, or just refetch on enter/button
+    // For now, let's keep it simple and refetch on search change
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            fetchOrders(1);
+        }, 500);
+        return () => clearTimeout(timeoutId);
+    }, [searchTerm]);
+
+    // Use effect for page change
+    useEffect(() => {
+        fetchOrders(currentPage);
+    }, [currentPage]);
+
 // toggle order status
     const handleToggleOrder = async (id) => {
         try {
             await axios.put(`${API_URL}/orders/${id}/toggle`);
-            fetchOrders();
+            fetchOrders(currentPage);
         } catch (error) {
             showError('Error', 'Error toggling order status');
         }
@@ -80,7 +100,7 @@ const OrdersManagement = () => {
             });
             showSuccess('Updated!', 'Order status has been updated successfully.');
             setIsModalOpen(false);
-            fetchOrders();
+            fetchOrders(currentPage);
         } catch (error) {
             showError('Update Failed', error.response?.data?.message || error.message);
         } finally {
@@ -88,22 +108,6 @@ const OrdersManagement = () => {
             setUpdateLoading(false);
         }
     };
-// filter orders based on selected tab
-    const filteredOrders = orders.filter(order => {
-        const matchesTab = subTab === 'All Orders' || order.status.toLowerCase() === subTab.toLowerCase();
-        
-        const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
-        const matchesStart = !startDate || orderDate >= startDate;
-        const matchesEnd = !endDate || orderDate <= endDate;
-
-        const searchLower = searchTerm.toLowerCase();
-        const matchesSearch = !searchTerm || 
-            order.id.toString().includes(searchTerm) || 
-            order.email?.toLowerCase().includes(searchLower) ||
-            order.tracking_number?.toLowerCase().includes(searchLower);
-
-        return matchesTab && matchesStart && matchesEnd && matchesSearch;
-    });
 
     return (
         <div className="dashboard-content">
@@ -120,7 +124,7 @@ const OrdersManagement = () => {
                         </div>
                     </div>
                     <div className="card-title-text">Total Orders</div>
-                    <div className="card-value-text">{orders.length}</div>
+                    <div className="card-value-text">{totalPages * limit}</div>
                 </div>
                 <div className="metric-card-box card-orange">
                     <div className="card-top-icon-row">
@@ -129,8 +133,8 @@ const OrdersManagement = () => {
                         </div>
                     </div>
                     {/* pending orders */}
-                    <div className="card-title-text">Pending Shipment</div>
-                    <div className="card-value-text">{orders.filter(o => ['processing', 'shipped'].includes(o.status.toLowerCase())).length}</div>
+                    <div className="card-title-text">Orders This Page</div>
+                    <div className="card-value-text">{orders.length}</div>
                 </div>
             </div>
 
@@ -183,10 +187,10 @@ const OrdersManagement = () => {
                     </thead>
                     <tbody>
                         {loading ? (
-                            <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>Loading orders...</td></tr>
-                        ) : filteredOrders.length === 0 ? (
-                            <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>No orders found</td></tr>
-                        ) : filteredOrders.map((order) => (
+                            <tr><td colSpan="8" style={{ textAlign: 'center', padding: '20px' }}>Loading orders...</td></tr>
+                        ) : orders.length === 0 ? (
+                            <tr><td colSpan="8" style={{ textAlign: 'center', padding: '20px' }}>No orders found</td></tr>
+                        ) : orders.map((order) => (
                             <tr key={order.id}>
                                 <td><div className="td-order-id">#ORD-{order.id}</div></td>
                                 <td><div className="td-email">{order.email}</div></td>
@@ -235,6 +239,11 @@ const OrdersManagement = () => {
                         ))}
                     </tbody>
                 </table>
+                <Pagination 
+                    currentPage={currentPage} 
+                    totalPages={totalPages} 
+                    onPageChange={(page) => setCurrentPage(page)} 
+                />
             </div>
 
             {/* Order Details & Delivery Management Modal */}

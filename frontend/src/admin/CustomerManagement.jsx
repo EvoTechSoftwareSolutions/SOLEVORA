@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config/api';
+import Pagination from '../components/common/Pagination';
 import './CustomerManagement.css';
-import { API_URL, BASE_URL, getImageUrl } from '../config/api';
-import { showConfirm, showSuccess, showError } from '../utils/notifications';
-
 
 const CustomerManagement = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
 
   // fetch customers from API
-  const fetchCustomers = async () => {
+  const fetchCustomers = async (page = 1) => {
     try {
-      const response = await axios.get(`${API_URL}/admin/customers`);
+      setLoading(true);
+      const response = await axios.get(`${API_URL}/admin/customers?page=${page}&limit=${limit}`);
       const data = Array.isArray(response.data?.data) ? response.data.data : [];
       setCustomers(data);
+      setTotalPages(response.data?.pagination?.totalPages || 1);
+      setCurrentPage(page);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching customers:', error);
@@ -24,18 +29,21 @@ const CustomerManagement = () => {
   };
 
   useEffect(() => {
-    fetchCustomers();
-    // Silent background refresh every 3 seconds
+    fetchCustomers(currentPage);
+    // Silent background refresh every 3 seconds - disabled for now to avoid reset issues with pagination
+    /*
     const interval = setInterval(() => {
-      axios.get(`${API_URL}/admin/customers`)
+      axios.get(`${API_URL}/admin/customers?page=${currentPage}&limit=${limit}`)
         .then(response => {
           const data = Array.isArray(response.data?.data) ? response.data.data : [];
           setCustomers(data);
+          setTotalPages(response.data?.pagination?.totalPages || 1);
         })
         .catch(err => console.error('Silent fetch failed', err));
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+    */
+  }, [currentPage]);
 
   // toggle customer status
   const handleToggleStatus = async (id) => {
@@ -130,6 +138,11 @@ const CustomerManagement = () => {
             ))}
           </tbody>
         </table>
+        <Pagination 
+          currentPage={currentPage} 
+          totalPages={totalPages} 
+          onPageChange={(page) => setCurrentPage(page)} 
+        />
       </div>
     </div>
   );

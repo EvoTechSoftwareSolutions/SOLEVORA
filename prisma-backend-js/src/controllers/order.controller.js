@@ -192,21 +192,57 @@ export const createOrder = async (req, res) => {
 // GET ALL ORDERS (ADMIN / STORE MANAGER)
 export const getAllOrders = async (req, res) => {
   try {
-    const orders = await prisma.order.findMany({
-      include: {
-        user: true,
-        orderitem: {
-          include: {
-            product: {
-              include: { productimage: true }
-            }
+    const { status, startDate, endDate, search } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const where = {};
+
+    if (status && status !== 'All Orders') {
+      where.status = status.toUpperCase();
+    }
+
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) where.createdAt.gte = new Date(startDate);
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        where.createdAt.lte = end;
+      }
+    }
+
+    if (search) {
+      where.OR = [
+        { id: isNaN(Number(search)) ? undefined : Number(search) },
+        { email: { contains: search, mode: 'insensitive' } },
+        { trackingNumber: { contains: search, mode: 'insensitive' } },
+        { customerName: { contains: search, mode: 'insensitive' } }
+      ].filter(Boolean);
+    }
+
+    const [orders, totalCount] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        include: {
+          user: true,
+          orderitem: {
+            include: {
+              product: {
+                include: { productimage: true }
+              }
+            },
           },
         },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+        orderBy: {
+          createdAt: "desc",
+        },
+        skip,
+        take: limit,
+      }),
+      prisma.order.count({ where })
+    ]);
 
     const mappedOrders = orders.map(order => ({
       ...order,
@@ -227,6 +263,12 @@ export const getAllOrders = async (req, res) => {
     res.status(200).json({
       success: true,
       data: mappedOrders,
+      pagination: {
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
+        limit
+      }
     });
   } catch (error) {
     res.status(500).json({

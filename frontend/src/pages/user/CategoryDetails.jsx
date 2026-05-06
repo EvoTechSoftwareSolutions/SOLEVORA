@@ -14,9 +14,14 @@ import product2 from "../../assets/category/product-2.png";
 import product3 from "../../assets/category/product-3.png";
 import product4 from "../../assets/category/product-4.png";
 
+import Pagination from "../../components/common/Pagination";
+
 function CategoryDetails() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 12;
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -39,42 +44,45 @@ function CategoryDetails() {
     addToCart({ ...product, image_url: product.image }, defaultSize);
   };
 
+  const fetchProducts = async (page = 1) => {
+    setLoading(true);
+    try {
+      const url = categoryName === "Collection" 
+        ? `http://localhost:5001/api/products?page=${page}&limit=${limit}`
+        : `http://localhost:5001/api/products?category=${categoryName}&page=${page}&limit=${limit}`;
+        
+      const { data } = await axios.get(url);
+      const bgColors = [
+        "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]",
+        "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]"
+      ];
+      const fallbackImages = [product1, product2, product3, product4];
+
+      const formatted = data.data.map((p, index) => ({
+        id: p.id,
+        category: p.category?.name || "Premium",
+        name: p.name,
+        price: parseFloat(p.price) || 0,
+        image: p.images?.[0]?.url ? `http://localhost:5001${p.images[0].url}` : fallbackImages[index % fallbackImages.length],
+        bg: bgColors[index % bgColors.length],
+        sizes: p.stocks?.length > 0 ? p.stocks.map(s => s.size) : ["6", "7", "8"],
+        slug: p.slug,
+        badge: index % 4 === 0 ? "Bestseller" : "",
+      }));
+
+      setProducts(formatted);
+      setTotalPages(data.pagination?.totalPages || 1);
+      setCurrentPage(page);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const { data } = await axios.get("http://localhost:5001/api/products");
-        const bgColors = [
-          "bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]",
-          "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]"
-        ];
-        const fallbackImages = [product1, product2, product3, product4];
-
-        // Format and filter natively if the DB isn't cleanly categorizing
-        const formatted = data.map((p, index) => ({
-          id: p.id,
-          category: p.category?.name || "Premium",
-          name: p.name,
-          price: parseFloat(p.price) || 0,
-          image: p.image_url || fallbackImages[index % fallbackImages.length],
-          bg: bgColors[index % bgColors.length],
-          sizes: p.sizes ? (typeof p.sizes === 'string' ? JSON.parse(p.sizes) : p.sizes) : ["6", "7", "8"],
-          slug: p.slug,
-          badge: index % 4 === 0 ? "Bestseller" : "",
-        }));
-
-        // Filter products locally to simulate a rich catalog matching the specific category clicked
-        // Note: For a true production app, the backend would filter via ?category=${categoryName}
-        // Here we just use all or mock it so the user sees a rich "different design" page.
-        setProducts(formatted);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, [categoryName]);
+    fetchProducts(currentPage);
+  }, [categoryName, currentPage]);
 
   // Optionally filter if we want to show category specific matches, or just show the grid if "All"
   const displayedProducts = useMemo(() => {
@@ -129,75 +137,86 @@ function CategoryDetails() {
              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d57731]" />
            </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {displayedProducts.map((product) => (
-              <div
-                key={product.id}
-                className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 h-fit"
-              >
-                {/* Image Section */}
-                <div className={`relative w-full aspect-[3/2] ${product.bg} flex items-center justify-center p-4`}>
-                  {product.badge && (
-                    <span className="absolute top-4 left-4 bg-black/90 text-white text-[10px] font-bold px-3 py-1.5 rounded-full z-10 shadow-sm uppercase tracking-wider backdrop-blur-md">
-                      {product.badge}
-                    </span>
-                  )}
-
-                  <button
-                    onClick={() => handleWishlistToggle(product)}
-                    className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center transition z-10 shadow-sm hover:scale-110 ${
-                      isInWishlist(product.id)
-                        ? "text-red-500"
-                        : "text-[#888] hover:text-red-500"
-                    }`}
-                  >
-                    {isInWishlist(product.id) ? (
-                      <HiHeart size={18} />
-                    ) : (
-                      <HiOutlineHeart size={18} />
+          <div className="flex flex-col gap-12">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {products.map((product) => (
+                <div
+                  key={product.id}
+                  className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 h-fit"
+                >
+                  {/* Image Section */}
+                  <div className={`relative w-full aspect-[3/2] ${product.bg} flex items-center justify-center p-4`}>
+                    {product.badge && (
+                      <span className="absolute top-4 left-4 bg-black/90 text-white text-[10px] font-bold px-3 py-1.5 rounded-full z-10 shadow-sm uppercase tracking-wider backdrop-blur-md">
+                        {product.badge}
+                      </span>
                     )}
-                  </button>
 
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="object-contain w-full h-full drop-shadow-2xl group-hover:scale-110 transition duration-500 ease-out"
-                  />
-                </div>
+                    <button
+                      onClick={() => handleWishlistToggle(product)}
+                      className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center transition z-10 shadow-sm hover:scale-110 ${
+                        isInWishlist(product.id)
+                          ? "text-red-500"
+                          : "text-[#888] hover:text-red-500"
+                      }`}
+                    >
+                      {isInWishlist(product.id) ? (
+                        <HiHeart size={18} />
+                      ) : (
+                        <HiOutlineHeart size={18} />
+                      )}
+                    </button>
 
-                {/* Info Section */}
-                <div className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <p className="text-[#a0a0a0] text-[10px] font-bold uppercase tracking-wider mb-1">
-                        {product.category}
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="object-contain w-full h-full drop-shadow-2xl group-hover:scale-110 transition duration-500 ease-out"
+                    />
+                  </div>
+
+                  {/* Info Section */}
+                  <div className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="text-[#a0a0a0] text-[10px] font-bold uppercase tracking-wider mb-1">
+                          {product.category}
+                        </p>
+                        <h3 className="text-lg font-bold text-[#1a1a1a] leading-tight truncate">
+                          {product.name}
+                        </h3>
+                      </div>
+                      <p className="text-lg font-black text-[#d57731]">
+                        Rs. {product.price.toLocaleString()}
                       </p>
-                      <h3 className="text-lg font-bold text-[#1a1a1a] leading-tight truncate">
-                        {product.name}
-                      </h3>
                     </div>
-                    <p className="text-lg font-black text-[#d57731]">
-                      ${product.price.toFixed(2)}
-                    </p>
-                  </div>
-                  
-                  <div className="flex gap-2 mt-4">
-                    <button
-                      onClick={() => navigate(`/product/${product.slug}`)}
-                      className="flex-1 py-2.5 bg-gray-50 border border-gray-200 text-[#333] text-xs font-bold rounded-xl hover:bg-gray-100 hover:border-gray-300 transition duration-300"
-                    >
-                      Details
-                    </button>
-                    <button
-                      onClick={() => handleAddToCart(product)}
-                      className="w-11 h-11 shrink-0 rounded-xl bg-[#111] text-white flex items-center justify-center hover:bg-[#d57731] transition duration-300 shadow-md"
-                    >
-                      <HiOutlineShoppingCart size={18} />
-                    </button>
+                    
+                    <div className="flex gap-2 mt-4">
+                      <button
+                        onClick={() => navigate(`/product/${product.slug}`)}
+                        className="flex-1 py-2.5 bg-gray-50 border border-gray-200 text-[#333] text-xs font-bold rounded-xl hover:bg-gray-100 hover:border-gray-300 transition duration-300"
+                      >
+                        Details
+                      </button>
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        className="w-11 h-11 shrink-0 rounded-xl bg-[#111] text-white flex items-center justify-center hover:bg-[#d57731] transition duration-300 shadow-md"
+                      >
+                        <HiOutlineShoppingCart size={18} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={(page) => {
+                setCurrentPage(page);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
           </div>
         )}
 

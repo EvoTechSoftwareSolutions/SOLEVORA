@@ -3,15 +3,31 @@ import prisma from "../prisma/client.js";
 //  GET ALL CATEGORIES
 export const getAllCategories = async (req, res) => {
   try {
-    const categories = await prisma.category.findMany({
-      include: {
-        product: true
-      }
-    });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [categories, totalCount] = await Promise.all([
+      prisma.category.findMany({
+        include: {
+          product: true
+        },
+        skip,
+        take: limit,
+        orderBy: { name: 'asc' }
+      }),
+      prisma.category.count()
+    ]);
 
     res.status(200).json({
       success: true,
-      data: categories
+      data: categories,
+      pagination: {
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
+        limit
+      }
     });
 
   } catch (error) {

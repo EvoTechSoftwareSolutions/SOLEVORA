@@ -32,6 +32,7 @@ import heritageImage from "../../assets/category/heritage-shoe.png";
 
 import SuccessPopup from "../../components/common/SuccessPoppup";
 import SizeChartModal from "../../components/user/SizeChartModal";
+import Pagination from "../../components/common/Pagination";
 
 // shared image helper
 const BASE_URL = "http://localhost:5001";
@@ -66,6 +67,9 @@ function CategoryPage() {
   const [products, setProducts] = useState([]);
   const [selectedProductSizes, setSelectedProductSizes] = useState({});
   const [allCategoryCounts, setAllCategoryCounts] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 12;
 
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -129,13 +133,15 @@ function CategoryPage() {
   const bgColors = ["bg-[#f5aa31]", "bg-[#cce3fc]", "bg-[#f3952a]", "bg-[#43523d]", "bg-[#ebe8df]", "bg-[#aeea49]", "bg-[#dfdfdf]", "bg-[#efe8e0]", "bg-[#dcd0c2]", "bg-[#ffb0b0]"];
   const fallbackSizesList = [["6", "7", "8"], ["7.5", "8.5", "9.5", "10"], ["9", "10", "11", "12"], ["6", "8", "9", "10.5"]];
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (page = 1) => {
     try {
       const params = new URLSearchParams();
       if (selectedCategory && selectedCategory !== "All") params.append("category", selectedCategory);
       if (selectedGender && selectedGender !== "All") params.append("gender", selectedGender);
       if (selectedSize) params.append("size", selectedSize);
       if (sortBy) params.append("sortBy", sortBy);
+      params.append("page", page);
+      params.append("limit", limit);
       
       if (selectedPrice !== "All") {
         if (selectedPrice === "Under Rs.3000") params.append("maxPrice", "3000");
@@ -163,6 +169,8 @@ function CategoryPage() {
         badge: index === 0 ? "New" : "",
       }));
       setProducts(baseFormatted);
+      setTotalPages(data.pagination?.totalPages || 1);
+      setCurrentPage(page);
 
       // Fetch ALL products once (without filters) to get accurate category counts
       if (Object.keys(allCategoryCounts).length === 0) {
@@ -180,11 +188,13 @@ function CategoryPage() {
   };
 
   useEffect(() => {
-    fetchProducts();
-    // Silent background refresh every 3 seconds
-    const interval = setInterval(fetchProducts, 3000);
+    fetchProducts(currentPage);
+    // Silent background refresh every 3 seconds - disabled to avoid page jumping
+    /*
+    const interval = setInterval(() => fetchProducts(currentPage), 3000);
     return () => clearInterval(interval);
-  }, [selectedCategory, selectedGender, selectedSize, selectedPrice, sortBy]);
+    */
+  }, [selectedCategory, selectedGender, selectedSize, selectedPrice, sortBy, currentPage]);
 
   const displayedProducts = useMemo(() => {
     return products;
@@ -335,59 +345,70 @@ function CategoryPage() {
           </aside>
 
           {/* Product Cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {displayedProducts.map((product) => (
-              <div key={product.id} className="bg-[#f2f2f2] rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-md transition duration-300 h-fit">
-                <div className={`relative w-full aspect-[3/2] ${product.bg} flex items-center justify-center p-4`}>
-                  {product.badge && (
-                    <span className="absolute top-4 left-4 bg-[#ff6b3d] text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
-                      {product.badge}
-                    </span>
-                  )}
-                  <button onClick={() => handleWishlistToggle(product)}
-                    className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${isInWishlist(product.id) ? "text-red-500" : "text-[#888] hover:text-red-500 hover:bg-white"}`}>
-                    {isInWishlist(product.id) ? <HiHeart size={18} /> : <HiOutlineHeart size={18} />}
-                  </button>
-                  <img src={product.image} alt={product.name} onError={handleImgError}
-                    className="object-contain w-full h-full drop-shadow-2xl hover:scale-105 transition duration-500" />
-                </div>
+          <div className="flex flex-col gap-8">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {displayedProducts.map((product) => (
+                <div key={product.id} className="bg-[#f2f2f2] rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-md transition duration-300 h-fit">
+                  <div className={`relative w-full aspect-[3/2] ${product.bg} flex items-center justify-center p-4`}>
+                    {product.badge && (
+                      <span className="absolute top-4 left-4 bg-[#ff6b3d] text-white text-[10px] font-bold px-3 py-1 rounded-full z-10 shadow-sm uppercase tracking-wider">
+                        {product.badge}
+                      </span>
+                    )}
+                    <button onClick={() => handleWishlistToggle(product)}
+                      className={`absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition z-10 shadow-sm border border-transparent hover:border-red-100 ${isInWishlist(product.id) ? "text-red-500" : "text-[#888] hover:text-red-500 hover:bg-white"}`}>
+                      {isInWishlist(product.id) ? <HiHeart size={18} /> : <HiOutlineHeart size={18} />}
+                    </button>
+                    <img src={product.image} alt={product.name} onError={handleImgError}
+                      className="object-contain w-full h-full drop-shadow-2xl hover:scale-105 transition duration-500" />
+                  </div>
 
-                <div className="px-4 pt-2 pb-3 flex flex-col">
-                  <p className="text-[#ff5c45] text-[10px] font-bold uppercase tracking-wider mb-1">{product.category}</p>
-                  <h3 className="text-[17px] font-semibold text-[#222] truncate">{product.name}</h3>
-                  
-                  <div className="mt-1 flex items-center justify-between">
-                    <p className="text-[20px] font-bold text-[#111]">Rs. {product.price.toLocaleString()}</p>
-                    <select 
-                      value={selectedProductSizes[product.id] || ""} 
-                      onChange={(e) => setSelectedProductSizes(prev => ({ ...prev, [product.id]: e.target.value }))}
-                      className="text-[11px] font-bold bg-white border border-[#eee] rounded px-1 py-0.5 outline-none"
-                    >
-                      <option value="" disabled>Size</option>
-                      {product.sizes?.map(sz => (
-                        <option key={sz} value={sz}>{sz}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-3 mt-4">
-                    <button onClick={() => navigate(`/product/${product.slug}`, { state: { productImage: product.image } })}
-                      className="flex-1 py-2.5 bg-transparent border border-[#999] text-[#222] text-xs font-semibold rounded-lg hover:bg-white transition duration-300">
-                      View Details
-                    </button>
-                    <button onClick={() => handleAddToCart(product)}
-                      className="shrink-0 w-10 h-10 rounded-lg bg-[#111] text-white flex items-center justify-center hover:bg-[#333] transition duration-300 shadow-md">
-                      <HiOutlineShoppingCart size={18} />
-                    </button>
+                  <div className="px-4 pt-2 pb-3 flex flex-col">
+                    <p className="text-[#ff5c45] text-[10px] font-bold uppercase tracking-wider mb-1">{product.category}</p>
+                    <h3 className="text-[17px] font-semibold text-[#222] truncate">{product.name}</h3>
+                    
+                    <div className="mt-1 flex items-center justify-between">
+                      <p className="text-[20px] font-bold text-[#111]">Rs. {product.price.toLocaleString()}</p>
+                      <select 
+                        value={selectedProductSizes[product.id] || ""} 
+                        onChange={(e) => setSelectedProductSizes(prev => ({ ...prev, [product.id]: e.target.value }))}
+                        className="text-[11px] font-bold bg-white border border-[#eee] rounded px-1 py-0.5 outline-none"
+                      >
+                        <option value="" disabled>Size</option>
+                        {product.sizes?.map(sz => (
+                          <option key={sz} value={sz}>{sz}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-3 mt-4">
+                      <button onClick={() => navigate(`/product/${product.slug}`, { state: { productImage: product.image } })}
+                        className="flex-1 py-2.5 bg-transparent border border-[#999] text-[#222] text-xs font-semibold rounded-lg hover:bg-white transition duration-300">
+                        View Details
+                      </button>
+                      <button onClick={() => handleAddToCart(product)}
+                        className="shrink-0 w-10 h-10 rounded-lg bg-[#111] text-white flex items-center justify-center hover:bg-[#333] transition duration-300 shadow-md">
+                        <HiOutlineShoppingCart size={18} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            {displayedProducts.length === 0 && (
-              <div className="text-center col-span-full py-14">
-                <h3 className="text-2xl font-semibold text-[#333]">No products found</h3>
-                <p className="text-[#666] mt-2">Try changing the filter options.</p>
-              </div>
-            )}
+              ))}
+              {displayedProducts.length === 0 && (
+                <div className="text-center col-span-full py-14">
+                  <h3 className="text-2xl font-semibold text-[#333]">No products found</h3>
+                  <p className="text-[#666] mt-2">Try changing the filter options.</p>
+                </div>
+              )}
+            </div>
+
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={(page) => {
+                setCurrentPage(page);
+                document.getElementById("product-grid-section")?.scrollIntoView({ behavior: "smooth" });
+              }} 
+            />
           </div>
         </div>
       </section>
