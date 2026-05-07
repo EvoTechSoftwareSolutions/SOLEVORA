@@ -57,14 +57,29 @@ const OrderConfirmation = () => {
       doc.text(`Customer Name: ${customerName || user?.name || 'Valued Customer'}`, 130, 55);
       doc.text(`Customer Email: ${email || user?.email || 'N/A'}`, 130, 62);
 
-      // Table of Items
-      const tableData = orderedItems.map(item => [
-        item.name || 'Product',
-        item.size || 'N/A',
-        (item.quantity || 1).toString(),
-        `Rs. ${parseFloat(item.price || 0).toLocaleString()}`,
-        `Rs. ${(parseFloat(item.price || 0) * (item.quantity || 1)).toLocaleString()}`
-      ]);
+      // Table of Items - Split by batches if they exist
+      const tableData = [];
+      orderedItems.forEach(item => {
+        if (item.priceBatches && item.priceBatches.length > 1) {
+          item.priceBatches.forEach(batch => {
+            tableData.push([
+              item.name || 'Product',
+              item.size || 'N/A',
+              batch.quantity.toString(),
+              `Rs. ${batch.price.toLocaleString()}`,
+              `Rs. ${(batch.price * batch.quantity).toLocaleString()}`
+            ]);
+          });
+        } else {
+          tableData.push([
+            item.name || 'Product',
+            item.size || 'N/A',
+            (item.quantity || 1).toString(),
+            `Rs. ${parseFloat(item.price || 0).toLocaleString()}`,
+            `Rs. ${(parseFloat(item.price || 0) * (item.quantity || 1)).toLocaleString()}`
+          ]);
+        }
+      });
 
       // Use autoTable function directly
       autoTable(doc, {
@@ -200,22 +215,36 @@ const OrderConfirmation = () => {
           {/* Display ordered items or fallback message */}
           {orderedItems.length > 0 ? (
             <div className="oc-items-list">
-              {orderedItems.map((item, idx) => (
-                <div key={idx} className="oc-item-row">
-                  <div className="oc-item-visual">
-                    <img src={item.image_url || item.image} alt={item.name} className="oc-item-img"
-                      onError={(e) => { e.target.src = 'https://via.placeholder.com/60'; }}
-                    />
+              {orderedItems.map((item, idx) => {
+                const displayItems = (item.priceBatches && item.priceBatches.length > 1)
+                  ? item.priceBatches.map(batch => ({
+                      ...item,
+                      quantity: batch.quantity,
+                      price: batch.price,
+                      total: batch.quantity * batch.price
+                    }))
+                  : [{
+                      ...item,
+                      total: item.totalPrice || (item.price * item.quantity)
+                    }];
+
+                return displayItems.map((displayItem, bIdx) => (
+                  <div key={`${idx}-${bIdx}`} className="oc-item-row">
+                    <div className="oc-item-visual">
+                      <img src={displayItem.image_url || displayItem.image} alt={displayItem.name} className="oc-item-img"
+                        onError={(e) => { e.target.src = 'https://via.placeholder.com/60'; }}
+                      />
+                    </div>
+                    <div className="oc-item-details">
+                      <h4 className="oc-item-name">{displayItem.name}</h4>
+                      <p className="oc-item-variant">Size: {displayItem.size} &nbsp;|&nbsp; Qty: {displayItem.quantity}</p>
+                    </div>
+                    <div className="oc-item-price">
+                      Rs. {displayItem.total.toLocaleString()}
+                    </div>
                   </div>
-                  <div className="oc-item-details">
-                    <h4 className="oc-item-name">{item.name}</h4>
-                    <p className="oc-item-variant">Size: {item.size} &nbsp;|&nbsp; Qty: {item.quantity}</p>
-                  </div>
-                  <div className="oc-item-price">
-                    Rs. {(item.price * item.quantity).toLocaleString()}
-                  </div>
-                </div>
-              ))}
+                ));
+              })}
             </div>
           ) : (
             <p style={{ textAlign: 'center', padding: '20px', color: '#aaa' }}>No items to display.</p>

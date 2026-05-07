@@ -366,22 +366,38 @@ const PaymentDetails = () => {
           <div className="pd-summary-card">
             <h3 className="pd-summary-title">Order Summary</h3>
             <div className="pd-items-scroll">
-              {cart.map((item, idx) => (
-                <div key={`${item.id}-${item.size}-${idx}`} className="pd-item-card">
+              {cart.map((item, idx) => {
+                // If there are multiple price batches, we show them as separate lines
+                const displayItems = (item.priceBatches && item.priceBatches.length > 1) 
+                  ? item.priceBatches.map(batch => ({
+                      ...item,
+                      quantity: batch.quantity,
+                      price: batch.price,
+                      total: batch.quantity * batch.price,
+                      isBatch: true
+                    }))
+                  : [{
+                      ...item,
+                      total: item.totalPrice || (item.price * item.quantity),
+                      isBatch: false
+                    }];
 
-                  <div className="pd-item-img-wrap">
-                    <img src={item.image_url || FALLBACK} alt={item.name}
-                      className="pd-item-img" onError={handleImgError} />
-                    <span className="pd-qty-badge">{item.quantity}</span>
+                return displayItems.map((displayItem, bIdx) => (
+                  <div key={`${item.id}-${item.size}-${idx}-${bIdx}`} className="pd-item-card">
+                    <div className="pd-item-img-wrap">
+                      <img src={displayItem.image_url || FALLBACK} alt={displayItem.name}
+                        className="pd-item-img" onError={handleImgError} />
+                      <span className="pd-qty-badge">{displayItem.quantity}</span>
+                    </div>
+                    <p className="pd-item-name">{displayItem.name}</p>
+                    <p className="pd-item-variant">Size: {displayItem.size}</p>
+                    <div className="pd-item-footer">
+                      <span className="pd-item-qty-lbl">Qty: {displayItem.quantity}</span>
+                      <span className="pd-item-price">Rs. {displayItem.total.toLocaleString()}</span>
+                    </div>
                   </div>
-                  <p className="pd-item-name">{item.name}</p>
-                  <p className="pd-item-variant">Size: {item.size}</p>
-                  <div className="pd-item-footer">
-                    <span className="pd-item-qty-lbl">Qty: {item.quantity}</span>
-                    <span className="pd-item-price">Rs. {(item.price * item.quantity).toLocaleString()}</span>
-                  </div>
-                </div>
-              ))}
+                ));
+              })}
             </div>
 
             {/* Promo */}

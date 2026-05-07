@@ -62,19 +62,31 @@ export const CartProvider = ({ children }) => {
         // FIFO Pricing logic for the cart
         let remainingQty = item.quantity;
         let itemTotalPrice = 0;
+        const priceBatches = [];
         const sizeStocks = stocks.filter(s => parseFloat(s.size) === parseFloat(item.size));
 
         for (const stock of sizeStocks) {
           if (remainingQty <= 0) break;
           const deduct = Math.min(stock.quantity, remainingQty);
           const batchSellingPrice = (Number(stock.sellingPrice) > 0) ? Number(stock.sellingPrice) : Number(item.product?.price || 0);
+          
+          priceBatches.push({
+            quantity: deduct,
+            price: batchSellingPrice
+          });
+          
           itemTotalPrice += (deduct * batchSellingPrice);
           remainingQty -= deduct;
         }
 
         // If after checking all batches there's still quantity (shouldn't happen with validation, but for safety)
         if (remainingQty > 0) {
-          itemTotalPrice += (remainingQty * Number(item.product?.price || 0));
+          const fallbackPrice = Number(item.product?.price || 0);
+          priceBatches.push({
+            quantity: remainingQty,
+            price: fallbackPrice
+          });
+          itemTotalPrice += (remainingQty * fallbackPrice);
         }
 
         return {
@@ -86,6 +98,7 @@ export const CartProvider = ({ children }) => {
           name: item.product?.name || "Product",
           price: itemTotalPrice / item.quantity, // Average price for unit display
           totalPrice: itemTotalPrice,
+          priceBatches: priceBatches, // Array of {quantity, price}
           image_url: rawUrl ? getImg(rawUrl) : "",
         };
       });
