@@ -389,30 +389,47 @@ export const updateProduct = async (req, res) => {
         data: updateData,
       });
 
-      // Handle Stocks (Update existing or Create new)
-      if (parsedStocks.length > 0) {
-        for (const s of parsedStocks) {
-          const existingStock = await tx.productstock.findFirst({
-            where: {
-              productId: product.id,
-              size: s.size,
-              costPrice: Number(s.costPrice),
-            },
-          });
+      // Handle Stocks (Reliable Update/Delete/Create)
+      if (parsedStocks) {
+        // 1. Get current stock IDs for this product
+        const currentStocks = await tx.productstock.findMany({
+          where: { productId: product.id },
+          select: { id: true }
+        });
+        const currentIds = currentStocks.map(s => s.id);
+        
+        // 2. Identify IDs received from frontend
+        const receivedIds = parsedStocks
+          .map(s => s.id)
+          .filter(id => id !== null && id !== undefined && id !== '');
 
-          if (existingStock) {
+        // 3. Delete stocks that were removed in the UI
+        const idsToDelete = currentIds.filter(id => !receivedIds.includes(id));
+        if (idsToDelete.length > 0) {
+          await tx.productstock.deleteMany({
+            where: { id: { in: idsToDelete } }
+          });
+        }
+
+        // 4. Update existing or Create new
+        for (const s of parsedStocks) {
+          if (s.id && currentIds.includes(Number(s.id))) {
+            // UPDATE existing
             await tx.productstock.update({
-              where: { id: existingStock.id },
-              data: { 
+              where: { id: Number(s.id) },
+              data: {
+                size: String(s.size),
+                costPrice: Number(s.costPrice),
+                sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : (s.costPrice || product.price || 0)),
                 quantity: Number(s.quantity),
-                sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : (s.costPrice || product.price || 0))
               },
             });
           } else {
+            // CREATE new (either no ID or ID not in this product's current stocks)
             await tx.productstock.create({
               data: {
                 productId: product.id,
-                size: s.size,
+                size: String(s.size),
                 costPrice: Number(s.costPrice),
                 sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : (s.costPrice || product.price || 0)),
                 quantity: Number(s.quantity),

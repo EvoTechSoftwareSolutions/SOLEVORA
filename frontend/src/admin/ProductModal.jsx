@@ -74,6 +74,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         if (!Array.isArray(items) || items.length === 0)
             return [{ size: '7', costPrice: '', sellingPrice: '', quantity: '' }];
         return items.map((s) => ({
+            id: s.id ?? null,
             size: s.size ?? '',
             costPrice: s.costPrice ?? '',
             sellingPrice: s.sellingPrice ?? '',
@@ -231,8 +232,9 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         if ((field === 'costPrice' || field === 'sellingPrice' || field === 'quantity') && value < 0) return;
 
         const updated = [...stocks];
-        updated[index][field] = value;
-        if (field === 'costPrice' && !updated[index].sellingPrice) {
+        updated[index] = { ...updated[index], [field]: value };
+        
+        if (field === 'costPrice' && (!updated[index].sellingPrice || updated[index].sellingPrice === '0')) {
             updated[index].sellingPrice = value;
         }
         setStocks(updated);
@@ -283,7 +285,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         if (Object.values(errors).some(Boolean)) return;
 
         // Stocks validation
-        const validStocks = stocks.filter((s) => s.size && s.quantity);
+        const validStocks = stocks.filter((s) => s.size && s.quantity !== '' && s.quantity !== null);
         if (validStocks.length === 0) {
             setSubmitError('Please add at least one size with a size label and quantity.');
             return;
@@ -533,7 +535,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                             <button
                                 type="button"
                                 onClick={() =>
-                                    setStocks([...stocks, { size: '', costPrice: '', sellingPrice: '', quantity: '' }])
+                                    setStocks([...stocks, { id: null, size: '', costPrice: '', sellingPrice: '', quantity: '' }])
                                 }
                                 className="text-sm flex items-center text-blue-600"
                             >
