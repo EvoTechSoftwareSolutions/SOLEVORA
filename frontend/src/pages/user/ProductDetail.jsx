@@ -24,7 +24,7 @@ function ProductDetail() {
   const passedImage = location.state?.productImage;
 
   // Cart and wishlist context hooks
-  const { addToCart } = useCart();
+  const { addToCart, cart } = useCart();
   const { addToWishlist, isInWishlist, removeFromWishlist } = useWishlist();
 
   // Component state management
@@ -184,12 +184,18 @@ function ProductDetail() {
   // Main component render
 
   // Use all sizes from productstock in the DB
+  // Group stocks by size to avoid duplicate buttons
   let stockDetails = [];
   if (product && product.stocks && product.stocks.length > 0) {
-    stockDetails = product.stocks.map(s => ({
-      size: String(s.size),
-      quantity: s.quantity
-    }));
+    const grouped = product.stocks.reduce((acc, s) => {
+      const size = String(s.size);
+      if (!acc[size]) {
+        acc[size] = { size, quantity: 0 };
+      }
+      acc[size].quantity += s.quantity;
+      return acc;
+    }, {});
+    stockDetails = Object.values(grouped);
   }
   // Sort sizes numerically
   stockDetails.sort((a, b) => parseFloat(a.size) - parseFloat(b.size));
@@ -326,11 +332,23 @@ function ProductDetail() {
             {/* Product pricing */}
             <div className="pricing">
               {(() => {
-                const activeStock = (product.stocks || []).find(s => parseFloat(s.size) === parseFloat(selectedSize) && s.quantity > 0);
-                // Use sellingPrice if available and > 0, otherwise fall back to product's base price (never cost price)
+                // Ensure stocks are sorted by oldest first
+                const sortedStocks = [...(product.stocks || [])].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                
+                let activeStock;
+                if (selectedSize) {
+                  // Find oldest available batch for selected size
+                  activeStock = sortedStocks.find(s => parseFloat(s.size) === parseFloat(selectedSize) && s.quantity > 0);
+                } else {
+                  // Find oldest available batch across all sizes
+                  activeStock = sortedStocks.find(s => s.quantity > 0);
+                }
+
+                // Use sellingPrice if available and > 0, otherwise fall back to product's base price
                 const displayPrice = (activeStock && Number(activeStock.sellingPrice) > 0) 
                   ? Number(activeStock.sellingPrice) 
                   : parseFloat(product.price);
+                
                 const originalPrice = product.discountPrice ? parseFloat(product.price) : null;
                 
                 return (
@@ -442,6 +460,15 @@ function ProductDetail() {
                     setShowPopup(true);
                     return;
                   }
+
+                  // Check if already in cart and if adding one more exceeds stock
+                  const inCart = cart.find(c => c.productId === product.id && String(c.size) === String(selectedSize));
+                  if (inCart && inCart.quantity >= stockItem.quantity) {
+                    setPopupMessage(`Only ${stockItem.quantity} items available in stock.`);
+                    setShowPopup(true);
+                    return;
+                  }
+
                   addToCart({ ...product, image_url: mainImage }, selectedSize);
                 }}
               >

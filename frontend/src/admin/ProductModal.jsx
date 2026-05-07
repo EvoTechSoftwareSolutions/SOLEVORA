@@ -301,12 +301,6 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
             }
         }
 
-        // Duplicate size check
-        const sizes = validStocks.map((s) => s.size.trim().toLowerCase());
-        if (new Set(sizes).size !== sizes.length) {
-            setSubmitError('Duplicate sizes detected. Each size must be unique.');
-            return;
-        }
 
         // Images required on create
         if (!product && images.length === 0) {

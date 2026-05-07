@@ -163,7 +163,7 @@ function CategoryPage() {
         bg: bgColors[index % bgColors.length],
         gender: p.gender || (index % 3 === 0 ? "Men" : index % 3 === 1 ? "Women" : "Kids"),
         sizes: p.stocks?.length > 0
-          ? p.stocks.map((s) => String(s.size))
+          ? [...new Set(p.stocks.map((s) => String(s.size)))]
           : fallbackSizesList[index % fallbackSizesList.length],
         featured: p.isFeatured || false,
         badge: index === 0 ? "New" : "",

@@ -152,11 +152,15 @@ const Cart = () => {
                         {/* CartContext updateQuantity takes (cartId, quantity) */}
                         <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
                         <span>{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                        <button 
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          disabled={item.quantity >= item.maxStock}
+                          style={item.quantity >= item.maxStock ? { opacity: 0.3, cursor: 'not-allowed' } : {}}
+                        >+</button>
                       </div>
                     </div>
                     <div className="item-price">
-                      Rs. {(item.price * item.quantity).toLocaleString()}
+                      Rs. {item.totalPrice.toLocaleString()}
                     </div>
                   </div>
 

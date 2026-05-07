@@ -196,7 +196,9 @@ export const getProducts = async (req, res) => {
         include: {
           category: true,
           productimage: true,
-          productstock: true,
+          productstock: {
+            orderBy: { id: 'asc' }
+          },
         },
         orderBy,
         skip,
@@ -241,7 +243,9 @@ export const getProductsAll = async (req, res) => {
       include: {
         category: true,
         productimage: true,
-        productstock: true,
+        productstock: {
+          orderBy: { id: 'asc' }
+        },
       },
       orderBy: {
         createdAt: 'desc'
@@ -281,7 +285,9 @@ export const getProductById = async (req, res) => {
       include: {
         category: true,
         productimage: true,
-        productstock: true
+        productstock: {
+          orderBy: { id: 'asc' }
+        }
       }
     });
 
@@ -319,7 +325,9 @@ export const getProductBySlug = async (req, res) => {
       include: {
         category: true,
         productimage: true,
-        productstock: true
+        productstock: {
+          orderBy: { id: 'asc' }
+        }
       }
     });
 

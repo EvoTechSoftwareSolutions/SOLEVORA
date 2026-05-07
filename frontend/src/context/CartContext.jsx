@@ -56,20 +56,36 @@ export const CartProvider = ({ children }) => {
           item.product?.image_url ||
           "";
 
-        const stocks = item.product?.productstock || [];
-        const sizeStock = stocks.find(s => parseFloat(s.size) === parseFloat(item.size) && s.quantity > 0);
-        // Use sellingPrice if available and > 0, otherwise fall back to product base price (never cost price)
-        const itemPrice = (sizeStock && Number(sizeStock.sellingPrice) > 0) 
-          ? Number(sizeStock.sellingPrice) 
-          : Number(item.product?.price || 0);
+        const stocks = [...(item.product?.productstock || [])].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        const totalStock = stocks.filter(s => parseFloat(s.size) === parseFloat(item.size)).reduce((sum, s) => sum + s.quantity, 0);
+
+        // FIFO Pricing logic for the cart
+        let remainingQty = item.quantity;
+        let itemTotalPrice = 0;
+        const sizeStocks = stocks.filter(s => parseFloat(s.size) === parseFloat(item.size));
+
+        for (const stock of sizeStocks) {
+          if (remainingQty <= 0) break;
+          const deduct = Math.min(stock.quantity, remainingQty);
+          const batchSellingPrice = (Number(stock.sellingPrice) > 0) ? Number(stock.sellingPrice) : Number(item.product?.price || 0);
+          itemTotalPrice += (deduct * batchSellingPrice);
+          remainingQty -= deduct;
+        }
+
+        // If after checking all batches there's still quantity (shouldn't happen with validation, but for safety)
+        if (remainingQty > 0) {
+          itemTotalPrice += (remainingQty * Number(item.product?.price || 0));
+        }
 
         return {
           id: item.id,
           productId: item.productId,
           size: item.size,
           quantity: item.quantity,
+          maxStock: totalStock,
           name: item.product?.name || "Product",
-          price: itemPrice,
+          price: itemTotalPrice / item.quantity, // Average price for unit display
+          totalPrice: itemTotalPrice,
           image_url: rawUrl ? getImg(rawUrl) : "",
         };
       });
@@ -195,10 +211,10 @@ const removeFromCart = async (cartId) => {
 
   // TOTALS 
   const cartCount = cart.reduce((a, b) => a + b.quantity, 0);
-  const cartTotal = cart.reduce((a, b) => a + b.quantity * b.price, 0);
+  const cartTotal = cart.reduce((a, b) => a + b.totalPrice, 0);
   
   const selectedCart = cart.filter(item => selectedIds.includes(item.id));
-  const selectedTotal = selectedCart.reduce((a, b) => a + b.quantity * b.price, 0);
+  const selectedTotal = selectedCart.reduce((a, b) => a + b.totalPrice, 0);
 
   return (
     <CartContext.Provider

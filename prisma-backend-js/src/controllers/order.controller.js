@@ -89,8 +89,8 @@ export const createOrder = async (req, res) => {
           throw new Error(`Insufficient stock for ${product.name} - Size ${item.size}`);
         }
 
-        let totalCostForThisItem = 0;
         let remainingQty = item.quantity;
+        let totalItemPrice = 0;
 
         for (const stock of stocks) {
           if (remainingQty <= 0) break;
@@ -101,27 +101,29 @@ export const createOrder = async (req, res) => {
             data: { quantity: stock.quantity - deduct }
           });
 
-          totalCostForThisItem += (deduct * Number(stock.costPrice));
-          remainingQty -= deduct;
-        }
+          // Use the batch's sellingPrice if available (>0), else fallback to product price
+          const batchSellingPrice = (Number(stock.sellingPrice) > 0) 
+            ? Number(stock.sellingPrice) 
+            : Number(product.price);
 
-        const averageCostPrice = totalCostForThisItem / item.quantity;
-        const itemTotal = item.quantity * Number(product.price);
-        total += itemTotal;
-
-        // 4. Create Order Items
-        await tx.orderitem.create({
+          // 4. Create Order Item for this specific batch
+          await tx.orderitem.create({
             data: {
               orderId: order.id,
               productId: item.productId,
               productName: product.name,
               size: item.size,
-              quantity: item.quantity,
-              sellingPrice: product.price,
-              costPrice: averageCostPrice
+              quantity: deduct,
+              sellingPrice: batchSellingPrice,
+              costPrice: Number(stock.costPrice)
             }
-        });
+          });
 
+          totalItemPrice += (deduct * batchSellingPrice);
+          remainingQty -= deduct;
+        }
+
+        total += totalItemPrice;
       }
 
       // 5. Handle Promo Code Usage
