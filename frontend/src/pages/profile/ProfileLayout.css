@@ -3,7 +3,7 @@
 .profile-layout-wrapper {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: calc(100dvh - 80px);
     background-color: #f8fafc;
     color: #0f172a;
     font-family: 'Inter', sans-serif;
@@ -22,7 +22,7 @@
 
 /* --- Sidebar --- */
 .profile-sidebar {
-    width: 260px;
+     width: clamp(220px, 18vw, 280px);
     background-color: #f9f1e8;
     border-right: 1px solid #f1f5f9;
     display: flex;
@@ -30,7 +30,7 @@
     height: calc(100vh - 80px);
     position: sticky;
     top: 80px;
-    overflow-y: auto;
+    overflow-x: hidden;
     flex-shrink: 0;
     box-sizing: border-box;
 }
@@ -83,7 +83,7 @@
 
 .sidebar-user-info h4 {
     margin: 0;
-    font-size: 14px;
+    font-size: clamp(14px, 1.5vw, 18px);
     font-weight: 800;
     color: #1e293b;
     line-height: 1.2;
@@ -252,12 +252,27 @@
 /* --- Main Content Area --- */
 .profile-content-area {
     flex: 1;
-    background-color: #f8fafc;
-    padding: 32px;
     min-width: 0;
+    width: 100%;
+
+    display: grid;
+
+    /* AUTO RESPONSIVE GRID */
+    grid-template-columns:
+        repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+
+    gap: clamp(16px, 2vw, 28px);
+
+    padding: clamp(16px, 2vw, 32px);
+
+    background-color: #f8fafc;
+
+    overflow-x: hidden;
+
+    align-content: start;
+
     box-sizing: border-box;
 }
-
 .sidebar-icon {
     font-size: 24px;
     flex-shrink: 0;

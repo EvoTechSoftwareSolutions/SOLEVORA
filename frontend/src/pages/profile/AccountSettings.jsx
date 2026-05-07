@@ -419,7 +419,7 @@ const AccountSettings = () => {
                             <div className="as-preference-icon-wrap">
                                 <span className="material-symbols-outlined as-preference-icon">mail</span>
                             </div>
-                            <div>
+                            <div className='pre-box'>
                                 <h4>Newsletter</h4>
                                 <p>Weekly solar insights and energy saving tips</p>
                             </div>
@@ -440,7 +440,7 @@ const AccountSettings = () => {
                             <div className="as-preference-icon-wrap">
                                 <span className="material-symbols-outlined as-preference-icon">notifications</span>
                             </div>
-                            <div>
+                            <div className='pre-box'>
                                 <h4>Push Notifications</h4>
                                 <p>Get alerts about your panel performance in real-time</p>
                             </div>
@@ -461,7 +461,7 @@ const AccountSettings = () => {
                             <div className="as-preference-icon-wrap">
                                 <span className="material-symbols-outlined as-preference-icon">lab_profile</span>
                             </div>
-                            <div>
+                            <div className='pre-box'>
                                 <h4>Usage Reports</h4>
                                 <p>Monthly breakdown of your energy consumption</p>
                             </div>
