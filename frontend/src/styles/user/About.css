@@ -340,6 +340,13 @@ background-color: rgba(249, 115, 22, 0.2);
   flex-wrap: wrap; 
 }
 
+.rating-track {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 /* Individual card */
 /* Individual rating card styling */
 .rating-card {
@@ -500,12 +507,15 @@ background-color: rgba(249, 115, 22, 0.2);
 @media (max-width: 992px) {
   .about-banner {
     padding: 40px;
-    background-size: 45%;
+    background-size: 38%;
+    background-position: right 20px center;
+    padding-right: 220px;
     
   }
 
   .about-text {
-    width: 80%;
+    width: 100%;
+    max-width: 520px;
   }
 
   .about-text h1 {
@@ -549,12 +559,16 @@ background-color: rgba(249, 115, 22, 0.2);
     gap: 30px;
   }
    .why-us-features {
-    gap: 60px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    justify-items: center;
   }
 
   .feature-card {
-    max-width: 220px;
+    max-width: 100%;
     padding: 25px 15px;
+    width: 100%;
   }
 
   .feature-card h5 {
@@ -606,6 +620,16 @@ background-color: rgba(249, 115, 22, 0.2);
     width: 45px;
     height: 45px;
   }
+
+  .team-members {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .member-card {
+    width: 100%;
+  }
 }
 
 
@@ -613,11 +637,11 @@ background-color: rgba(249, 115, 22, 0.2);
   .about-banner {
     position: relative;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 40px 20px;
-    background-position: center;
-    background-size: cover;
+    justify-content: left;
+    align-items: left;
+    padding: 60px 260px 60px 24px;
+    background-position: right 16px center;
+    background-size: 45% auto;
   }
 
   .about-banner::before {
@@ -646,10 +670,12 @@ background-color: rgba(249, 115, 22, 0.2);
   }
 
     .our-story {
-    flex-direction: column;
-    text-align: center;
-    height: auto;
-    padding: 30px 15px;
+      flex-direction: row;
+      text-align: left;
+      height: auto;
+      padding: 40px 20px;
+      align-items: center;
+      flex-wrap: wrap;
   }
 
   .story-text h2 {
@@ -698,14 +724,15 @@ background-color: rgba(249, 115, 22, 0.2);
     margin-bottom: 10px;
   }
     .why-us-features {
-    flex-direction: column; /* stack cards vertically */
-    align-items: center;
-    gap: 30px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: stretch;
+      gap: 20px;
   }
 
   .feature-card {
-    width: 90%;
-    max-width: 300px;
+      width: 100%;
+      max-width: 100%;
   }
   
 
@@ -726,25 +753,37 @@ background-color: rgba(249, 115, 22, 0.2);
     width: 25px;
     height: 25px;
   }
-   .stats-section {
-    flex-direction: column; /* stack vertically */
-    align-items: center;
-    gap: 20px;
-      padding: 30px 30px;
-
+  .stats-section {
+    flex-direction: row;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px;
   }
 
   .stat-card {
-    width: 80%; /* almost full width */
+    width: calc(50% - 8px);
+    flex: 0 0 calc(50% - 8px);
   }
    .rating-cards {
-    flex-direction: column;
-    align-items: center;
+    overflow: hidden;
+    justify-content: flex-start;
+  }
+
+  .rating-track {
+    flex-wrap: nowrap;
     gap: 20px;
+    animation: rating-scroll 18s linear infinite;
+  }
+
+  .rating-cards:hover .rating-track,
+  .rating-cards:active .rating-track {
+    animation-play-state: paused;
   }
 
   .rating-card {
-    width: 80%;
+    width: 260px;
+    flex: 0 0 auto;
   }
     .member-card {
     width: 180px;
@@ -754,11 +793,31 @@ background-color: rgba(249, 115, 22, 0.2);
   .member-img {
     height: 180px;
   }
+
+  .team-members {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .member-card {
+    width: 100%;
+  }
 }
 @media (max-width: 480px) {
+    .our-story {
+      flex-direction: row;
+      text-align: left;
+      padding: 30px 16px;
+      align-items: center;
+    }
   .about-banner {
-    padding: 0;
-    background-size: 500px;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 420px;
+    padding: clamp(200px, 40vh, 260px) 16px 32px;
+    background-position: center 16px;
+    background-size: clamp(240px, 60vw, 300px) auto;
   }
 
   .about-text h1 {
@@ -806,6 +865,10 @@ background-color: rgba(249, 115, 22, 0.2);
     padding: 20px 15px;
   }
 
+  .rating-card {
+    width: 220px;
+  }
+
   .rating-content h4 {
     font-size: 16px;
   }
@@ -817,5 +880,14 @@ background-color: rgba(249, 115, 22, 0.2);
   .user-img {
     width: 40px;
     height: 40px;
+  }
+}
+
+@keyframes rating-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
   }
 }

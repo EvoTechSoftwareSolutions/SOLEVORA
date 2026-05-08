@@ -156,7 +156,20 @@
   transition: color 0.2s;
 }
 
+.footer-link-button {
+  display: block;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 13px;
+  margin-bottom: 12px;
+  transition: color 0.2s;
+}
+
 .link-column a:hover {
+  color: #ff6d2e;
+}
+
+.footer-link-button:hover {
   color: #ff6d2e;
 }
 

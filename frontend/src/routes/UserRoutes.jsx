@@ -23,6 +23,7 @@ const PrivacyPolicyPage = lazy(() => import('../pages/user/PrivacyPolicyPage'));
 const Terms = lazy(() => import('../pages/user/Terms'));
 const FAQs = lazy(() => import('../pages/user/Faq'));
 const Careers = lazy(() => import('../pages/user/Careers'));
+const SizeGuide = lazy(() => import('../pages/user/SizeGuide'));
 
 /**
  * Pathless layout + absolute child paths so /home, /about, etc. match in React Router 7.
@@ -50,6 +51,7 @@ const UserRoutes = (
     <Route path='/faqs' element={<FAQs />} />
     <Route path="/terms" element={<Terms />} />
     <Route path="/careers" element={<Careers />} />
+    <Route path="/size-guide" element={<SizeGuide />} />
   </Route>
 );
 

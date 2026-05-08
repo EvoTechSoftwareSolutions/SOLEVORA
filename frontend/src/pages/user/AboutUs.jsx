@@ -157,6 +157,7 @@ const About = () => {
                 <h3>Why Customers Love Us</h3>
 
                 <div className="rating-cards">
+                    <div className="rating-track">
                     {/* Card 1 */}
                     <div className="rating-card">
                         <div className="star-row">
@@ -219,6 +220,70 @@ const About = () => {
                                 <span className="review-date">18 March 2026</span>
                             </div>
                         </div>
+                    </div>
+                    {/* Duplicate set for seamless loop */}
+                    <div className="rating-card">
+                        <div className="star-row">
+                            <CiStar className=" rating-star-icon"/>
+                            <CiStar className=" rating-star-icon"/>
+                            <CiStar className=" rating-star-icon"/>
+                            <CiStar className=" rating-star-icon"/>
+                            <CiStar className=" rating-star-icon"/>
+                        </div>
+                        <div className="rating-content">
+                            <h4>Safety</h4>
+                            <span>Well maintained service, money guaranteed</span>
+                        </div>
+                        <div className="user-info">
+                            <img src={userImg3} alt="User" className="user-img" />
+                            <div className="rating-users">
+                                <span className="user-name">Sajee</span>
+                                <span className="review-date">26 March 2026</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="rating-card">
+                        <div className="star-row">
+                            <CiStar className=" rating-star-icon"/>
+                            <CiStar className=" rating-star-icon"/>
+                            <CiStar className=" rating-star-icon"/>
+                            <CiStar className=" rating-star-icon"/>
+                            <CiStar className=" rating-star-icon"/>
+                        </div>
+                        <div className="rating-content">
+                            <h4>Quality</h4>
+                            <span>Excellent product quality and comfort confirms</span>
+                        </div>
+                        <div className="user-info">
+                            <img src={userImg1} alt="User" className="user-img" />
+                            <div className="rating-users">
+                                <span className="user-name">Aisha</span>
+                                <span className="review-date">20 March 2026</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="rating-card">
+                        <div className="star-row">
+                            <CiStar className=" rating-star-icon"/>
+                            <CiStar className=" rating-star-icon"/>
+                            <CiStar className=" rating-star-icon"/>
+                            <CiStar className=" rating-star-icon"/>
+                            <CiStar className=" rating-star-icon"/>
+                        </div>
+                        <div className="rating-content">
+                            <h4>Delivery</h4>
+                            <span>Fast delivery, well-packaged products, Delivery</span>
+                        </div>
+                        <div className="user-info">
+                            <img src={userImg2} alt="User" className="user-img" />
+                            <div className="rating-users">
+                                <span className="user-name">Kamal</span>
+                                <span className="review-date">18 March 2026</span>
+                            </div>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </section>
