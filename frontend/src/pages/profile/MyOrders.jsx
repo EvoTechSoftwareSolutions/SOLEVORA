@@ -277,11 +277,11 @@ const MyOrders = () => {
             {loading ? (
               <tr><td colSpan="6" className="mo-status-cell">Loading orders...</td></tr>
             ) : filteredOrders.length === 0 ? (
-              <tr><td colSpan="6" className="mo-status-cell">No orders found for this account</td></tr>
+              <tr><td  colSpan="6" className="mo-status-cell">No orders found for this account</td></tr>
             ) : paginatedOrders.map(order => (
               <tr key={order.id}>
-                <td>#ORD-{order.id}</td>
-                <td>
+                <td data-label="ORDER ID">#ORD-{order.id}</td>
+                <td data-label="ITEMS">
                   {order.items && order.items.length > 0 ? (
                     <div className="mo-img-stack">
                       <img src={getImgUrl(order.items[0].product?.productimage?.[0]?.url || order.items[0].product?.image_url)} alt="product" className="mo-thumb" />
@@ -291,8 +291,8 @@ const MyOrders = () => {
                     </div>
                   ) : 'No items'}
                 </td>
-                <td>Rs. {parseFloat(order.total_amount).toLocaleString()}</td>
-                <td>
+                <td data-label="TOTAL">Rs. {parseFloat(order.total_amount).toLocaleString()}</td>
+                <td data-label="STATUS">
                   <div className="mo-status-container">
                     <span className={`mo-badge ${order.status.toLowerCase()}`}>{order.status.toUpperCase()}</span>
                     <div className={`mo-payment-badge ${(order.payment_status || 'pending').toLowerCase()}`}>
@@ -303,8 +303,8 @@ const MyOrders = () => {
                     </div>
                   </div>
                 </td>
-                <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                <td>
+                <td data-label="DATE">{new Date(order.createdAt).toLocaleDateString()}</td>
+                <td data-label="ACTIONS">
                   <div className="mo-action-btns">
                     <button 
                       className={`mo-track-btn ${activeTrackingOrder?.id === order.id ? 'active' : ''}`} 

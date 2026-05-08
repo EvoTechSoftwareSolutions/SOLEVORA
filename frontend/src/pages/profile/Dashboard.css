@@ -2,29 +2,54 @@
    Profile Dashboard Styles
    All classes prefixed with 'pdb-' to avoid global conflicts
    ============================================= */
+:root {
+    --pdb-gap: clamp(12px, 2vw, 24px);
+    --pdb-padding: clamp(12px, 2vw, 32px);
+    --pdb-radius: clamp(14px, 1vw, 24px);
+    --pdb-title: clamp(1.2rem, 2vw, 2rem);
+}
 
 .pdb-container {
-    padding:  0 2.5rem;
+    width: 100%;
+    max-width: 1800px;
+
+    margin-inline: auto;
+
+    padding:
+        clamp(12px, 2vw, 32px);
+
     background-color: #f8f6f5;
-    min-height: 100%;
+
+    min-height: 100dvh;
+
     font-family: 'Manrope', sans-serif;
+
+    overflow-x: hidden;
 }
 
 /* ---------- Header ---------- */
 .pdb-header {
     display: flex;
+
+    flex-wrap: wrap;
+
     justify-content: space-between;
+
     align-items: center;
-    margin-bottom: 0.5rem;
-    padding: 20px;
+
+    gap: 1rem;
+
+    margin-bottom: clamp(16px, 2vw, 32px);
+
+    padding: 0;
 }
 
 .pdb-welcome-info h2 {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #0f172a;
-    margin: 0 0 0.4rem 0;
-    letter-spacing: -0.025em;
+    font-size: clamp(1.3rem, 3vw, 2.4rem);
+
+    line-height: 1.1;
+
+    word-break: break-word;
 }
 
 .pdb-welcome-info p {
@@ -88,21 +113,52 @@
 /* ---------- Stats Grid ---------- */
 .pdb-stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 2.5rem;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                min(260px, 100%),
+                1fr
+            )
+        );
+
+    gap: var(--pdb-gap);
+
+    margin-bottom: clamp(20px, 3vw, 40px);
 }
 
 .pdb-stat-card {
-    background-color: #ffffff;
-    padding: 1.4rem;
-    border-radius: 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    border: 1px solid #f1eeec;
-    position: relative;
+    width: 100%;
+
+    min-width: 0;
+
+    background: rgba(255,255,255,0.85);
+
+    backdrop-filter: blur(10px);
+
+    padding: clamp(16px, 2vw, 28px);
+
+    border-radius: var(--pdb-radius);
+
+    border: 1px solid rgba(255,255,255,0.4);
+
+    box-shadow:
+        0 4px 20px rgba(0,0,0,0.04);
+
     overflow: hidden;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
+.pdb-stat-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,0.08);
+}
 .pdb-stat-bg-icon {
     position: absolute;
     top: 1.5rem;
@@ -169,9 +225,19 @@
 /* ---------- Middle Section ---------- */
 .pdb-middle {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-bottom: 2.5rem;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                min(380px, 100%),
+                1fr
+            )
+        );
+
+    gap: clamp(16px, 2vw, 32px);
+
+    margin-bottom: clamp(20px, 3vw, 40px);
 }
 
 .pdb-section-header {
@@ -208,12 +274,14 @@
 
 .pdb-mini-order {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     background-color: #ffffff;
     padding: 1rem;
     border-radius: 1rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     border: 1px solid #f1eeec;
+    gap: 1rem;
 }
 
 .pdb-mini-order-img {
@@ -285,8 +353,17 @@
 /* ---------- Active Wishlist ---------- */
 .pdb-wishlist-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                min(180px, 100%),
+                1fr
+            )
+        );
+
+    gap: var(--pdb-gap);
 }
 
 .pdb-mini-wishlist-card {
@@ -355,10 +432,40 @@
 
 .pdb-overview-cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                min(260px, 100%),
+                1fr
+            )
+        );
+
+    gap: var(--pdb-gap);
+}
+.pdb-overview-card,
+.pdb-mini-order,
+.pdb-mini-wishlist-card {
+    width: 100%;
+
+    min-width: 0;
+
+    border-radius: var(--pdb-radius);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
+.pdb-overview-card:hover,
+.pdb-mini-order:hover,
+.pdb-mini-wishlist-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,0.06);
+}
 .pdb-overview-card {
     background-color: #ffffff;
     padding: 1.4rem;
@@ -414,142 +521,39 @@
     line-height: 1.5;
 }
 
-/* ---------- Responsive ---------- */
-@media (max-width: 1024px) {
-    .pdb-container {
-        padding: 0;
-    }
-
-    .pdb-stats-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .pdb-overview-cards {
-        grid-template-columns: 1fr 1fr;
-    }
+@media (max-width: 480px) {
 
     .pdb-header {
-        padding: 16px 0;
-    }
+    justify-content: center;
 }
+    .pdb-header-actions {
+        width: 100%;
 
-@media (max-width: 768px) {
-    .pdb-container {
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    .pdb-header {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
+
+        align-items: stretch;
     }
 
-    .pdb-welcome-info h2 {
-        font-size: 1.75rem;
-    }
+    .pdb-upgrade-btn,
+    .pdb-status-badge {
+        justify-content: center;
 
-    .pdb-stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .pdb-middle {
-        grid-template-columns: 1fr;
-    }
-
-    .pdb-overview-cards {
-        grid-template-columns: 1fr;
-    }
-}
-/* ---------- Ultra Small Devices (260px) ---------- */
-@media (max-width: 280px) {
-
-    .pdb-container {
-        padding: 0.5rem;
-    }
-
-    /* Header */
-    .pdb-header {
-        padding: 10px;
-        gap: 0.5rem;
-    }
-
-    .pdb-welcome-info h2 {
-        font-size: 1rem;
-    }
-
-    .pdb-welcome-info p {
-        font-size: 10px;
-    }
-
-    .pdb-upgrade-btn {
-        font-size: 0.6rem;
-        padding: 0.4rem 0.6rem;
-    }
-
-    /* Stats */
-    .pdb-stat-card {
-        padding: 0.8rem;
-    }
-
-    .pdb-stat-value {
-        font-size: 1.1rem;
-    }
-
-    .pdb-stat-header p {
-        font-size: 0.6rem;
-    }
-
-    .pdb-stat-subtitle {
-        font-size: 0.6rem;
-    }
-
-    /* Orders */
-    .pdb-mini-order {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-
-    .pdb-mini-order-img {
-        width: 2.5rem;
-        height: 2.5rem;
+        width: 100%;
     }
 
     .pdb-mini-order-meta {
+        width: 100%;
+
         align-items: flex-start;
     }
+    .pdb-overview-card-info{
+        display: flex;
 
-    /* Wishlist */
-    .pdb-wishlist-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+
+        gap: 0.20rem;
     }
-
-    .pdb-wishlist-info h4 {
+    .pdb-overview-card-info p{
         font-size: 0.7rem;
     }
-
-    .pdb-wishlist-info p {
-        font-size: 0.7rem;
-    }
-
-    /* Overview */
-    .pdb-overview-card {
-        padding: 0.8rem;
-    }
-
-    .pdb-overview-card-info p {
-        font-size: 0.8rem;
-    }
-
-    .pdb-overview-card-info label {
-        font-size: 0.5rem;
-    }
-
-    /* Reduce icons */
-    .pdb-icon-color,
-    .pdb-overview-icon {
-        font-size: 0.9rem;
-    }
-
 }
