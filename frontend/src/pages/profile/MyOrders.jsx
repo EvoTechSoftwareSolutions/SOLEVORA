@@ -53,9 +53,6 @@ const MyOrders = () => {
 
   useEffect(() => {
     fetchOrders();
-    // Silent background refresh every 3 seconds
-    const interval = setInterval(fetchOrders, 3000);
-    return () => clearInterval(interval);
   }, [user?.id]);
 
   // Filter orders by tab/status

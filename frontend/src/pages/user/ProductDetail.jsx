@@ -84,9 +84,6 @@ function ProductDetail() {
   // Fetch product data and reviews on component mount
   useEffect(() => {
     fetchProduct();
-    // Silent background refresh every 3 seconds
-    const interval = setInterval(fetchProduct, 3000);
-    return () => clearInterval(interval);
   }, [slug]); 
 
   // Auto-select first available in-stock size when product loads

@@ -69,7 +69,7 @@ window.dispatchEvent(new Event("authChange"));
                 </nav>
 
                 {/* DESKTOP MENU */}
-                <div className="nav-actions">
+                <div className="nav-actions desktop">
                     <Link to="/cart" className="icon-btn desktop">
                         <span className="material-symbols-outlined">shopping_cart</span>
                         {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}

@@ -155,12 +155,31 @@
 }
 
 @media (max-width: 992px) {
+    .nav-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 20px;
+    }
+
     .nav-menu {
-        display: none; /* Logic for mobile menu would go here */
+        display: none; 
     }
     
     .mobile-toggle {
         display: block;
+        order: 2;
+    }
+
+    .nav-logo-link {
+        order: 1;
+    }
+
+    .nav-logo-img {
+        height: 60px;
+    }
+
+    .nav-actions.desktop {
+        display: none;
     }
 
     .nav-menu.mobile-active {

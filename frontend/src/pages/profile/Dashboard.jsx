@@ -49,9 +49,6 @@ const Dashboard = () => {
     useEffect(() => {
         setLoading(true);
         fetchDashboardData();
-        // Silent background refresh every 3 seconds
-        const interval = setInterval(fetchDashboardData, 3000);
-        return () => clearInterval(interval);
     }, [user.id]);
 
     const BASE_URL = "http://localhost:5001";

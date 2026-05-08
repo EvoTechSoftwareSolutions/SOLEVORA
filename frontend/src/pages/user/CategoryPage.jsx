@@ -264,30 +264,36 @@ function CategoryPage() {
 
       {/* Products */}
       <section id="product-grid-section" className="bg-[#faecd9]">
-        <div className="flex flex-col gap-4 px-4 py-5 sm:px-8 lg:px-16 sm:flex-row sm:items-center sm:justify-between bg-[#fbf2e1]">
+        <div className="flex flex-row items-center justify-between gap-2 px-4 py-5 sm:px-8 lg:px-16 bg-[#fbf2e1]">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#1f1f1f]">
-              {selectedCategory === "All" ? "All Shoes" : `${selectedCategory} Collection`}
+            <h2 className="text-lg sm:text-2xl font-bold text-[#1f1f1f] whitespace-nowrap">
+              {selectedCategory === "All" ? "All Shoes" : `${selectedCategory}`}
             </h2>
-            <p className="text-[#888] text-xs">{displayedProducts.length} products</p>
+            <p className="text-[#888] text-[10px] sm:text-xs">{displayedProducts.length} items</p>
           </div>
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
-            className="bg-transparent border border-transparent rounded-lg px-2 py-1 text-xs text-[#555] font-semibold outline-none cursor-pointer">
-            <option value="featured">Sort by: Featured</option>
-            <option value="low-high">Price: Low to High</option>
-            <option value="high-low">Price: High to Low</option>
-            <option value="newest">Newest</option>
-          </select>
+          <div className="relative">
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
+              className="bg-white/50 border border-[#eee] rounded-full px-3 py-1.5 text-[10px] sm:text-xs text-[#555] font-bold outline-none cursor-pointer appearance-none pr-8 shadow-sm">
+              <option value="featured">Sort: Featured</option>
+              <option value="low-high">Price: Low-High</option>
+              <option value="high-low">Price: High-Low</option>
+              <option value="newest">Newest</option>
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#888]">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+          </div>
         </div>
 
-        <div className="px-4 sm:px-8 lg:px-16 pb-14 mt-6 grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-6">
+        <div className="px-4 sm:px-8 lg:px-16 pb-14 mt-6 grid grid-cols-1 md:grid-cols-[250px_1fr] gap-8">
           {/* Sidebar */}
-          <aside className="lg:sticky lg:top-24 self-start bg-[#fbddba] rounded-[20px] p-6 h-fit shadow-sm">
+          <aside className="md:sticky md:top-24 self-start bg-[#fbddba] rounded-[20px] p-6 h-fit shadow-sm">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2 font-semibold text-[#222]">
-                <HiOutlineAdjustments className="lg:hidden" />
-                <span className="lg:hidden">Filters</span>
-                <span className="hidden lg:inline text-[13px] font-bold uppercase tracking-wider">Filters</span>
+                <HiOutlineAdjustments className="hidden" />
+                <HiOutlineAdjustments className="md:hidden" />
+                <span className="md:hidden">Filters</span>
+                <span className="hidden md:inline text-[13px] font-bold uppercase tracking-wider">Filters</span>
               </div>
               {(selectedCategory !== "All" || selectedGender !== "All" || selectedSize !== "" || selectedPrice !== "All" || sortBy !== "featured") && (
                 <button onClick={clearFilters} className="text-[10px] font-bold text-[#d57731] hover:text-white hover:bg-[#d57731] bg-white px-3 py-1.5 rounded-full shadow-sm transition">
@@ -346,7 +352,7 @@ function CategoryPage() {
 
           {/* Product Cards */}
           <div className="flex flex-col gap-8">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {displayedProducts.map((product) => (
                 <div key={product.id} className="bg-[#f2f2f2] rounded-[20px] overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-md transition duration-300 h-fit">
                   <div className={`relative w-full aspect-[3/2] ${product.bg} flex items-center justify-center p-4`}>
@@ -363,16 +369,16 @@ function CategoryPage() {
                       className="object-contain w-full h-full drop-shadow-2xl hover:scale-105 transition duration-500" />
                   </div>
 
-                  <div className="px-4 pt-2 pb-3 flex flex-col">
-                    <p className="text-[#ff5c45] text-[10px] font-bold uppercase tracking-wider mb-1">{product.category}</p>
-                    <h3 className="text-[17px] font-semibold text-[#222] truncate">{product.name}</h3>
+                  <div className="px-3 sm:px-4 pt-2 pb-3 flex flex-col">
+                    <p className="text-[#ff5c45] text-[8px] sm:text-[10px] font-bold uppercase tracking-wider mb-0.5 sm:mb-1">{product.category}</p>
+                    <h3 className="text-[13px] sm:text-[15px] lg:text-[17px] font-semibold text-[#222] truncate leading-tight">{product.name}</h3>
                     
                     <div className="mt-1 flex items-center justify-between">
-                      <p className="text-[20px] font-bold text-[#111]">Rs. {product.price.toLocaleString()}</p>
+                      <p className="text-[15px] sm:text-[18px] lg:text-[20px] font-bold text-[#111]">Rs. {product.price.toLocaleString()}</p>
                       <select 
                         value={selectedProductSizes[product.id] || ""} 
                         onChange={(e) => setSelectedProductSizes(prev => ({ ...prev, [product.id]: e.target.value }))}
-                        className="text-[11px] font-bold bg-white border border-[#eee] rounded px-1 py-0.5 outline-none"
+                        className="text-[9px] sm:text-[11px] font-bold bg-white border border-[#eee] rounded px-1 py-0.5 outline-none"
                       >
                         <option value="" disabled>Size</option>
                         {product.sizes?.map(sz => (
@@ -380,14 +386,14 @@ function CategoryPage() {
                         ))}
                       </select>
                     </div>
-                    <div className="flex items-center gap-3 mt-4">
+                    <div className="flex items-center gap-2 sm:gap-3 mt-3 sm:mt-4">
                       <button onClick={() => navigate(`/product/${product.slug}`, { state: { productImage: product.image } })}
-                        className="flex-1 py-2.5 bg-transparent border border-[#999] text-[#222] text-xs font-semibold rounded-lg hover:bg-white transition duration-300">
-                        View Details
+                        className="flex-1 py-2 sm:py-2.5 bg-transparent border border-[#999] text-[#222] text-[10px] sm:text-xs font-semibold rounded-lg hover:bg-white transition duration-300">
+                        Details
                       </button>
                       <button onClick={() => handleAddToCart(product)}
-                        className="shrink-0 w-10 h-10 rounded-lg bg-[#111] text-white flex items-center justify-center hover:bg-[#333] transition duration-300 shadow-md">
-                        <HiOutlineShoppingCart size={18} />
+                        className="shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#111] text-white flex items-center justify-center hover:bg-[#333] transition duration-300 shadow-md">
+                        <HiOutlineShoppingCart size={16} />
                       </button>
                     </div>
                   </div>

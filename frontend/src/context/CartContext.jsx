@@ -120,9 +120,6 @@ export const CartProvider = ({ children }) => {
     const token = getToken();
     if (token) {
       fetchCart().finally(() => setReady(true));
-      // Silent background refresh every 3 seconds
-      const interval = setInterval(fetchCart, 3000);
-      return () => clearInterval(interval);
     } else {
       setCart([]);
       setReady(true);
