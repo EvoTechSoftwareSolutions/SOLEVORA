@@ -46,9 +46,21 @@
 /* Top Metrics Cards */
 .metrics-grid-analytics {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    grid-template-columns: 1fr;
+    gap: 15px;
     margin-bottom: 25px;
+}
+
+@media (min-width: 640px) {
+    .metrics-grid-analytics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .metrics-grid-analytics {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 .metric-card-top {
@@ -137,9 +149,15 @@
 /* Charts Grid */
 .charts-grid {
     display: grid;
-    grid-template-columns: 2.2fr 1fr;
+    grid-template-columns: 1fr;
     gap: 20px;
     margin-bottom: 25px;
+}
+
+@media (min-width: 1200px) {
+    .charts-grid {
+        grid-template-columns: 2.2fr 1fr;
+    }
 }
 
 /* Base White Card */
@@ -299,9 +317,15 @@
 /* Secondary Grid (Middle) */
 .secondary-grid {
     display: grid;
-    grid-template-columns: 1fr 1.8fr;
+    grid-template-columns: 1fr;
     gap: 20px;
     margin-bottom: 25px;
+}
+
+@media (min-width: 1200px) {
+    .secondary-grid {
+        grid-template-columns: 1fr 1.8fr;
+    }
 }
 
 .bar-row {
@@ -434,9 +458,16 @@
 /* Geographic Sales Performance */
 .geo-flex {
     display: flex;
+    flex-direction: column;
     gap: 40px;
     margin-top: 20px;
     align-items: center;
+}
+
+@media (min-width: 1024px) {
+    .geo-flex {
+        flex-direction: row;
+    }
 }
 
 .map-container {
@@ -559,9 +590,15 @@
 /* Deep Dive New Styles */
 .deep-dive-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 25px;
     margin-bottom: 30px;
+}
+
+@media (min-width: 1024px) {
+    .deep-dive-grid {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 .base-card {

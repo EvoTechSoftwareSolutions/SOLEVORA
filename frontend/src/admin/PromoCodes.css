@@ -56,9 +56,16 @@
 /* Stats */
 .pc-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
     margin-bottom: 28px;
+}
+
+@media (min-width: 1024px) {
+    .pc-stats {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+    }
 }
 .pc-stat-card {
     background: #fff;
@@ -98,6 +105,7 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 0.875rem;
+    min-width: 800px;
 }
 .pc-table th {
     background: #f3f4f6;

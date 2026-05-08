@@ -46,6 +46,8 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 .st-page-title { font-size: 22px; font-weight: 800; color: #111; }
 .st-page-sub   { font-size: 13px; color: #888; margin-top: 3px; }
@@ -318,7 +320,17 @@
 
 @media (max-width: 768px) {
     .st-layout { flex-direction: column; }
-    .st-tabs { flex-direction: row; min-width: auto; }
+    .st-tabs { 
+        flex-direction: row; 
+        min-width: auto; 
+        overflow-x: auto;
+        width: 100%;
+        padding-bottom: 12px;
+    }
+    .st-tab {
+        white-space: nowrap;
+    }
     .st-grid-2 { grid-template-columns: 1fr; }
     .st-root { padding: 16px; }
+    .st-form { padding: 20px; }
 }

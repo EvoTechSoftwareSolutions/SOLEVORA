@@ -234,6 +234,19 @@ body {
     color: #6b7280;
 }
 
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px;
+    }
+    
+    .btn-add-product {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 /* Tabs Bar */
 .tabs-bar {
     display: flex;
@@ -242,6 +255,28 @@ body {
     border-bottom: 1px solid #eee;
     padding-bottom: 0;
     margin-bottom: 20px;
+}
+
+@media (max-width: 992px) {
+    .tabs-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        border-bottom: none;
+    }
+    
+    .tabs-left {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .tabs-right {
+        width: 100%;
+        justify-content: flex-start;
+        padding-bottom: 0;
+    }
 }
 
 .tabs-left {
@@ -323,6 +358,17 @@ body {
     align-items: center;
     gap: 16px;
     margin-bottom: 16px;
+}
+
+@media (max-width: 640px) {
+    .pm-search-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .pm-result-count {
+        order: -1;
+    }
 }
 
 .pm-search-box {
@@ -469,11 +515,14 @@ body {
     border: 1px solid #eee;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
     margin-bottom: 30px;
+    overflow-x: auto; /* Enable horizontal scroll */
+    -webkit-overflow-scrolling: touch;
 }
 
 .products-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 1000px; /* Ensure table content stays readable */
 }
 
 .products-table th {
@@ -705,7 +754,23 @@ body {
 /* Bottom Metrics Area */
 .bottom-metrics {
     display: flex;
-    gap: 20px;
+    flex-direction: column;
+    gap: 15px;
+}
+
+@media (min-width: 640px) {
+    .bottom-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .bottom-metrics {
+        display: flex;
+        flex-direction: row;
+    }
 }
 
 .metric-card-bottom {

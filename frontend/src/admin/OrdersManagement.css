@@ -206,8 +206,24 @@ body {
 /* Metric Cards */
 .metric-cards {
     display: flex;
-    gap: 20px;
+    flex-direction: column;
+    gap: 15px;
     margin-bottom: 30px;
+}
+
+@media (min-width: 768px) {
+    .metric-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .metric-cards {
+        display: flex;
+        flex-direction: row;
+    }
 }
 
 .metric-card-box {
@@ -297,6 +313,25 @@ body {
     padding: 15px 0;
 }
 
+@media (max-width: 992px) {
+    .tabs-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .tabs-left {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+    
+    .tabs-right {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
 .tabs-left {
     display: flex;
     gap: 10px;
@@ -364,11 +399,14 @@ body {
     background-color: #fff;
     border-radius: 12px;
     border: 1px solid #eee;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .orders-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 900px;
 }
 
 .orders-table th {
