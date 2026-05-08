@@ -243,7 +243,7 @@ const getProductImage = (item) => {
         <div className="circle-grid">
           {categories.map((cat, index) => (
             <Link 
-              to={`/category?type=${cat.name}`}
+              to={`/category?type=${cat.name}#product-grid-section`}
               key={index}
               className="category-circle"
               style={{ backgroundColor: cat.color }}

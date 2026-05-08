@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { useNavigate, Link, useSearchParams, useLocation } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import {
@@ -56,6 +56,7 @@ const handleImgError = (e) => {
 
 function CategoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const [selectedGender, setSelectedGender] = useState("All");
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("All");
@@ -80,6 +81,15 @@ function CategoryPage() {
     const type = searchParams.get("type");
     if (type) setSelectedCategory(type);
   }, [searchParams]);
+
+  useEffect(() => {
+    if (location.hash !== "#product-grid-section") return;
+    window.setTimeout(() => {
+      document
+        .getElementById("product-grid-section")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  }, [location.hash]);
 
   const handleCategoryClick = (categoryName) => {
     const newCategory = selectedCategory === categoryName ? "All" : categoryName;
@@ -265,7 +275,11 @@ function CategoryPage() {
 
 
       {/* Products */}
-      <section id="product-grid-section" className="bg-[#faecd9]">
+      <section
+        id="product-grid-section"
+        className="bg-[#faecd9]"
+        style={{ scrollMarginTop: 110 }}
+      >
         {/* Title + Sort row */}
         <div className="flex flex-row items-center justify-between gap-2 px-4 py-4 sm:px-8 lg:px-16 bg-[#fbf2e1]">
           <div>
