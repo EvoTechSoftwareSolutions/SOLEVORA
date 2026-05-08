@@ -242,6 +242,13 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
+        const totalImages = imagePreviews.length + files.length;
+
+        if (totalImages > 10) {
+            setFieldError('images', 'A maximum of 10 images are allowed per product.');
+            return;
+        }
+
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
         const maxSize = 5 * 1024 * 1024; // 5 MB
 
@@ -630,7 +637,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                                 />
                             </label>
                         </div>
-                        <p className="text-xs text-gray-500">JPG, PNG, WebP or GIF · Max 5 MB each.</p>
+                        <p className="text-xs text-gray-500">JPG, PNG, WebP or GIF · Max 5 MB each · Max 10 images.</p>
                         <ErrorMsg field="images" />
                     </div>
 

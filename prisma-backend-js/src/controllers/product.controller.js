@@ -17,6 +17,12 @@ export const createProduct = async (req, res) => {
     } = req.body;
 
     const files = req.files || [];
+    if (files.length > 10) {
+      return res.status(400).json({
+        success: false,
+        error: "Maximum 10 images are allowed per product."
+      });
+    }
 
     let parsedStocks = [];
     try {
@@ -365,6 +371,17 @@ export const updateProduct = async (req, res) => {
     const { id } = req.params;
     const { stocks, name, slug, description, price, discountPrice, categoryId, gender } = req.body;
     const files = req.files || [];
+
+    // Check image limit
+    const currentImageCount = await prisma.productimage.count({
+      where: { productId: Number(id) }
+    });
+    if (currentImageCount + files.length > 10) {
+      return res.status(400).json({
+        success: false,
+        error: `Maximum 10 images allowed. Product already has ${currentImageCount} images.`
+      });
+    }
 
     // 1. ROBUST PARSING: Ensure stocks is an array
     let parsedStocks = [];
