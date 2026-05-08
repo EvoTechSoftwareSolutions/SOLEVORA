@@ -356,7 +356,7 @@
     .profile-mobile-top-bar {
         display: block;
         position: sticky;
-        top: 0;           /* ← WAS top:80px → caused the white space gap */
+        top: 0;           
         z-index: 25;
         width: 100%;
         margin: 0;
@@ -552,6 +552,7 @@
     .profile-sidebar-content {
         padding: 16px;
         flex: 1;
+        margin-top: 20px;
     }
 
     .sidebar-user-section {
@@ -637,9 +638,8 @@
     }
 }
 
-/* =============================================
-   RESPONSIVE: Small Mobile (≤ 480px)
-   ============================================= */
+   /* RESPONSIVE: Small Mobile (≤ 480px) */
+
 @media (max-width: 480px) {
     .profile-mobile-top-inner {
         min-height: 48px;
