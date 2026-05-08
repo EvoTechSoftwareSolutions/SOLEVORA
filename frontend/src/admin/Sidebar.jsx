@@ -6,7 +6,7 @@ import logo from '../assets/logo.png';
 import './Sidebar.css';
 import { API_URL, BASE_URL, getImageUrl } from '../config/api';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
     // current route info
     const { permissions } = useAdminAuth();
     const location = useLocation();
@@ -15,6 +15,12 @@ const Sidebar = () => {
     const currentPath = location.pathname;
     // unread messages count
     const [unreadCount, setUnreadCount] = useState(0);
+
+    const handleNavClick = () => {
+        if (window.innerWidth < 1024 && onClose) {
+            onClose();
+        }
+    };
 
     useEffect(() => {
         const fetchUnreadCount = async () => {
@@ -51,7 +57,7 @@ const Sidebar = () => {
            {/* main navigation */}
             <div className="app-nav-items">
               {permissions.canViewDashboard && (
-                 <Link to="/admin" style={{ textDecoration: 'none' }}>
+                 <Link to="/admin" style={{ textDecoration: 'none' }} onClick={handleNavClick}>
                      <div className={`app-nav-item ${isTabActive('/admin')}`}>
                          <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                              <rect x="3" y="3" width="7" height="7"></rect>
@@ -64,7 +70,7 @@ const Sidebar = () => {
                  </Link>
              )}
             {/* products */}
-                <Link to="/admin/products" style={{ textDecoration: 'none' }}>
+                <Link to="/admin/products" style={{ textDecoration: 'none' }} onClick={handleNavClick}>
                     <div className={`app-nav-item ${isTabActive('/admin/products')}`}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M21 8H3V18a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z"></path>
@@ -75,7 +81,7 @@ const Sidebar = () => {
                     </div>
                 </Link>
                 {/* stock batches */}
-                <Link to="/admin/batches" style={{ textDecoration: 'none' }}>
+                <Link to="/admin/batches" style={{ textDecoration: 'none' }} onClick={handleNavClick}>
                     <div className={`app-nav-item ${isTabActive('/admin/batches')}`}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 2v10m0 0l-4-4m4 4l4-4"></path>
@@ -85,7 +91,7 @@ const Sidebar = () => {
                     </div>
                 </Link>
                {/* orders */}
-                <Link to="/admin/orders" style={{ textDecoration: 'none' }}>
+                <Link to="/admin/orders" style={{ textDecoration: 'none' }} onClick={handleNavClick}>
                     <div className={`app-nav-item ${isTabActive('/admin/orders')}`}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="9" cy="21" r="1"></circle>
@@ -96,7 +102,7 @@ const Sidebar = () => {
                     </div>
                 </Link>
                 {/* customers */}
-                <Link to="/admin/customers" style={{ textDecoration: 'none' }}>
+                <Link to="/admin/customers" style={{ textDecoration: 'none' }} onClick={handleNavClick}>
                     <div className={`app-nav-item ${isTabActive('/admin/customers')}`}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M17 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -108,7 +114,7 @@ const Sidebar = () => {
                     </div>
                 </Link>
                 {/* messages with unread badge */}
-                <Link to="/admin/messages" style={{ textDecoration: 'none' }}>
+                <Link to="/admin/messages" style={{ textDecoration: 'none' }} onClick={handleNavClick}>
                     <div className={`app-nav-item ${isTabActive('/admin/messages')}`} style={{ position: 'relative' }}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -134,7 +140,7 @@ const Sidebar = () => {
                     </div>
                 </Link>
                 {/* newsletter */}
-                <Link to="/admin/newsletter" style={{ textDecoration: 'none' }}>
+                <Link to="/admin/newsletter" style={{ textDecoration: 'none' }} onClick={handleNavClick}>
                     <div className={`app-nav-item ${isTabActive('/admin/newsletter')}`}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M22 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5C2 7 4 5 6.5 5H18c2.2 0 4 1.8 4 4v8z"></path>
@@ -146,7 +152,7 @@ const Sidebar = () => {
                 </Link>
                {/* promo codes */}
              {permissions.canManagePromoCodes && (
-                 <Link to="/admin/promo-codes" style={{ textDecoration: 'none' }}>
+                 <Link to="/admin/promo-codes" style={{ textDecoration: 'none' }} onClick={handleNavClick}>
                      <div className={`app-nav-item ${isTabActive('/admin/promo-codes')}`}>
                          <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
@@ -158,7 +164,7 @@ const Sidebar = () => {
              )}
                 {/* inventory report */}
              {permissions.canViewInventory && (
-                 <Link to="/admin/inventory-report" style={{ textDecoration: 'none' }}>
+                 <Link to="/admin/inventory-report" style={{ textDecoration: 'none' }} onClick={handleNavClick}>
                      <div className={`app-nav-item ${isTabActive('/admin/inventory-report')}`}>
                          <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -173,7 +179,7 @@ const Sidebar = () => {
              )}
                {/* analytics */}
              {permissions.canViewAnalytics && (
-                 <Link to="/admin/analytics" style={{ textDecoration: 'none' }}>
+                 <Link to="/admin/analytics" style={{ textDecoration: 'none' }} onClick={handleNavClick}>
                      <div className={`app-nav-item ${isTabActive('/admin/analytics')}`}>
                          <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                              <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -191,7 +197,7 @@ const Sidebar = () => {
             <div className="app-system-label">SYSTEM</div>
             <div className="app-nav-items app-system-items">
                  {permissions.canManageSettings && (
-                     <Link to="/admin/settings" style={{ textDecoration: 'none' }}>
+                     <Link to="/admin/settings" style={{ textDecoration: 'none' }} onClick={handleNavClick}>
                          <div className={`app-nav-item ${isTabActive('/admin/settings')}`}>
                              <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                                  <circle cx="12" cy="12" r="3"></circle>
@@ -203,7 +209,7 @@ const Sidebar = () => {
                  )}
 
                 {/* Security — visible to all roles */}
-                <Link to="/admin/security" style={{ textDecoration: 'none' }}>
+                <Link to="/admin/security" style={{ textDecoration: 'none' }} onClick={handleNavClick}>
                     <div className={`app-nav-item ${isTabActive('/admin/security')}`}>
                         <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -214,7 +220,7 @@ const Sidebar = () => {
                 </Link>
 
                 {/* Logout */}
-                <div className="app-nav-item app-nav-logout" onClick={handleLogout}>
+                <div className="app-nav-item app-nav-logout" onClick={() => { handleLogout(); handleNavClick(); }}>
                     <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                         <polyline points="16 17 21 12 16 7"></polyline>

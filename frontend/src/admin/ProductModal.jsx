@@ -375,7 +375,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                     )}
 
                     {/* Basic Info */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Product Name */}
                         <div className="relative">
                             <label className="block text-sm font-medium mb-1">
@@ -427,7 +427,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                     </div>
 
                     {/* Description & Gender */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1">
                                 Description <span className="text-red-500">*</span>
@@ -465,7 +465,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                     </div>
 
                     {/* Category */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1">
                                 Category <span className="text-red-500">*</span>
@@ -489,7 +489,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                     </div>
 
                     {/* Pricing */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1">
                                 Price (Rs.) <span className="text-red-500">*</span>
@@ -540,7 +540,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                             Set a unique <span className="font-semibold">Selling Price</span> per size if needed.
                         </p>
                         {stocks.map((stock, idx) => (
-                            <div key={idx} className="grid grid-cols-5 gap-2 mb-2 items-end">
+                            <div key={idx} className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-4 sm:mb-2 items-end border-b sm:border-none pb-4 sm:pb-0">
                                 <div>
                                     <label className="block text-[10px] text-gray-400 uppercase font-bold mb-1">Size</label>
                                     <input

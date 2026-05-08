@@ -13,6 +13,22 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+@media (max-width: 640px) {
+    .inventory-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .inventory-actions {
+        width: 100%;
+    }
+    .export-btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 .inventory-header h2 {
@@ -92,13 +108,15 @@
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    overflow: hidden;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .inventory-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
+    min-width: 800px;
 }
 
 .inventory-table th {
@@ -177,6 +195,16 @@
     gap: 15px;
     align-items: center;
     box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .filter-group {
+        width: 100%;
+    }
+    .filter-select {
+        flex: 1;
+    }
 }
 
 .filter-group {

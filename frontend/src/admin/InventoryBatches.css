@@ -10,6 +10,8 @@
     justify-content: space-between;
     align-items: flex-end;
     margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .inventory-batches-header h1 {
@@ -29,13 +31,15 @@
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    overflow: hidden;
+    overflow-x: auto;
     border: 1px solid #eee;
+    -webkit-overflow-scrolling: touch;
 }
 
 .batches-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 800px;
 }
 
 .batches-table th {

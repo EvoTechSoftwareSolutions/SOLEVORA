@@ -210,8 +210,24 @@ body {
 /* Metric Cards */
 .metric-cards {
     display: flex;
-    gap: 20px;
+    flex-direction: column;
+    gap: 15px;
     margin-bottom: 30px;
+}
+
+@media (min-width: 640px) {
+    .metric-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .metric-cards {
+        display: flex;
+        flex-direction: row;
+    }
 }
 
 .metric-card {
@@ -331,6 +347,14 @@ body {
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
     border: 1px solid #eee;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.customers-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
 }
 
 /* Filters */
@@ -339,6 +363,32 @@ body {
     justify-content: space-between;
     padding: 20px;
     border-bottom: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .filters-left {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .search-input-box {
+        width: 100%;
+    }
+    
+    .select-box, .select-box select {
+        width: 100%;
+    }
+    
+    .filters-right {
+        width: 100%;
+    }
+    
+    .filters-right .white-btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 .filters-left {
