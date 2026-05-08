@@ -307,6 +307,45 @@
   border-color: #cbd5e1;
 }
 
+.oc-download-btn {
+  background-color: #1a1a2e;
+  color: white;
+  border: none;
+  padding: 14px 25px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(26, 26, 46, 0.15);
+}
+
+.oc-download-btn:hover {
+  background-color: #2a2a4e;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .oc-actions {
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .oc-track-btn,
+  .oc-download-btn,
+  .oc-continue-btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 13px;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 650px) {
   .oc-breakdown-section {
     flex-direction: column;
@@ -368,17 +407,12 @@
     font-size: 12px;
   }
 
-  /* Buttons stack */
-  .oc-actions {
-    flex-direction: column;
-    gap: 10px;
-  }
-
+  /* Buttons stack already handled in 768px, but ensure small font */
   .oc-track-btn,
+  .oc-download-btn,
   .oc-continue-btn {
-    width: 100%;
     padding: 12px;
-    font-size: 11px;
+    font-size: 12px;
   }
 
   /* Breakdown section */

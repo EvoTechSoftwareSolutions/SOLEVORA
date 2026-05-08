@@ -739,11 +739,11 @@
     }
     
     .cart-main-layout {
-        display: grid;
-        grid-template-columns: 1fr 110px; /* Narrower summary sidebar */
-        gap: 8px;
-        margin-bottom: 20px;
-        align-items: start;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        margin-bottom: 30px;
+        align-items: stretch;
     }
 
     .cart-items-scroll {
@@ -852,37 +852,38 @@
         border-color: #ffe2d6;
     }
     
-    /* Mobile Order Summary - Compact sidebar */
+    /* Mobile Order Summary - Full Width */
     .order-summary-card {
-        padding: 12px 8px;
-        border-radius: 10px;
-        font-size: 10px;
+        padding: 20px;
+        border-radius: 12px;
+        font-size: 14px;
+        width: 100%;
+        max-width: 100%;
     }
     
     .order-summary-card h3 {
-        font-size: 12px;
-        margin-bottom: 12px;
+        font-size: 16px;
+        margin-bottom: 16px;
         font-weight: 800;
     }
     
     .summary-row {
-        font-size: 8px;
-        margin-bottom: 6px;
+        font-size: 12px;
+        margin-bottom: 12px;
     }
     
     .summary-total {
-        font-size: 12px;
-        padding-top: 8px;
-        margin-top: 8px;
+        font-size: 16px;
+        padding-top: 12px;
+        margin-top: 12px;
     }
     
     .checkout-btn {
-        height: 32px;
-        font-size: 8px;
-        padding: 0 10px;
+        height: 48px;
+        font-size: 14px;
+        padding: 0 16px;
         text-align: center;
-        line-height: 1;
-        border-radius: 4px;
+        border-radius: 8px;
     }
       .item-details h3{
         font-size: 14px;
@@ -995,8 +996,8 @@
 }
   
     .order-summary-card {
-    width: 255px;
-    padding: 20px;
+    width: 100%;
+    padding: 16px;
 }
 .order-summary-card h3{
     font-size: 18px;

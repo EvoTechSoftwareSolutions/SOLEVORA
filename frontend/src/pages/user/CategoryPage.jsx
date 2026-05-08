@@ -69,6 +69,7 @@ function CategoryPage() {
   const [allCategoryCounts, setAllCategoryCounts] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [activeFilterPanel, setActiveFilterPanel] = useState(null); // 'gender' | 'size' | 'price' | null
   const limit = 12;
 
   const navigate = useNavigate();
@@ -262,9 +263,11 @@ function CategoryPage() {
         </div>
       </section>
 
+
       {/* Products */}
       <section id="product-grid-section" className="bg-[#faecd9]">
-        <div className="flex flex-row items-center justify-between gap-2 px-4 py-5 sm:px-8 lg:px-16 bg-[#fbf2e1]">
+        {/* Title + Sort row */}
+        <div className="flex flex-row items-center justify-between gap-2 px-4 py-4 sm:px-8 lg:px-16 bg-[#fbf2e1]">
           <div>
             <h2 className="text-lg sm:text-2xl font-bold text-[#1f1f1f] whitespace-nowrap">
               {selectedCategory === "All" ? "All Shoes" : `${selectedCategory}`}
@@ -285,9 +288,155 @@ function CategoryPage() {
           </div>
         </div>
 
-        <div className="px-4 sm:px-8 lg:px-16 pb-14 mt-6 grid grid-cols-1 md:grid-cols-[250px_1fr] gap-8">
-          {/* Sidebar */}
-          <aside className="md:sticky md:top-24 self-start bg-[#fbddba] rounded-[20px] p-6 h-fit shadow-sm">
+        {/* Mobile: Unified filter chip row – Category, Gender, Size, Price */}
+        <div className="md:hidden flex items-center gap-2 px-4 py-3 bg-[#fbf2e1] border-b border-[#f0e0cc] overflow-x-auto" style={{scrollbarWidth:'none'}}>
+          {/* Clear chip */}
+          {(selectedCategory !== "All" || selectedGender !== "All" || selectedSize !== "" || selectedPrice !== "All") && (
+            <button onClick={clearFilters}
+              className="flex-shrink-0 px-3 py-1.5 rounded-full bg-red-50 text-red-500 text-[11px] font-bold border border-red-200 whitespace-nowrap">
+              Clear
+            </button>
+          )}
+
+          {/* Category chip */}
+          <button onClick={() => setActiveFilterPanel(activeFilterPanel === 'category' ? null : 'category')}
+            className={`flex-shrink-0 flex items-center gap-1 px-4 py-1.5 rounded-full text-[12px] font-semibold border transition whitespace-nowrap ${
+              selectedCategory !== "All" ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#333] border-[#ccc]"
+            }`}>
+            {selectedCategory !== "All" ? selectedCategory : "Category"}
+            <svg className="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+
+          {/* Gender chip */}
+          <button onClick={() => setActiveFilterPanel(activeFilterPanel === 'gender' ? null : 'gender')}
+            className={`flex-shrink-0 flex items-center gap-1 px-4 py-1.5 rounded-full text-[12px] font-semibold border transition whitespace-nowrap ${
+              selectedGender !== "All" ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#333] border-[#ccc]"
+            }`}>
+            Gender
+            {selectedGender !== "All" && <span className="text-[10px] opacity-75">({selectedGender})</span>}
+            <svg className="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+
+          {/* Size chip */}
+          <button onClick={() => setActiveFilterPanel(activeFilterPanel === 'size' ? null : 'size')}
+            className={`flex-shrink-0 flex items-center gap-1 px-4 py-1.5 rounded-full text-[12px] font-semibold border transition whitespace-nowrap ${
+              selectedSize !== "" ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#333] border-[#ccc]"
+            }`}>
+            Size
+            {selectedSize && <span className="text-[10px] opacity-75">({selectedSize})</span>}
+            <svg className="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+
+          {/* Price chip */}
+          <button onClick={() => setActiveFilterPanel(activeFilterPanel === 'price' ? null : 'price')}
+            className={`flex-shrink-0 flex items-center gap-1 px-4 py-1.5 rounded-full text-[12px] font-semibold border transition whitespace-nowrap ${
+              selectedPrice !== "All" ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#333] border-[#ccc]"
+            }`}>
+            Price
+            {selectedPrice !== "All" && <span className="text-[10px] opacity-75">({selectedPrice})</span>}
+            <svg className="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+        </div>
+
+        {/* Mobile slide-up filter panels + backdrop */}
+        {activeFilterPanel && (
+          <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end">
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/40" onClick={() => setActiveFilterPanel(null)} />
+
+            {/* Category panel */}
+            {activeFilterPanel === 'category' && (
+              <div className="relative z-10 bg-white rounded-t-2xl shadow-2xl px-5 pt-4 pb-8">
+                <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-4" />
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-[15px] text-[#111]">Category</h3>
+                  <button onClick={() => setActiveFilterPanel(null)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-sm">✕</button>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {["All", ...categories.map((c) => c.title)].map((cat) => (
+                    <button key={cat} onClick={() => { handleCategoryClick(cat); setActiveFilterPanel(null); }}
+                      className={`px-4 py-2 rounded-full text-sm font-semibold border transition ${
+                        selectedCategory === cat ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#444] border-[#ddd]"
+                      }`}>{cat}</button>
+                  ))}
+                </div>
+                <button onClick={() => setActiveFilterPanel(null)}
+                  className="w-full py-3 bg-[#111] text-white rounded-full font-bold text-sm">Apply</button>
+              </div>
+            )}
+
+            {/* Gender panel */}
+            {activeFilterPanel === 'gender' && (
+              <div className="relative z-10 bg-white rounded-t-2xl shadow-2xl px-5 pt-4 pb-8">
+                <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-4" />
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-[15px] text-[#111]">Gender</h3>
+                  <button onClick={() => setActiveFilterPanel(null)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-sm">✕</button>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {["All", "Men", "Women", "Kids"].map((g) => (
+                    <button key={g} onClick={() => { setSelectedGender(g); setSelectedSize(""); }}
+                      className={`px-5 py-2 rounded-full text-sm font-semibold border transition ${
+                        selectedGender === g ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#444] border-[#ddd]"
+                      }`}>{g}</button>
+                  ))}
+                </div>
+                <button onClick={() => setActiveFilterPanel(null)}
+                  className="w-full py-3 bg-[#111] text-white rounded-full font-bold text-sm">Apply</button>
+              </div>
+            )}
+
+            {/* Size panel */}
+            {activeFilterPanel === 'size' && (
+              <div className="relative z-10 bg-white rounded-t-2xl shadow-2xl px-5 pt-4 pb-8">
+                <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-4" />
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-bold text-[15px] text-[#111]">Shoe Size</h3>
+                  <button onClick={() => setActiveFilterPanel(null)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-sm">✕</button>
+                </div>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs text-[#888]">Select your size (EU)</p>
+                  <button onClick={() => setShowSizeChart(true)} className="text-xs font-bold text-[#d57731] underline">Size Guide</button>
+                </div>
+                <div className="grid grid-cols-4 gap-2 mb-5">
+                  {sizes.map((s) => (
+                    <button key={s} onClick={() => setSelectedSize(selectedSize === s ? "" : s)}
+                      className={`py-2.5 rounded-xl text-xs font-semibold border transition ${
+                        selectedSize === s ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#444] border-[#ddd] hover:border-[#999]"
+                      }`}>{s}</button>
+                  ))}
+                </div>
+                <button onClick={() => setActiveFilterPanel(null)}
+                  className="w-full py-3 bg-[#111] text-white rounded-full font-bold text-sm">Apply</button>
+              </div>
+            )}
+
+            {/* Price panel */}
+            {activeFilterPanel === 'price' && (
+              <div className="relative z-10 bg-white rounded-t-2xl shadow-2xl px-5 pt-4 pb-8">
+                <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-4" />
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-[15px] text-[#111]">Price Range</h3>
+                  <button onClick={() => setActiveFilterPanel(null)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-sm">✕</button>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {priceRanges.map((r) => (
+                    <button key={r} onClick={() => setSelectedPrice(r)}
+                      className={`px-5 py-2 rounded-full text-sm font-semibold border transition ${
+                        selectedPrice === r ? "bg-[#111] text-white border-[#111]" : "bg-white text-[#444] border-[#ddd]"
+                      }`}>{r}</button>
+                  ))}
+                </div>
+                <button onClick={() => setActiveFilterPanel(null)}
+                  className="w-full py-3 bg-[#111] text-white rounded-full font-bold text-sm">Apply</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="px-4 sm:px-8 lg:px-16 pb-28 md:pb-14 mt-6 grid grid-cols-1 md:grid-cols-[250px_1fr] gap-8">
+          {/* Sidebar – desktop only */}
+          <aside className="hidden md:block md:sticky md:top-24 self-start bg-[#fbddba] rounded-[20px] p-6 h-fit shadow-sm">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2 font-semibold text-[#222]">
                 <HiOutlineAdjustments className="hidden" />
@@ -418,6 +567,7 @@ function CategoryPage() {
           </div>
         </div>
       </section>
+
 
       {/* Bottom Banner */}
       <section className="px-4 sm:px-8 lg:px-16 py-14 bg-[#f6f6f6]">

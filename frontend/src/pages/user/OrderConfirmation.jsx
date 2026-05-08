@@ -307,20 +307,7 @@ const OrderConfirmation = () => {
           <button className="oc-track-btn" onClick={() => navigate('/profile/orders')}>
             TRACK ORDER
           </button>
-          <button className="oc-download-btn" onClick={handleDownloadReceipt} style={{
-              backgroundColor: '#1a1a2e',
-              color: 'white',
-              border: 'none',
-              padding: '14px 25px',
-              borderRadius: '12px',
-              fontWeight: '700',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontSize: '14px',
-              transition: 'all 0.3s ease'
-          }}>
+          <button className="oc-download-btn" onClick={handleDownloadReceipt}>
             <span className="material-symbols-outlined">download</span>
             DOWNLOAD RECEIPT
           </button>

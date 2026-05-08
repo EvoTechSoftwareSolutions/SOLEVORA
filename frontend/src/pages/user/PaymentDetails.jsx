@@ -301,22 +301,47 @@ const PaymentDetails = () => {
             <p className="pd-page-subtitle">Secure your order with your preferred payment method.</p>
 
             <h3 className="pd-section-title">Select Payment Method</h3>
-            <div className="pd-methods-grid">
-              {[
-                { id: 'ONLINE', icon: 'credit_card', label: 'Credit / Debit Card' },
-                { id: 'paypal', icon: 'account_balance_wallet', label: 'PayPal' },
-                { id: 'applepay', icon: null, label: 'Apple Pay', sub: 'iOS' },
-                { id: 'COD', icon: 'payments', label: 'Cash on Delivery' },
-              ].map(m => (
-                <div key={m.id}
-                  className={`pd-method-card ${paymentMethod === m.id ? 'active' : ''}`}
-                  onClick={() => setPaymentMethod(m.id)}>
-                  {m.icon
-                    ? <span className="material-symbols-outlined pd-method-icon">{m.icon}</span>
-                    : <span className="pd-method-sub">{m.sub}</span>}
-                  <span className="pd-method-name">{m.label}</span>
-                </div>
-              ))}
+            
+            {/* Desktop / Tablet Grid */}
+            <div className="pd-desktop-methods">
+              <div className="pd-methods-grid">
+                {[
+                  { id: 'ONLINE', icon: 'credit_card', label: 'Credit / Debit Card' },
+                  { id: 'paypal', icon: 'account_balance_wallet', label: 'PayPal' },
+                  { id: 'applepay', icon: null, label: 'Apple Pay', sub: 'iOS' },
+                  { id: 'COD', icon: 'payments', label: 'Cash on Delivery' },
+                ].map(m => (
+                  <div key={m.id}
+                    className={`pd-method-card ${paymentMethod === m.id ? 'active' : ''}`}
+                    onClick={() => setPaymentMethod(m.id)}>
+                    {m.icon
+                      ? <span className="material-symbols-outlined pd-method-icon">{m.icon}</span>
+                      : <span className="pd-method-sub">{m.sub}</span>}
+                    <span className="pd-method-name">{m.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile Horizontal Scroll (Native) */}
+            <div className="pd-mobile-methods">
+              <div className="pd-mobile-methods-scroll">
+                {[
+                  { id: 'ONLINE', icon: 'credit_card', label: 'Credit / Debit Card' },
+                  { id: 'paypal', icon: 'account_balance_wallet', label: 'PayPal' },
+                  { id: 'applepay', icon: null, label: 'Apple Pay', sub: 'iOS' },
+                  { id: 'COD', icon: 'payments', label: 'Cash on Delivery' },
+                ].map(m => (
+                  <div key={m.id}
+                    className={`pd-method-card ${paymentMethod === m.id ? 'active' : ''}`}
+                    onClick={() => setPaymentMethod(m.id)}>
+                    {m.icon
+                      ? <span className="material-symbols-outlined pd-method-icon">{m.icon}</span>
+                      : <span className="pd-method-sub">{m.sub}</span>}
+                    <span className="pd-method-name">{m.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Payment info */}
