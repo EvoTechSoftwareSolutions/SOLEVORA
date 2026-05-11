@@ -212,7 +212,7 @@ const Cart = () => {
                   sessionStorage.removeItem('checkoutShippingCharge');
                   sessionStorage.removeItem('checkoutShippingMethod');
                   
-                  navigate("/shipping", { state: { selectedIds } });
+                  navigate("/checkout", { state: { selectedIds } });
                 }
               }}
               disabled={selectedIds.length === 0}

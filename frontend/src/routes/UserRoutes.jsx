@@ -13,9 +13,6 @@ const ProductDetail = lazy(() => import('../pages/user/ProductDetail'));
 const Category = lazy(() => import('../pages/user/CategoryPage'));
 const CategoryDetails = lazy(() => import('../pages/user/CategoryDetails'));
 const Cart = lazy(() => import('../pages/user/Cart'));
-const ShippingInformation = lazy(() => import('../pages/user/ShippingInformation'));
-const ShippingMethod = lazy(() => import('../pages/user/ShippingMethod'));
-const PaymentDetails = lazy(() => import('../pages/user/PaymentDetails'));
 const VerificationCode = lazy(() => import('../pages/user/VerificationCode'));
 const OrderConfirmation = lazy(() => import('../pages/user/OrderConfirmation'));
 const TrackOrder = lazy(() => import('../pages/user/TrackOrder'));
@@ -24,6 +21,7 @@ const Terms = lazy(() => import('../pages/user/Terms'));
 const FAQs = lazy(() => import('../pages/user/Faq'));
 const Careers = lazy(() => import('../pages/user/Careers'));
 const SizeGuide = lazy(() => import('../pages/user/SizeGuide'));
+const Checkout = lazy(() => import('../pages/user/Checkout'));
 
 /**
  * Pathless layout + absolute child paths so /home, /about, etc. match in React Router 7.
@@ -41,9 +39,7 @@ const UserRoutes = (
     <Route path="/categorypage" element={<Category />} />
     <Route path="/category-details" element={<CategoryDetails />} />
     <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
-    <Route path="/shipping" element={<ProtectedRoute><ShippingInformation /></ProtectedRoute>} />
-    <Route path="/shipping-method" element={<ShippingMethod />} />
-    <Route path="/payment" element={<PaymentDetails />} />
+    <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
     <Route path="/verify-code" element={<VerificationCode />} />
     <Route path="/order-success" element={<OrderConfirmation />} />
     <Route path="/track-order" element={<TrackOrder />} />

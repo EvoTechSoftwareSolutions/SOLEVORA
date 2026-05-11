@@ -17,6 +17,7 @@ import contactRoutes from "./routes/contact.routes.js";
 import newsletterRoutes from "./routes/newsletter.routes.js";
 import paymentRoutes from "./routes/payment.route.js";
 import promoRoutes from "./routes/promo.routes.js";
+import shippingRoutes from "./routes/shipping.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,5 +57,6 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/promo", promoRoutes);
+app.use("/api/shipping", shippingRoutes);
 
 export default app;

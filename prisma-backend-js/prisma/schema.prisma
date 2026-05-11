@@ -46,6 +46,7 @@ model order {
   email             String?
   contactNumber     String?
   shippingAddress   String?
+  shippingMethod    String? 
   paymentMethod     order_paymentMethod
 paymentStatus order_paymentStatus @default(PENDING)
 status        order_status @default(PENDING)
@@ -66,6 +67,7 @@ status        order_status @default(PENDING)
   @@index([userId], map: "Order_userId_fkey")
 }
 
+
 model orderitem {
   id           Int      @id @default(autoincrement())
   orderId      Int
@@ -83,6 +85,14 @@ model orderitem {
   @@index([productId], map: "OrderItem_productId_fkey")
 }
 
+model ShippingZone {
+  id        Int    @id @default(autoincrement())
+  district  String
+  method    String   // standard | express | nextday
+  price     Decimal  @db.Decimal(10, 2)
+
+  @@unique([district, method])
+}
 model product {
   id            Int            @id @default(autoincrement())
   name          String
