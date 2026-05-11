@@ -5,9 +5,9 @@ export const validateUser = [
     .notEmpty().withMessage("Name is required")
     .trim()
     .isLength({ min: 3 }).withMessage("Name must be at least 3 characters")
-    .matches(/^[A-Za-z\s]+$/).withMessage("Name must contain only letters"),
+    .matches(/^[A-Za-z0-9_]+$/).withMessage("Name must contain only letters"),
 
-  // 🔹 Email validation
+  // Email validation
   body("email")
     .notEmpty().withMessage("Email is required")
     .trim()

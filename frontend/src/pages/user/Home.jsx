@@ -219,6 +219,7 @@ const getProductImage = (item) => {
               image={getProductImage(item)}
               title={item.name}
               price={item.price}
+              description={item.description}
               link={`/product/${item.slug}`}
             />
           ))}

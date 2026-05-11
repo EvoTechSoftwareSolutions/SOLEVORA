@@ -535,9 +535,10 @@ function CategoryPage() {
                   <div className="px-3 sm:px-4 pt-2 pb-3 flex flex-col">
                     <p className="text-[#ff5c45] text-[8px] sm:text-[10px] font-bold uppercase tracking-wider mb-0.5 sm:mb-1">{product.category}</p>
                     <h3 className="text-[13px] sm:text-[15px] lg:text-[17px] font-semibold text-[#222] truncate leading-tight">{product.name}</h3>
+                    <span className="text-[12px] sm:text-[13px] text-[#6b7280] leading-relaxed"> {product.description}</span>
                     
                     <div className="mt-1 flex items-center justify-between">
-                      <p className="text-[15px] sm:text-[18px] lg:text-[20px] font-bold text-[#111]">Rs. {product.price.toLocaleString()}</p>
+                      <p className="text-[16px] sm:text-[18px] lg:text-[20px] font-bold text-[#0f172a]">Rs. {product.price.toLocaleString()}</p>
                       <select 
                         value={selectedProductSizes[product.id] || ""} 
                         onChange={(e) => setSelectedProductSizes(prev => ({ ...prev, [product.id]: e.target.value }))}
@@ -551,11 +552,11 @@ function CategoryPage() {
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3 mt-3 sm:mt-4">
                       <button onClick={() => navigate(`/product/${product.slug}`, { state: { productImage: product.image } })}
-                        className="flex-1 py-2 sm:py-2.5 bg-transparent border border-[#999] text-[#222] text-[10px] sm:text-xs font-semibold rounded-lg hover:bg-white transition duration-300">
+                       className="flex-1 py-2 sm:py-2.5 bg-white border border-[#e5e7eb] text-[#374151] text-[11px] font-medium rounded-lg hover:bg-gray-50 transition">
                         Details
                       </button>
                       <button onClick={() => handleAddToCart(product)}
-                        className="shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#111] text-white flex items-center justify-center hover:bg-[#333] transition duration-300 shadow-md">
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#111827] text-white flex items-center justify-center hover:bg-[#1f2937] transition">
                         <HiOutlineShoppingCart size={16} />
                       </button>
                     </div>

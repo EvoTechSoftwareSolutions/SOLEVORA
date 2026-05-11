@@ -36,7 +36,7 @@ function Register() {
       return;
     }
 
-    const nameRegex = /^[a-zA-Z\s]*$/;
+    const nameRegex = /^[a-zA-Z0-9_]+$/;
     if (!nameRegex.test(name)) {
       setMessage("Name should only contain letters");
       return;
