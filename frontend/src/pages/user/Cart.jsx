@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -13,38 +14,40 @@ const FALLBACK =
   `%3Crect width='80' height='80' fill='%23f3f4f6'/%3E` +
   `%3Cpath d='M20 55l14-18 10 12 8-10 14 16H20z' fill='%23d1d5db'/%3E` +
   `%3Ccircle cx='52' cy='28' r='7' fill='%23d1d5db'/%3E%3C/svg%3E`;
+  
+const BASE_URL = "http://localhost:5001";
+const getImg = (url) => {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  if (url.startsWith("/")) return `${BASE_URL}${url}`;
+  return `${BASE_URL}/${url.replace(/\\/g, "/")}`;
+};
 
 const handleImgError = (e) => {
   if (e.target.src !== FALLBACK) e.target.src = FALLBACK;
 };
 
-const recommendedProducts = [
-  {
-    id: 101,
-    name: "Air Max 90",
-    brand: "Nike",
-    price: 39000,
-    image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop",
-  },
-  {
-    id: 102,
-    name: "UltraBoost 23",
-    brand: "Adidas",
-    price: 54000,
-    image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=400&fit=crop",
-  },
-  {
-    id: 103,
-    name: "550 Vintage",
-    brand: "New Balance",
-    price: 54000,
-    image: "https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=400&h=400&fit=crop",
-  },
-];
+
 
 const Cart = () => {
   const navigate = useNavigate();
+  const [recommendedProducts, setRecommendedProducts] = React.useState([]);
 
+  useEffect(() => {
+  fetchRecommendedProducts();
+}, []);
+
+const fetchRecommendedProducts = async () => {
+  try {
+    const res = await fetch("http://localhost:5001/api/products/top-rated");
+
+    const data = await res.json();
+
+    setRecommendedProducts(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
   // only destructure what exists in CartContext
   const { 
     cart, 
@@ -102,7 +105,10 @@ const Cart = () => {
               <span className="material-symbols-outlined c-icon">shopping_bag</span>
               Shopping Cart <span className="item-count">({cart.length} items)</span>
             </h2>
-            <div className="select-all-wrap">
+           
+          </div>
+        </div>
+ <div className="select-all-wrap">
               <label className="checkbox-container">
                 <input 
                   type="checkbox" 
@@ -113,10 +119,8 @@ const Cart = () => {
                 Select All
               </label>
             </div>
-          </div>
-        </div>
-
         <div className="cart-main-layout">
+          
           {/* Cart Items */}
           <div className="cart-items-list">
             <div className="cart-items-scroll">
@@ -252,27 +256,69 @@ const Cart = () => {
           >
             {recommendedProducts.map((product) => (
               <SwiperSlide key={product.id}>
-                <div className="rec-card">
-                  <div className="rec-img">
-                    <img src={product.image} alt={product.name} onError={handleImgError} />
-                  </div>
-                  <div className="rec-info">
-                    <span className="rec-brand">{product.brand}</span>
-                    <h4>{product.name}</h4>
-                    <p className="rec-price">Rs. {product.price.toLocaleString()}</p>
-                    <div className="rec-footer">
-                      <button className="view-btn">
-                        <span className="material-symbols-outlined">shopping_bag</span>
-                        View Details
-                      </button>
-                      <div className="rec-actions">
-                        <span className="material-symbols-outlined">share</span>
-                        <span className="material-symbols-outlined">favorite</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </SwiperSlide>
+  <div className="rec-card">
+    <div className="rec-img">
+  <img
+  src={
+    getImg(product.productimage?.[0]?.url) ||
+    getImg(product.image) ||
+    FALLBACK
+  }
+  alt={product.name}
+  onError={handleImgError}
+/>
+    </div>
+
+    <div className="rec-info">
+      <span className="rec-brand">
+        {product.brand}
+      </span>
+
+      <h4>{product.name}</h4>
+
+      <div className="rec-rating">
+        <span className="material-symbols-outlined">
+          star
+        </span>
+
+        <span>
+          {product.averageRating?.toFixed(1) || 0}
+        </span>
+
+        <small>
+          ({product.totalReviews} reviews)
+        </small>
+      </div>
+
+      <p className="rec-price">
+        Rs. {Number(product.price).toLocaleString()}
+      </p>
+
+      <div className="rec-footer">
+        <button
+          className="view-btn"
+          onClick={() => navigate(`/product/${product.slug}`)}
+        >
+          <span className="material-symbols-outlined">
+            shopping_bag
+          </span>
+
+          View Details
+        </button>
+
+        <div className="rec-actions">
+          <span className="material-symbols-outlined">
+            share
+          </span>
+
+          <span className="material-symbols-outlined">
+            favorite
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</SwiperSlide>
             ))}
           </Swiper>
 

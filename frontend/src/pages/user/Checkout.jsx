@@ -46,8 +46,6 @@ const SL_DISTRICTS = [
   "Vavuniya",
 ];
 
-
-
 const PAYMENT_METHODS = [
   { id: "ONLINE", icon: "credit_card", label: "Card / PayHere" },
   { id: "paypal", icon: "account_balance_wallet", label: "PayPal" },
@@ -59,9 +57,14 @@ const PAYMENT_METHODS = [
 const Checkout = () => {
   const navigate = useNavigate();
   const { selectedCart, selectedTotal, clearCart } = useCart();
-  const cart = selectedCart;
-  const cartTotal = selectedTotal;
-const [shippingMethods, setShippingMethods] = useState([]);
+
+  const [buyNowItem, setBuyNowItem] = useState(null);
+  const cart = buyNowItem ? [buyNowItem] : selectedCart;
+
+  const cartTotal = buyNowItem
+    ? buyNowItem.price * buyNowItem.quantity
+    : selectedTotal;
+  const [shippingMethods, setShippingMethods] = useState([]);
 
   /*  Step state (0=Shipping Info, 1=Method, 2=Payment) ── */
   const [step, setStep] = useState(0);
@@ -109,50 +112,54 @@ const [shippingMethods, setShippingMethods] = useState([]);
   });
 
   useEffect(() => {
-  if (!form.city) return;
-
-  const fetchShipping = async () => {
-    try {
-      const res = await axios.get(
-        `${API_URL}/shipping/${form.city}`
-      );
-
-      const mapped = res.data.data.map((item) => ({
-        id: item.method,
-        name:
-          item.method === "standard"
-            ? "Standard Shipping"
-            : item.method === "express"
-            ? "Express Shipping"
-            : "Next Day Delivery",
-        time:
-          item.method === "standard"
-            ? "3–5 business days"
-            : item.method === "express"
-            ? "1–2 business days"
-            : "Delivery by tomorrow",
-        price: item.price,
-        icon:
-          item.method === "standard"
-            ? "📦"
-            : item.method === "express"
-            ? "🚀"
-            : "⚡",
-      }));
-
-      setShippingMethods(mapped);
-
-      // auto select first method
-      if (mapped.length > 0) {
-        setShippingId(mapped[0].id);
-      }
-    } catch (err) {
-      console.log("Shipping fetch error", err);
+    const data = localStorage.getItem("buyNowItem");
+    if (data) {
+      setBuyNowItem(JSON.parse(data));
     }
-  };
+  }, []);
+  useEffect(() => {
+    if (!form.city) return;
 
-  fetchShipping();
-}, [form.city]);
+    const fetchShipping = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/shipping/${form.city}`);
+
+        const mapped = res.data.data.map((item) => ({
+          id: item.method,
+          name:
+            item.method === "standard"
+              ? "Standard Shipping"
+              : item.method === "express"
+                ? "Express Shipping"
+                : "Next Day Delivery",
+          time:
+            item.method === "standard"
+              ? "3–5 business days"
+              : item.method === "express"
+                ? "1–2 business days"
+                : "Delivery by tomorrow",
+          price: item.price,
+          icon:
+            item.method === "standard"
+              ? "📦"
+              : item.method === "express"
+                ? "🚀"
+                : "⚡",
+        }));
+
+        setShippingMethods(mapped);
+
+        // auto select first method
+        if (mapped.length > 0) {
+          setShippingId(mapped[0].id);
+        }
+      } catch (err) {
+        console.log("Shipping fetch error", err);
+      }
+    };
+
+    fetchShipping();
+  }, [form.city]);
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
@@ -182,13 +189,18 @@ const [shippingMethods, setShippingMethods] = useState([]);
   const [promoLoading, setPromoLoading] = useState(false);
 
   /* ── Derived totals ── */
-const shippingObj = shippingMethods.find((m) => m.id === shippingId);
+  const shippingObj = shippingMethods.find((m) => m.id === shippingId);
 
-const shippingCharge = Number(shippingObj?.price || 0);
-const promoDiscount = Number(promoApplied ? promoData?.discountAmount || 0 : 0);
-const baseTotal = Number(cartTotal || 0);
-
-const total = Math.max(0, baseTotal - promoDiscount + shippingCharge);
+  const shippingCharge = Number(shippingObj?.price ?? 0);
+  const promoDiscount = Number(
+    promoApplied ? (promoData?.discountAmount ?? 0) : 0,
+  );
+  const baseTotal = Number(cartTotal || 0);
+  const codFee = paymentMethod === "COD" ? 200 : 0;
+  const total = Math.max(
+    0,
+    baseTotal - promoDiscount + shippingCharge + codFee,
+  );
 
   /* ── Load user profile & saved addresses ── */
   useEffect(() => {
@@ -445,6 +457,7 @@ const total = Math.max(0, baseTotal - promoDiscount + shippingCharge);
       size: i.size,
     })),
     shippingCharge,
+    codFee,
     promoDiscount,
     promoCode: promoApplied ? promoData?.code || "" : "",
     totalAmount: total,
@@ -466,6 +479,7 @@ const total = Math.max(0, baseTotal - promoDiscount + shippingCharge);
       const res = await axios.post(`${API_URL}/orders`, buildPayload("COD"));
       const orderId = res.data.data?.orderId || res.data.id;
       const items = [...cart];
+      localStorage.removeItem("buyNowItem");
       clearCart();
       clearSession();
       navigate("/order-confirmation", {
@@ -494,6 +508,7 @@ const total = Math.max(0, baseTotal - promoDiscount + shippingCharge);
     try {
       const res = await axios.post(`${API_URL}/orders`, buildPayload("ONLINE"));
       const orderId = res.data.data?.orderId || res.data.id;
+      localStorage.removeItem("buyNowItem");
       const hashRes = await axios.post(`${API_URL}/payment/hash`, {
         order_id: orderId,
         amount: total,
@@ -892,7 +907,7 @@ const total = Math.max(0, baseTotal - promoDiscount + shippingCharge);
                   {paymentMethod === "ONLINE" && (
                     <div className="co-payhere-info">
                       <img
-                        src="https://www.payhere.lk/downloads/images/payhere_logo.png"
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQw6hK6OstCnuTU7y52e7qC7h_ek_8r3uTORA&s"
                         alt="PayHere"
                         className="co-payhere-logo"
                       />
@@ -914,6 +929,9 @@ const total = Math.max(0, baseTotal - promoDiscount + shippingCharge);
                       <h3>Pay When You Receive</h3>
                       <p>
                         Payment is collected by the delivery agent upon arrival.
+                      </p>
+                      <p>
+                        A <strong>Rs. 200 </strong>Cash on Delivery handling fee will be added.
                       </p>
                       <div className="co-cod-detail">
                         <div className="co-cod-row">
@@ -980,14 +998,14 @@ const total = Math.max(0, baseTotal - promoDiscount + shippingCharge);
                       className="co-item-img"
                       onError={handleImgError}
                     />
-                    <span className="co-item-badge">{item.quantity}</span>
+                    <span className="co-item-badge">{item.quantity || 1}</span>
                   </div>
                   <div className="co-item-info">
                     <p className="co-item-name">{item.name}</p>
                     <p className="co-item-size">Size: {item.size}</p>
                   </div>
                   <span className="co-item-price">
-                    Rs. {(item.price * item.quantity).toLocaleString()}
+                    Rs. {(item.price * (item.quantity || 1)).toLocaleString()}
                   </span>
                 </div>
               ))}
@@ -1052,6 +1070,12 @@ const total = Math.max(0, baseTotal - promoDiscount + shippingCharge);
                     : `Rs. ${shippingCharge.toLocaleString()}`}
                 </span>
               </div>
+                {paymentMethod === "COD" && (
+    <div className="co-total-row co-cod-fee-row">
+      <span>Cash on Delivery Fee</span>
+      <span>Rs. {codFee.toLocaleString()}</span>
+    </div>
+  )}
               {step >= 1 && (
                 <div className="co-total-row co-method-row">
                   <span>Method</span>

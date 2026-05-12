@@ -219,8 +219,9 @@ const getProductImage = (item) => {
               image={getProductImage(item)}
               title={item.name}
               price={item.price}
-              description={item.description}
+              description={item.descriptionOne}
               link={`/product/${item.slug}`}
+              rating={item.averageRating}
             />
           ))}
         </div>

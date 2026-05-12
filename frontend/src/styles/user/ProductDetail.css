@@ -253,67 +253,150 @@
 
 /* ================= Buy Actions ================= */
 /* Row for add to cart and wishlist buttons */
+
 .buy-actions {
-    display: flex;
-    flex-direction: row;
-    gap: 12px;
-    padding-top: 14px;
+  display: flex;
+  gap: 14px;
+  margin-top: 28px;
+  flex-wrap: wrap;
 }
 
-/* Add to cart button */
+/* Shared Button Style */
+.buy-actions button {
+  position: relative;
+  overflow: hidden;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 18px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  transition: all 0.35s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 58px;
+  padding: 0 18px;
+  font-size: 14px;
+}
+
+/* Shine Animation */
+.buy-actions button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 70%;
+  height: 100%;
+  background: rgba(255,255,255,0.25);
+  transform: skewX(-25deg);
+  transition: 0.7s;
+}
+
+.buy-actions button:hover::before {
+  left: 130%;
+}
+
+/* BUY NOW */
+.buy-now-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #ff6d2e, #ff6d2e);
+  color: white;
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.buy-now-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 16px 35px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+/* ADD TO CART */
 .add-cart-btn {
-    width: 700px;
-    height: 52px;
-    background-color: #ff6d2e;
-    color: #ffffff;
-    border: none;
-    border-radius: 10px;
-    font-weight: 800;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    cursor: pointer;
-    box-shadow: 0 6px 12px rgba(255, 109, 46, 0.2);
-    transition: transform 0.2s, background-color 0.2s;
+  flex: 1;
+  background: white;
+  color: #111;
+  border: 1.5px solid #1a1a1a !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.06);
 }
 
-/* Add to cart button hover effect */
 .add-cart-btn:hover {
-    background-color: #e85a1e;
-    transform: translateY(-2px);
+  background: #111;
+  color: white;
+  transform: translateY(-3px);
+  border-color: #111 !important;
 }
 
-/* Wishlist button */
+.add-cart-btn .material-symbols-outlined {
+  font-size: 22px;
+  transition: transform 0.3s ease;
+}
+
+.add-cart-btn:hover .material-symbols-outlined {
+  transform: rotate(-10deg) scale(1.1);
+}
+
+/* WISHLIST */
 .wish-btn {
-    width: 100%;
-    height: 52px;
-    border: 1px solid #e2e8f0;
-    background: #627b62;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 14px;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    cursor: pointer;
+  width: 62px;
+  min-width: 62px;
+  padding: 0;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(243, 22, 22, 0.3) !important;
+  box-shadow:
+    0 8px 22px rgba(0,0,0,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.5);
+  color: #111;
 }
 
-/* Active wishlist button */
+.wish-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  background: #fff0f3;
+}
+
+.wish-btn .material-symbols-outlined {
+  font-size: 26px;
+  transition: all 0.3s ease;
+}
+
+.wish-btn:hover .material-symbols-outlined {
+  transform: scale(1.15);
+}
+
 .wish-btn.active {
-    background-color: #fff1f2;
-    border-color: #fda4af;
-    color: #e11d48;
+  background: linear-gradient(135deg, #ff4d6d, #ff758f);
+  color: white;
 }
 
-/* Filled heart icon for active wishlist */
 .wish-btn.active .material-symbols-outlined {
-    font-variation-settings: 'FILL' 1;
+  font-variation-settings: "FILL" 1;
 }
+
+/* Disabled State */
+.buy-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .buy-actions {
+    flex-direction: column;
+  }
+
+  .wish-btn {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
 
 /* ================= Features Strip ================= */
 /* Feature icons strip below buy actions */
@@ -446,33 +529,34 @@
 }
 
 /* Grid for product specifications */
+
 .specs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 30px;
-    padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
 }
 
-/* Individual specification item */
 .spec-item {
-    border-bottom: 1px solid rgba(255, 109, 46, 0.1);
-    padding-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid #eee;
+  background: #fff;
 }
 
-/* Spec label */
 .spec-item h5 {
-    font-size: 11px;
-    color: #94a3b8;
-    text-transform: uppercase;
-    margin-bottom: 8px;
+  font-size: 16px;
+  color: #777;
+  font-weight: 500;
 }
 
-/* Spec value */
 .spec-item p {
-    font-weight: 700;
-    color: #1e293b;
+  font-size: 12px;
+  font-weight: 600;
+  color: #222;
 }
-
 /* ================= Reviews Tab Content Layout ================= */
 /* Grid for reviews and add review form */
 .reviews-tab-content {
@@ -481,6 +565,32 @@
     gap: 60px;
     align-items: flex-start;
 }
+.quantity-selector {
+  margin: 15px 0;
+}
+
+.qty-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.qty-btn {
+  width: 35px;
+  height: 35px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.qty-value {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+
 
 @media (max-width: 991px) {
     .reviews-tab-content {

@@ -7,6 +7,8 @@ import {
   deleteProduct,
   getProductsAll,
   getProductBySlug,
+  toggleProductActive,
+  getTopRatedProducts 
 } from "../controllers/product.controller.js";
 import { getPublicPromos } from "../controllers/admin.controller.js";
 import { getAllStockBatches } from "../controllers/stockController.js";
@@ -23,7 +25,8 @@ router.get("/batches", getAllStockBatches);
 router.get("/id/:id", getProductById);
 router.get("/slug/:slug", getProductBySlug);
 router.get("/promotions", getPublicPromos);
-
+router.delete("/:id/toggle-active", toggleProductActive);
+router.get("/top-rated", getTopRatedProducts);
 
 // ADMIN + STORE MANAGER ONLY
 router.post(

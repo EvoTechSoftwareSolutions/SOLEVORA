@@ -6,6 +6,32 @@
     min-height: 100vh;
     font-family: 'Manrope', sans-serif;
 }
+.rec-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.rec-rating .material-symbols-outlined {
+  font-size: 18px;
+  color: #f59e0b;
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 700,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+.rec-rating span {
+  font-weight: 600;
+  color: #111827;
+}
+
+.rec-rating small {
+  color: #6b7280;
+  font-size: 12px;
+}
 
 /* Container for cart content */
 .cart-page .container {
