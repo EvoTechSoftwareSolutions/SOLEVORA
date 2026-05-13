@@ -702,21 +702,7 @@
 }
 
 /* Tablet responsive styles for statistics cards */
-@media (max-width: 768px) {
-  .card-box {
-    display: flex;
-    flex-wrap: wrap;
-    column-gap: 20px;
-    row-gap: 20px;
-    justify-content: center;
-    padding: 0 40px;
-  }
-  .why-us-card {
-    flex: 0 0 calc(50% - 10px);
-    max-width: calc(50% - 10px);
-    min-height: 180px;
-  }
-}
+
 
 /* Brands section container */
 .brands {
@@ -1655,6 +1641,20 @@ display: flex;
     height: 95px;
     scroll-snap-align: center;
   }
+   .card-box {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 20px;
+    row-gap: 20px;
+    justify-content: center;
+    padding: 0 40px;
+  }
+  .why-us-card {
+    flex: 0 0 calc(50% - 10px);
+    max-width: calc(60% - 10px);
+    min-height: 180px;
+    padding: 10px;
+  }
   /* Keep trending products header horizontal on tablet */
   .intro-section {
     flex-direction: row;
@@ -1915,13 +1915,22 @@ display: flex;
     column-gap: 15px;
     row-gap: 15px;
     justify-content: center;
-    padding: 0 20px;
+    padding: 0 0px;
   }
   .why-us-card {
-    flex: 0 0 calc(50% - 8px);
+    flex: 0 0 calc(60% - 8px);
     max-width: calc(50% - 8px);
-    min-height: 160px;
+    height: auto;
+    padding: 10px;
   }
+  .why-us-card h3 {
+  font-size: 12px;
+  color: #475569;
+}
+  .why-us-card p {
+  font-size: 8px;
+  color: #475569;
+}
 
   .banner-2 {
     height: 400px;
@@ -1987,5 +1996,13 @@ display: flex;
   .sale-box span {
     font-size: 20px;
   }
+  .search-box input {
+  width: 100%;
+  padding: 5px 12px 5px 35px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  outline: none;
+  transition: 0.3s;
+}
 }
 

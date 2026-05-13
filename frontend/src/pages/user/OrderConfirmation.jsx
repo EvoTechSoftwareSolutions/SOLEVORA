@@ -1,4 +1,3 @@
-// Importing necessary libraries and styles
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
@@ -9,142 +8,137 @@ import '../../styles/user/OrderConfirmation.css';
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { orderId, items, paymentMethod, promoCode, promoDiscount, customerName, email } = location.state || {};
-  const [showPopup, setShowPopup] = React.useState(false);
-  const [popupMessage, setPopupMessage] = React.useState("");
-  const [popupType, setPopupType] = React.useState("success");
 
-  // Retrieve user information from local storage
+  const {
+    orderId,
+    items,
+    paymentMethod,
+    promoCode,
+    promoDiscount,
+    customerName,
+    email,
+    shippingCharge,   // ← now read from state
+    codFee,           // ← now read from state
+    shippingMethod,   // ← optional label
+  } = location.state || {};
+
+  const [showPopup, setShowPopup]     = React.useState(false);
+  const [popupMessage, setPopupMessage] = React.useState("");
+  const [popupType, setPopupType]     = React.useState("success");
+
   const user = React.useMemo(() => {
     try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
   }, []);
 
-  // Function to generate and download PDF receipt
+  const isCOD = paymentMethod === 'cod';
+
+  // ── Totals (mirrors checkout math exactly) ──────────────────
+  const orderedItems   = items || [];
+  const subtotal       = orderedItems.reduce((acc, item) => acc + (Number(item.price) * Number(item.quantity || 1)), 0);
+  const shipping       = Number(shippingCharge  || 0);
+  const cod            = Number(codFee          || 0);
+  const discount       = Number(promoDiscount   || 0);
+  const grandTotal     = Math.max(0, subtotal - discount + shipping + cod);
+
+  // ── Delivery estimate ────────────────────────────────────────
+  const getDeliveryEstimate = () => {
+    const now   = new Date();
+    const start = new Date(now); start.setDate(start.getDate() + 5);
+    const end   = new Date(now); end.setDate(end.getDate() + 7);
+    const fmt   = (d) => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    return `${fmt(start)} – ${fmt(end)}`;
+  };
+
+  // ── PDF Receipt ──────────────────────────────────────────────
   const handleDownloadReceipt = () => {
     setPopupMessage("Your digital receipt is being prepared. It will download automatically in a few seconds.");
     setPopupType("success");
     setShowPopup(true);
     try {
-      console.log("Starting PDF generation...");
       const doc = new jsPDF();
-      const orderedItems = items || [];
-      
-      // Safety calculation for subtotal
-      const safeSubtotal = orderedItems.reduce((acc, item) => {
-        const price = parseFloat(item.price) || 0;
-        const qty = parseInt(item.quantity) || 1;
-        return acc + (price * qty);
-      }, 0);
-      
-      // Add Branding / Header
-      doc.setFillColor(26, 26, 46); // Dark blue theme
+
+      // Header
+      doc.setFillColor(26, 26, 46);
       doc.rect(0, 0, 210, 40, 'F');
-      doc.setTextColor(249, 115, 22); // Orange logo color
+      doc.setTextColor(249, 115, 22);
       doc.setFontSize(28);
       doc.text('SOLEVORA', 105, 22, { align: 'center' });
       doc.setFontSize(10);
       doc.setTextColor(255, 255, 255);
       doc.text('OFFICIAL ORDER RECEIPT', 105, 32, { align: 'center' });
 
-      // Order Info
+      // Order / Customer info
       doc.setTextColor(33, 33, 33);
       doc.setFontSize(10);
       doc.text(`Order Number: #${orderId || 'N/A'}`, 15, 55);
       doc.text(`Date: ${new Date().toLocaleDateString()}`, 15, 62);
       doc.text(`Payment Method: ${paymentMethod?.toUpperCase() || 'N/A'}`, 15, 69);
-
-      // Customer Info
       doc.text(`Customer Name: ${customerName || user?.name || 'Valued Customer'}`, 130, 55);
       doc.text(`Customer Email: ${email || user?.email || 'N/A'}`, 130, 62);
 
-      // Table of Items - Split by batches if they exist
-      const tableData = [];
-      orderedItems.forEach(item => {
-        if (item.priceBatches && item.priceBatches.length > 1) {
-          item.priceBatches.forEach(batch => {
-            tableData.push([
-              item.name || 'Product',
-              item.size || 'N/A',
-              batch.quantity.toString(),
-              `Rs. ${batch.price.toLocaleString()}`,
-              `Rs. ${(batch.price * batch.quantity).toLocaleString()}`
-            ]);
-          });
-        } else {
-          tableData.push([
-            item.name || 'Product',
-            item.size || 'N/A',
-            (item.quantity || 1).toString(),
-            `Rs. ${parseFloat(item.price || 0).toLocaleString()}`,
-            `Rs. ${(parseFloat(item.price || 0) * (item.quantity || 1)).toLocaleString()}`
-          ]);
-        }
-      });
+      // Items table
+      const tableData = orderedItems.map((item) => [
+        item.name     || 'Product',
+        item.size     || 'N/A',
+        (item.quantity || 1).toString(),
+        `Rs. ${parseFloat(item.price || 0).toLocaleString()}`,
+        `Rs. ${(parseFloat(item.price || 0) * (item.quantity || 1)).toLocaleString()}`,
+      ]);
 
-      // Use autoTable function directly
       autoTable(doc, {
         startY: 80,
         head: [['Product Name', 'Size', 'Qty', 'Unit Price', 'Subtotal']],
         body: tableData,
         headStyles: { fillColor: [249, 115, 22], textColor: [255, 255, 255] },
         margin: { left: 15, right: 15 },
-        theme: 'grid'
+        theme: 'grid',
       });
 
-      // Totals
-      let finalY = 150;
-      if (doc.lastAutoTable && doc.lastAutoTable.finalY) {
-        finalY = doc.lastAutoTable.finalY + 15;
-      } else if (doc.previousAutoTable && doc.previousAutoTable.finalY) {
-        finalY = doc.previousAutoTable.finalY + 15;
-      }
+      let y = (doc.lastAutoTable?.finalY || 150) + 15;
+
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Subtotal: Rs. ${safeSubtotal.toLocaleString()}`, 195, finalY, { align: 'right' });
-      
-      if (promoDiscount > 0) {
-          finalY += 7;
-          doc.setTextColor(34, 197, 94); // Green for discount
-          doc.text(`Discount (${promoCode}): -Rs. ${promoDiscount.toLocaleString()}`, 195, finalY, { align: 'right' });
-          doc.setTextColor(33, 33, 33); // Reset to dark
+      doc.setTextColor(33, 33, 33);
+      doc.text(`Subtotal: Rs. ${subtotal.toLocaleString()}`, 195, y, { align: 'right' });
+
+      if (discount > 0) {
+        y += 7;
+        doc.setTextColor(34, 197, 94);
+        doc.text(`Discount (${promoCode}): -Rs. ${discount.toLocaleString()}`, 195, y, { align: 'right' });
+        doc.setTextColor(33, 33, 33);
       }
-      
-      finalY += 10;
+
+      if (shipping > 0) {
+        y += 7;
+        doc.text(`Shipping: Rs. ${shipping.toLocaleString()}`, 195, y, { align: 'right' });
+      }
+
+      if (cod > 0) {
+        y += 7;
+        doc.text(`COD Fee: Rs. ${cod.toLocaleString()}`, 195, y, { align: 'right' });
+      }
+
+      y += 10;
       doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
-      doc.text(`Grand Total: Rs. ${(safeSubtotal - (promoDiscount || 0)).toLocaleString()}`, 195, finalY, { align: 'right' });
+      doc.text(`Grand Total: Rs. ${grandTotal.toLocaleString()}`, 195, y, { align: 'right' });
 
       // Footer
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(120, 120, 120);
-      doc.text('Thank you for choosing SoleVora! We hope you love your new gear.', 105, finalY + 25, { align: 'center' });
-      doc.text('Contact Support: support@solevora.com', 105, finalY + 32, { align: 'center' });
+      doc.text('Thank you for choosing SoleVora! We hope you love your new gear.', 105, y + 25, { align: 'center' });
+      doc.text('Contact Support: support@solevora.com', 105, y + 32, { align: 'center' });
 
-      // Save PDF
-      console.log("Saving PDF...");
       doc.save(`SoleVora_Receipt_${orderId || 'Order'}.pdf`);
-      console.log("PDF download triggered.");
     } catch (error) {
-      console.error("Receipt Download Error:", error);
       setPopupMessage("We encountered a problem while generating your receipt: " + error.message);
       setPopupType("notice");
       setShowPopup(true);
     }
   };
 
-  // Function to compute the estimated delivery date range (5-7 business days from now)
-  const getDeliveryEstimate = () => {
-    const now = new Date();
-    const start = new Date(now);
-    start.setDate(start.getDate() + 5);
-    const end = new Date(now);
-    end.setDate(end.getDate() + 7);
-    const fmt = (d) => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    return `${fmt(start)} – ${fmt(end)}`;
-  };
-
-  // If no order data is available, display a fallback message
+  // ── Empty guard ──────────────────────────────────────────────
   if (!orderId) {
     return (
       <div className="oc-page" style={{ textAlign: 'center', padding: '100px' }}>
@@ -155,16 +149,6 @@ const OrderConfirmation = () => {
       </div>
     );
   }
-
-  // Extracting ordered items and calculating totals
-  const orderedItems = items || [];
-  const subtotal = orderedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const total = subtotal - (promoDiscount || 0);
-
-  // Check if the payment method is Cash on Delivery (COD)
-  const isCOD = paymentMethod === 'cod';
-
-
 
   return (
     <div className="oc-page">
@@ -177,7 +161,7 @@ const OrderConfirmation = () => {
           />
         )}
 
-        {/* Success Header Section */}
+        {/* ── Header ── */}
         <div className="oc-header">
           <div className="oc-check-circle">
             <span className="material-symbols-outlined oc-check-icon">
@@ -190,14 +174,12 @@ const OrderConfirmation = () => {
           <p className="oc-subtitle">
             Your order <span className="oc-order-number">#{orderId}</span> has been placed and is being processed.
           </p>
-
-          {/* Display COD Badge if applicable */}
           {isCOD && (
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               marginTop: '14px', backgroundColor: '#fff7f3',
               border: '1px solid #ffd5c0', borderRadius: '50px',
-              padding: '8px 20px', color: '#e05c1a', fontWeight: '600', fontSize: '14px'
+              padding: '8px 20px', color: '#e05c1a', fontWeight: '600', fontSize: '14px',
             }}>
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>payments</span>
               Cash on Delivery — Pay when you receive
@@ -205,52 +187,45 @@ const OrderConfirmation = () => {
           )}
         </div>
 
-        {/* Order Details Section */}
+        {/* ── Summary Card ── */}
         <div className="oc-summary-card">
           <div className="oc-card-header">
             <h2 className="oc-card-title">Order Summary</h2>
-            <span className="oc-item-count">{orderedItems.length} ITEM{orderedItems.length !== 1 ? 'S' : ''}</span>
+            <span className="oc-item-count">
+              {orderedItems.length} ITEM{orderedItems.length !== 1 ? 'S' : ''}
+            </span>
           </div>
 
-          {/* Display ordered items or fallback message */}
+          {/* Items */}
           {orderedItems.length > 0 ? (
             <div className="oc-items-list">
-              {orderedItems.map((item, idx) => {
-                const displayItems = (item.priceBatches && item.priceBatches.length > 1)
-                  ? item.priceBatches.map(batch => ({
-                      ...item,
-                      quantity: batch.quantity,
-                      price: batch.price,
-                      total: batch.quantity * batch.price
-                    }))
-                  : [{
-                      ...item,
-                      total: item.totalPrice || (item.price * item.quantity)
-                    }];
-
-                return displayItems.map((displayItem, bIdx) => (
-                  <div key={`${idx}-${bIdx}`} className="oc-item-row">
-                    <div className="oc-item-visual">
-                      <img src={displayItem.image_url || displayItem.image} alt={displayItem.name} className="oc-item-img"
-                        onError={(e) => { e.target.src = 'https://via.placeholder.com/60'; }}
-                      />
-                    </div>
-                    <div className="oc-item-details">
-                      <h4 className="oc-item-name">{displayItem.name}</h4>
-                      <p className="oc-item-variant">Size: {displayItem.size} &nbsp;|&nbsp; Qty: {displayItem.quantity}</p>
-                    </div>
-                    <div className="oc-item-price">
-                      Rs. {displayItem.total.toLocaleString()}
-                    </div>
+              {orderedItems.map((item, idx) => (
+                <div key={idx} className="oc-item-row">
+                  <div className="oc-item-visual">
+                    <img
+                      src={item.image_url || item.image}
+                      alt={item.name}
+                      className="oc-item-img"
+                      onError={(e) => { e.target.src = 'https://via.placeholder.com/60'; }}
+                    />
                   </div>
-                ));
-              })}
+                  <div className="oc-item-details">
+                    <h4 className="oc-item-name">{item.name}</h4>
+                    <p className="oc-item-variant">
+                      Size: {item.size}&nbsp;|&nbsp;Qty: {item.quantity || 1}
+                    </p>
+                  </div>
+                  <div className="oc-item-price">
+                    Rs. {(Number(item.price) * Number(item.quantity || 1)).toLocaleString()}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <p style={{ textAlign: 'center', padding: '20px', color: '#aaa' }}>No items to display.</p>
           )}
 
-          {/* Order Breakdown Section */}
+          {/* Breakdown */}
           <div className="oc-breakdown-section">
             <div className="oc-estimated-delivery">
               <p className="oc-section-label">ESTIMATED DELIVERY</p>
@@ -261,61 +236,78 @@ const OrderConfirmation = () => {
             </div>
 
             <div className="oc-totals">
+              {/* Subtotal */}
               <div className="oc-total-row">
                 <span className="oc-total-key">Subtotal</span>
                 <span className="oc-total-val">Rs. {subtotal.toLocaleString()}</span>
               </div>
-              <div className="oc-total-row">
-                <span className="oc-total-key">Shipping</span>
-                <span className="oc-total-val-green">Free</span>
-              </div>
-              {promoDiscount > 0 && (
+
+              {/* Promo discount */}
+              {discount > 0 && (
                 <div className="oc-total-row" style={{ color: '#22c55e' }}>
                   <span className="oc-total-key">Discount ({promoCode})</span>
-                  <span className="oc-total-val">-Rs. {promoDiscount.toLocaleString()}</span>
+                  <span className="oc-total-val">-Rs. {discount.toLocaleString()}</span>
                 </div>
               )}
+
+              {/* Shipping */}
+              <div className="oc-total-row">
+                <span className="oc-total-key">
+                  Shipping{shippingMethod ? ` (${shippingMethod})` : ''}
+                </span>
+                <span className={shipping === 0 ? "oc-total-val-green" : "oc-total-val"}>
+                  {shipping === 0 ? 'Free' : `Rs. ${shipping.toLocaleString()}`}
+                </span>
+              </div>
+
+              {/* COD fee */}
+              {cod > 0 && (
+                <div className="oc-total-row">
+                  <span className="oc-total-key">Cash on Delivery Fee</span>
+                  <span className="oc-total-val">Rs. {cod.toLocaleString()}</span>
+                </div>
+              )}
+
+              {/* Grand total */}
               <div className="oc-grand-total">
-                <span className="oc-grand-label">{isCOD ? 'Amount Due on Delivery' : 'Total'}</span>
-                <span className="oc-grand-amount">Rs. {total.toLocaleString()}</span>
+                <span className="oc-grand-label">
+                  {isCOD ? 'Amount Due on Delivery' : 'Total'}
+                </span>
+                <span className="oc-grand-amount">Rs. {grandTotal.toLocaleString()}</span>
               </div>
             </div>
           </div>
 
-          {/* Payment Method or Email Confirmation */}
+          {/* Footer note */}
           <div className="oc-card-footer">
             {isCOD ? (
               <>
                 <span className="material-symbols-outlined oc-info-icon">info</span>
                 <p className="oc-footer-text">
-                  Please keep <span className="oc-bold">Rs. {total.toLocaleString()}</span> ready to pay the delivery agent upon receipt.
+                  Please keep <span className="oc-bold">Rs. {grandTotal.toLocaleString()}</span> ready
+                  to pay the delivery agent upon receipt.
                 </p>
               </>
             ) : (
               <>
                 <span className="material-symbols-outlined oc-info-icon">info</span>
                 <p className="oc-footer-text">
-                  A confirmation email has been sent to <span className="oc-bold">{email || user?.email || 'your email'}</span>.
+                  A confirmation email has been sent to{' '}
+                  <span className="oc-bold">{email || user?.email || 'your email'}</span>.
                 </p>
               </>
             )}
           </div>
         </div>
 
-        {/* Bottom Action Buttons */}
+        {/* ── Actions ── */}
         <div className="oc-actions">
-          <button className="oc-track-btn" onClick={() => navigate('/profile/orders')}>
-            TRACK ORDER
+          <button className="oc-track-btn"     onClick={() => navigate('/profile/orders')}>TRACK ORDER</button>
+          <button className="oc-download-btn"  onClick={handleDownloadReceipt}>
+            <span className="material-symbols-outlined">download</span>DOWNLOAD RECEIPT
           </button>
-          <button className="oc-download-btn" onClick={handleDownloadReceipt}>
-            <span className="material-symbols-outlined">download</span>
-            DOWNLOAD RECEIPT
-          </button>
-          <button className="oc-continue-btn" onClick={() => navigate('/category')}>
-            CONTINUE SHOPPING
-          </button>
+          <button className="oc-continue-btn"  onClick={() => navigate('/category')}>CONTINUE SHOPPING</button>
         </div>
-
       </div>
     </div>
   );

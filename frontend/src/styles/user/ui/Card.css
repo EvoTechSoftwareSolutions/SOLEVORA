@@ -67,12 +67,28 @@
   color: #1A1A1A;
   font-weight: 600;
 }
-.review-star{
+.review-star {
   display: flex;
+  align-items: center;
+  gap: 2px;
 }
+
 .star-icon {
-  color: gold;
-  font-size: 15px;
+  font-size: 14px;
+}
+
+.star-icon.filled {
+  color: #fbbf24;
+}
+
+.star-icon.empty {
+  color: #d1d5db;
+}
+
+.rating-text {
+  margin-left: 4px;
+  font-size: 12px;
+  color: #666;
 }
 
 .card-description {

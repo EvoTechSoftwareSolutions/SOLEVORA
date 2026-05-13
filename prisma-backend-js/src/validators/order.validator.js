@@ -24,7 +24,7 @@ export const orderSchema = z.object({
   estimatedDelivery: z.string().optional(),
   actualDelivery: z.string().optional(),
 
-  // ✅ ITEMS
+  // ITEMS
   items: z.array(
     z.object({
       productId: z.coerce.number(),

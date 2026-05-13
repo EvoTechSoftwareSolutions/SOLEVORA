@@ -29,7 +29,9 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
     const [formData, setFormData] = useState({
         name: '',
         slug: '',
-        description: '',
+        descriptionOne: '',
+    descriptionTwo: '',
+    descriptionThree: '',
         price: '',
         discountPrice: '',
         categoryId: '',
@@ -39,6 +41,8 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
     const [stocks, setStocks] = useState([{ size: '7', costPrice: '', sellingPrice: '', quantity: '' }]);
     const [images, setImages] = useState([]);
     const [imagePreviews, setImagePreviews] = useState([]);
+    const [specifications, setSpecifications] = useState([  { key: '', value: '' } ]);
+  
 
     // Field-level errors
     const [fieldErrors, setFieldErrors] = useState({});
@@ -82,17 +86,21 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         }));
     };
 
-    const normalizeFormData = (item) => ({
-        name: item?.name ?? '',
-        slug: item?.slug ?? '',
-        description: item?.description ?? '',
-        price: item?.price ?? '',
-        discountPrice: item?.discountPrice ?? '',
-        categoryId: item?.categoryId ?? '',
-        gender: item?.gender ?? 'ALL',
-    });
+  const normalizeFormData = (item) => ({
+    name: item?.name ?? '',
+    slug: item?.slug ?? '',
 
-    // ─── Reset / Pre-fill ─────────────────────────────────────────────────────
+    descriptionOne: item?.descriptionOne ?? '',
+    descriptionTwo: item?.descriptionTwo ?? '',
+    descriptionThree: item?.descriptionThree ?? '',
+
+    price: item?.price ?? '',
+    discountPrice: item?.discountPrice ?? '',
+    categoryId: item?.categoryId ?? '',
+    gender: item?.gender ?? 'ALL',
+});
+
+    //  Reset / Pre-fill
     useEffect(() => {
         if (isOpen) {
             setFieldErrors({});
@@ -102,16 +110,18 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                 setStocks(normalizeStocks(product.stocks));
                 setImagePreviews(product.images?.map((img) => `${BASE_URL}${img.url}`) || []);
                 setImages([]);
+                setSpecifications(product.specifications || [{ key: '', value: '' }]);
             } else {
                 setFormData(normalizeFormData(null));
                 setStocks(normalizeStocks([]));
                 setImages([]);
                 setImagePreviews([]);
+                setSpecifications([{ key: '', value: '' }]);
             }
         }
     }, [isOpen, product]);
 
-    // ─── Field Validation ─────────────────────────────────────────────────────
+    //  Field Validation 
     const validateField = (name, value) => {
         switch (name) {
             case 'name':
@@ -125,7 +135,7 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                 if (!SLUG_REGEX.test(value)) return 'Slug may only contain lowercase letters, numbers, and hyphens.';
                 if (value.length > 120) return 'Slug must be under 120 characters.';
                 return '';
-            case 'description':
+            case 'descriptionOne':
                 if (!value.trim()) return 'Description is required.';
                 if (value.trim().length < 10) return 'Description must be at least 10 characters.';
                 if (value.trim().length > 500) return 'Description must be under 500 characters.';
@@ -184,13 +194,21 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         }
     };
 
-    const handleSelectProduct = (p) => {
-        setFormData(normalizeFormData(p));
-        setStocks(normalizeStocks(p.stocks));
-        setImagePreviews(p.images?.map((img) => `${BASE_URL}${img.url}`) || []);
-        setShowDropdown(false);
-        setFieldErrors({});
-    };
+ const handleSelectProduct = (p) => {
+    setFormData(normalizeFormData(p));
+    setStocks(normalizeStocks(p.stocks));
+
+    setImagePreviews(
+        p.images?.map((img) => `${BASE_URL}${img.url}`) || []
+    );
+
+    setSpecifications(
+        p.specifications || [{ key: '', value: '' }]
+    );
+
+    setShowDropdown(false);
+    setFieldErrors({});
+};
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -205,13 +223,28 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         }
 
         // Block symbols for description
-        if (name === 'description') {
-            const sanitized = value.replace(/[^a-zA-Z0-9 '\-.,()&]/g, '');
-            setFormData((prev) => ({ ...prev, description: sanitized }));
-            const err = validateField('description', sanitized);
-            setFieldError('description', err);
-            return;
-        }
+      if (
+    name === 'descriptionOne' ||
+    name === 'descriptionTwo' ||
+    name === 'descriptionThree'
+) {
+    const sanitized = value.replace(
+        /[^a-zA-Z0-9 '\-.,()&]/g,
+        ''
+    );
+
+    setFormData((prev) => ({
+        ...prev,
+        [name]: sanitized,
+    }));
+
+    if (name === 'descriptionOne') {
+        const err = validateField(name, sanitized);
+        setFieldError(name, err);
+    }
+
+    return;
+}
 
         setFormData((prev) => ({
             ...prev,
@@ -227,18 +260,18 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         setFieldError(name, err);
     };
 
-    const handleStockChange = (index, field, value) => {
-        // Prevent negative numbers
-        if ((field === 'costPrice' || field === 'sellingPrice' || field === 'quantity') && value < 0) return;
+const handleStockChange = (index, field, value) => {
+    if (Number(value) < 0) return;
 
-        const updated = [...stocks];
-        updated[index] = { ...updated[index], [field]: value };
-        
-        if (field === 'costPrice' && (!updated[index].sellingPrice || updated[index].sellingPrice === '0')) {
-            updated[index].sellingPrice = value;
-        }
-        setStocks(updated);
+    const updated = [...stocks];
+
+    updated[index] = {
+        ...updated[index],
+        [field]: value,
     };
+
+    setStocks(updated);
+};
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
@@ -283,7 +316,9 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         const errors = {
             name: validateField('name', formData.name),
             slug: validateField('slug', formData.slug),
-            description: validateField('description', formData.description),
+            descriptionOne: validateField('descriptionOne', formData.descriptionOne),
+            descriptionTwo: validateField('descriptionTwo', formData.descriptionTwo),
+            descriptionThree: validateField('descriptionThree', formData.descriptionThree),
             price: validateField('price', formData.price),
             discountPrice: validateField('discountPrice', formData.discountPrice),
             categoryId: validateField('categoryId', formData.categoryId),
@@ -325,6 +360,10 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                 }
             });
             data.append('stocks', JSON.stringify(stocks || []));
+            data.append( 'specifications',   JSON.stringify(specifications || []) );
+   
+  
+
             images.forEach((file) => data.append('images', file));
 
             const config = {
@@ -435,23 +474,55 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
 
                     {/* Description & Gender */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1">
-                                Description <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                className={inputCls('description')}
-                                placeholder="Brief product description..."
-                                maxLength={500}
-                            />
-                            <p className="text-[10px] text-gray-400 mt-0.5">{formData.description.length}/500 characters</p>
-                            <ErrorMsg field="description" />
-                        </div>
+                      {/* Descriptions */}
+<div className="grid grid-cols-1 gap-4">
+
+    <div>
+        <label className="block text-sm font-medium mb-1">
+            Description One <span className="text-red-500">*</span>
+        </label>
+
+        <textarea
+            name="descriptionOne"
+            value={formData.descriptionOne}
+            onChange={handleChange}
+            className="w-full border rounded-lg p-3"
+            rows={3}
+            placeholder="Main product description..."
+        />
+    </div>
+
+    <div>
+        <label className="block text-sm font-medium mb-1">
+            Description Two
+        </label>
+
+        <textarea
+            name="descriptionTwo"
+            value={formData.descriptionTwo}
+            onChange={handleChange}
+            className="w-full border rounded-lg p-3"
+            rows={3}
+            placeholder="Additional description..."
+        />
+    </div>
+
+    <div>
+        <label className="block text-sm font-medium mb-1">
+            Description Three
+        </label>
+
+        <textarea
+            name="descriptionThree"
+            value={formData.descriptionThree}
+            onChange={handleChange}
+            className="w-full border rounded-lg p-3"
+            rows={3}
+            placeholder="Extra details..."
+        />
+    </div>
+
+</div>
                         <div>
                             <label className="block text-sm font-medium mb-1">
                                 Gender <span className="text-red-500">*</span>
@@ -602,7 +673,74 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
                             </div>
                         ))}
                     </div>
+                        {/* Product Specifications */}
+<div className="border-t pt-4">
 
+    <div className="flex justify-between items-center mb-4">
+        <h3 className="font-bold text-gray-700">
+            Product Specifications
+        </h3>
+
+        <button
+            type="button"
+            onClick={() =>
+                setSpecifications([
+                    ...specifications,
+                    { key: '', value: '' }
+                ])
+            }
+            className="text-sm flex items-center text-blue-600"
+        >
+            <PlusIcon className="w-4 h-4 mr-1" />
+            Add Specification
+        </button>
+    </div>
+
+    {specifications.map((spec, index) => (
+        <div
+            key={index}
+            className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-3"
+        >
+
+            <input
+                type="text"
+                placeholder="Key (Example: Material)"
+                value={spec.key}
+                onChange={(e) => {
+                    const updated = [...specifications];
+                    updated[index].key = e.target.value;
+                    setSpecifications(updated);
+                }}
+                className="sm:col-span-2 border rounded-lg p-2"
+            />
+
+            <input
+                type="text"
+                placeholder="Value (Example: Leather)"
+                value={spec.value}
+                onChange={(e) => {
+                    const updated = [...specifications];
+                    updated[index].value = e.target.value;
+                    setSpecifications(updated);
+                }}
+                className="sm:col-span-2 border rounded-lg p-2"
+            />
+
+            <button
+                type="button"
+                onClick={() =>
+                    setSpecifications(
+                        specifications.filter((_, i) => i !== index)
+                    )
+                }
+                className="text-red-500 hover:bg-red-50 rounded-lg p-2"
+            >
+                <TrashIcon className="w-5 h-5 mx-auto" />
+            </button>
+
+        </div>
+    ))}
+</div>
                     {/* Images */}
                     <div className="border-t pt-4">
                         <label className="block text-sm font-medium mb-2">

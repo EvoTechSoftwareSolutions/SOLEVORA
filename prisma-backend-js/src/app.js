@@ -8,8 +8,8 @@ import categoryRoutes from "./routes/category.routes.js";
 import productRoutes from "./routes/product.routes.js";
 import stockRoutes from "./routes/stock.routes.js";
 import orderRoutes from "./routes/order.route.js";
-import wishlist from "./routes/wishlist.routes.js"
-import cart from "./routes/cart.route.js"
+import wishlist from "./routes/wishlist.routes.js";
+import cart from "./routes/cart.route.js";
 import addressRoutes from "./routes/address.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
@@ -17,11 +17,15 @@ import contactRoutes from "./routes/contact.routes.js";
 import newsletterRoutes from "./routes/newsletter.routes.js";
 import paymentRoutes from "./routes/payment.route.js";
 import promoRoutes from "./routes/promo.routes.js";
+import shippingRoutes from "./routes/shipping.routes.js";
 
+const app = express(); 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express();
+app.use(express.urlencoded({ extended: true }));
+
+app.use(express.json());
 
 app.use(
   cors({
@@ -36,11 +40,7 @@ app.use((req, res, next) => {
   next();
 });
 
-
-app.use(express.json());
-
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
-
 
 app.use("/api/user", userRoutes);
 app.use("/api/products", productRoutes);
@@ -56,5 +56,6 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/promo", promoRoutes);
+app.use("/api/shipping", shippingRoutes);
 
 export default app;

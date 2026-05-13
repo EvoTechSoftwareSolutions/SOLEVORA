@@ -35,7 +35,7 @@ model category {
   isActive    Boolean   @default(true)
   sortOrder   Int       @default(0)
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime
+  updatedAt   DateTime @updatedAt
   product     product[]
 }
 
@@ -46,9 +46,11 @@ model order {
   email             String?
   contactNumber     String?
   shippingAddress   String?
+  shippingMethod    String? 
   paymentMethod     order_paymentMethod
-  paymentStatus     order_paymentStatus @default(dbgenerated("(PENDING)"))
-  status            order_status        @default(dbgenerated("(PENDING)"))
+  payherePaymentId  String?
+paymentStatus order_paymentStatus @default(PENDING)
+status        order_status @default(PENDING)
   totalAmount       Decimal             @db.Decimal(10, 2)
   shippingCharge    Decimal             @default(0) @db.Decimal(10, 2)
   promoDiscount     Decimal             @default(0) @db.Decimal(10, 2)
@@ -65,6 +67,7 @@ model order {
 
   @@index([userId], map: "Order_userId_fkey")
 }
+
 
 model orderitem {
   id           Int      @id @default(autoincrement())
@@ -83,27 +86,72 @@ model orderitem {
   @@index([productId], map: "OrderItem_productId_fkey")
 }
 
-model product {
-  id            Int            @id @default(autoincrement())
-  name          String
-  description   String?
-  price         Decimal        @db.Decimal(10, 2)
-  discountPrice Decimal?       @db.Decimal(10, 2)
-  slug          String         @unique(map: "Product_slug_key")
-  gender        product_gender @default(dbgenerated("(ALL)"))
-  categoryId    Int
-  isActive      Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime
-  cart          cart[]
-  orderitem     orderitem[]
-  category      category       @relation(fields: [categoryId], references: [id], map: "Product_categoryId_fkey")
-  productimage  productimage[]
-  productstock  productstock[]
-  wishlist      wishlist[]
-  reviews       reviews[]
+model pendingpayment {
+  id              Int       @id @default(autoincrement())
+  userId          Int?
+  customerName    String
+  email           String
+  contactNumber   String
+  shippingAddress String
+  items           String
+  shippingCharge  Float     @default(0)
+  promoDiscount   Float     @default(0)
+  promoCode       String?
+  totalAmount     Float
+  currency        String    @default("LKR")
+  status          String    @default("PENDING")
+  orderId         Int?
+  expiresAt       DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+enum pending_payment_status {
+  PENDING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
 
-  @@index([categoryId], map: "Product_categoryId_fkey")
+model ShippingZone {
+  id        Int    @id @default(autoincrement())
+  district  String
+  method    String   // standard | express | nextday
+  price     Decimal  @db.Decimal(10, 2)
+
+  @@unique([district, method])
+}
+model product {
+  id               Int       @id @default(autoincrement())
+  name             String
+  slug             String    @unique(map: "Product_slug_key")
+
+  descriptionOne   String
+  descriptionTwo   String
+  descriptionThree String
+
+  price            Decimal   @db.Decimal(10, 2)
+  discountPrice    Decimal?  @db.Decimal(10, 2)
+
+  gender           product_gender @default(ALL)
+  categoryId       Int
+  isActive         Boolean   @default(true)
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime
+
+  category         category  @relation(fields: [categoryId], references: [id])
+
+  productimage     productimage[]
+  productstock     productstock[]
+
+  specifications   productspecification[]
+
+  cart             cart[]
+  orderitem        orderitem[]
+  wishlist         wishlist[]
+  reviews          reviews[]
+
+  @@index([categoryId])
 }
 
 model productimage {
@@ -127,13 +175,23 @@ model productstock {
 
   @@index([productId], map: "ProductStock_productId_fkey")
 }
+model productspecification {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  product   product  @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ProductSpecification_productId_fkey")
+
+  @@index([productId], map: "ProductSpecification_productId_fkey")
+}
 
 model user {
   id                Int        @id @default(autoincrement())
   name              String     @db.VarChar(100)
   email             String     @unique(map: "User_email_key") @db.VarChar(150)
   password          String     @db.VarChar(255)
-  role              user_role  @default(dbgenerated("(customer)"))
+  role user_role @default(customer)
   phone             String?    @db.VarChar(20)
   location          String?    @db.VarChar(255)
   streetAddress     String?    @db.VarChar(255)
