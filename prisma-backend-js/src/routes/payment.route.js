@@ -1,15 +1,23 @@
-import express from 'express';
-import { generatePaymentHash, handlePaymentNotification, updateOrderStatus } from '../controllers/payment.controller.js';
+import express from "express";
+import {
+  generatePaymentHash,
+  handlePaymentNotification,
+  getOrderFromPendingPayment,
+} from "../controllers/payment.controller.js";
 
 const router = express.Router();
 
-// Generate payment hash for PayHere
-router.post('/hash', generatePaymentHash);
+// Generate hash + store pending payment intent (no order created)
+router.post("/hash", generatePaymentHash);
 
-// Handle PayHere payment notifications
-router.post('/notify', handlePaymentNotification);
+// PayHere server-to-server notification (creates the order on success)
+router.post( "/notify",express.urlencoded({ extended: true }), handlePaymentNotification,);
+ 
+  
+ 
 
-// Update order status (for frontend callback)
-router.put('/orders/:id/status', updateOrderStatus);
+
+// Frontend polls this after PayHere onCompleted to get the real order ID
+router.get("/pending/:pendingId", getOrderFromPendingPayment);
 
 export default router;

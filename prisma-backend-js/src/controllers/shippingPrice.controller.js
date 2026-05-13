@@ -33,9 +33,8 @@ const DISTRICTS = [
   "Kegalle",
 ];
 
-/* ─────────────────────────────
-   GET ALL SHIPPING ZONES
-───────────────────────────── */
+  //  GET ALL SHIPPING ZONES
+
 export const getAllShippingZones = async (req, res) => {
   try {
     const zones = await prisma.shippingZone.findMany({
@@ -51,10 +50,9 @@ export const getAllShippingZones = async (req, res) => {
   }
 };
 
-/* ─────────────────────────────
-   GET SHIPPING PRICE
-   /shipping/price?district=Colombo&method=express
-───────────────────────────── */
+  //  GET SHIPPING PRICE
+  //  /shipping/price?district=Colombo&method=express
+
 export const getShippingPrice = async (req, res) => {
   try {
     const { district, method } = req.query;
@@ -95,9 +93,7 @@ export const getShippingPrice = async (req, res) => {
   }
 };
 
-/* ─────────────────────────────
-   CREATE SHIPPING ZONE (ADMIN)
-───────────────────────────── */
+  //  CREATE SHIPPING ZONE (ADMIN)
 export const createShippingZone = async (req, res) => {
   try {
     const { district, method, price } = req.body;
@@ -120,9 +116,7 @@ export const createShippingZone = async (req, res) => {
   }
 };
 
-/* ─────────────────────────────
-   UPDATE SHIPPING ZONE
-───────────────────────────── */
+  //  UPDATE SHIPPING ZONE
 export const updateShippingZone = async (req, res) => {
   try {
     const { district, method, price } = req.body;
@@ -149,9 +143,9 @@ export const updateShippingZone = async (req, res) => {
   }
 };
 
-/* ─────────────────────────────
+/* 
    DELETE SHIPPING ZONE
-───────────────────────────── */
+ */
 export const deleteShippingZone = async (req, res) => {
   try {
     const { district, method } = req.body;

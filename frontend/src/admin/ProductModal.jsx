@@ -260,18 +260,18 @@ const ProductModal = ({ isOpen, onClose, onProductSaved, product = null }) => {
         setFieldError(name, err);
     };
 
-    const handleStockChange = (index, field, value) => {
-        // Prevent negative numbers
-        if ((field === 'costPrice' || field === 'sellingPrice' || field === 'quantity') && value < 0) return;
+const handleStockChange = (index, field, value) => {
+    if (Number(value) < 0) return;
 
-        const updated = [...stocks];
-        updated[index] = { ...updated[index], [field]: value };
-        
-        if (field === 'costPrice' && (!updated[index].sellingPrice || updated[index].sellingPrice === '0')) {
-            updated[index].sellingPrice = value;
-        }
-        setStocks(updated);
+    const updated = [...stocks];
+
+    updated[index] = {
+        ...updated[index],
+        [field]: value,
     };
+
+    setStocks(updated);
+};
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);

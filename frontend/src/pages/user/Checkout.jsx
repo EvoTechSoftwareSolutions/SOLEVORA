@@ -6,7 +6,7 @@ import Modal from "../../components/ui/Modal";
 import { API_URL } from "../../config/api";
 import "../../styles/user/checkout.css";
 
-/*Constants  */
+/* ─── Constants ─────────────────────────────────────────────── */
 const FALLBACK =
   `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' ` +
   `width='80' height='80' viewBox='0 0 80 80'%3E` +
@@ -53,36 +53,87 @@ const PAYMENT_METHODS = [
   { id: "COD", icon: "payments", label: "Cash on Delivery" },
 ];
 
-/* ─Component */
+/* ─── Poll helper ────────────────────────────────────────────────
+   Polls /payment/pending/:id every 2 s after the PayHere popup
+   closes. The webhook is the source of truth:
+     COMPLETED  → real orderId exists  → navigate to confirmation
+     FAILED     → payment was declined → show error modal, stay on page
+   Gives up after 30 s (15 x 2 s).
+──────────────────────────────────────────────────────────────── */
+const pollForOrder = (pendingId, onSuccess, onFailure) => {
+  const maxAttempts = 15;
+  let attempts = 0;
+
+  const interval = setInterval(async () => {
+    attempts++;
+    try {
+      const { data } = await axios.get(
+        `https://residual-self-flaky.ngrok-free.dev/api/payment/pending/${pendingId}`,
+        {
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+        },
+      );
+      const status = data.data?.status;
+
+      if (status === "COMPLETED" && data.data?.orderId) {
+        clearInterval(interval);
+        onSuccess(data.data.orderId);
+      } else if (status === "FAILED") {
+        clearInterval(interval);
+        onFailure(
+          "Your payment was declined. No order was created. Please try again.",
+        );
+      } else if (attempts >= maxAttempts) {
+        clearInterval(interval);
+        onFailure(
+          "Payment confirmation is taking longer than expected. " +
+            "Check your email or order history — if charged, your order will appear shortly.",
+        );
+      }
+    } catch {
+      if (attempts >= maxAttempts) {
+        clearInterval(interval);
+        onFailure(
+          "Could not verify payment status. Please check your order history.",
+        );
+      }
+    }
+  }, 2000);
+};
+
+/* ─── Component ─────────────────────────────────────────────── */
 const Checkout = () => {
   const navigate = useNavigate();
   const { selectedCart, selectedTotal, clearCart } = useCart();
 
   const [buyNowItem, setBuyNowItem] = useState(null);
   const cart = buyNowItem ? [buyNowItem] : selectedCart;
-
   const cartTotal = buyNowItem
     ? buyNowItem.price * buyNowItem.quantity
     : selectedTotal;
-  const [shippingMethods, setShippingMethods] = useState([]);
 
-  /*  Step state (0=Shipping Info, 1=Method, 2=Payment) ── */
+  const [shippingMethods, setShippingMethods] = useState([]);
   const [step, setStep] = useState(0);
 
-  /* ── Toast ── */
+  /* Toast */
   const [toast, setToast] = useState("");
   const toastTimer = useRef(null);
   const showToast = (msg) => {
     setToast(msg);
     clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(""), 2800);
+    toastTimer.current = setTimeout(() => setToast(""), 3000);
   };
 
-  /*  Modal  */
+  /* Modal */
   const [modal, setModal] = useState({ open: false, title: "", body: "" });
   const showModal = (title, body) => setModal({ open: true, title, body });
 
-  /* Shipping form  */
+  /* Prevents double-click / shows spinner on Pay Now button */
+  const [paying, setPaying] = useState(false);
+
+  /* Shipping form */
   const [errors, setErrors] = useState({});
   const [form, setForm] = useState(() => {
     try {
@@ -111,65 +162,54 @@ const Checkout = () => {
     }
   });
 
+  /* Buy-now item */
   useEffect(() => {
     const data = localStorage.getItem("buyNowItem");
-    if (data) {
-      setBuyNowItem(JSON.parse(data));
-    }
+    if (data) setBuyNowItem(JSON.parse(data));
   }, []);
+
+  /* Shipping rates */
   useEffect(() => {
     if (!form.city) return;
-
-    const fetchShipping = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/shipping/${form.city}`);
-
-        const mapped = res.data.data.map((item) => ({
-          id: item.method,
-          name:
-            item.method === "standard"
-              ? "Standard Shipping"
-              : item.method === "express"
-                ? "Express Shipping"
-                : "Next Day Delivery",
-          time:
-            item.method === "standard"
-              ? "3–5 business days"
-              : item.method === "express"
-                ? "1–2 business days"
-                : "Delivery by tomorrow",
-          price: item.price,
-          icon:
-            item.method === "standard"
-              ? "📦"
-              : item.method === "express"
-                ? "🚀"
-                : "⚡",
-        }));
-
+    const orderMap = { standard: 1, express: 2, nextday: 3 };
+    axios
+      .get(`${API_URL}/shipping/${form.city}`)
+      .then(({ data }) => {
+        const mapped = data.data
+          .map((item) => ({
+            id: item.method,
+            name:
+              item.method === "standard"
+                ? "Standard Shipping"
+                : item.method === "express"
+                  ? "Express Shipping"
+                  : "Next Day Delivery",
+            time:
+              item.method === "standard"
+                ? "3–5 business days"
+                : item.method === "express"
+                  ? "1–2 business days"
+                  : "Delivery by tomorrow",
+            price: item.price,
+            icon:
+              item.method === "standard"
+                ? "📦"
+                : item.method === "express"
+                  ? "🚀"
+                  : "⚡",
+          }))
+          .sort((a, b) => (orderMap[a.id] || 99) - (orderMap[b.id] || 99));
         setShippingMethods(mapped);
-
-        // auto select first method
-        if (mapped.length > 0) {
-          setShippingId(mapped[0].id);
-        }
-      } catch (err) {
-        console.log("Shipping fetch error", err);
-      }
-    };
-
-    fetchShipping();
+        if (mapped.length > 0) setShippingId(mapped[0].id);
+      })
+      .catch(() => {});
   }, [form.city]);
+
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
-  /* ── Shipping method ── */
   const [shippingId, setShippingId] = useState("standard");
-
-  /* ── Payment method ── */
   const [paymentMethod, setPaymentMethod] = useState("ONLINE");
-
-  /* ── Promo ── */
   const [promoCode, setPromoCode] = useState(
     sessionStorage.getItem("checkoutPromoCode") || "",
   );
@@ -188,21 +228,19 @@ const Checkout = () => {
   );
   const [promoLoading, setPromoLoading] = useState(false);
 
-  /* ── Derived totals ── */
+  /* Derived totals */
   const shippingObj = shippingMethods.find((m) => m.id === shippingId);
-
   const shippingCharge = Number(shippingObj?.price ?? 0);
   const promoDiscount = Number(
     promoApplied ? (promoData?.discountAmount ?? 0) : 0,
   );
   const baseTotal = Number(cartTotal || 0);
   const codFee = paymentMethod === "COD" ? 200 : 0;
-  const total = Math.max(
-    0,
-    baseTotal - promoDiscount + shippingCharge + codFee,
+  const total = Number(
+    Math.max(0, baseTotal - promoDiscount + shippingCharge + codFee).toFixed(2),
   );
 
-  /* ── Load user profile & saved addresses ── */
+  /* Load user profile */
   useEffect(() => {
     if (!form.userId) return;
     (async () => {
@@ -272,7 +310,7 @@ const Checkout = () => {
     }
   };
 
-  /* ── Promo handlers ── */
+  /* Promo handlers */
   const applyPromo = async () => {
     const trimmed = promoCode.trim();
     if (!trimmed) {
@@ -310,140 +348,82 @@ const Checkout = () => {
     sessionStorage.setItem("checkoutPromoDiscount", "0");
   };
 
-  /* ── Step validation ── */
+  /* Validation */
   const validateField = (name, value) => {
     let error = "";
-
     switch (name) {
       case "fullName":
-        if (!value.trim()) {
-          error = "Full name is required";
-        } else if (!/^[A-Za-z0-9\s_-]+$/.test(value)) {
+        if (!value.trim()) error = "Full name is required";
+        else if (!/^[A-Za-z0-9\s_-]+$/.test(value))
           error =
             "Only letters, numbers, spaces, hyphens, and underscores allowed";
-        }
         break;
-
       case "email":
-        if (!value.trim()) {
-          error = "Email is required";
-        } else if (!/\S+@\S+\.\S+/.test(value)) {
-          error = "Invalid email address";
-        }
+        if (!value.trim()) error = "Email is required";
+        else if (!/\S+@\S+\.\S+/.test(value)) error = "Invalid email address";
         break;
-
       case "phone":
-        if (value && !/^[0-9+\-\s()]+$/.test(value)) {
-          error = "Invalid phone number";
-        }
+        if (!value.trim()) error = "Phone number is required";
+        else if (!/^[0-9+\-\s()]+$/.test(value)) error = "Invalid phone number";
         break;
-
       case "streetAddress":
-        if (!value.trim()) {
-          error = "Address is required";
-        }
+        if (!value.trim()) error = "Address is required";
         break;
-
       case "city":
-        if (!value.trim()) {
-          error = "Please select district";
-        }
+        if (!value.trim()) error = "Please select district";
         break;
       case "postalCode":
-        if (!value.trim()) {
-          error = "Postal code is required";
-        } else if (!/^\d{5}$/.test(value)) {
+        if (!value.trim()) error = "Postal code is required";
+        else if (!/^\d{5}$/.test(value))
           error = "Postal code must be exactly 5 digits";
-        }
         break;
-
       case "country":
-        if (!value.trim()) {
-          error = "Country is required";
-        }
+        if (!value.trim()) error = "Country is required";
         break;
-
       default:
         break;
     }
-
-    setErrors((prev) => ({
-      ...prev,
-      [name]: error,
-    }));
-
+    setErrors((prev) => ({ ...prev, [name]: error }));
     return error === "";
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
+    setForm((prev) => ({ ...prev, [name]: value }));
     validateField(name, value);
-  };
-
-  const validateStep0 = () => {
-    if (!form.fullName || !form.email || !form.streetAddress) {
-      showToast("Please fill in all required fields.");
-      return false;
-    }
-    const sym = /[!@#$%^&*()_+={}\[\]:;"'<>?|\\]/;
-    if (sym.test(form.fullName)) {
-      showToast("Name should not contain special symbols.");
-      return false;
-    }
-    for (const [k, v] of Object.entries({
-      "Street Address": form.streetAddress,
-      City: form.city,
-      "Postal Code": form.postalCode,
-      Country: form.country,
-    })) {
-      if (v && sym.test(v)) {
-        showToast(`${k} should not contain special symbols.`);
-        return false;
-      }
-    }
-    if (form.phone && !/^[0-9+\-\s()]*$/.test(form.phone)) {
-      showToast("Invalid phone format.");
-      return false;
-    }
-    return true;
   };
 
   const goNext = () => {
     if (step === 0) {
-      const validations = [
-        validateField("fullName", form.fullName),
-        validateField("email", form.email),
-        validateField("phone", form.phone),
-        validateField("streetAddress", form.streetAddress),
-        validateField("city", form.city),
+      const fields = [
+        "fullName",
+        "email",
+        "phone",
+        "streetAddress",
+        "city",
+        "postalCode",
+        "country",
       ];
-
-      if (validations.includes(false)) {
-        showToast("Please fix form errors");
+      let valid = true;
+      fields.forEach((f) => {
+        if (!validateField(f, form[f])) valid = false;
+      });
+      if (!valid) {
+        showToast("Please fill all required fields correctly");
         return;
       }
     }
-
     setStep((s) => Math.min(s + 1, 2));
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
   const goBack = () => {
     setStep((s) => Math.max(s - 1, 0));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  /* ── Place order ── */
-  const buildPayload = (method) => ({
+  /* Build payload */
+  const buildOrderPayload = (method) => ({
     userId: form.userId ? Number(form.userId) : undefined,
     customerName: form.fullName || "Guest User",
     email: form.email || "guest@example.com",
@@ -457,7 +437,6 @@ const Checkout = () => {
       size: i.size,
     })),
     shippingCharge,
-    codFee,
     promoDiscount,
     promoCode: promoApplied ? promoData?.code || "" : "",
     totalAmount: total,
@@ -474,24 +453,34 @@ const Checkout = () => {
     ].forEach((k) => sessionStorage.removeItem(k));
   };
 
+  /* Shared confirmation state builder */
+  const buildConfirmState = (orderId, method, snapItems) => ({
+    orderId,
+    items: snapItems || [...cart],
+    paymentMethod: method,
+    promoCode: promoData?.code || "",
+    promoDiscount: promoData?.discountAmount || 0,
+    customerName: form.fullName,
+    email: form.email,
+    shippingCharge,
+    codFee: method === "cod" ? codFee : 0,
+    shippingMethod: shippingObj?.name || "",
+  });
+
+  /* ── COD ──────────────────────────────────────────────────── */
   const handleCOD = async () => {
+    setPaying(true);
     try {
-      const res = await axios.post(`${API_URL}/orders`, buildPayload("COD"));
+      const res = await axios.post(
+        `${API_URL}/orders`,
+        buildOrderPayload("COD"),
+      );
       const orderId = res.data.data?.orderId || res.data.id;
-      const items = [...cart];
       localStorage.removeItem("buyNowItem");
       clearCart();
       clearSession();
       navigate("/order-confirmation", {
-        state: {
-          orderId,
-          items,
-          paymentMethod: "cod",
-          promoCode: promoData?.code || "",
-          promoDiscount: promoData?.discountAmount || 0,
-          customerName: form.fullName,
-          email: form.email,
-        },
+        state: buildConfirmState(orderId, "cod"),
       });
     } catch (err) {
       const msg =
@@ -501,56 +490,87 @@ const Checkout = () => {
         err.response?.data?.message ||
         "Something went wrong.";
       showModal("Order Failed", msg);
+    } finally {
+      setPaying(false);
     }
   };
 
+  /* ── PayHere ──────────────────────────────────────────────── */
   const handlePayHere = async () => {
+    setPaying(true);
     try {
-      const res = await axios.post(`${API_URL}/orders`, buildPayload("ONLINE"));
-      const orderId = res.data.data?.orderId || res.data.id;
-      localStorage.removeItem("buyNowItem");
-      const hashRes = await axios.post(`${API_URL}/payment/hash`, {
-        order_id: orderId,
-        amount: total,
-        currency: "LKR",
-      });
-      const { hash, merchant_id } = hashRes.data.data || hashRes.data;
+      /* Step 1 — store pending payment + get hash (NO order created yet) */
+      const hashRes = await axios.post(
+        `https://residual-self-flaky.ngrok-free.dev/api/payment/hash`,
+        {
+          ...buildOrderPayload("ONLINE"),
+          amount: total.toFixed(2),
+          currency: "LKR",
+        },
+      );
+
+      if (!hashRes.data.success) {
+        showModal(
+          "Payment Error",
+          hashRes.data.message || "Could not initiate payment.",
+        );
+        setPaying(false);
+        return;
+      }
+
+      const { hash, merchant_id, pending_payment_id } = hashRes.data.data;
       const nameParts = (form.fullName || "Guest").split(" ");
-      window.payhere.onCompleted = (oid) => {
-        axios
-          .put(`${API_URL}/payment/orders/${oid}/status`, {
-            status: "PROCESSING",
-            paymentStatus: "PAID",
-          })
-          .finally(() => {
-            const items = [...cart];
+      const snapItems = [...cart]; // snapshot before popup opens
+
+      /* Step 2 — callbacks */
+
+      // ⚠️  onCompleted fires for ALL terminal states in PayHere sandbox
+      //     (success AND decline). Do NOT assume success here.
+      //     The webhook is the only source of truth.
+      window.payhere.onCompleted = () => {
+        showToast("Payment received. Verifying with server...");
+
+        pollForOrder(
+          pending_payment_id,
+          (realOrderId) => {
+            localStorage.removeItem("buyNowItem");
             clearCart();
             clearSession();
+            setPaying(false);
+
             navigate("/order-confirmation", {
-              state: {
-                orderId: oid,
-                items,
-                paymentMethod: "online",
-                promoCode: promoData?.code || "",
-                promoDiscount: promoData?.discountAmount || 0,
-                customerName: form.fullName,
-                email: form.email,
-              },
+              state: buildConfirmState(realOrderId, "online", snapItems),
             });
-          });
+          },
+          (errorMsg) => {
+            setPaying(false);
+            showModal("Payment Processing", errorMsg);
+          },
+        );
       };
-      window.payhere.onDismissed = () =>
-        showModal("Payment Dismissed", "Your order is saved as pending.");
-      window.payhere.onError = (e) =>
-        showModal("Payment Error", "PayHere error: " + e);
+      // User manually closed the popup — no charge, no order, no pending record updated
+      window.payhere.onDismissed = () => {
+        setPaying(false);
+        showModal(
+          "Payment Cancelled",
+          "You closed the payment window. No charge was made and no order was created.",
+        );
+      };
+
+      window.payhere.onError = (e) => {
+        setPaying(false);
+        showModal("Payment Error", "PayHere encountered an error: " + e);
+      };
+
+      /* Step 3 — launch popup */
       window.payhere.startPayment({
         sandbox: true,
         merchant_id: String(merchant_id),
         return_url: `${window.location.origin}/profile/orders`,
         cancel_url: window.location.href,
-        notify_url: `${API_URL}/payment/notify`,
-        order_id: String(orderId),
-        items: `SoleVora Order #${orderId}`,
+        notify_url: `https://residual-self-flaky.ngrok-free.dev/api/payment/notify`,
+        order_id: String(pending_payment_id),
+        items: "SoleVora Order",
         amount: total.toFixed(2),
         currency: "LKR",
         hash,
@@ -563,23 +583,25 @@ const Checkout = () => {
         country: "Sri Lanka",
       });
     } catch (err) {
+      setPaying(false);
       const msg =
         err.response?.data?.errors
           ?.map((e) => `${e.field}: ${e.message}`)
           .join(", ") ||
         err.response?.data?.message ||
         "Error initiating payment.";
-      showModal("Order Failed", msg);
+      showModal("Payment Failed", msg);
     }
   };
 
   const handlePlaceOrder = () => {
+    if (paying) return;
     if (paymentMethod === "COD") handleCOD();
     else if (paymentMethod === "ONLINE") handlePayHere();
     else showModal("Not Supported", "Please select a valid payment method.");
   };
 
-  /* ── Empty cart guard ── */
+  /* Empty cart guard */
   if (cart.length === 0)
     return (
       <div className="co-page">
@@ -634,11 +656,9 @@ const Checkout = () => {
           Step {step + 1} of 3 — {stepLabels[step]}
         </p>
 
-        {/* Main layout */}
         <div className="co-grid">
-          {/* ═══ LEFT PANEL ═══ */}
           <div className="co-panel">
-            {/* ── STEP 0: Shipping Information ── */}
+            {/* STEP 0: Shipping */}
             {step === 0 && (
               <div className="co-card co-fade-in">
                 <div className="co-card-head">
@@ -649,7 +669,6 @@ const Checkout = () => {
                       type="button"
                       className="co-refresh-btn"
                       onClick={refreshProfile}
-                      title="Refresh from profile"
                     >
                       <span className="material-symbols-outlined">sync</span>
                       From Profile
@@ -690,7 +709,6 @@ const Checkout = () => {
                 <div className="co-form">
                   <div className="co-field">
                     <label className="co-field-label">Full Name *</label>
-
                     <input
                       className={`co-input ${errors.fullName ? "co-input-error" : ""}`}
                       type="text"
@@ -699,7 +717,6 @@ const Checkout = () => {
                       value={form.fullName}
                       onChange={handleChange}
                     />
-
                     {errors.fullName && (
                       <p className="co-error-text">{errors.fullName}</p>
                     )}
@@ -721,7 +738,7 @@ const Checkout = () => {
                       )}
                     </div>
                     <div className="co-field">
-                      <label className="co-field-label">Phone Number</label>
+                      <label className="co-field-label">Phone Number *</label>
                       <input
                         className={`co-input ${errors.phone ? "co-input-error" : ""}`}
                         type="tel"
@@ -753,7 +770,9 @@ const Checkout = () => {
 
                   <div className="co-row-2">
                     <div className="co-field">
-                      <label className="co-field-label">District / City</label>
+                      <label className="co-field-label">
+                        District / City *
+                      </label>
                       <select
                         className={`co-input co-select ${errors.city ? "co-input-error" : ""}`}
                         name="city"
@@ -772,7 +791,7 @@ const Checkout = () => {
                       )}
                     </div>
                     <div className="co-field">
-                      <label className="co-field-label">Postal Code</label>
+                      <label className="co-field-label">Postal Code *</label>
                       <input
                         className={`co-input ${errors.postalCode ? "co-input-error" : ""}`}
                         type="text"
@@ -788,7 +807,7 @@ const Checkout = () => {
                   </div>
 
                   <div className="co-field">
-                    <label className="co-field-label">Country</label>
+                    <label className="co-field-label">Country *</label>
                     <input
                       className={`co-input ${errors.country ? "co-input-error" : ""}`}
                       type="text"
@@ -814,7 +833,7 @@ const Checkout = () => {
               </div>
             )}
 
-            {/* ── STEP 1: Shipping Method ── */}
+            {/* STEP 1: Shipping Method */}
             {step === 1 && (
               <div className="co-card co-fade-in">
                 <div className="co-card-head">
@@ -875,7 +894,7 @@ const Checkout = () => {
               </div>
             )}
 
-            {/* ── STEP 2: Payment ── */}
+            {/* STEP 2: Payment */}
             {step === 2 && (
               <div className="co-card co-fade-in">
                 <div className="co-card-head">
@@ -902,7 +921,6 @@ const Checkout = () => {
                   ))}
                 </div>
 
-                {/* Payment info panel */}
                 <div className="co-pay-info-panel">
                   {paymentMethod === "ONLINE" && (
                     <div className="co-payhere-info">
@@ -931,7 +949,8 @@ const Checkout = () => {
                         Payment is collected by the delivery agent upon arrival.
                       </p>
                       <p>
-                        A <strong>Rs. 200 </strong>Cash on Delivery handling fee will be added.
+                        A <strong>Rs. 200</strong> Cash on Delivery handling fee
+                        will be added.
                       </p>
                       <div className="co-cod-detail">
                         <div className="co-cod-row">
@@ -964,7 +983,11 @@ const Checkout = () => {
                 </div>
 
                 <div className="co-nav-row">
-                  <button className="co-btn-ghost" onClick={goBack}>
+                  <button
+                    className="co-btn-ghost"
+                    onClick={goBack}
+                    disabled={paying}
+                  >
                     <span className="material-symbols-outlined">
                       arrow_back
                     </span>
@@ -973,11 +996,16 @@ const Checkout = () => {
                   <button
                     className="co-btn-primary co-btn-place"
                     onClick={handlePlaceOrder}
+                    disabled={paying}
                   >
                     <span className="material-symbols-outlined">
-                      shopping_bag
+                      {paying ? "hourglass_empty" : "shopping_bag"}
                     </span>
-                    {paymentMethod === "COD" ? "Place Order" : "Pay Now"}
+                    {paying
+                      ? "Processing…"
+                      : paymentMethod === "COD"
+                        ? "Place Order"
+                        : "Pay Now"}
                   </button>
                 </div>
               </div>
@@ -1070,12 +1098,12 @@ const Checkout = () => {
                     : `Rs. ${shippingCharge.toLocaleString()}`}
                 </span>
               </div>
-                {paymentMethod === "COD" && (
-    <div className="co-total-row co-cod-fee-row">
-      <span>Cash on Delivery Fee</span>
-      <span>Rs. {codFee.toLocaleString()}</span>
-    </div>
-  )}
+              {paymentMethod === "COD" && (
+                <div className="co-total-row co-cod-fee-row">
+                  <span>Cash on Delivery Fee</span>
+                  <span>Rs. {codFee.toLocaleString()}</span>
+                </div>
+              )}
               {step >= 1 && (
                 <div className="co-total-row co-method-row">
                   <span>Method</span>
@@ -1099,10 +1127,8 @@ const Checkout = () => {
         </div>
       </div>
 
-      {/* Toast */}
       {toast && <div className="co-toast">{toast}</div>}
 
-      {/* Modal */}
       <Modal
         isOpen={modal.open}
         onClose={() => setModal((m) => ({ ...m, open: false }))}
