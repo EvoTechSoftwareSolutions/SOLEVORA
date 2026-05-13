@@ -53,13 +53,12 @@ const PAYMENT_METHODS = [
   { id: "COD", icon: "payments", label: "Cash on Delivery" },
 ];
 
-/* ─── Poll helper ────────────────────────────────────────────────
+/* ─── Poll helper
    Polls /payment/pending/:id every 2 s after the PayHere popup
    closes. The webhook is the source of truth:
      COMPLETED  → real orderId exists  → navigate to confirmation
      FAILED     → payment was declined → show error modal, stay on page
-   Gives up after 30 s (15 x 2 s).
-──────────────────────────────────────────────────────────────── */
+   Gives up after 30 s (15 x 2 s).*/
 const pollForOrder = (pendingId, onSuccess, onFailure) => {
   const maxAttempts = 15;
   let attempts = 0;
