@@ -1,8 +1,7 @@
-import nodemailer from 'nodemailer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-
+import nodemailer from "nodemailer";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 
 // --- Setup __dirname for ES modules ---
 const __filename = fileURLToPath(import.meta.url);
@@ -11,15 +10,15 @@ const __dirname = path.dirname(__filename);
 // Create a transporter function to ensure env vars are loaded
 const getTransporter = () => {
   const user = process.env.GMAIL_USER;
-  const pass = process.env.GMAIL_PASS?.replace(/\s/g, '');
+  const pass = process.env.GMAIL_PASS?.replace(/\s/g, "");
 
   if (!user || !pass) {
-    console.error('❌ Email credentials missing in environment variables');
+    console.error("❌ Email credentials missing in environment variables");
     return null;
   }
 
   return nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
       user: user,
       pass: pass,
@@ -34,46 +33,61 @@ const getTransporter = () => {
  */
 export const sendOrderConfirmationEmail = async (order, items) => {
   try {
-    const { id, customerName, email, totalAmount, shippingAddress, paymentMethod, trackingNumber } = order;
-    
-    console.log(`📦 Sending email for Order #${id} with ${items?.length} items`);
+    const {
+      id,
+      customerName,
+      email,
+      totalAmount,
+      shippingAddress,
+      paymentMethod,
+      trackingNumber,
+      codFee,
+      shippingCharge,
+      shippingMethod,
+    } = order;
+
+    console.log(
+      `📦 Sending email for Order #${id} with ${items?.length} items`,
+    );
     console.log(`🔍 Items Data Sample:`, JSON.stringify(items?.[0], null, 2));
 
-
     const attachments = [];
-    const itemsHtml = items.map((item, index) => {
-      let imgUrl = 'https://via.placeholder.com/80';
-      const cid = `product-image-${index}`;
-      
-      const productImg = item.product?.productimage?.[0]?.url;
-      if (productImg) {
-        if (productImg.startsWith('http')) {
-          imgUrl = productImg;
-        } else {
-          // For local images, use CID for better local testing compatibility
-          const cleanPath = productImg.startsWith('/') ? productImg : `/${productImg}`;
-          const filePath = path.join(__dirname, '../../', cleanPath);
-          const fileExists = fs.existsSync(filePath);
-          
-          // Debugging log to ensure path is correct and file exists
-          console.log(`📧 Email Image Check: Path=${filePath}, Exists=${fileExists}`);
-          
-          if (fileExists) {
-            attachments.push({
-              filename: `product-${index}.jpg`,
-              path: filePath,
-              cid: cid
-            });
-            imgUrl = `cid:${cid}`;
+    const itemsHtml = items
+      .map((item, index) => {
+        let imgUrl = "https://via.placeholder.com/80";
+        const cid = `product-image-${index}`;
+
+        const productImg = item.product?.productimage?.[0]?.url;
+        if (productImg) {
+          if (productImg.startsWith("http")) {
+            imgUrl = productImg;
           } else {
-            console.warn(`⚠️ Image file not found: ${filePath}`);
+            // For local images, use CID for better local testing compatibility
+            const cleanPath = productImg.startsWith("/")
+              ? productImg
+              : `/${productImg}`;
+            const filePath = path.join(__dirname, "../../", cleanPath);
+            const fileExists = fs.existsSync(filePath);
+
+            // Debugging log to ensure path is correct and file exists
+            console.log(
+              ` Email Image Check: Path=${filePath}, Exists=${fileExists}`,
+            );
+
+            if (fileExists) {
+              attachments.push({
+                filename: `product-${index}.jpg`,
+                path: filePath,
+                cid: cid,
+              });
+              imgUrl = `cid:${cid}`;
+            } else {
+              console.warn(`⚠️ Image file not found: ${filePath}`);
+            }
           }
-
-
         }
-      }
 
-      return `
+        return `
         <tr style="border-bottom: 1px solid #eeeeee;">
           <td style="padding: 15px 10px; text-align: left; vertical-align: top;">
             <table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -82,18 +96,19 @@ export const sendOrderConfirmationEmail = async (order, items) => {
                   <img src="${imgUrl}" alt="${item.productName}" width="50" height="50" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #eeeeee; display: block;" />
                 </td>
                 <td style="vertical-align: top;">
-                  <div style="font-family: Arial, sans-serif; font-weight: bold; color: #1a1a2e; font-size: 14px; margin-bottom: 4px;">${item.productName || 'Product'}</div>
+                  <div style="font-family: Arial, sans-serif; font-weight: bold; color: #1a1a2e; font-size: 14px; margin-bottom: 4px;">${item.productName || "Product"}</div>
                   <div style="font-family: Arial, sans-serif; font-size: 12px; color: #64748b;">Size: ${item.size} | Qty: ${item.quantity}</div>
                 </td>
               </tr>
             </table>
           </td>
           <td style="padding: 15px 10px; text-align: right; color: #1a1a2e; vertical-align: middle; font-family: Arial, sans-serif; font-weight: 600; font-size: 14px;">
-            Rs. ${item.sellingPrice.toLocaleString()}
-          </td>
+  Rs. ${(item.sellingPrice * item.quantity).toLocaleString()}
+</td>
         </tr>
       `;
-    }).join('');
+      })
+      .join("");
 
     const mailOptions = {
       from: `"SoleVora" <${process.env.GMAIL_USER}>`,
@@ -129,9 +144,36 @@ export const sendOrderConfirmationEmail = async (order, items) => {
               </table>
               
               <div style="margin-top: 15px; text-align: right;">
-                <p style="margin: 5px 0; color: #666;">Subtotal: <span style="color: #333;">Rs. ${totalAmount.toLocaleString()}</span></p>
-                <p style="margin: 5px 0; color: #666;">Shipping: <span style="color: #16a34a;">FREE</span></p>
-                <h3 style="margin: 10px 0 0 0; color: #1a1a2e; font-size: 20px;">Total: Rs. ${totalAmount.toLocaleString()}</h3>
+           <p style="margin: 5px 0; color: #666;">
+  Shipping Method:
+  <span style="color: #333;">
+    ${shippingMethod || "Standard Shipping"}
+  </span>
+</p>
+
+<p style="margin: 5px 0; color: #666;">
+  Shipping Fee:
+  <span style="color: #333;">
+    Rs. ${(shippingCharge || 0).toLocaleString()}
+  </span>
+</p>
+
+${
+  paymentMethod === "COD"
+    ? `
+<p style="margin: 5px 0; color: #666;">
+  COD Fee:
+  <span style="color: #333;">
+    Rs. ${(codFee || 200).toLocaleString()}
+  </span>
+</p>
+`
+    : ""
+}
+
+<h3 style="margin: 10px 0 0 0; color: #1a1a2e; font-size: 20px;">
+  Total: Rs. ${totalAmount.toLocaleString()}
+</h3>
               </div>
             </div>
             
@@ -147,7 +189,7 @@ export const sendOrderConfirmationEmail = async (order, items) => {
                       </td>
                       <td width="50%" style="vertical-align: top; padding-left: 10px;">
                         <h4 style="margin: 0 0 10px 0; color: #1a1a2e; font-family: Arial, sans-serif;">Payment Method</h4>
-                        <p style="margin: 0; color: #64748b; font-size: 13px; font-family: Arial, sans-serif;">${paymentMethod === 'COD' ? 'Cash on Delivery' : 'Online Payment'}</p>
+                        <p style="margin: 0; color: #64748b; font-size: 13px; font-family: Arial, sans-serif;">${paymentMethod === "COD" ? "Cash on Delivery" : "Online Payment"}</p>
                         
                         <h4 style="margin: 15px 0 10px 0; color: #1a1a2e; font-family: Arial, sans-serif;">Tracking Number</h4>
                         <p style="margin: 0; color: #f97316; font-weight: bold; font-size: 13px; font-family: Arial, sans-serif;">${trackingNumber}</p>
@@ -160,7 +202,7 @@ export const sendOrderConfirmationEmail = async (order, items) => {
             
             <!-- Button -->
             <div style="text-align: center; margin-top: 40px;">
-              <a href=\"${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile/orders\" style=\"background-color: #1a1a2e; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-family: Arial, sans-serif; font-size: 14px;\">Track Your Order</a>
+              <a href=\"${process.env.FRONTEND_URL || "http://localhost:5173"}/profile/orders\" style=\"background-color: #1a1a2e; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-family: Arial, sans-serif; font-size: 14px;\">Track Your Order</a>
             </div>
           </div>
           
@@ -177,10 +219,10 @@ export const sendOrderConfirmationEmail = async (order, items) => {
     if (!transporter) return null;
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Order confirmation email sent:', info.messageId);
+    console.log("Order confirmation email sent:", info.messageId);
     return info;
   } catch (error) {
-    console.error('Error sending order confirmation email:', error);
+    console.error("Error sending order confirmation email:", error);
     return null;
   }
 };

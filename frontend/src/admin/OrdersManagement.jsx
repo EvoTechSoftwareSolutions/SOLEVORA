@@ -4,6 +4,7 @@ import { API_URL, getImageUrl } from '../config/api';
 import { showSuccess, showError } from '../utils/notifications';
 import Pagination from '../components/common/Pagination';
 import './OrdersManagement.css';
+import Swal from "sweetalert2";
 
 const OrdersManagement = () => {
     const [subTab, setSubTab] = useState('All Orders');
@@ -67,14 +68,48 @@ const OrdersManagement = () => {
     }, [currentPage]);
 
 // toggle order status
-    const handleToggleOrder = async (id) => {
-        try {
-            await axios.put(`${API_URL}/orders/${id}/toggle`);
-            fetchOrders(currentPage);
-        } catch (error) {
-            showError('Error', 'Error toggling order status');
-        }
-    };
+
+const handleToggleOrder = async (id) => {
+
+    const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You want to change this order status?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#f66d3b",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Yes, update it!"
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+
+        const response = await axios.put(
+            `${API_URL}/orders/${id}/toggle`
+        );
+
+        Swal.fire({
+            icon: "success",
+            title: "Updated!",
+            text: response.data.message,
+            timer: 1800,
+            showConfirmButton: false
+        });
+
+        fetchOrders(currentPage);
+
+    } catch (error) {
+
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text:
+                error.response?.data?.message ||
+                "Error updating order"
+        });
+    }
+};
 
 // open modal and fill form with order data
     const handleOpenModal = (order) => {

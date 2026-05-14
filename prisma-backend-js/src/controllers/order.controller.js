@@ -555,31 +555,141 @@ export const deleteOrder = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
 // TOGGLE ORDER STATUS (ACTIVE / INACTIVE)
 export const toggleOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
     const order = await prisma.order.findUnique({
-      where: { id: Number(id) }
+      where: { id: Number(id) },
+      include: {
+        orderitem: true
+      }
     });
 
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Order not found"
+      });
     }
 
+    const newIsActive = !order.isActive;
+
+    let newStatus = order.status;
+    let newPaymentStatus = order.paymentStatus;
+
+  //deactivate order - restore stock and set status to CANCELLED
+    if (!newIsActive) {
+      for (const item of order.orderitem) {
+        const normalizedSize = String(parseFloat(item.size) || item.size);
+
+        const stock = await prisma.productstock.findFirst({
+          where: {
+            productId: item.productId,
+            size: normalizedSize
+          }
+        });
+
+        if (stock) {
+          await prisma.productstock.update({
+            where: { id: stock.id },
+            data: {
+              quantity: {
+                increment: item.quantity 
+              }
+            }
+          });
+        }
+      }
+
+      newStatus = "CANCELLED";
+      newPaymentStatus = "FAILED";
+    }
+
+
+    //  ACTIVATE ORDER
+    
+    if (newIsActive) {
+      for (const item of order.orderitem) {
+        const normalizedSize = String(parseFloat(item.size) || item.size);
+
+        const stock = await prisma.productstock.findFirst({
+          where: {
+            productId: item.productId,
+            size: normalizedSize
+          }
+        });
+
+        if (!stock) {
+          return res.status(400).json({
+            success: false,
+            message: `Stock not found for product ${item.productId}`
+          });
+        }
+
+        // check stock availability
+        if (stock.quantity < item.quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient stock for product ${item.productId}`
+          });
+        }
+
+        await prisma.productstock.update({
+          where: { id: stock.id },
+          data: {
+            quantity: {
+              decrement: item.quantity 
+            }
+          }
+        });
+      }
+
+      // restore correct status based on payment
+      if (
+        order.paymentMethod === "ONLINE" &&
+        order.paymentStatus === "PAID"
+      ) {
+        newStatus = "PROCESSING";
+        newPaymentStatus = "PAID";
+      } else {
+        newStatus = "PENDING";
+        newPaymentStatus = "PENDING";
+      }
+    }
+
+    //  UPDATE ORDER
     const updatedOrder = await prisma.order.update({
       where: { id: Number(id) },
-      data: { isActive: !order.isActive }
+      data: {
+        isActive: newIsActive,
+        status: newStatus,
+        paymentStatus: newPaymentStatus,
+        updatedAt: new Date()
+      },
+      include: {
+        orderitem: true
+      }
     });
 
-    res.json({ 
-      success: true, 
-      message: `Order marked as ${updatedOrder.isActive ? 'Active' : 'Inactive'}`,
+    return res.json({
+      success: true,
+      message: `Order ${
+        updatedOrder.isActive ? "activated" : "deactivated"
+      } successfully`,
       data: updatedOrder
     });
+
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("TOGGLE_ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 

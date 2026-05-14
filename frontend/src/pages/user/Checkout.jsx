@@ -436,6 +436,8 @@ const Checkout = () => {
       size: i.size,
     })),
     shippingCharge,
+    codFee: method === "COD" ? codFee : 0,
+    shippingMethod: shippingObj?.name || "",
     promoDiscount,
     promoCode: promoApplied ? promoData?.code || "" : "",
     totalAmount: total,

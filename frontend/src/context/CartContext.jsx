@@ -179,23 +179,55 @@ const removeFromCart = async (cartId) => {
 };
 
   //  UPDATE QTY
-  const updateQuantity = async (cartId, quantity) => {
-    if (quantity < 1) return;
-    const token = getToken();
-    setCart((prev) =>
-      prev.map((i) => (i.id === cartId ? { ...i, quantity } : i))
+const updateQuantity = async (cartId, quantity) => {
+  if (quantity < 1) return;
+
+  const token = getToken();
+
+  setCart((prev) =>
+    prev.map((item) => {
+      if (item.id !== cartId) return item;
+
+      // FIFO total calculation
+      let remainingQty = quantity;
+      let newTotalPrice = 0;
+
+      for (const batch of item.priceBatches || []) {
+        if (remainingQty <= 0) break;
+
+        const takeQty = Math.min(batch.quantity, remainingQty);
+
+        newTotalPrice += takeQty * batch.price;
+
+        remainingQty -= takeQty;
+      }
+
+      // fallback
+      if (remainingQty > 0) {
+        newTotalPrice += remainingQty * item.price;
+      }
+
+      return {
+        ...item,
+        quantity,
+        totalPrice: newTotalPrice,
+      };
+    })
+  );
+
+  try {
+    await axios.put(
+      `${API}/${cartId}`,
+      { quantity },
+      { headers: { Authorization: `Bearer ${token}` } }
     );
-    try {
-      await axios.put(
-        `${API}/${cartId}`,
-        { quantity },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    } catch (err) {
-      console.error(err.message);
-      fetchCart(); // revert on error
-    }
-  };
+
+    fetchCart();
+  } catch (err) {
+    console.error(err.message);
+    fetchCart();
+  }
+};
 
   //  CLEAR SELECTED ITEMS AFTER ORDER
   const clearCart = async () => {
