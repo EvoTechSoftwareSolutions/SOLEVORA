@@ -472,22 +472,62 @@ const handleStockChange = (index, field, value) => {
                         </div>
                     </div>
 
-                    {/* Description & Gender */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Descriptions */}
-<div className="grid grid-cols-1 gap-4">
+               {/* Category + Gender (BEFORE description) */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    {/* Category */}
+    <div>
+        <label className="block text-sm font-medium mb-1">
+            Category <span className="text-red-500">*</span>
+        </label>
+        <select
+            name="categoryId"
+            value={formData.categoryId}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className={inputCls('categoryId')}
+        >
+            <option value="">Select Category</option>
+            {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                </option>
+            ))}
+        </select>
+        <ErrorMsg field="categoryId" />
+    </div>
+
+    {/* Gender */}
+    <div>
+        <label className="block text-sm font-medium mb-1">
+            Gender <span className="text-red-500">*</span>
+        </label>
+        <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            className="w-full border rounded-lg p-2"
+        >
+            <option value="ALL">All</option>
+            <option value="MEN">Men</option>
+            <option value="WOMEN">Women</option>
+            <option value="KIDS">Kids</option>
+        </select>
+    </div>
+</div>
+{/* Descriptions (3 columns in one row) */}
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
     <div>
         <label className="block text-sm font-medium mb-1">
             Description One <span className="text-red-500">*</span>
         </label>
-
         <textarea
             name="descriptionOne"
             value={formData.descriptionOne}
             onChange={handleChange}
             className="w-full border rounded-lg p-3"
-            rows={3}
+            rows={6}
             placeholder="Main product description..."
         />
     </div>
@@ -496,13 +536,12 @@ const handleStockChange = (index, field, value) => {
         <label className="block text-sm font-medium mb-1">
             Description Two
         </label>
-
         <textarea
             name="descriptionTwo"
             value={formData.descriptionTwo}
             onChange={handleChange}
             className="w-full border rounded-lg p-3"
-            rows={3}
+            rows={6}
             placeholder="Additional description..."
         />
     </div>
@@ -511,60 +550,17 @@ const handleStockChange = (index, field, value) => {
         <label className="block text-sm font-medium mb-1">
             Description Three
         </label>
-
         <textarea
             name="descriptionThree"
             value={formData.descriptionThree}
             onChange={handleChange}
             className="w-full border rounded-lg p-3"
-            rows={3}
+            rows={6}
             placeholder="Extra details..."
         />
     </div>
 
 </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">
-                                Gender <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                name="gender"
-                                value={formData.gender}
-                                onChange={handleChange}
-                                required
-                                className="w-full border rounded-lg p-2"
-                            >
-                                <option value="ALL">All</option>
-                                <option value="MEN">Men</option>
-                                <option value="WOMEN">Women</option>
-                                <option value="KIDS">Kids</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Category */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1">
-                                Category <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                name="categoryId"
-                                value={formData.categoryId}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                className={inputCls('categoryId')}
-                            >
-                                <option value="">Select Category</option>
-                                {categories.map((cat) => (
-                                    <option key={cat.id} value={cat.id}>
-                                        {cat.name}
-                                    </option>
-                                ))}
-                            </select>
-                            <ErrorMsg field="categoryId" />
-                        </div>
-                    </div>
 
                     {/* Pricing */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

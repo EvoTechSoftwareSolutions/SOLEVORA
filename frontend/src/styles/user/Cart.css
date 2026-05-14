@@ -465,7 +465,6 @@
     background-color: #ffffff;
     border-radius: 20px;
     overflow: hidden;
-    max-width: 260px;
     width: 100%;
     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
@@ -478,7 +477,7 @@
 }
 
 .rec-img img {
-    width: 100%;
+    width: 80%;
     height: 100%;
     object-fit: contain;
 }
@@ -505,14 +504,28 @@
     display: flex;
     justify-content: center;
 }
+.rec-swiper {
+    width: 100%;
+    overflow: hidden;
+}
+
+.rec-swiper .swiper-wrapper {
+    align-items: stretch;
+}
+
+.rec-swiper .swiper-slide {
+    display: flex;
+    justify-content: start;
+    height: auto;
+}
 
 /* Custom Navigation Arrows */
 .swiper-navigation {
+    width: 100%;
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 20px;
     margin-top: 20px;
+    z-index: 10;
 }
 
 .swiper-button-prev,
