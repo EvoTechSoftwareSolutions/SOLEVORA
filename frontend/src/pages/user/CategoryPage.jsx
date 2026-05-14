@@ -36,9 +36,6 @@ import SuccessPopup   from "../../components/common/SuccessPoppup";
 import SizeChartModal from "../../components/user/SizeChartModal";
 import Pagination     from "../../components/common/Pagination";
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   CONSTANTS
-───────────────────────────────────────────────────────────────────────────── */
 const BASE_URL = "http://localhost:5001";
 
 const getImg = (url) => {
@@ -95,9 +92,7 @@ const PRICE_RANGES = [
   "Rs.20000+",
 ];
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   SUB-COMPONENTS
-───────────────────────────────────────────────────────────────────────────── */
+  //  SUB-COMPONENTS
 
 /** Collapsible accordion section used inside filter sidebar */
 function FilterSection({ title, children, defaultOpen = true }) {
@@ -256,9 +251,6 @@ function SidebarFilters({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   MAIN PAGE
-───────────────────────────────────────────────────────────────────────────── */
 function CategoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -439,7 +431,6 @@ function CategoryPage() {
     sizes, setShowSizeChart,
   };
 
-  /* ── Render ─────────────────────────────────────────────────────────────── */
   return (
     <div className="bg-[#f6f6f6] min-h-screen w-full overflow-x-hidden">
 
@@ -448,9 +439,9 @@ function CategoryPage() {
       )}
       <SizeChartModal isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />
 
-      {/* ════════════════════════════════════════════════════════
+      {/*
           HERO  —  fluid height with clamp so it never breaks
-      ════════════════════════════════════════════════════════ */}
+      */}
       <section
         className="relative w-full overflow-hidden"
         style={{ height: "clamp(200px, 44vw, 560px)" }}
@@ -500,13 +491,13 @@ function CategoryPage() {
         </div>
       </section>
 
-      {/* ════════════════════════════════════════════════════════
+      {/* 
           CATEGORY CARDS
           320px  → 2-col
           640px  → 3-col
           768px  → 4-col
           1280px → 4-col wider cards
-      ════════════════════════════════════════════════════════ */}
+      */}
       <section className="w-full bg-white px-3 sm:px-8 lg:px-14 xl:px-20 py-8 sm:py-12 lg:py-16">
         {/* heading */}
         <div className="max-w-2xl mx-auto text-center mb-6 sm:mb-10">
@@ -574,9 +565,7 @@ function CategoryPage() {
         </div>
       </section>
 
-      {/* ════════════════════════════════════════════════════════
-          PRODUCT SECTION
-      ════════════════════════════════════════════════════════ */}
+          {/* PRODUCT SECTION */}
       <section
         id="product-grid-section"
         className="w-full bg-[#faecd9]"
@@ -727,12 +716,10 @@ function CategoryPage() {
               <>
                 {/*
                   RESPONSIVE GRID COLUMNS
-                  ─────────────────────────────────────────────────
                   320–639px   (no sidebar)   → 2 cols
                   640–1023px  (no sidebar)   → 3 cols
                   1024–1279px (sidebar 210px)→ 3 cols  ← enough space
                   1280px+     (sidebar 240px)→ 3 cols  (xl cards are larger)
-                  ─────────────────────────────────────────────────
                   Using grid-cols-2 sm:grid-cols-3 covers all cases cleanly.
                   The sidebar only appears at lg+ and is narrow enough that
                   3 product columns still fit comfortably.
@@ -870,11 +857,11 @@ function CategoryPage() {
         </div>
       </section>
 
-      {/* ════════════════════════════════════════════════════════
+      {/*
           MOBILE FILTER DRAWER  (slide-in from left, lg hidden)
           Body-scroll is NOT locked here to keep it lightweight;
           the overlay click closes it instead.
-      ════════════════════════════════════════════════════════ */}
+      */}
       {showMobileSidebar && (
         <div className="lg:hidden fixed inset-0 z-[60] flex">
           {/* Dim overlay */}
@@ -941,9 +928,8 @@ function CategoryPage() {
         </div>
       )}
 
-      {/* ════════════════════════════════════════════════════════
-          HERITAGE BANNER
-      ════════════════════════════════════════════════════════ */}
+          {/* HERITAGE BANNER */}
+
       <section className="w-full px-3 sm:px-8 lg:px-14 xl:px-20 py-10 sm:py-14 bg-[#f6f6f6]">
         <div className="rounded-[20px] sm:rounded-[28px] overflow-hidden bg-[#e8ddd6] grid grid-cols-1 sm:grid-cols-2 shadow-sm">
           <div className="bg-[#e7cfcf] flex items-center justify-center p-5 sm:p-8">

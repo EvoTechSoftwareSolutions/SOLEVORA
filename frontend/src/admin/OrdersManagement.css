@@ -522,7 +522,7 @@ body {
     display: inline-block;
     padding: 6px 12px;
     border-radius: 20px;
-    font-size: 10px;
+    font-size: 8px;
     font-weight: 800;
     letter-spacing: 0.5px;
 }
@@ -540,6 +540,41 @@ body {
 .status-badge.cancelled {
     background-color: #fee2e2;
     color: #ef4444;
+}
+.status-wrapper {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 6px;
+    align-items: center;
+}
+
+/* Payment Badge Base */
+.payment-badge {
+    display: inline-block;
+    width: fit-content;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+}
+
+/* Pending */
+.payment-badge.pending {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+/* Paid */
+.payment-badge.paid {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+/* Failed */
+.payment-badge.failed {
+    background-color: #fee2e2;
+    color: #dc2626;
 }
 
 /* Actions */
@@ -931,4 +966,4 @@ body {
 .status-badge.pending {
     background-color: #f3f4f6;
     color: #6b7280;
-}
+}

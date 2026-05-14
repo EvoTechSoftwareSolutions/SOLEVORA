@@ -1,385 +1,666 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { API_URL, getImageUrl } from '../config/api';
-import { showSuccess, showError } from '../utils/notifications';
-import Pagination from '../components/common/Pagination';
-import './OrdersManagement.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { API_URL, getImageUrl } from "../config/api";
+import { showSuccess, showError } from "../utils/notifications";
+import Pagination from "../components/common/Pagination";
+import "./OrdersManagement.css";
 import Swal from "sweetalert2";
 
 const OrdersManagement = () => {
-    const [subTab, setSubTab] = useState('All Orders');
-    const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [selectedOrder, setSelectedOrder] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [updateLoading, setUpdateLoading] = useState(false);
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const limit = 10;
+  const [subTab, setSubTab] = useState("All Orders");
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const limit = 10;
 
-    // Form states for update
-    const [status, setStatus] = useState('');
-    const [paymentStatus, setPaymentStatus] = useState('');
-    const [trackingNumber, setTrackingNumber] = useState('');
-    const [carrier, setCarrier] = useState('');
-    const [estimatedDelivery, setEstimatedDelivery] = useState('');
-// fetch orders from API
-    const fetchOrders = async (page = 1) => {
-        try {
-            setLoading(true);
-            const params = new URLSearchParams();
-            params.append('page', page);
-            params.append('limit', limit);
-            if (subTab && subTab !== 'All Orders') params.append('status', subTab);
-            if (startDate) params.append('startDate', startDate);
-            if (endDate) params.append('endDate', endDate);
-            if (searchTerm) params.append('search', searchTerm);
+  // Form states for update
+  const [status, setStatus] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [carrier, setCarrier] = useState("");
+  const [estimatedDelivery, setEstimatedDelivery] = useState("");
+  // fetch orders from API
+  const fetchOrders = async (page = 1) => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      params.append("page", page);
+      params.append("limit", limit);
+      if (subTab && subTab !== "All Orders") params.append("status", subTab);
+      if (startDate) params.append("startDate", startDate);
+      if (endDate) params.append("endDate", endDate);
+      if (searchTerm) params.append("search", searchTerm);
 
-            const response = await axios.get(`${API_URL}/orders?${params.toString()}`);
-            setOrders(response.data.data);
-            setTotalPages(response.data?.pagination?.totalPages || 1);
-            setCurrentPage(page);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching orders:', error);
-            setLoading(false);
-        }
-    };
-// load orders when page opens or filters change
-    useEffect(() => {
-        fetchOrders(1);
-    }, [subTab, startDate, endDate]);
+      const response = await axios.get(
+        `${API_URL}/orders?${params.toString()}`,
+      );
+      setOrders(response.data.data);
+      setTotalPages(response.data?.pagination?.totalPages || 1);
+      setTotalOrders(response.data?.pagination?.totalItems || 0);
+      setCurrentPage(page);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      setLoading(false);
+    }
+  };
+  // load orders when page opens or filters change
+  useEffect(() => {
+    fetchOrders(1);
+  }, [subTab, startDate, endDate]);
 
-    // Use a separate effect for search with debounce if needed, or just refetch on enter/button
-    // For now, let's keep it simple and refetch on search change
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            fetchOrders(1);
-        }, 500);
-        return () => clearTimeout(timeoutId);
-    }, [searchTerm]);
+  // Use a separate effect for search with debounce if needed, or just refetch on enter/button
+  // For now, let's keep it simple and refetch on search change
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchOrders(1);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
 
-    // Use effect for page change
-    useEffect(() => {
-        fetchOrders(currentPage);
-    }, [currentPage]);
+  // Use effect for page change
+  useEffect(() => {
+    fetchOrders(currentPage);
+  }, [currentPage]);
 
-// toggle order status
+  // toggle order status
 
-const handleToggleOrder = async (id) => {
-
+  const handleToggleOrder = async (id) => {
     const result = await Swal.fire({
-        title: "Are you sure?",
-        text: "You want to change this order status?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#f66d3b",
-        cancelButtonColor: "#6b7280",
-        confirmButtonText: "Yes, update it!"
+      title: "Are you sure?",
+      text: "You want to change this order status?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#f66d3b",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, update it!",
     });
 
     if (!result.isConfirmed) return;
 
     try {
+      const response = await axios.put(`${API_URL}/orders/${id}/toggle`);
 
-        const response = await axios.put(
-            `${API_URL}/orders/${id}/toggle`
-        );
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: response.data.message,
+        timer: 1800,
+        showConfirmButton: false,
+      });
 
-        Swal.fire({
-            icon: "success",
-            title: "Updated!",
-            text: response.data.message,
-            timer: 1800,
-            showConfirmButton: false
-        });
-
-        fetchOrders(currentPage);
-
+      fetchOrders(currentPage);
     } catch (error) {
-
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text:
-                error.response?.data?.message ||
-                "Error updating order"
-        });
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Error updating order",
+      });
     }
-};
+  };
 
-// open modal and fill form with order data
-    const handleOpenModal = (order) => {
-        setSelectedOrder(order);
-        setStatus(order.status);
-        setPaymentStatus(order.payment_status || order.paymentStatus || 'PENDING');
-        setTrackingNumber(order.tracking_number || '');
-        setCarrier(order.carrier || '');
-        setEstimatedDelivery(order.estimated_delivery ? new Date(order.estimated_delivery).toISOString().split('T')[0] : '');
-        setIsModalOpen(true);
-    };
-// update order (status + delivery info)
-    const handleUpdateOrder = async (e) => {
-        e.preventDefault();
-        setUpdateLoading(true);
-        try {
-            await axios.put(`${API_URL}/orders/${selectedOrder.id}/status`, {
-                status,
-                paymentStatus,
-                tracking_number: trackingNumber,
-                carrier,
-                estimated_delivery: estimatedDelivery
-            });
-            showSuccess('Updated!', 'Order status has been updated successfully.');
-            setIsModalOpen(false);
-            fetchOrders(currentPage);
-        } catch (error) {
-            showError('Update Failed', error.response?.data?.message || error.message);
-        } finally {
-
-            setUpdateLoading(false);
-        }
-    };
-
-    return (
-        <div className="dashboard-content">
-            <div className="page-header" style={{ marginBottom: '25px' }}>
-                <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#111' }}>Orders Management</h1>
-                <p style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>Track and fulfill customer orders efficiently</p>
-            </div>
-
-            <div className="metric-cards">
-                <div className="metric-card-box card-blue">
-                    <div className="card-top-icon-row">
-                        <div className="icon-circle">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                        </div>
-                    </div>
-                    <div className="card-title-text">Total Orders</div>
-                    <div className="card-value-text">{totalPages * limit}</div>
-                </div>
-                <div className="metric-card-box card-orange">
-                    <div className="card-top-icon-row">
-                        <div className="icon-circle">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                        </div>
-                    </div>
-                    {/* pending orders */}
-                    <div className="card-title-text">Orders This Page</div>
-                    <div className="card-value-text">{orders.length}</div>
-                </div>
-            </div>
-
-            <div className="tabs-bar">
-                <div className="tabs-left">
-                    {['All Orders', 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(tab => (
-                        <button
-                            key={tab}
-                            className={`tab-btn ${subTab === tab ? 'active' : ''}`}
-                            onClick={() => setSubTab(tab)}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div>
-                <div className="tabs-right" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                    <div className="date-filter-group" style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                        <span style={{ fontSize: '12px', color: '#666' }}>From:</span>
-                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={{ padding: '5px', borderRadius: '5px', border: '1px solid #ddd', fontSize: '12px' }} />
-                        <span style={{ fontSize: '12px', color: '#666' }}>To:</span>
-                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{ padding: '5px', borderRadius: '5px', border: '1px solid #ddd', fontSize: '12px' }} />
-                        {(startDate || endDate) && (
-                            <button onClick={() => { setStartDate(''); setEndDate(''); }} style={{ background: 'none', border: 'none', color: '#f66d3b', fontSize: '12px', cursor: 'pointer' }}>Clear</button>
-                        )}
-                    </div>
-                    <div className="search-group" style={{ marginLeft: '10px' }}>
-                        <input 
-                            type="text" 
-                            placeholder="Search by ID, Email, Tracking..." 
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ padding: '5px 10px', borderRadius: '5px', border: '1px solid #ddd', fontSize: '12px', width: '200px' }}
-                        />
-                    </div>
-                </div>
-            </div>
-            <div className="table-container">
-                <table className="orders-table">
-                    <thead>
-                        <tr>
-                            <th>ORDER ID</th>
-                            <th>EMAIL</th>
-                            <th>ITEMS</th>
-                            <th>TOTAL</th>
-                            <th>STATUS</th>
-                            <th>TRACKING</th>
-                            <th>DATE</th>
-                            <th>ACTIONS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan="8" style={{ textAlign: 'center', padding: '20px' }}>Loading orders...</td></tr>
-                        ) : orders.length === 0 ? (
-                            <tr><td colSpan="8" style={{ textAlign: 'center', padding: '20px' }}>No orders found</td></tr>
-                        ) : orders.map((order) => (
-                            <tr key={order.id}>
-                                <td><div className="td-order-id">#ORD-{order.id}</div></td>
-                                <td><div className="td-email">{order.email}</div></td>
-                                <td>
-                                    <div className="td-items-flex">
-                                        <div className="item-img-box">
-                                            {order.items?.slice(0, 3).map((item, i) => (
-                                                <img key={i} src={getImageUrl(item.product?.productimage?.[0]?.url || item.product?.image_url)} alt="" className="item-img" style={{ marginLeft: i > 0 ? '-10px' : '0' }} />
-                                            ))}
-                                        </div>
-                                        <span className="td-items-count">{order.items?.length > 3 ? `+${order.items.length - 3}` : ''}</span>
-                                    </div>
-                                </td>
-                                <td><span className="td-total">Rs. {parseFloat(order.total_amount).toLocaleString()}</span></td>
-                                <td>
-                                    <span className={`status-badge ${order.status.toLowerCase()}`}>
-                                        {order.status.toUpperCase()}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div className="td-tracking-info">
-                                        <div style={{ fontWeight: '700', fontSize: '11px', color: '#1e293b' }}>{order.carrier || 'N/A'}</div>
-                                        <div style={{ fontSize: '11px', color: '#64748b' }}>{order.tracking_number || '-'}</div>
-                                    </div>
-                                </td>
-                                <td><div className="td-order-date">{new Date(order.createdAt).toLocaleDateString()}</div></td>
-                                <td>
-                                    <div className="td-actions">
-                                        <button className="action-btn-gray" title="Manage Order" onClick={() => handleOpenModal(order)}>
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                        </button>
-                                        <div 
-                                            className="status-toggle-container" 
-                                            onClick={() => handleToggleOrder(order.id)}
-                                            title={order.isActive ? 'Deactivate Order' : 'Activate Order'}
-                                        >
-                                            <div className={`status-toggle-pill ${order.isActive ? 'active' : 'inactive'}`}>
-                                                <div className="status-toggle-knob">
-                                                    <span className="knob-icon">{order.isActive ? '✓' : '✕'}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <Pagination 
-                    currentPage={currentPage} 
-                    totalPages={totalPages} 
-                    onPageChange={(page) => setCurrentPage(page)} 
-                />
-            </div>
-
-            {/* Order Details & Delivery Management Modal */}
-            {isModalOpen && selectedOrder && (
-                <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2 style={{ fontSize: '18px', fontWeight: '800' }}>Manage Order #ORD-{selectedOrder.id}</h2>
-                            <button className="close-btn" onClick={() => setIsModalOpen(false)}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="order-details-grid">
-                                <div className="details-section">
-                                    <h3>Customer & Contact</h3>
-                                    <div className="details-card-inner">
-                                        <div className="detail-row"><span className="detail-label">Email:</span> <span className="detail-value">{selectedOrder.email}</span></div>
-                                        <div className="detail-row"><span className="detail-label">Phone:</span> <span className="detail-value">{selectedOrder.contact_number || 'N/A'}</span></div>
-                                        <div className="detail-row"><span className="detail-label">Payment:</span> <span className="detail-value">{selectedOrder.payment_method?.toUpperCase()}</span></div>
-                                        <div className="detail-row address-row">
-                                            <span className="detail-label">Address:</span> 
-                                            <span className="detail-value">{selectedOrder.shipping_address}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="details-section">
-                                    <h3>Order Summary</h3>
-                                    <div className="details-card-inner">
-                                        <div className="detail-row"><span className="detail-label">Subtotal:</span> <span className="detail-value">Rs. {parseFloat(selectedOrder.total_amount).toLocaleString()}</span></div>
-                                        <div className="detail-row"><span className="detail-label">Date:</span> <span className="detail-value">{new Date(selectedOrder.createdAt).toLocaleString()}</span></div>
-                                        <div className="detail-row"><span className="detail-label">Current Status:</span> 
-                                            <span className={`status-badge ${selectedOrder.status.toLowerCase()}`}>{selectedOrder.status.toUpperCase()}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="modal-items-list">
-                                <h3 style={{ fontSize: '14px', color: '#888', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '15px' }}>Ordered Items</h3>
-                                {selectedOrder.items?.map((item, idx) => (
-                                    <div key={idx} className="modal-item-row">
-                                        <img src={getImageUrl(item.product?.productimage?.[0]?.url || item.product?.image_url)} alt="" className="modal-item-img" />
-                                        <div className="modal-item-info">
-                                            <div className="item-name-tag">{item.product?.name}</div>
-                                            <div className="item-meta-tag">Size: {item.size} | Qty: {item.quantity} | Price: Rs. {parseFloat(item.price_at_purchase).toLocaleString()}</div>
-                                        </div>
-                                        <div className="item-total-price" style={{ fontWeight: '700' }}>
-                                            Rs. {(item.quantity * item.price_at_purchase).toLocaleString()}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            {/* update form */}
-                            <form className="delivery-form" onSubmit={handleUpdateOrder}>
-                                <div className="form-title-row">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-                                    <h3>Update Delivery Management</h3>
-                                </div>
-                                <div className="update-inputs-grid">
-                                    <div className="form-group">
-                                        <label>Order Status</label>
-                                        <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                                            <option value="pending">Pending (Awaiting Payment)</option>
-                                            <option value="processing">Processing (Paid/Ready to Ship)</option>
-                                            <option value="shipped">Shipped</option>
-                                            <option value="delivered">Delivered</option>
-                                            <option value="cancelled">Cancelled</option>
-                                        </select>
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Payment Status</label>
-                                        <select className="form-select" value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
-                                            <option value="PENDING">Pending</option>
-                                            <option value="PAID">Paid</option>
-                                            <option value="FAILED">Failed</option>
-                                        </select>
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Carrier Name</label>
-                                        <input type="text" className="form-input" placeholder="e.g. UPS, DHL, Fedex" value={carrier} onChange={(e) => setCarrier(e.target.value)} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Tracking Number</label>
-                                        <input type="text" className="form-input" placeholder="Enter tracking ID" value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Est. Delivery Date</label>
-                                        <input type="date" className="form-input" value={estimatedDelivery} onChange={(e) => setEstimatedDelivery(e.target.value)} />
-                                    </div>
-                                    <button type="submit" className="update-order-btn" disabled={updateLoading}>
-                                        {updateLoading ? 'Updating...' : 'Update Order & Notify Customer'}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
+  // open modal and fill form with order data
+  const handleOpenModal = (order) => {
+    setSelectedOrder(order);
+    setStatus(order.status);
+    setPaymentStatus(order.payment_status || order.paymentStatus || "PENDING");
+    setTrackingNumber(order.tracking_number || "");
+    setCarrier(order.carrier || "");
+    setEstimatedDelivery(
+      order.estimated_delivery
+        ? new Date(order.estimated_delivery).toISOString().split("T")[0]
+        : "",
     );
+    setIsModalOpen(true);
+  };
+  // update order (status + delivery info)
+  const handleUpdateOrder = async (e) => {
+    e.preventDefault();
+    setUpdateLoading(true);
+    try {
+      await axios.put(`${API_URL}/orders/${selectedOrder.id}/status`, {
+        status,
+        paymentStatus,
+        tracking_number: trackingNumber,
+        carrier,
+        estimated_delivery: estimatedDelivery,
+      });
+      showSuccess("Updated!", "Order status has been updated successfully.");
+      setIsModalOpen(false);
+      fetchOrders(currentPage);
+    } catch (error) {
+      showError(
+        "Update Failed",
+        error.response?.data?.message || error.message,
+      );
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
+  return (
+    <div className="dashboard-content">
+      <div className="page-header" style={{ marginBottom: "25px" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: "800", color: "#111" }}>
+          Orders Management
+        </h1>
+        <p style={{ fontSize: "14px", color: "#666", marginTop: "4px" }}>
+          Track and fulfill customer orders efficiently
+        </p>
+      </div>
+
+      <div className="metric-cards">
+        <div className="metric-card-box card-blue">
+          <div className="card-top-icon-row">
+            <div className="icon-circle">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+            </div>
+          </div>
+          <div className="card-title-text">Total Orders</div>
+          <div className="card-value-text">{totalOrders}</div>
+        </div>
+        <div className="metric-card-box card-orange">
+          <div className="card-top-icon-row">
+            <div className="icon-circle">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+          </div>
+          {/* pending orders */}
+          <div className="card-title-text">Orders This Page</div>
+          <div className="card-value-text">{orders.length}</div>
+        </div>
+      </div>
+
+      <div className="tabs-bar">
+        <div className="tabs-left">
+          {[
+            "All Orders",
+            "Pending",
+            "Processing",
+            "Shipped",
+            "Delivered",
+            "Cancelled",
+          ].map((tab) => (
+            <button
+              key={tab}
+              className={`tab-btn ${subTab === tab ? "active" : ""}`}
+              onClick={() => setSubTab(tab)}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+        <div
+          className="tabs-right"
+          style={{ display: "flex", gap: "10px", alignItems: "center" }}
+        >
+          <div
+            className="date-filter-group"
+            style={{ display: "flex", gap: "5px", alignItems: "center" }}
+          >
+            <span style={{ fontSize: "12px", color: "#666" }}>From:</span>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              style={{
+                padding: "5px",
+                borderRadius: "5px",
+                border: "1px solid #ddd",
+                fontSize: "12px",
+              }}
+            />
+            <span style={{ fontSize: "12px", color: "#666" }}>To:</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              style={{
+                padding: "5px",
+                borderRadius: "5px",
+                border: "1px solid #ddd",
+                fontSize: "12px",
+              }}
+            />
+            {(startDate || endDate) && (
+              <button
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#f66d3b",
+                  fontSize: "12px",
+                  cursor: "pointer",
+                }}
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="search-group" style={{ marginLeft: "10px" }}>
+            <input
+              type="text"
+              placeholder="Search by ID, Email, Tracking..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                padding: "5px 10px",
+                borderRadius: "5px",
+                border: "1px solid #ddd",
+                fontSize: "12px",
+                width: "200px",
+              }}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="table-container">
+        <table className="orders-table">
+          <thead>
+            <tr>
+              <th>ORDER ID</th>
+              <th>Name</th>
+              <th>ITEMS</th>
+              <th>TOTAL</th>
+              <th>STATUS</th>
+              <th>TRACKING</th>
+              <th>DATE</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td
+                  colSpan="8"
+                  style={{ textAlign: "center", padding: "20px" }}
+                >
+                  Loading orders...
+                </td>
+              </tr>
+            ) : orders.length === 0 ? (
+              <tr>
+                <td
+                  colSpan="8"
+                  style={{ textAlign: "center", padding: "20px" }}
+                >
+                  No orders found
+                </td>
+              </tr>
+            ) : (
+              orders.map((order) => (
+                <tr key={order.id}>
+                  <td>
+                    <div className="td-order-id">#ORD-{order.id}</div>
+                  </td>
+                  <td>
+                    <div className="td-name">{order.customerName}</div>
+                  </td>
+                  <td>
+                    <div className="td-items-flex">
+                      <div className="item-img-box">
+                        {order.items?.slice(0, 3).map((item, i) => (
+                          <img
+                            key={i}
+                            src={getImageUrl(
+                              item.product?.productimage?.[0]?.url ||
+                                item.product?.image_url,
+                            )}
+                            alt=""
+                            className="item-img"
+                            style={{ marginLeft: i > 0 ? "-10px" : "0" }}
+                          />
+                        ))}
+                      </div>
+                      <span className="td-items-count">
+                        {order.items?.length > 3
+                          ? `+${order.items.length - 3}`
+                          : ""}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="td-total">
+                      Rs. {parseFloat(order.total_amount).toLocaleString()}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="status-wrapper">
+                      <span
+                        className={`status-badge ${order.status.toLowerCase()}`}
+                      >
+                        {order.status.toUpperCase()}
+                      </span>
+
+                      {/* {order.payment_status && (
+                        <span
+                          className={`payment-badge ${order.payment_status.toLowerCase()}`}
+                        >
+                          {order.payment_status.toUpperCase()}
+                        </span>
+                      )} */}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="td-tracking-info">
+                      <div
+                        style={{
+                          fontWeight: "700",
+                          fontSize: "11px",
+                          color: "#1e293b",
+                        }}
+                      >
+                        {order.carrier || "N/A"}
+                      </div>
+                      <div style={{ fontSize: "11px", color: "#64748b" }}>
+                        {order.tracking_number || "-"}
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="td-order-date">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="td-actions">
+                      <button
+                        className="action-btn-gray"
+                        title="Manage Order"
+                        onClick={() => handleOpenModal(order)}
+                      >
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      </button>
+                      <div
+                        className="status-toggle-container"
+                        onClick={() => handleToggleOrder(order.id)}
+                        title={
+                          order.isActive ? "Deactivate Order" : "Activate Order"
+                        }
+                      >
+                        <div
+                          className={`status-toggle-pill ${order.isActive ? "active" : "inactive"}`}
+                        >
+                          <div className="status-toggle-knob">
+                            <span className="knob-icon">
+                              {order.isActive ? "✓" : "✕"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      </div>
+
+      {/* Order Details & Delivery Management Modal */}
+      {isModalOpen && selectedOrder && (
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 style={{ fontSize: "18px", fontWeight: "800" }}>
+                Manage Order #ORD-{selectedOrder.id}
+              </h2>
+              <button
+                className="close-btn"
+                onClick={() => setIsModalOpen(false)}
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="order-details-grid">
+                <div className="details-section">
+                  <h3>Customer & Contact</h3>
+                  <div className="details-card-inner">
+                    <div className="detail-row">
+                      <span className="detail-label">Email:</span>{" "}
+                      <span className="detail-value">
+                        {selectedOrder.email}
+                      </span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Phone:</span>{" "}
+                      <span className="detail-value">
+                        {selectedOrder.contact_number || "N/A"}
+                      </span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Payment:</span>{" "}
+                      <span className="detail-value">
+                        {selectedOrder.payment_method?.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="detail-row address-row">
+                      <span className="detail-label">Address:</span>
+                      <span className="detail-value">
+                        {selectedOrder.shipping_address}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="details-section">
+                  <h3>Order Summary</h3>
+                  <div className="details-card-inner">
+                    <div className="detail-row">
+                      <span className="detail-label">Subtotal:</span>{" "}
+                      <span className="detail-value">
+                        Rs.{" "}
+                        {parseFloat(
+                          selectedOrder.total_amount,
+                        ).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Date:</span>{" "}
+                      <span className="detail-value">
+                        {new Date(selectedOrder.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Current Status:</span>
+                      <span
+                        className={`status-badge ${selectedOrder.status.toLowerCase()}`}
+                      >
+                        {selectedOrder.status.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="modal-items-list">
+                <h3
+                  style={{
+                    fontSize: "14px",
+                    color: "#888",
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    marginBottom: "15px",
+                  }}
+                >
+                  Ordered Items
+                </h3>
+                {selectedOrder.items?.map((item, idx) => (
+                  <div key={idx} className="modal-item-row">
+                    <img
+                      src={getImageUrl(
+                        item.product?.productimage?.[0]?.url ||
+                          item.product?.image_url,
+                      )}
+                      alt=""
+                      className="modal-item-img"
+                    />
+                    <div className="modal-item-info">
+                      <div className="item-name-tag">{item.product?.name}</div>
+                      <div className="item-meta-tag">
+                        Size: {item.size} | Qty: {item.quantity} | Price: Rs.{" "}
+                        {parseFloat(item.price_at_purchase).toLocaleString()}
+                      </div>
+                    </div>
+                    <div
+                      className="item-total-price"
+                      style={{ fontWeight: "700" }}
+                    >
+                      Rs.{" "}
+                      {(
+                        item.quantity * item.price_at_purchase
+                      ).toLocaleString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* update form */}
+              <form className="delivery-form" onSubmit={handleUpdateOrder}>
+                <div className="form-title-row">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                  </svg>
+                  <h3>Update Delivery Management</h3>
+                </div>
+                <div className="update-inputs-grid">
+                  <div className="form-group">
+                    <label>Order Status</label>
+                    <select
+                      className="form-select"
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                    >
+                      <option value="pending">
+                        Pending (Awaiting Payment)
+                      </option>
+                      <option value="processing">
+                        Processing (Paid/Ready to Ship)
+                      </option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Payment Status</label>
+                    <select
+                      className="form-select"
+                      value={paymentStatus}
+                      onChange={(e) => setPaymentStatus(e.target.value)}
+                    >
+                      <option value="PENDING">Pending</option>
+                      <option value="PAID">Paid</option>
+                      <option value="FAILED">Failed</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Carrier Name</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="e.g. UPS, DHL, Fedex"
+                      value={carrier}
+                      onChange={(e) => setCarrier(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Tracking Number</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Enter tracking ID"
+                      value={trackingNumber}
+                      onChange={(e) => setTrackingNumber(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Est. Delivery Date</label>
+                    <input
+                      type="date"
+                      className="form-input"
+                      value={estimatedDelivery}
+                      onChange={(e) => setEstimatedDelivery(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="update-order-btn"
+                    disabled={updateLoading}
+                  >
+                    {updateLoading
+                      ? "Updating..."
+                      : "Update Order & Notify Customer"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default OrdersManagement;

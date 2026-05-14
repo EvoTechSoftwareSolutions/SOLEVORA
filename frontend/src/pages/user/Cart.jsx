@@ -14,7 +14,7 @@ const FALLBACK =
   `%3Crect width='80' height='80' fill='%23f3f4f6'/%3E` +
   `%3Cpath d='M20 55l14-18 10 12 8-10 14 16H20z' fill='%23d1d5db'/%3E` +
   `%3Ccircle cx='52' cy='28' r='7' fill='%23d1d5db'/%3E%3C/svg%3E`;
-  
+
 const BASE_URL = "http://localhost:5001";
 const getImg = (url) => {
   if (!url) return "";
@@ -27,40 +27,38 @@ const handleImgError = (e) => {
   if (e.target.src !== FALLBACK) e.target.src = FALLBACK;
 };
 
-
-
 const Cart = () => {
   const navigate = useNavigate();
   const [recommendedProducts, setRecommendedProducts] = React.useState([]);
 
   useEffect(() => {
-  fetchRecommendedProducts();
-}, []);
+    fetchRecommendedProducts();
+  }, []);
 
-const fetchRecommendedProducts = async () => {
-  try {
-    const res = await fetch("http://localhost:5001/api/products/top-rated");
+  const fetchRecommendedProducts = async () => {
+    try {
+      const res = await fetch("http://localhost:5001/api/products/top-rated");
 
-    const data = await res.json();
+      const data = await res.json();
 
-    setRecommendedProducts(data);
-  } catch (error) {
-    console.log(error);
-  }
-};
+      setRecommendedProducts(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   // only destructure what exists in CartContext
-  const { 
-    cart, 
-    removeFromCart, 
-    updateQuantity, 
-    selectedIds, 
-    setSelectedIds, 
-    selectedTotal 
+  const {
+    cart,
+    removeFromCart,
+    updateQuantity,
+    selectedIds,
+    setSelectedIds,
+    selectedTotal,
   } = useCart();
 
   const toggleSelect = (id) => {
-    setSelectedIds(prev => 
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
   };
 
@@ -68,7 +66,7 @@ const fetchRecommendedProducts = async () => {
     if (selectedIds.length === cart.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(cart.map(item => item.id));
+      setSelectedIds(cart.map((item) => item.id));
     }
   };
 
@@ -79,15 +77,29 @@ const fetchRecommendedProducts = async () => {
   if (cart.length === 0) {
     return (
       <div className="cart-page">
-        <div className="container" style={{ textAlign: "center", padding: "100px 20px" }}>
-          <span className="material-symbols-outlined" style={{ fontSize: "80px", color: "#ccc", marginBottom: "20px" }}>
+        <div
+          className="container"
+          style={{ textAlign: "center", padding: "100px 20px" }}
+        >
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: "80px", color: "#ccc", marginBottom: "20px" }}
+          >
             shopping_cart_off
           </span>
           <h2>Your cart is empty</h2>
           <p style={{ color: "#666", marginBottom: "30px" }}>
             Looks like you haven't added anything to your cart yet.
           </p>
-          <Link to="/category" className="checkout-btn" style={{ display: "inline-block", width: "auto", padding: "15px 40px" }}>
+          <Link
+            to="/category"
+            className="checkout-btn"
+            style={{
+              display: "inline-block",
+              width: "auto",
+              padding: "15px 40px",
+            }}
+          >
             Start Shopping
           </Link>
         </div>
@@ -102,36 +114,40 @@ const fetchRecommendedProducts = async () => {
         <div className="cart-header">
           <div className="cart-header-title">
             <h2>
-              <span className="material-symbols-outlined c-icon">shopping_bag</span>
-              Shopping Cart <span className="item-count">({cart.length} items)</span>
+              <span className="material-symbols-outlined c-icon">
+                shopping_bag
+              </span>
+              Shopping Cart{" "}
+              <span className="item-count">({cart.length} items)</span>
             </h2>
-           
           </div>
         </div>
- <div className="select-all-wrap">
-              <label className="checkbox-container">
-                <input 
-                  type="checkbox" 
-                  checked={allSelected} 
-                  onChange={toggleSelectAll} 
-                />
-                <span className="checkmark"></span>
-                Select All
-              </label>
-            </div>
+        <div className="select-all-wrap">
+          <label className="checkbox-container">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={toggleSelectAll}
+            />
+            <span className="checkmark"></span>
+            Select All
+          </label>
+        </div>
         <div className="cart-main-layout">
-          
           {/* Cart Items */}
           <div className="cart-items-list">
             <div className="cart-items-scroll">
               {cart.map((item) => (
-                <div key={item.id} className={`cart-item-card ${selectedIds.includes(item.id) ? 'selected' : ''}`}>
+                <div
+                  key={item.id}
+                  className={`cart-item-card ${selectedIds.includes(item.id) ? "selected" : ""}`}
+                >
                   <div className="item-selection">
                     <label className="checkbox-container">
-                      <input 
-                        type="checkbox" 
-                        checked={selectedIds.includes(item.id)} 
-                        onChange={() => toggleSelect(item.id)} 
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(item.id)}
+                        onChange={() => toggleSelect(item.id)}
                       />
                       <span className="checkmark"></span>
                     </label>
@@ -154,13 +170,27 @@ const fetchRecommendedProducts = async () => {
                     <div className="item-quantity">
                       <div className="qty-selector">
                         {/* CartContext updateQuantity takes (cartId, quantity) */}
-                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
+                        >
+                          -
+                        </button>
                         <span>{item.quantity}</span>
-                        <button 
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
                           disabled={item.quantity >= item.maxStock}
-                          style={item.quantity >= item.maxStock ? { opacity: 0.3, cursor: 'not-allowed' } : {}}
-                        >+</button>
+                          style={
+                            item.quantity >= item.maxStock
+                              ? { opacity: 0.3, cursor: "not-allowed" }
+                              : {}
+                          }
+                        >
+                          +
+                        </button>
                       </div>
                     </div>
                     <div className="item-price">
@@ -169,7 +199,10 @@ const fetchRecommendedProducts = async () => {
                   </div>
 
                   {/*  removeFromCart takes cartId only */}
-                  <button className="item-remove" onClick={() => removeFromCart(item.id)}>
+                  <button
+                    className="item-remove"
+                    onClick={() => removeFromCart(item.id)}
+                  >
                     <span className="material-symbols-outlined">close</span>
                   </button>
                 </div>
@@ -206,22 +239,24 @@ const fetchRecommendedProducts = async () => {
 
             <button
               type="button"
-              className={`checkout-btn ${selectedIds.length === 0 ? 'disabled' : ''}`}
+              className={`checkout-btn ${selectedIds.length === 0 ? "disabled" : ""}`}
               onClick={() => {
                 if (selectedIds.length > 0) {
                   // Clear old checkout session data to avoid "sudden" promos or old info
-                  sessionStorage.removeItem('checkoutPromoCode');
-                  sessionStorage.removeItem('checkoutPromoDiscount');
-                  sessionStorage.removeItem('checkoutGrossTotal');
-                  sessionStorage.removeItem('checkoutShippingCharge');
-                  sessionStorage.removeItem('checkoutShippingMethod');
-                  
+                  sessionStorage.removeItem("checkoutPromoCode");
+                  sessionStorage.removeItem("checkoutPromoDiscount");
+                  sessionStorage.removeItem("checkoutGrossTotal");
+                  sessionStorage.removeItem("checkoutShippingCharge");
+                  sessionStorage.removeItem("checkoutShippingMethod");
+
                   navigate("/checkout", { state: { selectedIds } });
                 }
               }}
               disabled={selectedIds.length === 0}
             >
-              {selectedIds.length === 0 ? 'Select Items to Checkout' : 'Proceed to Checkout'}
+              {selectedIds.length === 0
+                ? "Select Items to Checkout"
+                : "Proceed to Checkout"}
               <span className="material-symbols-outlined">credit_card</span>
             </button>
 
@@ -240,85 +275,89 @@ const fetchRecommendedProducts = async () => {
             <p>Discover styles that match your vibe</p>
           </div>
 
-          <Swiper
-            modules={[Pagination, A11y, Navigation]}
-            spaceBetween={20}
-            slidesPerView={1.2}
-            centeredSlides={true}
-            centerInsufficientSlides={true}
-            navigation={{ nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }}
-            breakpoints={{
-              640: { slidesPerView: 2.2, pagination: { clickable: true } },
-              1024: { slidesPerView: 3.2, pagination: { clickable: true } },
-              1200: { slidesPerView: 4 },
-            }}
-            className="rec-swiper"
-          >
+        <Swiper
+  modules={[Pagination, A11y, Navigation]}
+  spaceBetween={20}
+  slidesPerView={1.2}
+  centeredSlides={true}
+  centerInsufficientSlides={true}
+  loop={recommendedProducts.length > 3}
+  navigation={{
+    nextEl: ".swiper-button-next",
+    prevEl: ".swiper-button-prev",
+  }}
+  breakpoints={{
+    640: {
+      slidesPerView: 2,
+      centeredSlides: true,
+    },
+
+    1024: {
+      slidesPerView: 3,
+      centeredSlides: true,
+    },
+
+    1200: {
+      slidesPerView: 3,
+      centeredSlides: true,
+    },
+  }}
+  className="rec-swiper"
+>
             {recommendedProducts.map((product) => (
               <SwiperSlide key={product.id}>
-  <div className="rec-card">
-    <div className="rec-img">
-  <img
-  src={
-    getImg(product.productimage?.[0]?.url) ||
-    getImg(product.image) ||
-    FALLBACK
-  }
-  alt={product.name}
-  onError={handleImgError}
-/>
-    </div>
+                <div className="rec-card">
+                  <div className="rec-img">
+                    <img
+                      src={
+                        getImg(product.productimage?.[0]?.url) ||
+                        getImg(product.image) ||
+                        FALLBACK
+                      }
+                      alt={product.name}
+                      onError={handleImgError}
+                    />
+                  </div>
 
-    <div className="rec-info">
-      <span className="rec-brand">
-        {product.brand}
-      </span>
+                  <div className="rec-info">
+                    <span className="rec-brand">{product.brand}</span>
 
-      <h4>{product.name}</h4>
+                    <h4>{product.name}</h4>
 
-      <div className="rec-rating">
-        <span className="material-symbols-outlined">
-          star
-        </span>
+                    <div className="rec-rating">
+                      <span className="material-symbols-outlined">star</span>
 
-        <span>
-          {product.averageRating?.toFixed(1) || 0}
-        </span>
+                      <span>{product.averageRating?.toFixed(1) || 0}</span>
 
-        <small>
-          ({product.totalReviews} reviews)
-        </small>
-      </div>
+                      <small>({product.totalReviews} reviews)</small>
+                    </div>
 
-      <p className="rec-price">
-        Rs. {Number(product.price).toLocaleString()}
-      </p>
+                    <p className="rec-price">
+                      Rs. {Number(product.price).toLocaleString()}
+                    </p>
 
-      <div className="rec-footer">
-        <button
-          className="view-btn"
-          onClick={() => navigate(`/product/${product.slug}`)}
-        >
-          <span className="material-symbols-outlined">
-            shopping_bag
-          </span>
+                    <div className="rec-footer">
+                      <button
+                        className="view-btn"
+                        onClick={() => navigate(`/product/${product.slug}`)}
+                      >
+                        <span className="material-symbols-outlined">
+                          shopping_bag
+                        </span>
+                        View Details
+                      </button>
 
-          View Details
-        </button>
+                      <div className="rec-actions">
+                        <span className="material-symbols-outlined">share</span>
 
-        <div className="rec-actions">
-          <span className="material-symbols-outlined">
-            share
-          </span>
-
-          <span className="material-symbols-outlined">
-            favorite
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
-</SwiperSlide>
+                        <span className="material-symbols-outlined">
+                          favorite
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </SwiperSlide>
             ))}
           </Swiper>
 
