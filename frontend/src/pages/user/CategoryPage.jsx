@@ -325,7 +325,7 @@ function CategoryPage() {
         name:           item.name,
         slug:           item.slug,
         descriptionOne: item.descriptionOne,
-        price:          parseFloat(item.price) || 0,
+        price: parseFloat(item.currentFifoPrice ?? item.price) || 0,
         image:          getImg(item.images?.[0]?.url) || FALLBACK_IMAGES[i % FALLBACK_IMAGES.length],
         bg:             BG_COLORS[i % BG_COLORS.length],
         gender:         item.gender || (i % 3 === 0 ? "Men" : i % 3 === 1 ? "Women" : "Kids"),

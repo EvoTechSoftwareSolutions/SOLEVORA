@@ -1,26 +1,27 @@
-import crypto from 'crypto';
-import prisma from '../prisma/client.js';
-import { sendOrderConfirmationEmail } from '../utils/emailService.js';
+import crypto from "crypto";
+import prisma from "../prisma/client.js";
+import { sendOrderConfirmationEmail } from "../utils/emailService.js";
 import {
   generateTrackingNumber,
   getEstimatedDelivery,
-} from '../utils/TrackOrder.js';
+} from "../utils/TrackOrder.js";
+import { sendStockSMS } from "../utils/stockSms.js";
 
 const PAYHERE_MERCHANT_ID = process.env.PAYHERE_MERCHANT_ID;
 const PAYHERE_SECRET = process.env.PAYHERE_SECRET;
 
 if (!PAYHERE_MERCHANT_ID || !PAYHERE_SECRET) {
-  console.error('Missing PayHere credentials in environment variables');
+  console.error("Missing PayHere credentials in environment variables");
 }
 
-/* ─────────────────────────────────────────────
+/* 
    1. Generate PayHere Hash
-───────────────────────────────────────────── */
+ */
 export const generatePaymentHash = async (req, res) => {
   try {
     const {
       amount,
-      currency = 'LKR',
+      currency = "LKR",
 
       userId,
       customerName,
@@ -36,14 +37,14 @@ export const generatePaymentHash = async (req, res) => {
     if (!amount || !items || items.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required parameters: amount, items',
+        message: "Missing required parameters: amount, items",
       });
     }
 
     if (!PAYHERE_MERCHANT_ID || !PAYHERE_SECRET) {
       return res.status(500).json({
         success: false,
-        message: 'PayHere credentials not configured',
+        message: "PayHere credentials not configured",
       });
     }
 
@@ -51,7 +52,7 @@ export const generatePaymentHash = async (req, res) => {
     const normalizedAmount = Number(amount).toFixed(2);
     const currencyStr = currency.toUpperCase();
 
-    console.log('[PayHere] Amount received:', normalizedAmount);
+    console.log("[PayHere] Amount received:", normalizedAmount);
 
     // Store pending payment
     const pendingPayment = await prisma.pendingpayment.create({
@@ -72,7 +73,7 @@ export const generatePaymentHash = async (req, res) => {
         totalAmount: Number(normalizedAmount),
 
         currency: currencyStr,
-        status: 'PENDING',
+        status: "PENDING",
 
         expiresAt: new Date(Date.now() + 30 * 60 * 1000),
       },
@@ -80,9 +81,9 @@ export const generatePaymentHash = async (req, res) => {
 
     // Generate PayHere hash
     const hashedSecret = crypto
-      .createHash('md5')
+      .createHash("md5")
       .update(PAYHERE_SECRET)
-      .digest('hex')
+      .digest("hex")
       .toUpperCase();
 
     const hashString =
@@ -93,13 +94,13 @@ export const generatePaymentHash = async (req, res) => {
       `${hashedSecret}`;
 
     const hash = crypto
-      .createHash('md5')
+      .createHash("md5")
       .update(hashString)
-      .digest('hex')
+      .digest("hex")
       .toUpperCase();
 
     console.log(
-      `[PayHere] Hash generated for pending payment #${pendingPayment.id}`
+      `[PayHere] Hash generated for pending payment #${pendingPayment.id}`,
     );
 
     return res.status(200).json({
@@ -112,24 +113,23 @@ export const generatePaymentHash = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('[PayHere] generatePaymentHash error:', error);
+    console.error("[PayHere] generatePaymentHash error:", error);
 
     return res.status(500).json({
       success: false,
-      message: 'Failed to generate payment hash',
+      message: "Failed to generate payment hash",
     });
   }
 };
 
-/* ─────────────────────────────────────────────
+/* 
    2. PayHere Webhook Notification
-───────────────────────────────────────────── */
+ */
 export const handlePaymentNotification = async (req, res) => {
-  // IMPORTANT: respond immediately
-    console.log("🔥 WEBHOOK HIT");
+  console.log(" WEBHOOK HIT");
   console.log("IP:", req.ip);
   console.log("BODY:", req.body);
-  res.status(200).send('OK');
+  res.status(200).send("OK");
 
   try {
     const {
@@ -141,40 +141,40 @@ export const handlePaymentNotification = async (req, res) => {
       md5sig,
     } = req.body;
 
-    console.log('[PayHere] Notification received:', req.body);
+    console.log("[PayHere] Notification received:", req.body);
 
     if (!PAYHERE_MERCHANT_ID || !PAYHERE_SECRET) {
-      console.error('[PayHere] Missing credentials');
+      console.error("[PayHere] Missing credentials");
       return;
     }
 
     // Verify signature
     const hashedSecret = crypto
-      .createHash('md5')
+      .createHash("md5")
       .update(PAYHERE_SECRET)
-      .digest('hex')
+      .digest("hex")
       .toUpperCase();
 
-const hashString =
-  `${PAYHERE_MERCHANT_ID}` +
-  `${order_id}` +
-  `${payhere_amount}` +
-  `${payhere_currency}` +
-  `${status_code}` +
-  `${hashedSecret}`;
+    const hashString =
+      `${PAYHERE_MERCHANT_ID}` +
+      `${order_id}` +
+      `${payhere_amount}` +
+      `${payhere_currency}` +
+      `${status_code}` +
+      `${hashedSecret}`;
 
     const expectedHash = crypto
-  .createHash('md5')
-  .update(hashString)
-  .digest('hex')
-  .toUpperCase();
+      .createHash("md5")
+      .update(hashString)
+      .digest("hex")
+      .toUpperCase();
 
-    if ((md5sig || '').toUpperCase() !== expectedHash) {
-      console.error('[PayHere] INVALID SIGNATURE');
+    if ((md5sig || "").toUpperCase() !== expectedHash) {
+      console.error("[PayHere] INVALID SIGNATURE");
 
       await prisma.pendingpayment.update({
         where: { id: Number(order_id) },
-        data: { status: 'FAILED' },
+        data: { status: "FAILED" },
       });
 
       return;
@@ -188,43 +188,35 @@ const hashString =
     });
 
     if (!pending) {
-      console.error(
-        `[PayHere] Pending payment #${order_id} not found`
-      );
+      console.error(`[PayHere] Pending payment #${order_id} not found`);
       return;
     }
 
     // Prevent duplicate webhook processing
-    if (pending.status === 'COMPLETED') {
-      console.warn(
-        `[PayHere] Duplicate notification for #${order_id}`
-      );
+    if (pending.status === "COMPLETED") {
+      console.warn(`[PayHere] Duplicate notification for #${order_id}`);
       return;
     }
 
     // Verify amount
-    const expectedAmount = Number(
-      pending.totalAmount
-    ).toFixed(2);
+    const expectedAmount = Number(pending.totalAmount).toFixed(2);
 
-    const receivedAmount = Number(
-      payhere_amount
-    ).toFixed(2);
+    const receivedAmount = Number(payhere_amount).toFixed(2);
 
     if (expectedAmount !== receivedAmount) {
       console.error(
-        `[PayHere] Amount mismatch. Expected ${expectedAmount}, Received ${receivedAmount}`
+        `[PayHere] Amount mismatch. Expected ${expectedAmount}, Received ${receivedAmount}`,
       );
 
       await prisma.pendingpayment.update({
         where: { id: Number(order_id) },
-        data: { status: 'FAILED' },
+        data: { status: "FAILED" },
       });
 
       return;
     }
 
-    /* ───────────────── SUCCESS ───────────────── */
+    /*  SUCCESS  */
     if (statusCode === 2) {
       const items = JSON.parse(pending.items);
 
@@ -239,13 +231,13 @@ const hashString =
             contactNumber: pending.contactNumber,
             shippingAddress: pending.shippingAddress,
 
-            paymentMethod: 'ONLINE',
-            paymentStatus: 'PAID',
+            paymentMethod: "ONLINE",
+            paymentStatus: "PAID",
 
-            status: 'PROCESSING',
+            status: "PROCESSING",
 
             trackingNumber: generateTrackingNumber(),
-            carrier: 'AUTO-COURIER',
+            carrier: "AUTO-COURIER",
             estimatedDelivery: getEstimatedDelivery(),
 
             totalAmount: pending.totalAmount,
@@ -267,14 +259,10 @@ const hashString =
           });
 
           if (!product) {
-            throw new Error(
-              `Product not found: ${item.productId}`
-            );
+            throw new Error(`Product not found: ${item.productId}`);
           }
 
-          const normalizedSize = String(
-            parseFloat(item.size) || item.size
-          );
+          const normalizedSize = String(parseFloat(item.size) || item.size);
 
           const stocks = await tx.productstock.findMany({
             where: {
@@ -283,18 +271,15 @@ const hashString =
               quantity: { gt: 0 },
             },
             orderBy: {
-              createdAt: 'asc',
+              createdAt: "asc",
             },
           });
 
-          const totalStock = stocks.reduce(
-            (sum, s) => sum + s.quantity,
-            0
-          );
+          const totalStock = stocks.reduce((sum, s) => sum + s.quantity, 0);
 
           if (totalStock < item.quantity) {
             throw new Error(
-              `Insufficient stock for ${product.name} - Size ${item.size}`
+              `Insufficient stock for ${product.name} - Size ${item.size}`,
             );
           }
 
@@ -303,18 +288,35 @@ const hashString =
           for (const stock of stocks) {
             if (remainingQty <= 0) break;
 
-            const deduct = Math.min(
-              stock.quantity,
-              remainingQty
-            );
+            const deduct = Math.min(stock.quantity, remainingQty);
 
-            // Deduct stock
+            const oldQty = stock.quantity;
+            const newQty = stock.quantity - deduct;
+
             await tx.productstock.update({
               where: { id: stock.id },
-              data: {
-                quantity: stock.quantity - deduct,
-              },
+              data: { quantity: newQty },
             });
+
+            // send only when crossing threshold
+            if (oldQty > 10 && newQty <= 10) {
+              await sendStockSMS({
+                productId: product.id,
+                name: product.name,
+                size: stock.size,
+                qty: newQty,
+              });
+            }
+
+            // out of stock alert (only once)
+            if (oldQty > 0 && newQty === 0) {
+              await sendStockSMS({
+                productId: product.id,
+                name: product.name,
+                size: stock.size,
+                qty: 0,
+              });
+            }
 
             const batchSellingPrice =
               Number(stock.sellingPrice) > 0
@@ -355,8 +357,7 @@ const hashString =
           if (
             promo &&
             promo.isActive &&
-            (!promo.maxUses ||
-              promo.usedCount < promo.maxUses)
+            (!promo.maxUses || promo.usedCount < promo.maxUses)
           ) {
             await tx.promocode.update({
               where: { id: promo.id },
@@ -384,7 +385,7 @@ const hashString =
       await prisma.pendingpayment.update({
         where: { id: Number(order_id) },
         data: {
-          status: 'COMPLETED',
+          status: "COMPLETED",
           orderId: order.id,
         },
       });
@@ -405,44 +406,30 @@ const hashString =
 
       await sendOrderConfirmationEmail(order, orderItems);
 
-      console.log(
-        `[PayHere] Order #${order.id} created successfully`
-      );
-    }
+      console.log(`[PayHere] Order #${order.id} created successfully`);
+    } else if (statusCode === 0) {
 
-    /* ───────────────── PENDING ───────────────── */
-    else if (statusCode === 0) {
-      console.log(
-        `[PayHere] Payment pending for #${order_id}`
-      );
-    }
+    /*  PENDING  */
+      console.log(`[PayHere] Payment pending for #${order_id}`);
+    } else {
 
-    /* ───────────────── FAILED ───────────────── */
-    else {
+    /*  FAILED  */
       await prisma.pendingpayment.update({
         where: { id: Number(order_id) },
-        data: { status: 'FAILED' },
+        data: { status: "FAILED" },
       });
 
-      console.log(
-        `[PayHere] Payment failed for #${order_id}`
-      );
+      console.log(`[PayHere] Payment failed for #${order_id}`);
     }
   } catch (error) {
-    console.error(
-      '[PayHere] handlePaymentNotification error:',
-      error
-    );
+    console.error("[PayHere] handlePaymentNotification error:", error);
   }
 };
 
-/* ─────────────────────────────────────────────
+/* 
    3. Poll Pending Payment
-───────────────────────────────────────────── */
-export const getOrderFromPendingPayment = async (
-  req,
-  res
-) => {
+ */
+export const getOrderFromPendingPayment = async (req, res) => {
   try {
     const { pendingId } = req.params;
 
@@ -455,7 +442,7 @@ export const getOrderFromPendingPayment = async (
     if (!pending) {
       return res.status(404).json({
         success: false,
-        message: 'Pending payment not found',
+        message: "Pending payment not found",
       });
     }
 
@@ -467,14 +454,11 @@ export const getOrderFromPendingPayment = async (
       },
     });
   } catch (error) {
-    console.error(
-      '[PayHere] getOrderFromPendingPayment error:',
-      error
-    );
+    console.error("[PayHere] getOrderFromPendingPayment error:", error);
 
     return res.status(500).json({
       success: false,
-      message: 'Server error',
+      message: "Server error",
     });
   }
 };

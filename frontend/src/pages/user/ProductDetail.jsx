@@ -47,7 +47,7 @@ function ProductDetail() {
     }
   })();
 
-  // ── Fetch product ─────────────────────────────────────────────────────────
+  // Fetch product
   const fetchProduct = async () => {
     try {
       const response = await fetch(`${BASE_URL}/api/products/slug/${slug}`);
@@ -96,7 +96,7 @@ function ProductDetail() {
     }
   }, [product]);
 
-  // ── Fetch reviews ─────────────────────────────────────────────────────────
+  // Fetch reviews
   const fetchReviews = async (productId) => {
     try {
       const res = await fetch(`${BASE_URL}/api/reviews/${productId}`);
@@ -107,7 +107,7 @@ function ProductDetail() {
     }
   };
 
-  // ── Review submit ─────────────────────────────────────────────────────────
+  //  Review submit 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     if (!user) {
@@ -142,7 +142,7 @@ function ProductDetail() {
     }
   };
 
-  // ── Loading / not found ───────────────────────────────────────────────────
+  // Loading / not found
   if (loading) {
     return <div style={{ padding: "100px", textAlign: "center" }}>Loading...</div>;
   }
@@ -156,7 +156,7 @@ function ProductDetail() {
     );
   }
 
-  // ── Build size/stock map ──────────────────────────────────────────────────
+  // Build size/stock map 
   // Use both possible field names from backend
   const rawStocks = product.stocks || product.productstock || [];
 
@@ -178,7 +178,7 @@ function ProductDetail() {
   const maxStock = selectedStockItem?.quantity || 0;
   const isUnavailable = !selectedSize || maxStock <= 0;
 
-  // ── Display price (FIFO: oldest batch for selected size) ──────────────────
+  // Display price (FIFO: oldest batch for selected size)
   const getDisplayPrice = () => {
     const sortedStocks = [...rawStocks].sort(
       (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
@@ -199,13 +199,13 @@ function ProductDetail() {
   const displayPrice = getDisplayPrice();
   const originalPrice = product.discountPrice ? parseFloat(product.price) : null;
 
-  // ── Average rating ────────────────────────────────────────────────────────
+  //  Average rating
   const avgRating =
     reviews.length > 0
       ? Math.round(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length)
       : 0;
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  // Handlers 
   const handleAddToCart = () => {
     if (!user) {
       setPopupMessage("Please login to add items to your cart.");
@@ -269,7 +269,7 @@ function ProductDetail() {
     navigate("/checkout?buyNow=true");
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // Render
   return (
     <div className="product-detail-page">
       {showPopup && (
@@ -316,7 +316,7 @@ function ProductDetail() {
             </div>
           </div>
 
-          {/* ── Details ── */}
+          {/*  Details  */}
           <div className="details-section">
 
             {/* Header */}

@@ -1,4 +1,5 @@
 import prisma from "../prisma/client.js";
+import { sendStockSMS } from "../utils/stockSms.js";
 
 // ─── Helper: auto-deactivate any product whose total stock = 0 ───────────────
 const autoDeactivateZeroStock = async () => {
@@ -19,7 +20,21 @@ const autoDeactivateZeroStock = async () => {
   }
 };
 
-// ─── CREATE PRODUCT ───────────────────────────────────────────────────────────
+//  get the FIFO selling price for a product
+const getFifoPrice = (stocks, size = null, fallbackPrice = 0) => {
+  const candidates = stocks.filter(
+    (s) => s.quantity > 0 && (size == null || String(s.size) === String(size))
+  );
+
+  if (candidates.length === 0) {
+    const anyBatch = stocks.find((s) => s.quantity > 0);
+    return anyBatch ? Number(anyBatch.sellingPrice) : Number(fallbackPrice);
+  }
+
+  return Number(candidates[0].sellingPrice);
+};
+
+// CREATE PRODUCT 
 export const createProduct = async (req, res) => {
   try {
     const {
@@ -177,17 +192,16 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// ─── GET ALL PRODUCTS (admin — no isActive filter) ────────────────────────────
+//  GET ALL PRODUCTS (admin — no isActive filter) 
 export const getProductsAll = async (req, res) => {
   try {
-    // Auto-deactivate zero-stock products before returning
     await autoDeactivateZeroStock();
 
     const products = await prisma.product.findMany({
       include: {
         category: true,
         productimage: true,
-        productstock: { orderBy: { id: "asc" } },
+        productstock: { orderBy: { createdAt: "asc" } }, // FIFO order
       },
       orderBy: { createdAt: "desc" },
     });
@@ -197,6 +211,8 @@ export const getProductsAll = async (req, res) => {
       images: p.productimage,
       stocks: p.productstock,
       stock_quantity: p.productstock.reduce((sum, s) => sum + s.quantity, 0),
+      // Admin view: show current FIFO price across all sizes
+      currentFifoPrice: getFifoPrice(p.productstock, null, p.price),
     }));
 
     res.json({ success: true, data: mappedProducts });
@@ -206,7 +222,7 @@ export const getProductsAll = async (req, res) => {
   }
 };
 
-// ─── GET PRODUCTS (public — active only, with filters & pagination) ────────────
+//  GET PRODUCTS (public — active only, with filters & pagination)
 export const getProducts = async (req, res) => {
   try {
     const { category, gender, size, minPrice, maxPrice, sortBy } = req.query;
@@ -218,7 +234,7 @@ export const getProducts = async (req, res) => {
 
     if (category && category !== "All") where.category = { name: category };
     if (gender && gender !== "All") where.gender = { in: [gender.toUpperCase(), "ALL"] };
-    if (size) where.productstock = { some: { size: String(size) } };
+    if (size) where.productstock = { some: { size: String(size), quantity: { gt: 0 } } };
     if (minPrice || maxPrice) {
       where.price = {};
       if (minPrice) where.price.gte = parseFloat(minPrice);
@@ -235,7 +251,8 @@ export const getProducts = async (req, res) => {
         include: {
           category: true,
           productimage: true,
-          productstock: { orderBy: { id: "asc" } },
+          //  CRITICAL: order by createdAt ASC so index-0 = oldest batch (FIFO) 
+          productstock: { orderBy: { createdAt: "asc" } },
           specifications: true,
           reviews: true,
         },
@@ -247,25 +264,24 @@ export const getProducts = async (req, res) => {
     ]);
 
     const mappedProducts = products.map((p) => {
-  const totalReviews = p.reviews.length;
+      const totalReviews = p.reviews.length;
+      const averageRating =
+        totalReviews > 0
+          ? p.reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
+          : 0;
 
-  const averageRating =
-    totalReviews > 0
-      ? p.reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
-      : 0;
+      const currentFifoPrice = getFifoPrice(p.productstock, size || null, p.price);
 
-  return {
-    ...p,
-    images: p.productimage,
-    stocks: p.productstock,
-    stock_quantity: p.productstock.reduce(
-      (sum, s) => sum + s.quantity,
-      0
-    ),
-    averageRating,
-    totalReviews,
-  };
-});
+      return {
+        ...p,
+        images: p.productimage,
+        stocks: p.productstock,
+        stock_quantity: p.productstock.reduce((sum, s) => sum + s.quantity, 0),
+        currentFifoPrice,
+        averageRating,
+        totalReviews,
+      };
+    });
 
     res.json({
       success: true,
@@ -278,7 +294,7 @@ export const getProducts = async (req, res) => {
   }
 };
 
-// ─── GET PRODUCT BY ID ────────────────────────────────────────────────────────
+// GET PRODUCT BY ID 
 export const getProductById = async (req, res) => {
   try {
     const product = await prisma.product.findUnique({
@@ -286,7 +302,7 @@ export const getProductById = async (req, res) => {
       include: {
         category: true,
         productimage: true,
-        productstock: { orderBy: { id: "asc" } },
+        productstock: { orderBy: { createdAt: "asc" } }, // FIFO order
       },
     });
 
@@ -299,6 +315,7 @@ export const getProductById = async (req, res) => {
         images: product.productimage,
         stocks: product.productstock,
         stock_quantity: product.productstock.reduce((sum, s) => sum + s.quantity, 0),
+        currentFifoPrice: getFifoPrice(product.productstock, null, product.price),
       },
     });
   } catch (error) {
@@ -306,7 +323,7 @@ export const getProductById = async (req, res) => {
   }
 };
 
-// GET PRODUCT BY SLUG
+//  GET PRODUCT BY SLUG 
 export const getProductBySlug = async (req, res) => {
   try {
     const product = await prisma.product.findUnique({
@@ -314,12 +331,21 @@ export const getProductBySlug = async (req, res) => {
       include: {
         category: true,
         productimage: true,
-        productstock: { orderBy: { id: "asc" } },
+        productstock: { orderBy: { createdAt: "asc" } }, // FIFO order
         specifications: true,
       },
     });
 
     if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+
+    const sizeFifoPriceMap = {};
+    const seenSizes = new Set();
+    for (const s of product.productstock) {
+      if (s.quantity > 0 && !seenSizes.has(String(s.size))) {
+        sizeFifoPriceMap[String(s.size)] = Number(s.sellingPrice);
+        seenSizes.add(String(s.size));
+      }
+    }
 
     res.json({
       success: true,
@@ -328,6 +354,8 @@ export const getProductBySlug = async (req, res) => {
         images: product.productimage,
         stocks: product.productstock,
         stock_quantity: product.productstock.reduce((sum, s) => sum + s.quantity, 0),
+        currentFifoPrice: getFifoPrice(product.productstock, null, product.price),
+        sizeFifoPriceMap,
       },
     });
   } catch (error) {
@@ -335,7 +363,7 @@ export const getProductBySlug = async (req, res) => {
   }
 };
 
-// UPDATE PRODUCT 
+//  UPDATE PRODUCT 
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -408,30 +436,29 @@ export const updateProduct = async (req, res) => {
         await tx.productstock.deleteMany({ where: { id: { in: idsToDelete } } });
       }
 
-      for (const s of parsedStocks) {
-        if (s.id && currentIds.includes(Number(s.id))) {
-          await tx.productstock.update({
-            where: { id: Number(s.id) },
-            data: {
-              size: String(s.size),
-              costPrice: Number(s.costPrice || 0),
-              sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : s.costPrice || product.price || 0),
-              quantity: Number(s.quantity || 0),
-            },
-          });
-        } else {
-          await tx.productstock.create({
-            data: {
-              productId: product.id,
-              size: String(s.size),
-              costPrice: Number(s.costPrice || 0),
-              sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : s.costPrice || product.price || 0),
-              quantity: Number(s.quantity || 0),
-            },
-          });
-        }
-      }
+     for (const s of parsedStocks) {
+  if (s.id && currentIds.includes(Number(s.id))) {
 
+    const updatedStock = await tx.productstock.update({
+      where: { id: Number(s.id) },
+      data: {
+        size: String(s.size),
+        costPrice: Number(s.costPrice || 0),
+        sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : s.costPrice || product.price || 0),
+        quantity: Number(s.quantity || 0),
+      },
+    });
+
+    // send SMS AFTER update
+    await sendStockSMS({
+      productId: product.id,
+      name: product.name,
+      size: updatedStock.size,
+      qty: updatedStock.quantity,
+    });
+
+  }
+}
       // Auto-set isActive based on remaining stock
       const allStocks = await tx.productstock.findMany({ where: { productId: product.id } });
       const newTotal = allStocks.reduce((sum, s) => sum + s.quantity, 0);
@@ -455,13 +482,18 @@ export const updateProduct = async (req, res) => {
 
       const updatedProduct = await tx.product.findUnique({
         where: { id: product.id },
-        include: { productstock: true, productimage: true, specifications: true },
+        include: {
+          productstock: { orderBy: { createdAt: "asc" } }, // FIFO order
+          productimage: true,
+          specifications: true,
+        },
       });
 
       return {
         ...updatedProduct,
         stocks: updatedProduct.productstock,
         images: updatedProduct.productimage,
+        currentFifoPrice: getFifoPrice(updatedProduct.productstock, null, updatedProduct.price),
       };
     });
 
@@ -472,7 +504,7 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-//  TOGGLE ACTIVE STATUS
+//  TOGGLE ACTIVE STATUS 
 export const toggleProductActive = async (req, res) => {
   try {
     const { id } = req.params;
@@ -512,7 +544,7 @@ export const toggleProductActive = async (req, res) => {
   }
 };
 
-//  DELETE PRODUCT (hard soft-delete — kept for route compatibility) 
+//  DELETE PRODUCT (soft-delete) 
 export const deleteProduct = async (req, res) => {
   try {
     const updated = await prisma.product.update({
@@ -525,7 +557,7 @@ export const deleteProduct = async (req, res) => {
   }
 };
 
-//  SEARCH PRODUCTS (autocomplete)
+//  SEARCH PRODUCTS (autocomplete) 
 export const searchProducts = async (req, res) => {
   try {
     const { name } = req.query;
@@ -539,27 +571,23 @@ export const searchProducts = async (req, res) => {
   }
 };
 
-
-// for high rated product
+// GET TOP RATED PRODUCTS 
 export const getTopRatedProducts = async (req, res) => {
   try {
-    // Get products with reviews
     const products = await prisma.product.findMany({
       where: { isActive: true },
       include: {
         reviews: true,
         productimage: true,
+        productstock: { orderBy: { createdAt: "asc" } }, // FIFO order
       },
     });
 
-    // Calculate average rating
     const formattedProducts = products.map((product) => {
       const totalReviews = product.reviews.length;
-
       const averageRating =
         totalReviews > 0
-          ? product.reviews.reduce((sum, r) => sum + r.rating, 0) /
-            totalReviews
+          ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
           : 0;
 
       return {
@@ -567,22 +595,17 @@ export const getTopRatedProducts = async (req, res) => {
         image: product.productimage.length > 0 ? product.productimage[0].url : null,
         averageRating,
         totalReviews,
+        currentFifoPrice: getFifoPrice(product.productstock, null, product.price),
       };
     });
 
-    // Sort highest rating first
-    const sortedProducts = formattedProducts.sort(
-      (a, b) => b.averageRating - a.averageRating
-    );
-
-    // Take top 3
-    const topProducts = sortedProducts.slice(0, 3);
+    const topProducts = formattedProducts
+      .sort((a, b) => b.averageRating - a.averageRating)
+      .slice(0, 3);
 
     res.json(topProducts);
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      message: "Failed to fetch top rated products",
-    });
+    res.status(500).json({ message: "Failed to fetch top rated products" });
   }
 };

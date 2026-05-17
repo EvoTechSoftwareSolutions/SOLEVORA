@@ -2,6 +2,7 @@ import prisma from "../prisma/client.js";
 import { orderSchema } from "../validators/order.validator.js";
 import { generateTrackingNumber, getEstimatedDelivery } from "../utils/TrackOrder.js";
 import { sendOrderConfirmationEmail } from "../utils/emailService.js";
+import { sendStockSMS } from "../utils/stockSms.js";
 // CREATE ORDER
 export const createOrder = async (req, res) => {
   try {
@@ -96,11 +97,33 @@ export const createOrder = async (req, res) => {
           if (remainingQty <= 0) break;
           const deduct = Math.min(stock.quantity, remainingQty);
           
-          await tx.productstock.update({
-            where: { id: stock.id },
-            data: { quantity: stock.quantity - deduct }
-          });
+        const oldQty = stock.quantity;
+const newQty = stock.quantity - deduct;
 
+await tx.productstock.update({
+  where: { id: stock.id },
+  data: { quantity: newQty }
+});
+
+// send only when crossing threshold
+if (oldQty > 10 && newQty <= 10) {
+  await sendStockSMS({
+    productId: product.id,
+    name: product.name,
+    size: stock.size,
+    qty: newQty,
+  });
+}
+
+// out of stock alert (only once)
+if (oldQty > 0 && newQty === 0) {
+  await sendStockSMS({
+    productId: product.id,
+    name: product.name,
+    size: stock.size,
+    qty: 0,
+  });
+}
           // Use the batch's sellingPrice if available (>0), else fallback to product price
           const batchSellingPrice = (Number(stock.sellingPrice) > 0) 
             ? Number(stock.sellingPrice) 
