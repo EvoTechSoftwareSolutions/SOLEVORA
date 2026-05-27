@@ -138,7 +138,7 @@ const PaymentModal = ({
         {/* Title */}
         <h2 style={styles.title}>{c.title}</h2>
 
-        {/* User-readable message (from caller) */}
+        {/* User-readable message (from callers) */}
         {message && <p style={styles.body}>{message}</p>}
 
         {/* Order summary box — success only */}
