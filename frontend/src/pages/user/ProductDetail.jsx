@@ -95,6 +95,7 @@ function ProductDetail() {
       }
     }
   }, [product]);
+  
 
   // Fetch reviews
   const fetchReviews = async (productId) => {
@@ -156,26 +157,43 @@ function ProductDetail() {
     );
   }
 
-  // Build size/stock map 
-  // Use both possible field names from backend
-  const rawStocks = product.stocks || product.productstock || [];
+const rawStocks = [...(product.stocks || product.productstock || [])]
+  .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
-  let stockDetails = [];
-  if (rawStocks.length > 0) {
-    const grouped = rawStocks.reduce((acc, s) => {
-      const size = String(s.size);
-      if (!acc[size]) acc[size] = { size, quantity: 0 };
-      acc[size].quantity += s.quantity;
-      return acc;
-    }, {});
-    stockDetails = Object.values(grouped).sort(
-      (a, b) => parseFloat(a.size) - parseFloat(b.size)
-    );
+/**
+ * FIFO per size:
+ * - keep only FIRST available batch per size
+ * - if first batch qty = 0 → skip to next
+ */
+const getFIFOStockDetails = () => {
+  const map = {};
+
+  for (const s of rawStocks) {
+    const size = String(s.size);
+
+    if (!map[size]) {
+      map[size] = s; // first batch only
+    } else {
+      // if first batch is finished, replace with next available
+      if (map[size].quantity <= 0 && s.quantity > 0) {
+        map[size] = s;
+      }
+    }
   }
 
+  return Object.values(map).sort(
+    (a, b) => parseFloat(a.size) - parseFloat(b.size)
+  );
+};
+
+const stockDetails = getFIFOStockDetails();
+
   // Max stock for selected size (for quantity cap)
-  const selectedStockItem = stockDetails.find((s) => s.size === selectedSize);
-  const maxStock = selectedStockItem?.quantity || 0;
+const selectedStockItem = stockDetails.find(
+  (s) => String(s.size) === String(selectedSize)
+);
+const maxStock =
+  selectedStockItem?.quantity > 0 ? selectedStockItem.quantity : 0;
   const isUnavailable = !selectedSize || maxStock <= 0;
 
   // Display price (FIFO: oldest batch for selected size)
