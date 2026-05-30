@@ -1,7 +1,8 @@
 import prisma from "../prisma/client.js";
 import { sendStockSMS } from "../utils/stockSms.js";
+import { sendStockEmail } from "../utils/stockEmail.js";
 
-// ─── Helper: auto-deactivate any product whose total stock = 0 ───────────────
+//auto-deactivate any product whose total stock = 0 
 const autoDeactivateZeroStock = async () => {
   const activeProducts = await prisma.product.findMany({
     where: { isActive: true },
@@ -20,7 +21,7 @@ const autoDeactivateZeroStock = async () => {
   }
 };
 
-//  get the FIFO selling price for a product
+//  get the FIFO selling price for a product 
 const getFifoPrice = (stocks, size = null, fallbackPrice = 0) => {
   const candidates = stocks.filter(
     (s) => s.quantity > 0 && (size == null || String(s.size) === String(size))
@@ -34,7 +35,17 @@ const getFifoPrice = (stocks, size = null, fallbackPrice = 0) => {
   return Number(candidates[0].sellingPrice);
 };
 
-// CREATE PRODUCT 
+//  resolve the effective selling price for a stock entry 
+const resolveSellingPrice = (s, fallbackPrice = 0) =>
+  Number(
+    s.sellingPrice && Number(s.sellingPrice) !== 0
+      ? s.sellingPrice
+      : s.costPrice || fallbackPrice || 0
+  );
+
+//  CREATE PRODUCT 
+// If the slug already exists the product is treated as a restocking event.
+// FIFO batch rules applied when matching the existing product's stock records.
 export const createProduct = async (req, res) => {
   try {
     const {
@@ -51,7 +62,7 @@ export const createProduct = async (req, res) => {
       stocks,
     } = req.body;
 
-    // Validation
+    //  Basic validation 
     if (!name?.trim())
       return res.status(400).json({ success: false, message: "Product name is required" });
     if (!slug?.trim())
@@ -67,7 +78,6 @@ export const createProduct = async (req, res) => {
     if (files.length > 10)
       return res.status(400).json({ success: false, error: "Maximum 10 images are allowed per product." });
 
-    // Parse stocks & specifications
     let parsedStocks = [];
     try {
       parsedStocks = typeof stocks === "string" ? JSON.parse(stocks || "[]") : stocks || [];
@@ -75,49 +85,59 @@ export const createProduct = async (req, res) => {
 
     let parsedSpecifications = [];
     try {
-      parsedSpecifications = typeof specifications === "string" ? JSON.parse(specifications || "[]") : specifications || [];
+      parsedSpecifications =
+        typeof specifications === "string" ? JSON.parse(specifications || "[]") : specifications || [];
     } catch { parsedSpecifications = []; }
 
-    // Determine isActive: only active if there is stock
-    const totalQty = parsedStocks.reduce((sum, s) => sum + (Number(s.quantity) || 0), 0);
-    const isActive = totalQty > 0;
-
-    // Check if product already exists
+    //  Check for an existing product with the same slug 
     const existingProduct = await prisma.product.findUnique({
       where: { slug },
-      include: { productstock: true },
+      include: { productstock: { orderBy: { createdAt: "asc" } } },
     });
 
     if (existingProduct) {
-      // Update stocks
+      //apply FIFO batch rules 
       for (const s of parsedStocks) {
-        const existingStock = await prisma.productstock.findFirst({
-          where: { productId: existingProduct.id, size: s.size, costPrice: Number(s.costPrice) },
+        const incomingSellingPrice = resolveSellingPrice(s, existingProduct.price);
+        const incomingSize = String(s.size);
+
+        /*
+         * FIFO batch logic:
+         *   - Same size AND same selling price  → increment quantity on that batch
+         *   - Same size AND different price     → create a NEW batch (queued behind existing ones)
+         */
+        const matchingBatch = await prisma.productstock.findFirst({
+          where: {
+            productId: existingProduct.id,
+            size: incomingSize,
+            sellingPrice: incomingSellingPrice,
+          },
         });
 
-        if (existingStock) {
+        if (matchingBatch) {
+          // Same size + same price: increment
           await prisma.productstock.update({
-            where: { id: existingStock.id },
-            data: {
-              quantity: { increment: Number(s.quantity) },
-              sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : s.costPrice || existingProduct.price || 0),
-            },
+            where: { id: matchingBatch.id },
+            data: { quantity: { increment: Number(s.quantity) } },
           });
         } else {
+          // Same size + different price (or completely new size): new batch
           await prisma.productstock.create({
             data: {
               productId: existingProduct.id,
-              size: s.size,
-              costPrice: Number(s.costPrice),
-              sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : s.costPrice || existingProduct.price || 0),
+              size: incomingSize,
+              costPrice: Number(s.costPrice || 0),
+              sellingPrice: incomingSellingPrice,
               quantity: Number(s.quantity),
             },
           });
         }
       }
 
-      // Recalculate isActive after stock update
-      const allStocks = await prisma.productstock.findMany({ where: { productId: existingProduct.id } });
+      // Recalculate isActive
+      const allStocks = await prisma.productstock.findMany({
+        where: { productId: existingProduct.id },
+      });
       const newTotal = allStocks.reduce((sum, s) => sum + s.quantity, 0);
 
       await prisma.product.update({
@@ -136,28 +156,52 @@ export const createProduct = async (req, res) => {
         },
       });
 
+      // Refresh specifications
       await prisma.productspecification.deleteMany({ where: { productId: existingProduct.id } });
       if (parsedSpecifications.length > 0) {
         await prisma.productspecification.createMany({
-          data: parsedSpecifications.map((spec) => ({ productId: existingProduct.id, key: spec.key, value: spec.value })),
+          data: parsedSpecifications.map((spec) => ({
+            productId: existingProduct.id,
+            key: spec.key,
+            value: spec.value,
+          })),
         });
       }
 
+      // Append any new images (images are optional on restock)
       if (files.length > 0) {
         await prisma.productimage.createMany({
-          data: files.map((file) => ({ url: `/uploads/${file.filename}`, productId: existingProduct.id })),
+          data: files.map((file) => ({
+            url: `/uploads/${file.filename}`,
+            productId: existingProduct.id,
+          })),
         });
       }
 
       const updatedProduct = await prisma.product.findUnique({
         where: { id: existingProduct.id },
-        include: { category: true, productimage: true, productstock: true, specifications: true },
+        include: {
+          category: true,
+          productimage: true,
+          productstock: { orderBy: { createdAt: "asc" } },
+          specifications: true,
+        },
       });
 
-      return res.status(200).json({ success: true, message: "Existing product updated successfully", data: updatedProduct });
+      return res.status(200).json({
+        success: true,
+        message: "Existing product restocked successfully",
+        data: {
+          ...updatedProduct,
+          images: updatedProduct.productimage,
+          stocks: updatedProduct.productstock,
+        },
+      });
     }
 
-    // Create new product
+    //  brand-new product 
+    const totalQty = parsedStocks.reduce((sum, s) => sum + (Number(s.quantity) || 0), 0);
+
     const product = await prisma.product.create({
       data: {
         name,
@@ -169,20 +213,29 @@ export const createProduct = async (req, res) => {
         discountPrice: discountPrice ? parseFloat(discountPrice) : null,
         categoryId: Number(categoryId),
         gender,
-        isActive,
+        isActive: totalQty > 0,
         updatedAt: new Date(),
-        productimage: { create: files.map((file) => ({ url: `/uploads/${file.filename}` })) },
+        productimage: {
+          create: files.map((file) => ({ url: `/uploads/${file.filename}` })),
+        },
         productstock: {
           create: parsedStocks.map((s) => ({
             size: s.size,
-            costPrice: Number(s.costPrice),
-            sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : s.costPrice || price || 0),
+            costPrice: Number(s.costPrice || 0),
+            sellingPrice: resolveSellingPrice(s, price),
             quantity: Number(s.quantity),
           })),
         },
-        specifications: { create: parsedSpecifications.map((spec) => ({ key: spec.key, value: spec.value })) },
+        specifications: {
+          create: parsedSpecifications.map((spec) => ({ key: spec.key, value: spec.value })),
+        },
       },
-      include: { category: true, productimage: true, productstock: true, specifications: true },
+      include: {
+        category: true,
+        productimage: true,
+        productstock: { orderBy: { createdAt: "asc" } },
+        specifications: true,
+      },
     });
 
     res.status(201).json({ success: true, message: "Product created successfully", data: product });
@@ -201,7 +254,8 @@ export const getProductsAll = async (req, res) => {
       include: {
         category: true,
         productimage: true,
-        productstock: { orderBy: { createdAt: "asc" } }, // FIFO order
+        productstock: { orderBy: { createdAt: "asc" } },
+        specifications: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -210,8 +264,8 @@ export const getProductsAll = async (req, res) => {
       ...p,
       images: p.productimage,
       stocks: p.productstock,
+      specifications: p.specifications,
       stock_quantity: p.productstock.reduce((sum, s) => sum + s.quantity, 0),
-      // Admin view: show current FIFO price across all sizes
       currentFifoPrice: getFifoPrice(p.productstock, null, p.price),
     }));
 
@@ -222,7 +276,7 @@ export const getProductsAll = async (req, res) => {
   }
 };
 
-//  GET PRODUCTS (public — active only, with filters & pagination)
+//  GET PRODUCTS (public — active only, with filters & pagination) 
 export const getProducts = async (req, res) => {
   try {
     const { category, gender, size, minPrice, maxPrice, sortBy } = req.query;
@@ -251,7 +305,6 @@ export const getProducts = async (req, res) => {
         include: {
           category: true,
           productimage: true,
-          //  CRITICAL: order by createdAt ASC so index-0 = oldest batch (FIFO) 
           productstock: { orderBy: { createdAt: "asc" } },
           specifications: true,
           reviews: true,
@@ -276,6 +329,7 @@ export const getProducts = async (req, res) => {
         ...p,
         images: p.productimage,
         stocks: p.productstock,
+        specifications: p.specifications,
         stock_quantity: p.productstock.reduce((sum, s) => sum + s.quantity, 0),
         currentFifoPrice,
         averageRating,
@@ -286,7 +340,12 @@ export const getProducts = async (req, res) => {
     res.json({
       success: true,
       data: mappedProducts,
-      pagination: { totalCount, totalPages: Math.ceil(totalCount / limit), currentPage: page, limit },
+      pagination: {
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
+        limit,
+      },
     });
   } catch (error) {
     console.error("GET_PRODUCTS_ERROR:", error);
@@ -294,7 +353,7 @@ export const getProducts = async (req, res) => {
   }
 };
 
-// GET PRODUCT BY ID 
+//  GET PRODUCT BY ID 
 export const getProductById = async (req, res) => {
   try {
     const product = await prisma.product.findUnique({
@@ -302,7 +361,8 @@ export const getProductById = async (req, res) => {
       include: {
         category: true,
         productimage: true,
-        productstock: { orderBy: { createdAt: "asc" } }, // FIFO order
+        productstock: { orderBy: { createdAt: "asc" } },
+        specifications: true,
       },
     });
 
@@ -314,6 +374,7 @@ export const getProductById = async (req, res) => {
         ...product,
         images: product.productimage,
         stocks: product.productstock,
+        specifications: product.specifications,
         stock_quantity: product.productstock.reduce((sum, s) => sum + s.quantity, 0),
         currentFifoPrice: getFifoPrice(product.productstock, null, product.price),
       },
@@ -331,13 +392,14 @@ export const getProductBySlug = async (req, res) => {
       include: {
         category: true,
         productimage: true,
-        productstock: { orderBy: { createdAt: "asc" } }, // FIFO order
+        productstock: { orderBy: { createdAt: "asc" } },
         specifications: true,
       },
     });
 
     if (!product) return res.status(404).json({ success: false, message: "Product not found" });
 
+    // Build a per-size FIFO price map (only the oldest in-stock batch per size)
     const sizeFifoPriceMap = {};
     const seenSizes = new Set();
     for (const s of product.productstock) {
@@ -353,6 +415,7 @@ export const getProductBySlug = async (req, res) => {
         ...product,
         images: product.productimage,
         stocks: product.productstock,
+        specifications: product.specifications,
         stock_quantity: product.productstock.reduce((sum, s) => sum + s.quantity, 0),
         currentFifoPrice: getFifoPrice(product.productstock, null, product.price),
         sizeFifoPriceMap,
@@ -364,6 +427,12 @@ export const getProductBySlug = async (req, res) => {
 };
 
 //  UPDATE PRODUCT 
+// Called from the Edit modal.
+// FIFO batch rule for stocks submitted from the Edit form:
+//   • Stock row that already has an id  → direct update (admin consciously editing it)
+//   • Stock row with no id              → treated as a NEW batch using FIFO rules:
+//       - Same size + same selling price → increment the matching existing batch
+//       - Same size + different price   → create a new batch
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -384,7 +453,9 @@ export const updateProduct = async (req, res) => {
     const files = req.files || [];
 
     // Check image limit
-    const currentImageCount = await prisma.productimage.count({ where: { productId: Number(id) } });
+    const currentImageCount = await prisma.productimage.count({
+      where: { productId: Number(id) },
+    });
     if (currentImageCount + files.length > 10) {
       return res.status(400).json({
         success: false,
@@ -406,93 +477,153 @@ export const updateProduct = async (req, res) => {
     let parsedSpecifications = [];
     if (specifications) {
       try {
-        parsedSpecifications = typeof specifications === "string" ? JSON.parse(specifications) : specifications;
+        parsedSpecifications =
+          typeof specifications === "string" ? JSON.parse(specifications) : specifications;
       } catch {
         return res.status(400).json({ success: false, message: "Invalid specifications format" });
       }
     }
 
+    // Build product-level update payload
     const updateData = {};
-    if (name) updateData.name = name;
-    if (slug) updateData.slug = slug;
+    if (name)                         updateData.name = name;
+    if (slug)                         updateData.slug = slug;
     if (descriptionOne !== undefined) updateData.descriptionOne = descriptionOne;
     if (descriptionTwo !== undefined) updateData.descriptionTwo = descriptionTwo;
     if (descriptionThree !== undefined) updateData.descriptionThree = descriptionThree;
-    if (gender) updateData.gender = gender;
-    if (price) updateData.price = parseFloat(price);
-    if (categoryId) updateData.categoryId = Number(categoryId);
-    if (discountPrice !== undefined) updateData.discountPrice = discountPrice ? parseFloat(discountPrice) : null;
+    if (gender)                       updateData.gender = gender;
+    if (price)                        updateData.price = parseFloat(price);
+    if (categoryId)                   updateData.categoryId = Number(categoryId);
+    if (discountPrice !== undefined)  updateData.discountPrice = discountPrice ? parseFloat(discountPrice) : null;
 
     const result = await prisma.$transaction(async (tx) => {
-      const product = await tx.product.update({ where: { id: Number(id) }, data: updateData });
+      const product = await tx.product.update({
+        where: { id: Number(id) },
+        data: updateData,
+      });
 
-      // Manage stocks
-      const currentStocks = await tx.productstock.findMany({ where: { productId: product.id }, select: { id: true } });
+      //  Resolve existing stock ids 
+      const currentStocks = await tx.productstock.findMany({
+        where: { productId: product.id },
+        select: { id: true },
+      });
       const currentIds = currentStocks.map((s) => s.id);
-      const receivedIds = parsedStocks.map((s) => s.id).filter((sid) => sid != null && sid !== "");
 
-      const idsToDelete = currentIds.filter((sid) => !receivedIds.includes(sid));
+      // Separate rows that already have a DB id from truly-new rows
+      const rowsWithId    = parsedStocks.filter((s) => s.id && currentIds.includes(Number(s.id)));
+      const rowsWithoutId = parsedStocks.filter((s) => !s.id || !currentIds.includes(Number(s.id)));
+
+      // Delete any existing batch the admin explicitly removed from the form
+      const receivedIds = rowsWithId.map((s) => Number(s.id));
+      const idsToDelete  = currentIds.filter((sid) => !receivedIds.includes(sid));
       if (idsToDelete.length > 0) {
         await tx.productstock.deleteMany({ where: { id: { in: idsToDelete } } });
       }
 
-     for (const s of parsedStocks) {
-  if (s.id && currentIds.includes(Number(s.id))) {
+      // ── Direct-update rows that already have a DB id 
+      for (const s of rowsWithId) {
+        const updatedStock = await tx.productstock.update({
+          where: { id: Number(s.id) },
+          data: {
+            size:         String(s.size),
+            costPrice:    Number(s.costPrice || 0),
+            sellingPrice: resolveSellingPrice(s, product.price),
+            quantity:     Number(s.quantity || 0),
+          },
+        });
 
-    const updatedStock = await tx.productstock.update({
-      where: { id: Number(s.id) },
-      data: {
-        size: String(s.size),
-        costPrice: Number(s.costPrice || 0),
-        sellingPrice: Number(s.sellingPrice && s.sellingPrice != 0 ? s.sellingPrice : s.costPrice || product.price || 0),
-        quantity: Number(s.quantity || 0),
-      },
-    });
+        await sendStockSMS({
+          productId: product.id,
+          name:      product.name,
+          size:      updatedStock.size,
+          qty:       updatedStock.quantity,
+        });
+      }
 
-    // send SMS AFTER update
-    await sendStockSMS({
-      productId: product.id,
-      name: product.name,
-      size: updatedStock.size,
-      qty: updatedStock.quantity,
-    });
+      // ── FIFO batch rules for new rows (no id) 
+      // Fetch fresh after possible deletions
+      const freshStocks = await tx.productstock.findMany({
+        where: { productId: product.id },
+        orderBy: { createdAt: "asc" },
+      });
 
-  }
-}
-      // Auto-set isActive based on remaining stock
-      const allStocks = await tx.productstock.findMany({ where: { productId: product.id } });
+      for (const s of rowsWithoutId) {
+        const incomingSize         = String(s.size);
+        const incomingSellingPrice = resolveSellingPrice(s, product.price);
+
+        const matchingBatch = freshStocks.find(
+          (b) =>
+            String(b.size) === incomingSize &&
+            Number(b.sellingPrice) === incomingSellingPrice
+        );
+
+        if (matchingBatch) {
+          // Same size + same price → increment
+          await tx.productstock.update({
+            where: { id: matchingBatch.id },
+            data: { quantity: { increment: Number(s.quantity) } },
+          });
+        } else {
+          // Same size + different price (or new size) → new FIFO batch
+          await tx.productstock.create({
+            data: {
+              productId:    product.id,
+              size:         incomingSize,
+              costPrice:    Number(s.costPrice || 0),
+              sellingPrice: incomingSellingPrice,
+              quantity:     Number(s.quantity),
+            },
+          });
+        }
+      }
+
+      // Auto-set isActive based on total remaining stock
+      const allStocks = await tx.productstock.findMany({
+        where: { productId: product.id },
+      });
       const newTotal = allStocks.reduce((sum, s) => sum + s.quantity, 0);
-      await tx.product.update({ where: { id: product.id }, data: { isActive: newTotal > 0 } });
+      await tx.product.update({
+        where: { id: product.id },
+        data: { isActive: newTotal > 0 },
+      });
 
-      // Specifications
+      // Refresh specifications
       await tx.productspecification.deleteMany({ where: { productId: product.id } });
       const validSpecs = parsedSpecifications.filter((s) => s.key && s.value);
       if (validSpecs.length > 0) {
         await tx.productspecification.createMany({
-          data: validSpecs.map((s) => ({ productId: product.id, key: s.key, value: s.value })),
+          data: validSpecs.map((s) => ({
+            productId: product.id,
+            key:       s.key,
+            value:     s.value,
+          })),
         });
       }
 
-      // Images
+      // Append new images
       if (files.length > 0) {
         await tx.productimage.createMany({
-          data: files.map((file) => ({ productId: product.id, url: `/uploads/${file.filename}` })),
+          data: files.map((file) => ({
+            productId: product.id,
+            url: `/uploads/${file.filename}`,
+          })),
         });
       }
 
       const updatedProduct = await tx.product.findUnique({
         where: { id: product.id },
         include: {
-          productstock: { orderBy: { createdAt: "asc" } }, // FIFO order
-          productimage: true,
+          productstock:  { orderBy: { createdAt: "asc" } },
+          productimage:  true,
           specifications: true,
         },
       });
 
       return {
         ...updatedProduct,
-        stocks: updatedProduct.productstock,
-        images: updatedProduct.productimage,
+        stocks:           updatedProduct.productstock,
+        images:           updatedProduct.productimage,
+        specifications:   updatedProduct.specifications,
         currentFifoPrice: getFifoPrice(updatedProduct.productstock, null, updatedProduct.price),
       };
     });
@@ -504,7 +635,7 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-//  TOGGLE ACTIVE STATUS 
+// ─── TOGGLE ACTIVE STATUS ─────────────────────────────────────────────────────
 export const toggleProductActive = async (req, res) => {
   try {
     const { id } = req.params;
@@ -516,9 +647,10 @@ export const toggleProductActive = async (req, res) => {
 
     const activate = isActive === 1 || isActive === true;
 
-    // If trying to activate, check stock first
     if (activate) {
-      const stocks = await prisma.productstock.findMany({ where: { productId: Number(id) } });
+      const stocks = await prisma.productstock.findMany({
+        where: { productId: Number(id) },
+      });
       const totalQty = stocks.reduce((sum, s) => sum + s.quantity, 0);
       if (totalQty === 0) {
         return res.status(400).json({
@@ -544,7 +676,7 @@ export const toggleProductActive = async (req, res) => {
   }
 };
 
-//  DELETE PRODUCT (soft-delete) 
+// ─── DELETE PRODUCT (soft-delete) ─────────────────────────────────────────────
 export const deleteProduct = async (req, res) => {
   try {
     const updated = await prisma.product.update({
@@ -557,7 +689,7 @@ export const deleteProduct = async (req, res) => {
   }
 };
 
-//  SEARCH PRODUCTS (autocomplete) 
+// ─── SEARCH PRODUCTS (autocomplete) ──────────────────────────────────────────
 export const searchProducts = async (req, res) => {
   try {
     const { name } = req.query;
@@ -571,15 +703,15 @@ export const searchProducts = async (req, res) => {
   }
 };
 
-// GET TOP RATED PRODUCTS 
+// ─── GET TOP RATED PRODUCTS ───────────────────────────────────────────────────
 export const getTopRatedProducts = async (req, res) => {
   try {
     const products = await prisma.product.findMany({
       where: { isActive: true },
       include: {
-        reviews: true,
+        reviews:      true,
         productimage: true,
-        productstock: { orderBy: { createdAt: "asc" } }, // FIFO order
+        productstock: { orderBy: { createdAt: "asc" } },
       },
     });
 
@@ -605,7 +737,7 @@ export const getTopRatedProducts = async (req, res) => {
 
     res.json(topProducts);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ message: "Failed to fetch top rated products" });
   }
 };
