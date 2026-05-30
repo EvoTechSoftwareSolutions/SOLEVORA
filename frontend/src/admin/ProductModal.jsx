@@ -345,10 +345,13 @@ const handleStockChange = (index, field, value) => {
 
 
         // Images required on create
-        if (!product && images.length === 0) {
-            setFieldError('images', 'Please upload at least one product image.');
-            return;
-        }
+        const hasExistingImages = imagePreviews.length > 0;
+const hasNewImages = images.length > 0;
+
+if (!product && !hasNewImages) {
+    setFieldError('images', 'Please upload at least one product image.');
+    return;
+}
 
         setLoading(true);
         try {
