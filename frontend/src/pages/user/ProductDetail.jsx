@@ -104,7 +104,7 @@ function ProductDetail() {
       const data = await res.json();
       if (res.ok) setReviews(data);
     } catch (err) {
-      console.error("Error loading reviews:", err);
+      console.error("Error loading review:", err);
     }
   };
 
